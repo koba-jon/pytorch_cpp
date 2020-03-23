@@ -22,7 +22,7 @@ Run this Command : https://download.pytorch.org/libtorch/nightly/cu101/libtorch-
 ***
 
 ### 2. OpenCV
-version : 3.3.0 <br>
+version : 3.0.0 or more <br>
 This is used for pre-processing and post-processing. <br>
 There is a possibility that other versions can do it. <br>
 ~~~
