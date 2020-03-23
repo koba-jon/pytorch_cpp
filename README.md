@@ -25,9 +25,6 @@ Run this Command : https://download.pytorch.org/libtorch/nightly/cu101/libtorch-
 version : 3.0.0 or more <br>
 This is used for pre-processing and post-processing. <br>
 There is a possibility that other versions can do it. <br>
-~~~
-$ wget https://github.com/opencv/opencv/archive/3.3.0.tar.gz
-~~~
 Please refer to other sites for more detailed installation method.
 
 ### 3. OpenMP
