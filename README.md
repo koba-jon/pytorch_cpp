@@ -24,27 +24,23 @@ Run this Command : https://download.pytorch.org/libtorch/nightly/cu101/libtorch-
 ### 2. OpenCV
 version : 3.0.0 or more <br>
 This is used for pre-processing and post-processing. <br>
-There is a possibility that other versions can do it. <br>
 Please refer to other sites for more detailed installation method.
 
 ### 3. OpenMP
-version : 4.5 <br>
+version : 4.5 (There is a possibility that other versions can do it.) <br>
 This is used to load data in parallel. <br>
-There is a possibility that other versions can do it. <br>
 It may be installed on standard Linux OS.
 
 ### 4. Boost
-version : 1.65.1 <br>
+version : 1.65.1 (There is a possibility that other versions can do it.) <br>
 This is used for command line arguments, etc. <br>
-There is a possibility that other versions can do it. <br>
 ~~~
 $ sudo apt install libboost-dev libboost-all-dev
 ~~~
 
 ### 5. Gnuplot
-version : 5.2 <br>
+version : 5.2 (There is a possibility that other versions can do it.) <br>
 This is used to display loss graph. <br>
-There is a possibility that other versions can do it. <br>
 ~~~
 $ sudo apt install gnuplot
 ~~~
