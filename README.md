@@ -3,7 +3,7 @@ These are Deep Learning sample programs of PyTorch written in C++.
 
 ## Description
 PyTorch is famous as a kind of Deep Learning Frameworks.<br>
-Among them, Python source code is overflowing on the Web, so we can easilty write the source code of Deep Learning in Python.<br>
+Among them, Python source code is overflowing on the Web, so we can easily write the source code of Deep Learning in Python.<br>
 However, there is very little source code written in C++ of compiler language.<br>
 Therefore, I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
 In addition, I might adapt programs to the latest version. <br>
