@@ -51,7 +51,7 @@ void train(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncode
     int elap_hour, elap_min, elap_sec, rem_times, rem_hour, rem_min, rem_sec;
     double sec_per_epoch;
     struct winsize ws;
-    std::time_t time, time_fin;
+    std::time_t time_now, time_fin;
     std::string elap_hour_str, elap_min_str, elap_sec_str, sec_per_epoch_str, rem_hour_str, rem_min_str, rem_sec_str;
     std::string date, date_fin, date_out;
     std::string buff, latest;
@@ -149,9 +149,9 @@ void train(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncode
 
     // (9) Display Date
     auto now = std::chrono::system_clock::now();
-    time = std::chrono::system_clock::to_time_t(now);
+    time_now = std::chrono::system_clock::to_time_t(now);
     ss.str(""); ss.clear(std::stringstream::goodbit);
-    ss << std::ctime(&time);
+    ss << std::ctime(&time_now);
     date = ss.str();
     date.erase(std::find(date.begin(), date.end(), '\n'));
     ss.str(""); ss.clear(std::stringstream::goodbit);
@@ -300,16 +300,16 @@ void train(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncode
             // -----------------------------------
             // c1. Get Current Date
             // -----------------------------------
-            time = std::chrono::system_clock::to_time_t(time_end);
+            time_now = std::chrono::system_clock::to_time_t(time_end);
             ss.str(""); ss.clear(std::stringstream::goodbit);
-            ss << std::ctime(&time);
+            ss << std::ctime(&time_now);
             date = ss.str();
             date.erase(std::find(date.begin(), date.end(), '\n'));
 
             // -----------------------------------
             // c2. Get Finish Date
             // -----------------------------------
-            time_fin = time + (time_t)rem_times;
+            time_fin = time_now + (time_t)rem_times;
             ss.str(""); ss.clear(std::stringstream::goodbit);
             ss << std::ctime(&time_fin);
             date_fin = ss.str();
