@@ -18,7 +18,8 @@ PyTorch Build : Stable (1.5) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 CUDA : 10.2 <br>
-Run this Command : https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.5.0.zip <br>
+Run this Command :
+    Download here (cxx11 ABI): https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.5.0.zip <br>
 ***
 
 ### 2. OpenCV
