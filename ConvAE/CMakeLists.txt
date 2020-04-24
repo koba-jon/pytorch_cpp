@@ -9,7 +9,7 @@ list(APPEND CMAKE_PREFIX_PATH ${LIBTORCH_DIR})
 
 # Directory Name
 set(SRC_DIR ./src)
-set(INCLUDE_DIR ./include)
+set(INCLUDE_DIR ./src)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../)
 
 # Find Package
