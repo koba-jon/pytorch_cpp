@@ -50,7 +50,7 @@ $ sudo apt install gnuplot
 
 ### 1. Git Clone
 ~~~
-$ git clone https://github.com/koba-jon/pytorch_cpp.git
+$ git clone -b develop/v1.6.0 https://github.com/koba-jon/pytorch_cpp.git
 $ cd pytorch_cpp
 ~~~
 
