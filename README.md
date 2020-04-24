@@ -14,11 +14,11 @@ In addition, I might adapt programs to the latest version. <br>
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Preview (Nightly) <br>
+PyTorch Build : Stable (1.5) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
-CUDA : 10.1 <br>
-Run this Command : https://download.pytorch.org/libtorch/nightly/cu101/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
+CUDA : 10.2 <br>
+Run this Command : https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.5.0.zip <br>
 ***
 
 ### 2. OpenCV
