@@ -14,12 +14,12 @@ In addition, I might adapt programs to the latest version. <br>
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Stable (1.5) <br>
+PyTorch Build : Preview (Nightly) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 CUDA : 10.2 <br>
 Run this Command :
-    Download here (cxx11 ABI): https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.5.0.zip <br>
+    Download here (cxx11 ABI): https://download.pytorch.org/libtorch/nightly/cu102/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
 ***
 
 ### 2. OpenCV
@@ -50,7 +50,7 @@ $ sudo apt install gnuplot
 
 ### 1. Git Clone
 ~~~
-$ git clone https://github.com/koba-jon/pytorch_cpp.git
+$ git clone -b develop/v1.6.0 https://github.com/koba-jon/pytorch_cpp.git
 $ cd pytorch_cpp
 ~~~
 
