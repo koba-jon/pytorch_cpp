@@ -46,9 +46,9 @@ namespace transforms{
         Grayscale(const int channels_=1);
         bool type() override{return CV_MAT;}
         void forward(cv::Mat &data_in, cv::Mat &data_out) override;
-        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{};
-        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{};
-        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override{};
+        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{}
+        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
+        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override{}
     };
 
 
@@ -64,9 +64,9 @@ namespace transforms{
         Resize(const cv::Size size_, const int interpolation_=cv::INTER_LINEAR);
         bool type() override{return CV_MAT;}
         void forward(cv::Mat &data_in, cv::Mat &data_out) override;
-        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{};
-        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{};
-        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override{};
+        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{}
+        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
+        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override{}
     };
 
 
@@ -77,10 +77,10 @@ namespace transforms{
     public:
         ToTensor(){}
         bool type() override{return TORCH_TENSOR;}
-        void forward(cv::Mat &data_in, cv::Mat &data_out) override{};
+        void forward(cv::Mat &data_in, cv::Mat &data_out) override{}
         void forward(cv::Mat &data_in, torch::Tensor &data_out) override;
-        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{};
-        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override{};
+        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
+        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override{}
     };
     
 
@@ -94,9 +94,9 @@ namespace transforms{
         Normalize(){}
         Normalize(const float mean_, const float std_);
         bool type() override{return TORCH_TENSOR;}
-        void forward(cv::Mat &data_in, cv::Mat &data_out) override{};
-        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{};
-        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{};
+        void forward(cv::Mat &data_in, cv::Mat &data_out) override{}
+        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{}
+        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
         void forward(torch::Tensor &data_in, torch::Tensor &data_out) override;
     };
 

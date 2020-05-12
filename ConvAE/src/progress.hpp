@@ -19,6 +19,7 @@ private:
     std::vector<float> loss_ave;
     std::chrono::system_clock::time_point start, end;
 public:
+    progress_display(){}
     progress_display(const size_t count_max_, const std::pair<size_t, size_t> epoch, const std::vector<std::string> loss_);
     void increment(const std::vector<float> loss_value);
     size_t get_iters();

@@ -6,7 +6,7 @@
 #include <vector>                      // std::vector
 #include <chrono>                      // std::chrono
 #include <algorithm>                   // std::find
-#include <utility>                     // std::make_pair
+#include <utility>                     // std::pair
 #include <ios>                         // std::right
 #include <iomanip>                     // std::setw, std::setfill
 #include <cmath>                       // std::ceil
@@ -38,6 +38,12 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datalo
 // -------------------
 void train(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncoder &model, std::vector<transforms::Compose*> &transform){
 
+    constexpr bool train_shuffle = true;  // whether to shuffle the training dataset
+    constexpr size_t train_workers = 4;  // number of workers to retrieve data from the training dataset
+    constexpr bool valid_shuffle = true;  // whether to shuffle the validation dataset
+    constexpr size_t valid_workers = 4;  // number of workers to retrieve data from the validation dataset
+    constexpr size_t save_sample_iter = 50;  // the frequency of iteration to save sample images
+    constexpr std::pair<float, float> output_range = {-1.0, 1.0};  // range of the value in output images
 
     // -----------------------------------
     // a0. Initialization and Declaration
@@ -75,19 +81,19 @@ void train(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncode
     // (1) Get Training Dataset
     dataroot = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["train_dir"].as<std::string>();
     dataset = datasets::ImageFolderWithPaths(dataroot, transform);
-    dataloader = DataLoader::ImageFolderWithPaths(dataset, vm["batch_size"].as<size_t>(), /*shuffle_=*/true, /*num_workers_=*/4);
+    dataloader = DataLoader::ImageFolderWithPaths(dataset, vm["batch_size"].as<size_t>(), /*shuffle_=*/train_shuffle, /*num_workers_=*/train_workers);
     std::cout << "total training images : " << dataset.size() << std::endl;
 
     // (2) Get Validation Dataset
     if (vm["valid"].as<bool>()){
         valid_dataroot = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["valid_dir"].as<std::string>();
         valid_dataset = datasets::ImageFolderWithPaths(valid_dataroot, transform);
-        valid_dataloader = DataLoader::ImageFolderWithPaths(valid_dataset, vm["valid_batch_size"].as<size_t>(), /*shuffle_=*/true, /*num_workers_=*/4);
+        valid_dataloader = DataLoader::ImageFolderWithPaths(valid_dataset, vm["valid_batch_size"].as<size_t>(), /*shuffle_=*/valid_shuffle, /*num_workers_=*/valid_workers);
         std::cout << "total validation images : " << valid_dataset.size() << std::endl;
     }
 
     // (3) Set Optimizer Method
-    auto optimizer = torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(vm["lr"].as<float>()).betas(std::make_tuple(vm["beta1"].as<float>(), vm["beta2"].as<float>())));
+    auto optimizer = torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(vm["lr"].as<float>()).betas({vm["beta1"].as<float>(), vm["beta2"].as<float>()}));
 
     // (4) Set Loss Function
     auto criterion = Loss(vm["loss"].as<std::string>());
@@ -204,10 +210,10 @@ void train(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncode
             // c3. Save Sample Images
             // -----------------------------------
             iter = show_progress->get_iters();
-            if (iter % 50 == 1){
+            if (iter % save_sample_iter == 1){
                 ss.str(""); ss.clear(std::stringstream::goodbit);
                 ss << save_images_dir << "/epoch_" << epoch << "__iter_" << iter << ".png";
-                visualizer::save_image(output, ss.str(), /*range=*/{-1.0, 1.0});
+                visualizer::save_image(output, ss.str(), /*range=*/output_range);
             }
 
         }
@@ -222,7 +228,7 @@ void train(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncode
         // -----------------------------------
         ss.str(""); ss.clear(std::stringstream::goodbit);
         ss << save_images_dir << "/epoch_" << epoch << "__iter_" << show_progress->get_iters() << ".png";
-        visualizer::save_image(output, ss.str(), /*range=*/{-1.0, 1.0});
+        visualizer::save_image(output, ss.str(), /*range=*/output_range);
         delete show_progress;
         
         // -----------------------------------

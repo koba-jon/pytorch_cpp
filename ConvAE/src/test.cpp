@@ -23,6 +23,8 @@ namespace po = boost::program_options;
 // ---------------
 void test(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncoder &model, std::vector<transforms::Compose*> &transform){
 
+    constexpr std::pair<float, float> output_range = {-1.0, 1.0};  // range of the value in output images
+
     // (0) Initialization and Declaration
     float ave_loss, ave_GT_loss;
     double seconds, ave_time;
@@ -82,7 +84,7 @@ void test(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncoder
         ofs << '<' << std::get<2>(data).at(0) << "> mse:" << loss.item<float>() << " GT_mse:" << GT_loss.item<float>() << std::endl;
 
         fname = result_dir + '/' + std::get<2>(data).at(0);
-        visualizer::save_image(output, fname, /*range=*/{-1.0, 1.0}, /*cols=*/1, /*padding=*/0);
+        visualizer::save_image(output, fname, /*range=*/output_range, /*cols=*/1, /*padding=*/0);
 
     }
 

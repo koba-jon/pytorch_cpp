@@ -13,6 +13,7 @@ class Loss{
 private:
     int flag;
 public:
+    Loss(){}
     Loss(const std::string loss);
     torch::Tensor operator()(torch::Tensor &input, torch::Tensor &target);
 };

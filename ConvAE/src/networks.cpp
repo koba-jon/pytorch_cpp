@@ -29,7 +29,7 @@ ConvolutionalAutoEncoderImpl::ConvolutionalAutoEncoderImpl(po::variables_map &vm
     UpSampling(this->decoder, feature*4, feature*2, /*BN=*/true, /*ReLU=*/true);                  // {4F,32,32}  ===> {2F,64,64}
     UpSampling(this->decoder, feature*2, feature, /*BN=*/true, /*ReLU=*/true);                    // {2F,64,64}  ===> {F,128,128}
     UpSampling(this->decoder, feature, vm["nc"].as<size_t>(), /*BN=*/false, /*ReLU=*/false);      // {F,128,128} ===> {C,256,256}
-    this->decoder->push_back(nn::Tanh());
+    this->decoder->push_back(nn::Tanh());                                                         // [-inf,+inf] ===> [-1,1]
     register_module("decoder", this->decoder);
 
 }

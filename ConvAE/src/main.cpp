@@ -41,15 +41,15 @@ po::options_description parse_arguments(){
         ("loss", po::value<std::string>()->default_value("l2"), "l1 (mean absolute error), l2 (mean squared error), etc.")
         ("gpu_id", po::value<int>()->default_value(0), "cuda device : 'x=-1' is cpu device")
         ("seed_random", po::value<bool>()->default_value(false), "whether to make the seed of random number in a random")
-        ("seed", po::value<int>()->default_value(0), "the seed of random number")
+        ("seed", po::value<int>()->default_value(0), "seed of random number")
 
         // (2) Define for Training
         ("train", po::value<bool>()->default_value(false), "training mode on/off")
         ("train_dir", po::value<std::string>()->default_value("train"), "training image directory : ./datasets/<dataset>/<train_dir>/<image files>")
         ("epochs", po::value<size_t>()->default_value(200), "training total epoch")
         ("batch_size", po::value<size_t>()->default_value(32), "training batch size")
-        ("train_load_epoch", po::value<std::string>()->default_value(""), "the epoch of model to resume learning")
-        ("save_epoch", po::value<size_t>()->default_value(20), "the frequency of epoch to save model and optimizer")
+        ("train_load_epoch", po::value<std::string>()->default_value(""), "epoch of model to resume learning")
+        ("save_epoch", po::value<size_t>()->default_value(20), "frequency of epoch to save model and optimizer")
 
         // (3) Define for Validation
         ("valid", po::value<bool>()->default_value(false), "validation mode on/off")
@@ -68,7 +68,7 @@ po::options_description parse_arguments(){
         ("lr", po::value<float>()->default_value(1e-4), "learning rate")
         ("beta1", po::value<float>()->default_value(0.5), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
-        ("nf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image")
+        ("nf", po::value<size_t>()->default_value(64), "number of filters in convolution layer closest to image")
 
     ;
     
@@ -109,9 +109,9 @@ int main(int argc, const char *argv[]){
 
     // (4) Set Transforms
     std::vector<transforms::Compose*> transform{
-        (transforms::Compose*)new transforms::Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),
-        (transforms::Compose*)new transforms::ToTensor(),
-        (transforms::Compose*)new transforms::Normalize(0.5, 0.5)
+        (transforms::Compose*)new transforms::Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
+        (transforms::Compose*)new transforms::ToTensor(),                                                                            // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
+        (transforms::Compose*)new transforms::Normalize(0.5, 0.5)                                                                    // [0,1] ===> [-1,1]
     };
     if (vm["nc"].as<size_t>() == 1){
         transform.insert(transform.begin(), (transforms::Compose*)new transforms::Grayscale(1));
@@ -207,7 +207,9 @@ void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::option
     mkdir(dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
 
     // (2) Terminal Output
+    std::cout << "--------------------------------------------" << std::endl;
     std::cout << args << std::endl;
+    std::cout << "--------------------------------------------" << std::endl;
 
     // (3.1) File Open
     std::string fname = dir + mode + ".txt";
