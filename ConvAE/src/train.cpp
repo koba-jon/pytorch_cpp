@@ -43,6 +43,7 @@ void train(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncode
     constexpr bool valid_shuffle = true;  // whether to shuffle the validation dataset
     constexpr size_t valid_workers = 4;  // number of workers to retrieve data from the validation dataset
     constexpr size_t save_sample_iter = 50;  // the frequency of iteration to save sample images
+    constexpr std::string_view extension = "jpg";  // the extension of file name to save sample images
     constexpr std::pair<float, float> output_range = {-1.0, 1.0};  // range of the value in output images
 
     // -----------------------------------
@@ -212,7 +213,7 @@ void train(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncode
             iter = show_progress->get_iters();
             if (iter % save_sample_iter == 1){
                 ss.str(""); ss.clear(std::stringstream::goodbit);
-                ss << save_images_dir << "/epoch_" << epoch << "__iter_" << iter << ".png";
+                ss << save_images_dir << "/epoch_" << epoch << "-iter_" << iter << '.' << extension;
                 visualizer::save_image(output, ss.str(), /*range=*/output_range);
             }
 
@@ -227,7 +228,7 @@ void train(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncode
         // b3. Save Sample Images
         // -----------------------------------
         ss.str(""); ss.clear(std::stringstream::goodbit);
-        ss << save_images_dir << "/epoch_" << epoch << "__iter_" << show_progress->get_iters() << ".png";
+        ss << save_images_dir << "/epoch_" << epoch << "-iter_" << show_progress->get_iters() << '.' << extension;
         visualizer::save_image(output, ss.str(), /*range=*/output_range);
         delete show_progress;
         
