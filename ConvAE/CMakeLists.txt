@@ -54,7 +54,7 @@ add_executable(${PROJ_NAME}
 # Link
 include_directories(${INCLUDE_DIRS})
 target_link_libraries(${PROJ_NAME} ${LIBRARIES})
-set_property(TARGET ${PROJ_NAME} PROPERTY CXX_STANDARD 14)
+set_property(TARGET ${PROJ_NAME} PROPERTY CXX_STANDARD 17)
 
 
 # Display Message
