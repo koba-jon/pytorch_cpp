@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <tuple>
 #include <vector>
 #include <utility>
 #include <cstdio>
@@ -9,6 +10,7 @@
 // For External Library
 #include <torch/torch.h>
 #include <opencv2/opencv.hpp>
+#include <png++/png.hpp>
 // For Original Header
 #include "visualizer.hpp"
 
@@ -73,7 +75,7 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
         tensor_sq = torch::squeeze(tensor, /*dim=*/0);  // {1,C,H,W} ===> {C,H,W}
         tensor_per = tensor_sq.permute({1, 2, 0});  // {C,H,W} ===> {H,W,C}
         if (channels == 3){
-            auto tensor_vec = tensor_per.chunk(mini_batch_size, /*dim=*/2);  // {H,W,3} ===> {H,W,1} + {H,W,1} + {H,W,1}
+            auto tensor_vec = tensor_per.chunk(channels, /*dim=*/2);  // {H,W,3} ===> {H,W,1} + {H,W,1} + {H,W,1}
             std::vector<cv::Mat> mv;
             for (auto &tensor_channel : tensor_vec){
                 mv.push_back(cv::Mat(cv::Size(width, height), flag_in, tensor_channel.data_ptr<float>()));  // torch::Tensor ===> cv::Mat
@@ -117,6 +119,83 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
 
     // (6) Image Output
     cv::imwrite(path, output);
+
+    // End Processing
+    return;
+
+}
+
+
+// ----------------------------------------------------------
+// namespace{visualizer} -> function{save_label}
+// ----------------------------------------------------------
+void visualizer::save_label(const torch::Tensor label, const std::string path, const std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette, const size_t cols, const size_t padding){
+
+    // (0) Initialization and Declaration
+    size_t i, j, k;
+    size_t i_dev, j_dev;
+    size_t width, height, mini_batch_size;
+    size_t width_out, height_out;
+    size_t ncol, nrow;
+    unsigned char R, G, B;
+    cv::Mat sample;
+    std::vector<cv::Mat> samples;
+    torch::Tensor tensor_sq, tensor_per;
+    png::image<png::index_pixel> output;
+    png::palette pal;
+    std::tuple<unsigned char, unsigned char, unsigned char> pal_one;
+
+    // (1) Get Tensor Size
+    mini_batch_size = label.size(0);
+    height = label.size(2);
+    width = label.size(3);
+
+    // (2) Add images to the array
+    auto mini_batch = label.to(torch::kCPU).chunk(mini_batch_size, /*dim=*/0);  // {N,1,H,W} ===> {1,1,H,W} + {1,1,H,W} + ...
+    for (auto &tensor : mini_batch){
+        tensor_sq = torch::squeeze(tensor, /*dim=*/0);  // {1,1,H,W} ===> {1,H,W}
+        tensor_per = tensor_sq.permute({1, 2, 0});  // {1,H,W} ===> {H,W,1}
+        sample = cv::Mat(cv::Size(width, height), CV_32SC1, tensor_per.to(torch::kInt).data_ptr<int>());  // torch::Tensor ===> cv::Mat
+        samples.push_back(sample.clone());
+    }
+
+    // (3) Output Image Information
+    ncol = (mini_batch_size < cols) ? mini_batch_size : cols;
+    width_out = width * ncol + padding * (ncol + 1);
+    nrow = 1 + (mini_batch_size - 1) / ncol;
+    height_out =  height * nrow + padding * (nrow + 1);
+
+    // (4) Palette and Value Initialization for Index Image
+    output = png::image<png::index_pixel>(width_out, height_out);
+    pal = png::palette(label_palette.size());
+    for (i = 0; i < pal.size(); i++){
+        pal_one = label_palette.at(i);
+        R = std::get<0>(pal_one);
+        G = std::get<1>(pal_one);
+        B = std::get<2>(pal_one);
+        pal[i] = png::color(R, G, B);
+    }
+    output.set_palette(pal);
+    for (j = 0; j < height_out; j++){
+        for (i = 0; i < width_out; i++){
+            output[j][i] = 0;
+        }
+    }
+
+    // (5) Value Substitution for Output Image
+    for (k = 0; k < mini_batch_size; k++){
+        sample = samples.at(k);
+        i_dev = (k % ncol) * width + padding * (k % ncol + 1);
+        j_dev = (k / ncol) * height + padding * (k / ncol + 1);
+        for (j = 0; j < height; j++){
+            for (i = 0; i < width; i++){
+                output[j+j_dev][i+i_dev] = sample.at<int>(j, i);
+            }
+        }
+    }
+
+    // (6) Image Output
+    output.write(path);
 
     // End Processing
     return;

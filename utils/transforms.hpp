@@ -30,7 +30,7 @@ namespace transforms{
         virtual ~Compose(){}
     };
 
-    // Function Prototype    
+    // Function Prototype
     torch::Tensor apply(std::vector<transforms::Compose*> &transform, cv::Mat &data_in);
     template <typename T_in, typename T_out> void forward(std::vector<transforms::Compose*> &transform_, T_in &data_in, T_out &data_out, const int count);
 
@@ -76,6 +76,20 @@ namespace transforms{
     class ToTensor : Compose{
     public:
         ToTensor(){}
+        bool type() override{return TORCH_TENSOR;}
+        void forward(cv::Mat &data_in, cv::Mat &data_out) override{}
+        void forward(cv::Mat &data_in, torch::Tensor &data_out) override;
+        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
+        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override{}
+    };
+
+
+    // -------------------------------------------------------
+    // namespace{transforms} -> class{ToTensorLabel}(Compose)
+    // -------------------------------------------------------
+    class ToTensorLabel : Compose{
+    public:
+        ToTensorLabel(){}
         bool type() override{return TORCH_TENSOR;}
         void forward(cv::Mat &data_in, cv::Mat &data_out) override{}
         void forward(cv::Mat &data_in, torch::Tensor &data_out) override;

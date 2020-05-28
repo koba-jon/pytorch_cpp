@@ -16,6 +16,10 @@
 // -----------------------
 namespace datasets{
 
+    // Function Prototype
+    cv::Mat RGB_Loader(std::string &path);
+    cv::Mat Index_Loader(std::string &path);
+
     // ----------------------------------------------------
     // namespace{datasets} -> class{ImageFolderWithPaths}
     // ----------------------------------------------------
@@ -26,7 +30,6 @@ namespace datasets{
     public:
         ImageFolderWithPaths(){}
         ImageFolderWithPaths(const std::string root, std::vector<transforms::Compose*> &transform_);
-        cv::Mat Loader(std::string &path);
         void get(const size_t index, std::tuple<torch::Tensor, std::string> &data);
         size_t size();
     };
@@ -41,8 +44,22 @@ namespace datasets{
     public:
         ImageFolderPairWithPaths(){}
         ImageFolderPairWithPaths(const std::string root1, const std::string root2, std::vector<transforms::Compose*> &transformI_, std::vector<transforms::Compose*> &transformO_);
-        cv::Mat Loader(std::string &path);
         void get(const size_t index, std::tuple<torch::Tensor, torch::Tensor, std::string> &data);
+        size_t size();
+    };
+
+    // ----------------------------------------------------
+    // namespace{datasets} -> class{ImageFolderSegmentWithPaths}
+    // ----------------------------------------------------
+    class ImageFolderSegmentWithPaths{
+    private:
+        std::vector<transforms::Compose*> transformI, transformO;
+        std::vector<std::string> paths1, paths2, fnames1, fnames2;
+        std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette;
+    public:
+        ImageFolderSegmentWithPaths(){}
+        ImageFolderSegmentWithPaths(const std::string root1, const std::string root2, std::vector<transforms::Compose*> &transformI_, std::vector<transforms::Compose*> &transformO_);
+        void get(const size_t index, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string, std::vector<std::tuple<unsigned char, unsigned char, unsigned char>>> &data);
         size_t size();
     };
 

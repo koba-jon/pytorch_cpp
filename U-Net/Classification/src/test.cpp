@@ -10,8 +10,8 @@
 #include "loss.hpp"                    // Loss
 #include "networks.hpp"                // UNet
 #include "transforms.hpp"              // transforms::Compose
-#include "datasets.hpp"                // datasets::ImageFolderPairWithPaths
-#include "dataloader.hpp"              // DataLoader::ImageFolderPairWithPaths
+#include "datasets.hpp"                // datasets::ImageFolderSegmentWithPaths
+#include "dataloader.hpp"              // DataLoader::ImageFolderSegmentWithPaths
 #include "visualizer.hpp"              // visualizer
 
 // Define Namespace
@@ -23,8 +23,6 @@ namespace po = boost::program_options;
 // ---------------
 void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformO){
 
-    constexpr std::pair<float, float> output_range = {-1.0, 1.0};  // range of the value in output images
-
     // (0) Initialization and Declaration
     float ave_loss;
     double seconds, ave_time;
@@ -32,17 +30,17 @@ void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector
     std::string input_dir, output_dir;
     std::ofstream ofs;
     std::chrono::system_clock::time_point start, end;
-    std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>> data;
-    torch::Tensor imageI, imageO, output;
+    std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>, std::vector<std::tuple<unsigned char, unsigned char, unsigned char>>> data;
+    torch::Tensor image, label, output, output_argmax;
     torch::Tensor loss;
-    datasets::ImageFolderPairWithPaths dataset;
-    DataLoader::ImageFolderPairWithPaths dataloader;
+    datasets::ImageFolderSegmentWithPaths dataset;
+    DataLoader::ImageFolderSegmentWithPaths dataloader;
 
     // (1) Get Test Dataset
     input_dir = "datasets/" + vm["dataset"].as<std::string>() + '/' + vm["test_in_dir"].as<std::string>();
     output_dir = "datasets/" + vm["dataset"].as<std::string>() + '/' + vm["test_out_dir"].as<std::string>();
-    dataset = datasets::ImageFolderPairWithPaths(input_dir, output_dir, transformI, transformO);
-    dataloader = DataLoader::ImageFolderPairWithPaths(dataset, /*batch_size_=*/1, /*shuffle_=*/false, /*num_workers_=*/0);
+    dataset = datasets::ImageFolderSegmentWithPaths(input_dir, output_dir, transformI, transformO);
+    dataloader = DataLoader::ImageFolderSegmentWithPaths(dataset, /*batch_size_=*/1, /*shuffle_=*/false, /*num_workers_=*/0);
     std::cout << "total test images : " << dataset.size() << std::endl << std::endl;
 
     // (2) Get Model
@@ -50,7 +48,7 @@ void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector
     torch::load(model, path);
 
     // (3) Set Loss Function
-    auto criterion = Loss("l2");
+    auto criterion = Loss();
 
     // (4) Initialization of Value
     ave_loss = 0.0;
@@ -62,26 +60,27 @@ void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector
     ofs.open(result_dir + "/loss.txt", std::ios::out);
     while (dataloader(data)){
         
-        imageI = std::get<0>(data).to(device);
-        imageO = std::get<1>(data).to(device);
+        image = std::get<0>(data).to(device);
+        label = std::get<1>(data).to(device);
         
         start = std::chrono::system_clock::now();
         
-        output = model->forward(imageI);
+        output = model->forward(image);
 
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         
-        loss = criterion(output, imageO);
+        loss = criterion(output, label);
         
         ave_loss += loss.item<float>();
         ave_time += seconds;
 
-        std::cout << '<' << std::get<2>(data).at(0) << "> mse:" << loss.item<float>() << std::endl;
-        ofs << '<' << std::get<2>(data).at(0) << "> mse:" << loss.item<float>() << std::endl;
+        std::cout << '<' << std::get<2>(data).at(0) << "> cross-entropy:" << loss.item<float>() << std::endl;
+        ofs << '<' << std::get<2>(data).at(0) << "> cross-entropy:" << loss.item<float>() << std::endl;
 
-        fname = result_dir + '/' + std::get<2>(data).at(0);
-        visualizer::save_image(output, fname, /*range=*/output_range, /*cols=*/1, /*padding=*/0);
+        fname = result_dir + '/' + std::get<3>(data).at(0);
+        output_argmax = output.exp().argmax(/*dim=*/1, /*keepdim=*/true);
+        visualizer::save_label(output_argmax, fname, std::get<4>(data), /*cols=*/1, /*padding=*/0);
 
     }
 
@@ -90,8 +89,8 @@ void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector
     ave_time = ave_time / (double)dataset.size();
 
     // (7) Average Output
-    std::cout << "<All> mse:" << ave_loss << " (time:" << ave_time << ')' << std::endl;
-    ofs << "<All> mse:" << ave_loss << " (time:" << ave_time << ')' << std::endl;
+    std::cout << "<All> cross-entropy:" << ave_loss << " (time:" << ave_time << ')' << std::endl;
+    ofs << "<All> cross-entropy:" << ave_loss << " (time:" << ave_time << ')' << std::endl;
 
     // Post Processing
     ofs.close();

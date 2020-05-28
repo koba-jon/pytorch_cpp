@@ -46,6 +46,13 @@ This is used to display loss graph. <br>
 $ sudo apt install gnuplot
 ~~~
 
+### 6. libpng
+version : 0.2 (There is a possibility that other versions can do it.) <br>
+This is used to load and save index-color image in semantic segmentation. <br>
+~~~
+$ sudo apt install libpng++-dev
+~~~
+
 ## Usage
 
 ### 1. Git Clone

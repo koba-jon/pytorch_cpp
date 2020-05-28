@@ -59,7 +59,10 @@ transforms::Grayscale::Grayscale(const int channels_){
 // namespace{transforms} -> class{Grayscale}(Compose) -> function{forward}
 // -----------------------------------------------------------------------
 void transforms::Grayscale::forward(cv::Mat &data_in, cv::Mat &data_out){
-    cv::cvtColor(data_in, data_out, cv::COLOR_RGB2GRAY);
+    cv::Mat float_mat, float_mat_gray;
+    data_in.convertTo(float_mat, CV_32F);  // discrete ===> continuous
+    cv::cvtColor(float_mat, float_mat_gray, cv::COLOR_RGB2GRAY);
+    float_mat_gray.convertTo(data_out, data_in.depth());  // continuous ===> discrete
     if (this->channels > 1){
         std::vector<cv::Mat> multi;
         for (int i = 0; i < this->channels; i++){
@@ -84,7 +87,10 @@ transforms::Resize::Resize(const cv::Size size_, const int interpolation_){
 // namespace{transforms} -> class{Resize}(Compose) -> function{forward}
 // -----------------------------------------------------------------------
 void transforms::Resize::forward(cv::Mat &data_in, cv::Mat &data_out){
-    cv::resize(data_in, data_out, this->size, this->interpolation);
+    cv::Mat float_mat, float_mat_resize;
+    data_in.convertTo(float_mat, CV_32F);  // discrete ===> continuous
+    cv::resize(float_mat, float_mat_resize, this->size, this->interpolation);
+    float_mat_resize.convertTo(data_out, data_in.depth());  // continuous ===> discrete
     return;
 }
 
@@ -98,6 +104,18 @@ void transforms::ToTensor::forward(cv::Mat &data_in, torch::Tensor &data_out){
     float_mat *= 1.0 / (std::pow(2.0, data_in.elemSize1()*8) - 1.0);  // [0,255] or [0,65535] ===> [0,1]
     torch::Tensor data_out_src = torch::from_blob(float_mat.data, {float_mat.rows, float_mat.cols, float_mat.channels()}, torch::kFloat);  // {0,1,2} = {H,W,C}
     data_out_src = data_out_src.permute({2, 0, 1});  // {0,1,2} = {H,W,C} ===> {0,1,2} = {C,H,W}
+    data_out = data_out_src.clone();
+    return;
+}
+
+
+// ----------------------------------------------------------------------------
+// namespace{transforms} -> class{ToTensorLabel}(Compose) -> function{forward}
+// ----------------------------------------------------------------------------
+void transforms::ToTensorLabel::forward(cv::Mat &data_in, torch::Tensor &data_out){
+    torch::Tensor data_out_src = torch::from_blob(data_in.data, {data_in.rows, data_in.cols, data_in.channels()}, torch::kInt).to(torch::kLong);  // {0,1,2} = {H,W,C}
+    data_out_src = data_out_src.permute({2, 0, 1});  // {0,1,2} = {H,W,C} ===> {0,1,2} = {C,H,W}
+    data_out_src = torch::squeeze(data_out_src, /*dim=*/0);  // {C,H,W} ===> {H,W}
     data_out = data_out_src.clone();
     return;
 }

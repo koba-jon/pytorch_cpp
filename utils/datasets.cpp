@@ -8,11 +8,48 @@
 #include <opencv2/opencv.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
+#include <png++/png.hpp>
 // For Original Header
 #include "transforms.hpp"
 #include "datasets.hpp"
 
 namespace fs = boost::filesystem;
+
+
+// -----------------------------------------------
+// namespace{datasets} -> function{RGB_Loader}
+// -----------------------------------------------
+cv::Mat datasets::RGB_Loader(std::string &path){
+    cv::Mat BGR, RGB;
+    BGR = cv::imread(path, cv::IMREAD_COLOR | cv::IMREAD_ANYDEPTH);  // path ===> color image {B,G,R}
+    cv::cvtColor(BGR, RGB, cv::COLOR_BGR2RGB);  // {0,1,2} = {B,G,R} ===> {0,1,2} = {R,G,B}
+    return RGB.clone();
+}
+
+
+// -----------------------------------------------
+// namespace{datasets} -> function{Index_Loader}
+// -----------------------------------------------
+cv::Mat datasets::Index_Loader(std::string &path){
+
+    size_t i, j;    
+    size_t width, height;
+    cv::Mat Index;
+
+    png::image<png::index_pixel> Index_png(path);  // path ===> index image
+
+    width = Index_png.get_width();
+    height = Index_png.get_height();
+    Index = cv::Mat(cv::Size(width, height), CV_32SC1);
+    for (j = 0; j < height; j++){
+        for (i = 0; i < width; i++){
+            Index.at<int>(j, i) = (int)Index_png[j][i];
+        }
+    }
+
+    return Index.clone();
+
+}
 
 
 // -------------------------------------------------------------------------
@@ -36,21 +73,10 @@ datasets::ImageFolderWithPaths::ImageFolderWithPaths(const std::string root, std
 
 
 // -------------------------------------------------------------------------
-// namespace{datasets} -> class{ImageFolderWithPaths} -> function{Loader}
-// -------------------------------------------------------------------------
-cv::Mat datasets::ImageFolderWithPaths::Loader(std::string &path){
-    cv::Mat BGR, RGB;
-    BGR = cv::imread(path, cv::IMREAD_COLOR); // path ===> color image {B,G,R}
-    cv::cvtColor(BGR, RGB, cv::COLOR_BGR2RGB);  // {0,1,2} = {B,G,R} ===> {0,1,2} = {R,G,B}
-    return RGB.clone();
-}
-
-
-// -------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderWithPaths} -> function{get}
 // -------------------------------------------------------------------------
 void datasets::ImageFolderWithPaths::get(const size_t index, std::tuple<torch::Tensor, std::string> &data){
-    cv::Mat image_Mat = this->Loader(this->paths.at(index));
+    cv::Mat image_Mat = datasets::RGB_Loader(this->paths.at(index));
     torch::Tensor image = transforms::apply(this->transform, image_Mat);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
     std::string fname = this->fnames.at(index);
     data = {image, fname};
@@ -96,22 +122,11 @@ datasets::ImageFolderPairWithPaths::ImageFolderPairWithPaths(const std::string r
 
 
 // -------------------------------------------------------------------------
-// namespace{datasets} -> class{ImageFolderPairWithPaths} -> function{Loader}
-// -------------------------------------------------------------------------
-cv::Mat datasets::ImageFolderPairWithPaths::Loader(std::string &path){
-    cv::Mat BGR, RGB;
-    BGR = cv::imread(path, cv::IMREAD_COLOR); // path ===> color image {B,G,R}
-    cv::cvtColor(BGR, RGB, cv::COLOR_BGR2RGB);  // {0,1,2} = {B,G,R} ===> {0,1,2} = {R,G,B}
-    return RGB.clone();
-}
-
-
-// -------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderPairWithPaths} -> function{get}
 // -------------------------------------------------------------------------
 void datasets::ImageFolderPairWithPaths::get(const size_t index, std::tuple<torch::Tensor, torch::Tensor, std::string> &data){
-    cv::Mat image_Mat1 = this->Loader(this->paths1.at(index));
-    cv::Mat image_Mat2 = this->Loader(this->paths2.at(index));
+    cv::Mat image_Mat1 = datasets::RGB_Loader(this->paths1.at(index));
+    cv::Mat image_Mat2 = datasets::RGB_Loader(this->paths2.at(index));
     torch::Tensor image1 = transforms::apply(this->transformI, image_Mat1);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
     torch::Tensor image2 = transforms::apply(this->transformO, image_Mat2);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
     std::string fname = this->fnames.at(index);
@@ -125,4 +140,72 @@ void datasets::ImageFolderPairWithPaths::get(const size_t index, std::tuple<torc
 // -------------------------------------------------------------------------
 size_t datasets::ImageFolderPairWithPaths::size(){
     return this->fnames.size();
+}
+
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderSegmentWithPaths} -> constructor
+// -------------------------------------------------------------------------
+datasets::ImageFolderSegmentWithPaths::ImageFolderSegmentWithPaths(const std::string root1, const std::string root2, std::vector<transforms::Compose*> &transformI_, std::vector<transforms::Compose*> &transformO_){
+
+    fs::path ROOT = fs::path(root1);
+    for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
+        if (!fs::is_directory(p)){
+            std::stringstream path1, fname;
+            path1 << p.path().string();
+            fname << p.path().filename().string();
+            this->paths1.push_back(path1.str());
+            this->fnames1.push_back(fname.str());
+        }
+    }
+    sort(this->paths1.begin(), this->paths1.end());
+    sort(this->fnames1.begin(), this->fnames1.end());
+
+    std::string f_png;
+    std::string::size_type pos;
+    for (auto &f : this->fnames1){
+        if ((pos = f.find_last_of(".")) == std::string::npos){
+            f_png = f + ".png";
+        }
+        else{
+            f_png = f.substr(0, pos) + ".png";
+        }
+        std::string path2 = root2 + '/' + f_png;
+        this->fnames2.push_back(f_png);
+        this->paths2.push_back(path2);
+    }
+
+    this->transformI = transformI_;
+    this->transformO = transformO_;
+
+    png::image<png::index_pixel> Index_png(paths2.at(0));
+    png::palette pal = Index_png.get_palette();
+    for (auto &p : pal){
+        this->label_palette.push_back({(unsigned char)p.red, (unsigned char)p.green, (unsigned char)p.blue});
+    }
+
+}
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderSegmentWithPaths} -> function{get}
+// -------------------------------------------------------------------------
+void datasets::ImageFolderSegmentWithPaths::get(const size_t index, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string, std::vector<std::tuple<unsigned char, unsigned char, unsigned char>>> &data){
+    cv::Mat image_Mat1 = datasets::RGB_Loader(this->paths1.at(index));
+    cv::Mat image_Mat2 = datasets::Index_Loader(this->paths2.at(index));
+    torch::Tensor image1 = transforms::apply(this->transformI, image_Mat1);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
+    torch::Tensor image2 = transforms::apply(this->transformO, image_Mat2);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
+    std::string fname1 = this->fnames1.at(index);
+    std::string fname2 = this->fnames2.at(index);
+    data = {image1, image2, fname1, fname2, this->label_palette};
+    return;
+}
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderSegmentWithPaths} -> function{size}
+// -------------------------------------------------------------------------
+size_t datasets::ImageFolderSegmentWithPaths::size(){
+    return this->fnames1.size();
 }

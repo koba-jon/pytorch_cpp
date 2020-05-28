@@ -72,7 +72,7 @@ UNetImpl::UNetImpl(po::variables_map &vm){
     this->blocks = UNetBlockImpl({feature*4, feature*4}, feature*8, /*submodule_=*/this->blocks);
     this->blocks = UNetBlockImpl({feature*2, feature*2}, feature*4, /*submodule_=*/this->blocks);
     this->blocks = UNetBlockImpl({feature, feature}, feature*2, /*submodule_=*/this->blocks);
-    this->blocks = UNetBlockImpl({vm["input_nc"].as<size_t>(), vm["output_nc"].as<size_t>()}, feature, /*submodule_=*/this->blocks, /*outermost_=*/true);
+    this->blocks = UNetBlockImpl({vm["nc"].as<size_t>(), vm["class_num"].as<size_t>()}, feature, /*submodule_=*/this->blocks, /*outermost_=*/true);
     
     this->model->push_back(this->blocks);
     register_module("U-Net", this->model);
@@ -85,6 +85,7 @@ UNetImpl::UNetImpl(po::variables_map &vm){
 // ----------------------------------------------------------------------
 torch::Tensor UNetImpl::forward(torch::Tensor x){
     torch::Tensor out = this->model->forward(x);  // {IC,256,256} ===> {OC,256,256}
+    out = torch::log_softmax(out, /*dim=*/1);
     return out;
 }
 

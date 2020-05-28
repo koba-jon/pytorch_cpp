@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
 # Project Name
-set(PROJ_NAME U-Net)
+set(PROJ_NAME U-Net_Regression)
 
 # LibTorch
 set(LIBTORCH_DIR $ENV{HOME}/libtorch)
@@ -17,6 +17,7 @@ find_package(Torch REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(OpenMP REQUIRED)
 find_package(Boost REQUIRED COMPONENTS program_options filesystem)
+find_package(PNG REQUIRED)
 
 # For OpenMP
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -26,6 +27,7 @@ set(INCLUDE_DIRS
     ${TORCH_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
+    ${PNG_INCLUDE_DIRS}
     ${UTILS_DIR}
     ${SRC_DIR}
 )
@@ -35,6 +37,7 @@ set(LIBRARIES
     ${TORCH_LIBRARIES}
     ${OpenCV_LIBRARIES}
     ${Boost_LIBRARIES}
+    ${PNG_LIBRARIES}
 )
 
 # Set Utility Code
@@ -81,5 +84,11 @@ message(STATUS "")
 message(STATUS "~~~ Boost Information ~~~")
 message(STATUS "${Boost_INCLUDE_DIRS};")
 message(STATUS "${Boost_LIBRARIES};")
+message(STATUS "~~~~~~~~~~~~~~~~~~~~~~~~~~")
+message(STATUS "")
+
+message(STATUS "~~~ libpng Information ~~~")
+message(STATUS "${PNG_INCLUDE_DIRS};")
+message(STATUS "${PNG_LIBRARIES};")
 message(STATUS "~~~~~~~~~~~~~~~~~~~~~~~~~~")
 message(STATUS "")

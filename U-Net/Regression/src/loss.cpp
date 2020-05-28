@@ -28,9 +28,9 @@ Loss::Loss(const std::string loss){
 // -----------------------------------
 torch::Tensor Loss::operator()(torch::Tensor &input, torch::Tensor &target){
     if (this->flag == 0){
-        static auto criterion = torch::nn::L1Loss(torch::kMean);
+        static auto criterion = torch::nn::L1Loss(torch::nn::L1LossOptions().reduction(torch::kMean));
         return criterion(input, target);
     }
-    static auto criterion = torch::nn::MSELoss(torch::kMean);
+    static auto criterion = torch::nn::MSELoss(torch::nn::MSELossOptions().reduction(torch::kMean));
     return criterion(input, target);
 }

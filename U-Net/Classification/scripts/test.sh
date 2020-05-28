@@ -1,11 +1,10 @@
 #!/bin/bash
 
-DATA='maps'
+DATA='VOC2012'
 
-./U-Net_Regression \
+./U-Net_Classification \
 	--test true \
 	--dataset ${DATA} \
 	--size 256 \
 	--gpu_id 0 \
-	--input_nc 3 \
-    --output_nc 3
+	--nc 3

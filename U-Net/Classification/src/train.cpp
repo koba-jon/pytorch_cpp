@@ -21,8 +21,8 @@
 #include "loss.hpp"                    // Loss
 #include "networks.hpp"                // UNet
 #include "transforms.hpp"              // transforms::Compose
-#include "datasets.hpp"                // datasets::ImageFolderPairWithPaths
-#include "dataloader.hpp"              // DataLoader::ImageFolderPairWithPaths
+#include "datasets.hpp"                // datasets::ImageFolderSegmentWithPaths
+#include "dataloader.hpp"              // DataLoader::ImageFolderSegmentWithPaths
 #include "visualizer.hpp"              // visualizer
 #include "progress.hpp"                // progress_display
 
@@ -30,7 +30,7 @@
 namespace po = boost::program_options;
 
 // Function Prototype
-void valid(po::variables_map &vm, DataLoader::ImageFolderPairWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, UNet &model, const size_t epoch, visualizer::graph &writer);
+void valid(po::variables_map &vm, DataLoader::ImageFolderSegmentWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, UNet &model, const size_t epoch, visualizer::graph &writer);
 
 
 // -------------------
@@ -43,8 +43,7 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
     constexpr bool valid_shuffle = true;  // whether to shuffle the validation dataset
     constexpr size_t valid_workers = 4;  // number of workers to retrieve data from the validation dataset
     constexpr size_t save_sample_iter = 50;  // the frequency of iteration to save sample images
-    constexpr std::string_view extension = "jpg";  // the extension of file name to save sample images
-    constexpr std::pair<float, float> output_range = {-1.0, 1.0};  // range of the value in output images
+    constexpr std::string_view extension = "png";  // the extension of file name to save sample images
 
     // -----------------------------------
     // a0. Initialization and Declaration
@@ -68,10 +67,10 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
     std::stringstream ss;
     std::ifstream infoi;
     std::ofstream ofs, init, infoo;
-    std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>> mini_batch;
-    torch::Tensor loss, imageI, imageO, output;
-    datasets::ImageFolderPairWithPaths dataset, valid_dataset;
-    DataLoader::ImageFolderPairWithPaths dataloader, valid_dataloader;
+    std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>, std::vector<std::tuple<unsigned char, unsigned char, unsigned char>>> mini_batch;
+    torch::Tensor loss, image, label, output, output_argmax;
+    datasets::ImageFolderSegmentWithPaths dataset, valid_dataset;
+    DataLoader::ImageFolderSegmentWithPaths dataloader, valid_dataloader;
     visualizer::graph train_loss, valid_loss;
     progress_display *show_progress;
 
@@ -83,16 +82,16 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
     // (1) Get Training Dataset
     input_dir = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["train_in_dir"].as<std::string>();
     output_dir = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["train_out_dir"].as<std::string>();
-    dataset = datasets::ImageFolderPairWithPaths(input_dir, output_dir, transformI, transformO);
-    dataloader = DataLoader::ImageFolderPairWithPaths(dataset, vm["batch_size"].as<size_t>(), /*shuffle_=*/train_shuffle, /*num_workers_=*/train_workers);
+    dataset = datasets::ImageFolderSegmentWithPaths(input_dir, output_dir, transformI, transformO);
+    dataloader = DataLoader::ImageFolderSegmentWithPaths(dataset, vm["batch_size"].as<size_t>(), /*shuffle_=*/train_shuffle, /*num_workers_=*/train_workers);
     std::cout << "total training images : " << dataset.size() << std::endl;
 
     // (2) Get Validation Dataset
     if (vm["valid"].as<bool>()){
         valid_input_dir = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["valid_in_dir"].as<std::string>();
         valid_output_dir = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["valid_out_dir"].as<std::string>();
-        valid_dataset = datasets::ImageFolderPairWithPaths(valid_input_dir, valid_output_dir, transformI, transformO);
-        valid_dataloader = DataLoader::ImageFolderPairWithPaths(valid_dataset, vm["valid_batch_size"].as<size_t>(), /*shuffle_=*/valid_shuffle, /*num_workers_=*/valid_workers);
+        valid_dataset = datasets::ImageFolderSegmentWithPaths(valid_input_dir, valid_output_dir, transformI, transformO);
+        valid_dataloader = DataLoader::ImageFolderSegmentWithPaths(valid_dataset, vm["valid_batch_size"].as<size_t>(), /*shuffle_=*/valid_shuffle, /*num_workers_=*/valid_workers);
         std::cout << "total validation images : " << valid_dataset.size() << std::endl;
     }
 
@@ -100,7 +99,7 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
     auto optimizer = torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(vm["lr"].as<float>()).betas({vm["beta1"].as<float>(), vm["beta2"].as<float>()}));
 
     // (4) Set Loss Function
-    auto criterion = Loss(vm["loss"].as<std::string>());
+    auto criterion = Loss();
 
     // (5) Make Directories
     checkpoint_dir = "checkpoints/" + vm["dataset"].as<std::string>();
@@ -111,9 +110,9 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
 
     // (6) Set Training Loss for Graph
     path = checkpoint_dir + "/graph";
-    train_loss = visualizer::graph(path, /*gname_=*/"train_loss", /*label_=*/{"Reconstruct"});
+    train_loss = visualizer::graph(path, /*gname_=*/"train_loss", /*label_=*/{"Classification"});
     if (vm["valid"].as<bool>()){
-        valid_loss = visualizer::graph(path, /*gname_=*/"valid_loss", /*label_=*/{"Reconstruct"});
+        valid_loss = visualizer::graph(path, /*gname_=*/"valid_loss", /*label_=*/{"Classification"});
     }
     
     // (7) Get Weights and File Processing
@@ -186,7 +185,7 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
 
         model->train();
         ofs << std::endl << "epoch:" << epoch << '/' << total_epoch << std::endl;
-        show_progress = new progress_display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"rec"});
+        show_progress = new progress_display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"classify"});
 
         // -----------------------------------
         // b1. Mini Batch Learning
@@ -196,10 +195,10 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
             // -----------------------------------
             // c1. U-Net Training Phase
             // -----------------------------------
-            imageI = std::get<0>(mini_batch).to(device);
-            imageO = std::get<1>(mini_batch).to(device);
-            output = model->forward(imageI);
-            loss = criterion(output, imageO);
+            image = std::get<0>(mini_batch).to(device);
+            label = std::get<1>(mini_batch).to(device);
+            output = model->forward(image);
+            loss = criterion(output, label);
             optimizer.zero_grad();
             loss.backward();
             optimizer.step();
@@ -209,7 +208,7 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
             // -----------------------------------
             show_progress->increment(/*loss_value=*/{loss.item<float>()});
             ofs << "iters:" << show_progress->get_iters() << '/' << total_iter << ' ' << std::flush;
-            ofs << "rec:" << loss.item<float>() << "(ave:" <<  show_progress->get_ave(0) << ')' << std::endl;
+            ofs << "classify:" << loss.item<float>() << "(ave:" <<  show_progress->get_ave(0) << ')' << std::endl;
 
             // -----------------------------------
             // c3. Save Sample Images
@@ -218,7 +217,8 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
             if (iter % save_sample_iter == 1){
                 ss.str(""); ss.clear(std::stringstream::goodbit);
                 ss << save_images_dir << "/epoch_" << epoch << "-iter_" << iter << '.' << extension;
-                visualizer::save_image(output, ss.str(), /*range=*/output_range);
+                output_argmax = output.exp().argmax(/*dim=*/1, /*keepdim=*/true);
+                visualizer::save_label(output_argmax, ss.str(), std::get<4>(mini_batch));
             }
 
         }
@@ -233,7 +233,8 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
         // -----------------------------------
         ss.str(""); ss.clear(std::stringstream::goodbit);
         ss << save_images_dir << "/epoch_" << epoch << "-iter_" << show_progress->get_iters() << '.' << extension;
-        visualizer::save_image(output, ss.str(), /*range=*/output_range);
+        output_argmax = output.exp().argmax(/*dim=*/1, /*keepdim=*/true);
+        visualizer::save_label(output_argmax, ss.str(), std::get<4>(mini_batch));
         delete show_progress;
         
         // -----------------------------------
