@@ -100,10 +100,10 @@ The following is an example for "celebA".
 #!/bin/bash
 
 python3 hold_out.py \
-        --input_dir celebA_org \
-        --output_dir celebA \
-        --train_rate 9 \
-        --valid_rate 1
+    --input_dir celebA_org \
+    --output_dir celebA \
+    --train_rate 9 \
+    --valid_rate 1
 ~~~
 By running this file, you can split it into training and validation data.
 ~~~
@@ -127,14 +127,14 @@ If you want to view specific examples of command line arguments, please view "sr
 DATA='celebA'
 
 ./ConvAE \
-        --train true \
-        --epochs 300 \
-        --dataset ${DATA} \
-        --size 256 \
-        --loss "l1" \
-        --batch_size 16 \
-        --gpu_id 0 \
-        --nc 3
+    --train true \
+    --epochs 300 \
+    --dataset ${DATA} \
+    --size 256 \
+    --loss "l1" \
+    --batch_size 16 \
+    --gpu_id 0 \
+    --nc 3
 ~~~
 ~~~
 $ cd ..
