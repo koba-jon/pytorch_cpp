@@ -218,7 +218,7 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
                 ss.str(""); ss.clear(std::stringstream::goodbit);
                 ss << save_images_dir << "/epoch_" << epoch << "-iter_" << iter << '.' << extension;
                 output_argmax = output.exp().argmax(/*dim=*/1, /*keepdim=*/true);
-                visualizer::save_label(output_argmax, ss.str(), std::get<4>(mini_batch));
+                visualizer::save_label(output_argmax.detach(), ss.str(), std::get<4>(mini_batch));
             }
 
         }
@@ -234,7 +234,7 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
         ss.str(""); ss.clear(std::stringstream::goodbit);
         ss << save_images_dir << "/epoch_" << epoch << "-iter_" << show_progress->get_iters() << '.' << extension;
         output_argmax = output.exp().argmax(/*dim=*/1, /*keepdim=*/true);
-        visualizer::save_label(output_argmax, ss.str(), std::get<4>(mini_batch));
+        visualizer::save_label(output_argmax.detach(), ss.str(), std::get<4>(mini_batch));
         delete show_progress;
         
         // -----------------------------------

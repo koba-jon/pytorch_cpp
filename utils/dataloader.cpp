@@ -79,12 +79,12 @@ bool DataLoader::ImageFolderWithPaths::operator()(std::tuple<torch::Tensor, std:
     }
 
     // (3) Organize Data
-    data1 = std::get<0>(data_before[0]);
+    data1 = std::get<0>(data_before[0]).detach();
     data1 = torch::unsqueeze(data1, /*dim=*/0);
     data2.push_back(std::get<1>(data_before[0]));
     for (i = 1; i < mini_batch_size; i++){
         group = data_before[i];
-        tensor = std::get<0>(group).clone();
+        tensor = std::get<0>(group).detach();
         tensor = torch::unsqueeze(tensor, /*dim=*/0);  // {C,H,W} ===> {1,C,H,W}
         data1 = torch::cat({data1, tensor}, /*dim=*/0);  // {i,C,H,W} + {1,C,H,W} ===> {i+1,C,H,W}
         data2.push_back(std::get<1>(group));
@@ -167,17 +167,17 @@ bool DataLoader::ImageFolderPairWithPaths::operator()(std::tuple<torch::Tensor, 
     }
 
     // (3) Organize Data
-    data1 = std::get<0>(data_before[0]);
+    data1 = std::get<0>(data_before[0]).detach();
     data1 = torch::unsqueeze(data1, /*dim=*/0);
-    data2 = std::get<1>(data_before[0]);
+    data2 = std::get<1>(data_before[0]).detach();
     data2 = torch::unsqueeze(data2, /*dim=*/0);
     data3.push_back(std::get<2>(data_before[0]));
     for (i = 1; i < mini_batch_size; i++){
         group = data_before[i];
-        tensor1 = std::get<0>(group).clone();
+        tensor1 = std::get<0>(group).detach();
         tensor1 = torch::unsqueeze(tensor1, /*dim=*/0);  // {C,H,W} ===> {1,C,H,W}
         data1 = torch::cat({data1, tensor1}, /*dim=*/0);  // {i,C,H,W} + {1,C,H,W} ===> {i+1,C,H,W}
-        tensor2 = std::get<1>(group).clone();
+        tensor2 = std::get<1>(group).detach();
         tensor2 = torch::unsqueeze(tensor2, /*dim=*/0);  // {C,H,W} ===> {1,C,H,W}
         data2 = torch::cat({data2, tensor2}, /*dim=*/0);  // {i,C,H,W} + {1,C,H,W} ===> {i+1,C,H,W}
         data3.push_back(std::get<2>(group));
@@ -261,19 +261,19 @@ bool DataLoader::ImageFolderSegmentWithPaths::operator()(std::tuple<torch::Tenso
     }
 
     // (3) Organize Data
-    data1 = std::get<0>(data_before[0]);
+    data1 = std::get<0>(data_before[0]).detach();
     data1 = torch::unsqueeze(data1, /*dim=*/0);
-    data2 = std::get<1>(data_before[0]);
+    data2 = std::get<1>(data_before[0]).detach();
     data2 = torch::unsqueeze(data2, /*dim=*/0);
     data3.push_back(std::get<2>(data_before[0]));
     data4.push_back(std::get<3>(data_before[0]));
     data5 = std::get<4>(data_before[0]);
     for (i = 1; i < mini_batch_size; i++){
         group = data_before[i];
-        tensor1 = std::get<0>(group).clone();
+        tensor1 = std::get<0>(group).detach();
         tensor1 = torch::unsqueeze(tensor1, /*dim=*/0);  // {C,H,W} ===> {1,C,H,W}
         data1 = torch::cat({data1, tensor1}, /*dim=*/0);  // {i,C,H,W} + {1,C,H,W} ===> {i+1,C,H,W}
-        tensor2 = std::get<1>(group).clone();
+        tensor2 = std::get<1>(group).detach();
         tensor2 = torch::unsqueeze(tensor2, /*dim=*/0);  // {C,H,W} ===> {1,C,H,W}
         data2 = torch::cat({data2, tensor2}, /*dim=*/0);  // {i,C,H,W} + {1,C,H,W} ===> {i+1,C,H,W}
         data3.push_back(std::get<2>(group));

@@ -218,7 +218,7 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
             if (iter % save_sample_iter == 1){
                 ss.str(""); ss.clear(std::stringstream::goodbit);
                 ss << save_images_dir << "/epoch_" << epoch << "-iter_" << iter << '.' << extension;
-                visualizer::save_image(output, ss.str(), /*range=*/output_range);
+                visualizer::save_image(output.detach(), ss.str(), /*range=*/output_range);
             }
 
         }
@@ -233,7 +233,7 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
         // -----------------------------------
         ss.str(""); ss.clear(std::stringstream::goodbit);
         ss << save_images_dir << "/epoch_" << epoch << "-iter_" << show_progress->get_iters() << '.' << extension;
-        visualizer::save_image(output, ss.str(), /*range=*/output_range);
+        visualizer::save_image(output.detach(), ss.str(), /*range=*/output_range);
         delete show_progress;
         
         // -----------------------------------

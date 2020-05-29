@@ -81,7 +81,7 @@ void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector
         ofs << '<' << std::get<2>(data).at(0) << "> mse:" << loss.item<float>() << std::endl;
 
         fname = result_dir + '/' + std::get<2>(data).at(0);
-        visualizer::save_image(output, fname, /*range=*/output_range, /*cols=*/1, /*padding=*/0);
+        visualizer::save_image(output.detach(), fname, /*range=*/output_range, /*cols=*/1, /*padding=*/0);
 
     }
 

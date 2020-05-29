@@ -80,7 +80,7 @@ void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector
 
         fname = result_dir + '/' + std::get<3>(data).at(0);
         output_argmax = output.exp().argmax(/*dim=*/1, /*keepdim=*/true);
-        visualizer::save_label(output_argmax, fname, std::get<4>(data), /*cols=*/1, /*padding=*/0);
+        visualizer::save_label(output_argmax.detach(), fname, std::get<4>(data), /*cols=*/1, /*padding=*/0);
 
     }
 
