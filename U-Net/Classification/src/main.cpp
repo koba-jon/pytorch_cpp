@@ -19,7 +19,7 @@ namespace po = boost::program_options;
 void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformO);
 void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformO);
 torch::Device Set_Device(po::variables_map &vm);
-void Set_Model_Params(po::variables_map &vm, UNet &model, const std::string name);
+template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode);
 
 
@@ -177,7 +177,8 @@ torch::Device Set_Device(po::variables_map &vm){
 // -----------------------------------
 // 3. Model Parameters Setting Function
 // -----------------------------------
-void Set_Model_Params(po::variables_map &vm, UNet &model, const std::string name){
+template <typename T>
+void Set_Model_Params(po::variables_map &vm, T &model, const std::string name){
 
     // (1) Make Directory
     std::string dir = "checkpoints/" + vm["dataset"].as<std::string>() + "/model_params/";
