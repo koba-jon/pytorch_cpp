@@ -50,7 +50,7 @@ void test(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncoder
     torch::load(model, path);
 
     // (3) Set Loss Function
-    auto criterion = Loss("l2");
+    auto criterion = Loss(vm["loss"].as<std::string>());
 
     // (4) Initialization of Value
     ave_loss = 0.0;
@@ -80,8 +80,8 @@ void test(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncoder
         ave_GT_loss += GT_loss.item<float>();
         ave_time += seconds;
 
-        std::cout << '<' << std::get<2>(data).at(0) << "> mse:" << loss.item<float>() << " GT_mse:" << GT_loss.item<float>() << std::endl;
-        ofs << '<' << std::get<2>(data).at(0) << "> mse:" << loss.item<float>() << " GT_mse:" << GT_loss.item<float>() << std::endl;
+        std::cout << '<' << std::get<2>(data).at(0) << "> " << vm["loss"].as<std::string>() << ':' << loss.item<float>() << " GT_" << vm["loss"].as<std::string>() << ':' << GT_loss.item<float>() << std::endl;
+        ofs << '<' << std::get<2>(data).at(0) << "> " << vm["loss"].as<std::string>() << ':' << loss.item<float>() << " GT_" << vm["loss"].as<std::string>() << ':' << GT_loss.item<float>() << std::endl;
 
         fname = result_dir + '/' + std::get<2>(data).at(0);
         visualizer::save_image(output.detach(), fname, /*range=*/output_range, /*cols=*/1, /*padding=*/0);
@@ -94,8 +94,8 @@ void test(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncoder
     ave_time = ave_time / (double)dataset.size();
 
     // (7) Average Output
-    std::cout << "<All> mse:" << ave_loss << " GT_mse:" << ave_GT_loss << " (time:" << ave_time << ')' << std::endl;
-    ofs << "<All> mse:" << ave_loss << " GT_mse:" << ave_GT_loss << " (time:" << ave_time << ')' << std::endl;
+    std::cout << "<All> " << vm["loss"].as<std::string>() << ':' << ave_loss << " GT_" << vm["loss"].as<std::string>() << ':' << ave_GT_loss << " (time:" << ave_time << ')' << std::endl;
+    ofs << "<All> " << vm["loss"].as<std::string>() << ':' << ave_loss << " GT_" << vm["loss"].as<std::string>() << ':' << ave_GT_loss << " (time:" << ave_time << ')' << std::endl;
 
     // Post Processing
     ofs.close();
