@@ -56,7 +56,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datalo
         label_real = torch::full({(long int)mini_batch_size}, /*value=*/1.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
         label_fake = torch::full({(long int)mini_batch_size}, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
 
-        // (1.2) Discriminator Training
+        // (1.2) Discriminator Loss
         z = torch::randn({(long int)mini_batch_size, (long int)vm["nz"].as<size_t>()}).to(device);
         fake_image = gen->forward(z);
         dis_fake_out = dis->forward(fake_image.detach()).view({-1});
@@ -64,7 +64,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datalo
         dis_fake_loss = criterion(dis_fake_out, label_fake);
         dis_real_loss = criterion(dis_real_out, label_real);
 
-        // (1.3) Generator Training
+        // (1.3) Generator Loss
         dis_fake_out = dis->forward(fake_image).view({-1});
         gen_loss = criterion(dis_fake_out, label_real);
 
