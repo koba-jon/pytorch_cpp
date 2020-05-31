@@ -11,6 +11,40 @@ using namespace torch;
 
 
 // ----------------------------------------------------------------------
+// struct{UNetImpl}(nn::Module) -> constructor
+// ----------------------------------------------------------------------
+UNetImpl::UNetImpl(po::variables_map &vm){
+    
+    size_t feature = vm["nf"].as<size_t>();
+    size_t num_downs = (size_t)(std::log2(vm["size"].as<size_t>()));
+    bool use_dropout = !vm["no_dropout"].as<bool>();
+
+    UNetBlockImpl blocks, fake;
+    blocks = UNetBlockImpl({feature*8, feature*8}, vm["nz"].as<size_t>(), /*submodule_=*/fake, /*outermost_=*/false, /*innermost=*/true);
+    for (size_t i = 0; i < num_downs - 5; i++){
+        blocks = UNetBlockImpl({feature*8, feature*8}, feature*8, /*submodule_=*/blocks, /*outermost_=*/false, /*innermost=*/false, /*use_dropout=*/use_dropout);
+    }
+    blocks = UNetBlockImpl({feature*4, feature*4}, feature*8, /*submodule_=*/blocks);
+    blocks = UNetBlockImpl({feature*2, feature*2}, feature*4, /*submodule_=*/blocks);
+    blocks = UNetBlockImpl({feature, feature}, feature*2, /*submodule_=*/blocks);
+    blocks = UNetBlockImpl({vm["input_nc"].as<size_t>(), vm["output_nc"].as<size_t>()}, feature, /*submodule_=*/blocks, /*outermost_=*/true);
+    
+    this->model->push_back(blocks);
+    register_module("U-Net", this->model);
+
+}
+
+
+// ----------------------------------------------------------------------
+// struct{UNetImpl}(nn::Module) -> function{forward}
+// ----------------------------------------------------------------------
+torch::Tensor UNetImpl::forward(torch::Tensor x){
+    torch::Tensor out = this->model->forward(x);  // {IC,256,256} ===> {OC,256,256}
+    return out;
+}
+
+
+// ----------------------------------------------------------------------
 // struct{UNetBlockImpl}(nn::Module) -> constructor
 // ----------------------------------------------------------------------
 UNetBlockImpl::UNetBlockImpl(const std::pair<size_t, size_t> outside_nc, const size_t inside_nc, UNetBlockImpl &submodule, bool outermost_, bool innermost, bool use_dropout){
@@ -52,39 +86,6 @@ torch::Tensor UNetBlockImpl::forward(torch::Tensor x){
         out = this->model->forward(x);
         out = torch::cat({x, out}, /*dim=*/1);
     }
-    return out;
-}
-
-
-// ----------------------------------------------------------------------
-// struct{UNetImpl}(nn::Module) -> constructor
-// ----------------------------------------------------------------------
-UNetImpl::UNetImpl(po::variables_map &vm){
-    
-    size_t feature = vm["nf"].as<size_t>();
-    size_t num_downs = (size_t)(std::log2(vm["size"].as<size_t>()));
-    bool use_dropout = !vm["no_dropout"].as<bool>();
-
-    this->blocks = UNetBlockImpl({feature*8, feature*8}, vm["nz"].as<size_t>(), /*submodule_=*/this->fake, /*outermost_=*/false, /*innermost=*/true);
-    for (size_t i = 0; i < num_downs - 5; i++){
-        this->blocks = UNetBlockImpl({feature*8, feature*8}, feature*8, /*submodule_=*/this->blocks, /*outermost_=*/false, /*innermost=*/false, /*use_dropout=*/use_dropout);
-    }
-    this->blocks = UNetBlockImpl({feature*4, feature*4}, feature*8, /*submodule_=*/this->blocks);
-    this->blocks = UNetBlockImpl({feature*2, feature*2}, feature*4, /*submodule_=*/this->blocks);
-    this->blocks = UNetBlockImpl({feature, feature}, feature*2, /*submodule_=*/this->blocks);
-    this->blocks = UNetBlockImpl({vm["input_nc"].as<size_t>(), vm["output_nc"].as<size_t>()}, feature, /*submodule_=*/this->blocks, /*outermost_=*/true);
-    
-    this->model->push_back(this->blocks);
-    register_module("U-Net", this->model);
-
-}
-
-
-// ----------------------------------------------------------------------
-// struct{UNetImpl}(nn::Module) -> function{forward}
-// ----------------------------------------------------------------------
-torch::Tensor UNetImpl::forward(torch::Tensor x){
-    torch::Tensor out = this->model->forward(x);  // {IC,256,256} ===> {OC,256,256}
     return out;
 }
 

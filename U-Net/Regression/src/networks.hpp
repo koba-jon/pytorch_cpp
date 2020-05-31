@@ -17,6 +17,18 @@ void UpSampling(nn::Sequential &sq, const size_t in_nc, const size_t out_nc, con
 
 
 // -------------------------------------------------
+// struct{UNetImpl}(nn::Module)
+// -------------------------------------------------
+struct UNetImpl : nn::Module{
+private:
+    nn::Sequential model;
+public:
+    UNetImpl(){}
+    UNetImpl(po::variables_map &vm);
+    torch::Tensor forward(torch::Tensor x);
+};
+
+// -------------------------------------------------
 // struct{UNetBlockImpl}(nn::Module)
 // -------------------------------------------------
 struct UNetBlockImpl : nn::Module{
@@ -29,21 +41,8 @@ public:
     torch::Tensor forward(torch::Tensor x);
 };
 
-// -------------------------------------------------
-// struct{UNetImpl}(nn::Module)
-// -------------------------------------------------
-struct UNetImpl : nn::Module{
-private:
-    UNetBlockImpl blocks, fake;
-    nn::Sequential model;
-public:
-    UNetImpl(){}
-    UNetImpl(po::variables_map &vm);
-    torch::Tensor forward(torch::Tensor x);
-};
-
-TORCH_MODULE(UNetBlock);
 TORCH_MODULE(UNet);
+TORCH_MODULE(UNetBlock);
 
 
 #endif
