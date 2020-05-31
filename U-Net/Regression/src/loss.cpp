@@ -65,12 +65,12 @@ SSIMLoss::SSIMLoss(const size_t nc_, const torch::Device device, const size_t wi
     }
 
     torch::Tensor tensor;
-    tensor = torch::from_blob(gauss_list, {(long int)this->window_size}, torch::kFloat);
-    tensor = tensor / tensor.sum();
-    tensor = tensor.unsqueeze(/*dim=*/1);
-    tensor = tensor.mm(tensor.t());
-    tensor = tensor.unsqueeze(/*dim=*/0).unsqueeze(/*dim=*/0);
-    tensor = tensor.expand({(long int)this->nc, 1, (long int)this->window_size, (long int)this->window_size}).contiguous();
+    tensor = torch::from_blob(gauss_list, {(long int)this->window_size}, torch::kFloat);  // Array {W} ===> Tensor {W}
+    tensor = tensor / tensor.sum();                                                       // No Normalize {W} ===> Normalize {W}
+    tensor = tensor.unsqueeze(/*dim=*/1);                                                 // {W} ===> {W,1}
+    tensor = tensor.mm(tensor.t());                                                       // {W,1} * {1,W} ===> {W,W}
+    tensor = tensor.unsqueeze(/*dim=*/0).unsqueeze(/*dim=*/0);                            // {W,W} ===> {1,1,W,W}
+    tensor = tensor.expand({(long int)this->nc, 1, (long int)this->window_size, (long int)this->window_size}).contiguous();  // {1,1,W,W} ===> {C,1,W,W}
 
     // -------------------------------------------------------------------------------------
     // (Default) if window size is 11 and gauss_std is 1.5, ...
