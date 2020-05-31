@@ -38,7 +38,7 @@ po::options_description parse_arguments(){
         ("size", po::value<size_t>()->default_value(256), "image width and height (x>=64)")
         ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
         ("nz", po::value<size_t>()->default_value(512), "dimensions of latent space")
-        ("loss", po::value<std::string>()->default_value("l2"), "l1 (mean absolute error), l2 (mean squared error), etc.")
+        ("loss", po::value<std::string>()->default_value("l2"), "l1 (mean absolute error), l2 (mean squared error), ssim (structural similarity), etc.")
         ("gpu_id", po::value<int>()->default_value(0), "cuda device : 'x=-1' is cpu device")
         ("seed_random", po::value<bool>()->default_value(false), "whether to make the seed of random number in a random")
         ("seed", po::value<int>()->default_value(0), "seed of random number")

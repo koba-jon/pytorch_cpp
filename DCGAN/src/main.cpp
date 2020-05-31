@@ -9,15 +9,15 @@
 #include <opencv2/opencv.hpp>          // cv::Mat
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
-#include "networks.hpp"                // UNet
+#include "networks.hpp"                // GAN_Generator, GAN_Discriminator
 #include "transforms.hpp"              // transforms
 
 // Define Namespace
 namespace po = boost::program_options;
 
 // Function Prototype
-void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformO);
-void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformO);
+void train(po::variables_map &vm, torch::Device &device, GAN_Generator &gen, GAN_Discriminator &dis, std::vector<transforms::Compose*> &transform);
+void test(po::variables_map &vm, torch::Device &device, GAN_Generator &gen);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode);
@@ -36,18 +36,16 @@ po::options_description parse_arguments(){
         ("help", "produce help message")
         ("dataset", po::value<std::string>(), "dataset name")
         ("size", po::value<size_t>()->default_value(256), "image width and height (x>=64)")
-        ("input_nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
-        ("output_nc", po::value<size_t>()->default_value(3), "output image channel : RGB=3, grayscale=1")
+        ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
         ("nz", po::value<size_t>()->default_value(512), "dimensions of latent space")
-        ("loss", po::value<std::string>()->default_value("l2"), "l1 (mean absolute error), l2 (mean squared error), ssim (structural similarity), etc.")
+        ("loss", po::value<std::string>()->default_value("vanilla"), "vanilla (cross-entropy), lsgan (mse), etc.")
         ("gpu_id", po::value<int>()->default_value(0), "cuda device : 'x=-1' is cpu device")
         ("seed_random", po::value<bool>()->default_value(false), "whether to make the seed of random number in a random")
         ("seed", po::value<int>()->default_value(0), "seed of random number")
 
         // (2) Define for Training
         ("train", po::value<bool>()->default_value(false), "training mode on/off")
-        ("train_in_dir", po::value<std::string>()->default_value("trainI"), "training input image directory : ./datasets/<dataset>/<train_in_dir>/<image files>")
-        ("train_out_dir", po::value<std::string>()->default_value("trainO"), "training output image directory : ./datasets/<dataset>/<train_out_dir>/<image files>")
+        ("train_dir", po::value<std::string>()->default_value("train"), "training image directory : ./datasets/<dataset>/<train_dir>/<image files>")
         ("epochs", po::value<size_t>()->default_value(200), "training total epoch")
         ("batch_size", po::value<size_t>()->default_value(32), "training batch size")
         ("train_load_epoch", po::value<std::string>()->default_value(""), "epoch of model to resume learning")
@@ -55,24 +53,28 @@ po::options_description parse_arguments(){
 
         // (3) Define for Validation
         ("valid", po::value<bool>()->default_value(false), "validation mode on/off")
-        ("valid_in_dir", po::value<std::string>()->default_value("validI"), "validation input image directory : ./datasets/<dataset>/<valid_in_dir>/<image files>")
-        ("valid_out_dir", po::value<std::string>()->default_value("validO"), "validation output image directory : ./datasets/<dataset>/<valid_out_dir>/<image files>")
+        ("valid_dir", po::value<std::string>()->default_value("valid"), "validation image directory : ./datasets/<dataset>/<valid_dir>/<image files>")
         ("valid_batch_size", po::value<size_t>()->default_value(1), "validation batch size")
         ("valid_freq", po::value<size_t>()->default_value(1), "validation frequency to training epoch")
+        ("valid_sigma_max", po::value<float>()->default_value(3.0), "maximum value of latent variable for output images in validation")
+        ("valid_sigma_inter", po::value<float>()->default_value(0.5), "the interval of latent variable for output images in validation")
 
         // (4) Define for Test
         ("test", po::value<bool>()->default_value(false), "test mode on/off")
-        ("test_in_dir", po::value<std::string>()->default_value("testI"), "test input image directory : ./datasets/<dataset>/<test_in_dir>/<image files>")
-        ("test_out_dir", po::value<std::string>()->default_value("testO"), "test output image directory : ./datasets/<dataset>/<test_out_dir>/<image files>")
         ("test_load_epoch", po::value<std::string>()->default_value("latest"), "training epoch used for testing")
         ("test_result_dir", po::value<std::string>()->default_value("test_result"), "test result directory : ./<test_result_dir>")
+        ("test_sigma_max", po::value<float>()->default_value(3.0), "maximum value of latent variable for output images in test")
+        ("test_sigma_inter", po::value<float>()->default_value(0.5), "the interval of latent variable for output images in test")
 
         // (5) Define for Network Parameter
-        ("lr", po::value<float>()->default_value(1e-4), "learning rate")
+        ("lr_gen", po::value<float>()->default_value(1e-3), "learning rate for generator")
+        ("lr_dis", po::value<float>()->default_value(2.5e-4), "learning rate for discriminator")
+        ("G_ltw", po::value<float>()->default_value(0.5), "the weight of loss threshold for stable training in generator : x=0.0 is normal training")
+        ("D_ltw", po::value<float>()->default_value(0.5), "the weight of loss threshold for stable training in discriminator : x=0.0 is normal training")
         ("beta1", po::value<float>()->default_value(0.5), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
-        ("nf", po::value<size_t>()->default_value(64), "number of filters in convolution layer closest to image")
-        ("no_dropout", po::value<bool>()->default_value(false), "Dropout off/on")
+        ("ngf", po::value<size_t>()->default_value(64), "number of filters in convolution layer closest to image in generator")
+        ("ndf", po::value<size_t>()->default_value(64), "number of filters in convolution layer closest to image in discriminator")
 
     ;
     
@@ -112,26 +114,18 @@ int main(int argc, const char *argv[]){
     }
 
     // (4) Set Transforms
-    std::vector<transforms::Compose*> transformI{
+    std::vector<transforms::Compose*> transform{
         (transforms::Compose*)new transforms::Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
         (transforms::Compose*)new transforms::ToTensor(),                                                                            // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
         (transforms::Compose*)new transforms::Normalize(0.5, 0.5)                                                                    // [0,1] ===> [-1,1]
     };
-    if (vm["input_nc"].as<size_t>() == 1){
-        transformI.insert(transformI.begin(), (transforms::Compose*)new transforms::Grayscale(1));
-    }
-    std::vector<transforms::Compose*> transformO{
-        (transforms::Compose*)new transforms::Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
-        (transforms::Compose*)new transforms::ToTensor(),                                                                            // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
-        (transforms::Compose*)new transforms::Normalize(0.5, 0.5)                                                                    // [0,1] ===> [-1,1]
-    };
-    if (vm["output_nc"].as<size_t>() == 1){
-        transformO.insert(transformO.begin(), (transforms::Compose*)new transforms::Grayscale(1));
+    if (vm["nc"].as<size_t>() == 1){
+        transform.insert(transform.begin(), (transforms::Compose*)new transforms::Grayscale(1));
     }
     
     // (5) Define Network
-    UNet unet(vm);
-    unet->to(device);
+    GAN_Generator gen(vm); gen->to(device);
+    GAN_Discriminator dis(vm); dis->to(device);
     
     // (6) Make Directories
     std::string dir = "checkpoints/";
@@ -140,18 +134,19 @@ int main(int argc, const char *argv[]){
     mkdir(dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
 
     // (7) Save Model Parameters
-    Set_Model_Params(vm, unet, "UNet");
+    Set_Model_Params(vm, gen, "Generator");
+    Set_Model_Params(vm, dis, "Discriminator");
 
     // (8.1) Training Phase
     if (vm["train"].as<bool>()){
         Set_Options(vm, argc, argv, args, "train");
-        train(vm, device, unet, transformI, transformO);
+        train(vm, device, gen, dis, transform);
     }
 
     // (8.2) Test Phase
     if (vm["test"].as<bool>()){
         Set_Options(vm, argc, argv, args, "test");
-        test(vm, device, unet, transformI, transformO);
+        test(vm, device, gen);
     }
 
     // End Processing

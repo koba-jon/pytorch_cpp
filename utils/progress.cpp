@@ -133,7 +133,7 @@ void progress_display::increment(const std::vector<float> loss_value){
     }
 
     // (7) Get Center String
-    center_length = std::max((size_t)1, (ideal_length - left_str.length() - right_str.length()));
+    center_length = (size_t)std::max((int)1, (int)(ideal_length - left_str.length() - right_str.length()));
     bar_length = (size_t)((float)center_length * (float)this->count / (float)this->count_max);
     center_str = std::string(bar_length, '#') + std::string(center_length - bar_length, ' ');
 
