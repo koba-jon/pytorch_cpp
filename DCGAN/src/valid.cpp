@@ -59,7 +59,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datalo
         // (1.2) Discriminator Loss
         z = torch::randn({(long int)mini_batch_size, (long int)vm["nz"].as<size_t>()}).to(device);
         fake_image = gen->forward(z);
-        dis_fake_out = dis->forward(fake_image.detach()).view({-1});
+        dis_fake_out = dis->forward(fake_image).view({-1});
         dis_real_out = dis->forward(image).view({-1});
         dis_fake_loss = criterion(dis_fake_out, label_fake);
         dis_real_loss = criterion(dis_real_out, label_real);
