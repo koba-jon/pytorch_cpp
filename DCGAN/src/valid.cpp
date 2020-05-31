@@ -65,7 +65,6 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datalo
         dis_real_loss = criterion(dis_real_out, label_real);
 
         // (1.3) Generator Loss
-        dis_fake_out = dis->forward(fake_image).view({-1});
         gen_loss = criterion(dis_fake_out, label_real);
 
         // (1.4) Update Loss
