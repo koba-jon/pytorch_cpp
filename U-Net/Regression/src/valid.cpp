@@ -25,7 +25,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderPairWithPaths &valid_da
     size_t iteration;
     float ave_loss, total_loss;
     std::ofstream ofs;
-    std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>> mini_batch;
+    std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>> mini_batch;
     torch::Tensor loss, imageI, imageO, output;
 
     // (1) Tensor Forward per Mini Batch

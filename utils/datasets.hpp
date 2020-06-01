@@ -40,11 +40,11 @@ namespace datasets{
     class ImageFolderPairWithPaths{
     private:
         std::vector<transforms::Compose*> transformI, transformO;
-        std::vector<std::string> paths1, paths2, fnames;
+        std::vector<std::string> paths1, paths2, fnames1, fnames2;
     public:
         ImageFolderPairWithPaths(){}
         ImageFolderPairWithPaths(const std::string root1, const std::string root2, std::vector<transforms::Compose*> &transformI_, std::vector<transforms::Compose*> &transformO_);
-        void get(const size_t index, std::tuple<torch::Tensor, torch::Tensor, std::string> &data);
+        void get(const size_t index, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> &data);
         size_t size();
     };
 

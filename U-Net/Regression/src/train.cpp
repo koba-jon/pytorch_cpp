@@ -68,7 +68,7 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
     std::stringstream ss;
     std::ifstream infoi;
     std::ofstream ofs, init, infoo;
-    std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>> mini_batch;
+    std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>> mini_batch;
     torch::Tensor loss, imageI, imageO, output;
     datasets::ImageFolderPairWithPaths dataset, valid_dataset;
     DataLoader::ImageFolderPairWithPaths dataloader, valid_dataloader;

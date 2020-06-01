@@ -32,7 +32,7 @@ void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector
     std::string input_dir, output_dir;
     std::ofstream ofs;
     std::chrono::system_clock::time_point start, end;
-    std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>> data;
+    std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>> data;
     torch::Tensor imageI, imageO, output;
     torch::Tensor loss;
     datasets::ImageFolderPairWithPaths dataset;
@@ -80,7 +80,7 @@ void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector
         std::cout << '<' << std::get<2>(data).at(0) << "> " << vm["loss"].as<std::string>() << ':' << loss.item<float>() << std::endl;
         ofs << '<' << std::get<2>(data).at(0) << "> " << vm["loss"].as<std::string>() << ':' << loss.item<float>() << std::endl;
 
-        fname = result_dir + '/' + std::get<2>(data).at(0);
+        fname = result_dir + '/' + std::get<3>(data).at(0);
         visualizer::save_image(output.detach(), fname, /*range=*/output_range, /*cols=*/1, /*padding=*/0);
 
     }

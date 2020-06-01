@@ -53,7 +53,7 @@ namespace DataLoader{
     public:
         ImageFolderPairWithPaths(){}
         ImageFolderPairWithPaths(datasets::ImageFolderPairWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_);
-        bool operator()(std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>> &data);
+        bool operator()(std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>> &data);
     };
 
     // -----------------------------------------------------

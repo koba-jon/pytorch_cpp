@@ -66,8 +66,8 @@ datasets::ImageFolderWithPaths::ImageFolderWithPaths(const std::string root, std
             this->fnames.push_back(fname.str());
         }
     }
-    sort(this->paths.begin(), this->paths.end());
-    sort(this->fnames.begin(), this->fnames.end());
+    std::sort(this->paths.begin(), this->paths.end());
+    std::sort(this->fnames.begin(), this->fnames.end());
     this->transform = transform_;
 }
 
@@ -97,23 +97,33 @@ size_t datasets::ImageFolderWithPaths::size(){
 // -------------------------------------------------------------------------
 datasets::ImageFolderPairWithPaths::ImageFolderPairWithPaths(const std::string root1, const std::string root2, std::vector<transforms::Compose*> &transformI_, std::vector<transforms::Compose*> &transformO_){
 
-    fs::path ROOT = fs::path(root1);
+    fs::path ROOT;
+    
+    ROOT = fs::path(root1);
     for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
         if (!fs::is_directory(p)){
-            std::stringstream path1, fname;
+            std::stringstream path1, fname1;
             path1 << p.path().string();
-            fname << p.path().filename().string();
+            fname1 << p.path().filename().string();
             this->paths1.push_back(path1.str());
-            this->fnames.push_back(fname.str());
+            this->fnames1.push_back(fname1.str());
         }
     }
-    sort(this->paths1.begin(), this->paths1.end());
-    sort(this->fnames.begin(), this->fnames.end());
+    std::sort(this->paths1.begin(), this->paths1.end());
+    std::sort(this->fnames1.begin(), this->fnames1.end());
 
-    for (auto &f : this->fnames){
-        std::string path2 = root2 + '/' + f;
-        this->paths2.push_back(path2);
+    ROOT = fs::path(root2);
+    for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
+        if (!fs::is_directory(p)){
+            std::stringstream path2, fname2;
+            path2 << p.path().string();
+            fname2 << p.path().filename().string();
+            this->paths2.push_back(path2.str());
+            this->fnames2.push_back(fname2.str());
+        }
     }
+    std::sort(this->paths2.begin(), this->paths2.end());
+    std::sort(this->fnames2.begin(), this->fnames2.end());
 
     this->transformI = transformI_;
     this->transformO = transformO_;
@@ -124,13 +134,14 @@ datasets::ImageFolderPairWithPaths::ImageFolderPairWithPaths(const std::string r
 // -------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderPairWithPaths} -> function{get}
 // -------------------------------------------------------------------------
-void datasets::ImageFolderPairWithPaths::get(const size_t index, std::tuple<torch::Tensor, torch::Tensor, std::string> &data){
+void datasets::ImageFolderPairWithPaths::get(const size_t index, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> &data){
     cv::Mat image_Mat1 = datasets::RGB_Loader(this->paths1.at(index));
     cv::Mat image_Mat2 = datasets::RGB_Loader(this->paths2.at(index));
     torch::Tensor image1 = transforms::apply(this->transformI, image_Mat1);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
     torch::Tensor image2 = transforms::apply(this->transformO, image_Mat2);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
-    std::string fname = this->fnames.at(index);
-    data = {image1, image2, fname};
+    std::string fname1 = this->fnames1.at(index);
+    std::string fname2 = this->fnames2.at(index);
+    data = {image1, image2, fname1, fname2};
     return;
 }
 
@@ -139,7 +150,7 @@ void datasets::ImageFolderPairWithPaths::get(const size_t index, std::tuple<torc
 // namespace{datasets} -> class{ImageFolderPairWithPaths} -> function{size}
 // -------------------------------------------------------------------------
 size_t datasets::ImageFolderPairWithPaths::size(){
-    return this->fnames.size();
+    return this->fnames1.size();
 }
 
 
@@ -159,8 +170,8 @@ datasets::ImageFolderSegmentWithPaths::ImageFolderSegmentWithPaths(const std::st
             this->fnames1.push_back(fname.str());
         }
     }
-    sort(this->paths1.begin(), this->paths1.end());
-    sort(this->fnames1.begin(), this->fnames1.end());
+    std::sort(this->paths1.begin(), this->paths1.end());
+    std::sort(this->fnames1.begin(), this->fnames1.end());
 
     std::string f_png;
     std::string::size_type pos;

@@ -92,7 +92,7 @@ bool DataLoader::ImageFolderWithPaths::operator()(std::tuple<torch::Tensor, std:
 
     // Post Processing
     this->count++;
-    data = {data1, data2};  // {N,C,H,W} (images), {N} (paths)
+    data = {data1, data2};  // {N,C,H,W} (images), {N} (fnames)
     delete[] data_before;
 
     // End Processing
@@ -128,7 +128,7 @@ DataLoader::ImageFolderPairWithPaths::ImageFolderPairWithPaths(datasets::ImageFo
 // --------------------------------------------------------------------
 // namespace{DataLoader} -> class{ImageFolderPairWithPaths} -> operator
 // --------------------------------------------------------------------
-bool DataLoader::ImageFolderPairWithPaths::operator()(std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>> &data){
+bool DataLoader::ImageFolderPairWithPaths::operator()(std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>> &data){
 
     // (0) Initialization and Declaration
     size_t i;
@@ -136,9 +136,9 @@ bool DataLoader::ImageFolderPairWithPaths::operator()(std::tuple<torch::Tensor, 
     size_t index_end = std::min(this->size, (index_start + this->batch_size));
     size_t mini_batch_size = index_end - index_start;
     torch::Tensor data1, data2, tensor1, tensor2;
-    std::vector<std::string> data3;
-    std::tuple<torch::Tensor, torch::Tensor, std::string> group;
-    std::tuple<torch::Tensor, torch::Tensor, std::string> *data_before;
+    std::vector<std::string> data3, data4;
+    std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> group;
+    std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> *data_before;
 
     // (1) Special Handling on Certain Count
     if ((this->count == 0) && this->shuffle){
@@ -150,7 +150,7 @@ bool DataLoader::ImageFolderPairWithPaths::operator()(std::tuple<torch::Tensor, 
     }
 
     // (2) Get Mini Batch Data
-    data_before = new std::tuple<torch::Tensor, torch::Tensor, std::string>[mini_batch_size];
+    data_before = new std::tuple<torch::Tensor, torch::Tensor, std::string, std::string>[mini_batch_size];
     // (2.1) Get Mini Batch Data using Single Thread
     if (this->num_workers == 0){
         for (i = 0; i < mini_batch_size; i++){
@@ -172,6 +172,7 @@ bool DataLoader::ImageFolderPairWithPaths::operator()(std::tuple<torch::Tensor, 
     data2 = std::get<1>(data_before[0]).detach();
     data2 = torch::unsqueeze(data2, /*dim=*/0);
     data3.push_back(std::get<2>(data_before[0]));
+    data4.push_back(std::get<3>(data_before[0]));
     for (i = 1; i < mini_batch_size; i++){
         group = data_before[i];
         tensor1 = std::get<0>(group).detach();
@@ -181,11 +182,12 @@ bool DataLoader::ImageFolderPairWithPaths::operator()(std::tuple<torch::Tensor, 
         tensor2 = torch::unsqueeze(tensor2, /*dim=*/0);  // {C,H,W} ===> {1,C,H,W}
         data2 = torch::cat({data2, tensor2}, /*dim=*/0);  // {i,C,H,W} + {1,C,H,W} ===> {i+1,C,H,W}
         data3.push_back(std::get<2>(group));
+        data4.push_back(std::get<3>(group));
     }
 
     // Post Processing
     this->count++;
-    data = {data1, data2, data3};  // {N,C,H,W} (images1), {N,C,H,W} (images2), {N} (paths)
+    data = {data1, data2, data3, data4};  // {N,C,H,W} (images1), {N,C,H,W} (images2), {N} (fnames1), {N} (fnames2)
     delete[] data_before;
 
     // End Processing
@@ -282,7 +284,7 @@ bool DataLoader::ImageFolderSegmentWithPaths::operator()(std::tuple<torch::Tenso
 
     // Post Processing
     this->count++;
-    data = {data1, data2, data3, data4, data5};  // {N,C,H,W} (images1), {N,C,H,W} (images2), {N} (paths1), {N} (paths2), {L} (label_palette)
+    data = {data1, data2, data3, data4, data5};  // {N,C,H,W} (images1), {N,C,H,W} (images2), {N} (fnames1), {N} (fnames2), {L} (label_palette)
     delete[] data_before;
 
     // End Processing
