@@ -13,7 +13,7 @@
 torch::Tensor transforms::apply(std::vector<transforms::Compose*> &transform, cv::Mat &data_in){
     torch::Tensor data_out;
     transforms::forward<cv::Mat, torch::Tensor>(transform, data_in, data_out, transform.size());
-    return data_out.clone();
+    return data_out.detach().clone();
 }
 
 
@@ -104,7 +104,7 @@ void transforms::ToTensor::forward(cv::Mat &data_in, torch::Tensor &data_out){
     float_mat *= 1.0 / (std::pow(2.0, data_in.elemSize1()*8) - 1.0);  // [0,255] or [0,65535] ===> [0,1]
     torch::Tensor data_out_src = torch::from_blob(float_mat.data, {float_mat.rows, float_mat.cols, float_mat.channels()}, torch::kFloat);  // {0,1,2} = {H,W,C}
     data_out_src = data_out_src.permute({2, 0, 1});  // {0,1,2} = {H,W,C} ===> {0,1,2} = {C,H,W}
-    data_out = data_out_src.clone();
+    data_out = data_out_src.detach().clone();
     return;
 }
 
@@ -116,7 +116,7 @@ void transforms::ToTensorLabel::forward(cv::Mat &data_in, torch::Tensor &data_ou
     torch::Tensor data_out_src = torch::from_blob(data_in.data, {data_in.rows, data_in.cols, data_in.channels()}, torch::kInt).to(torch::kLong);  // {0,1,2} = {H,W,C}
     data_out_src = data_out_src.permute({2, 0, 1});  // {0,1,2} = {H,W,C} ===> {0,1,2} = {C,H,W}
     data_out_src = torch::squeeze(data_out_src, /*dim=*/0);  // {C,H,W} ===> {H,W}
-    data_out = data_out_src.clone();
+    data_out = data_out_src.detach().clone();
     return;
 }
 
@@ -135,6 +135,6 @@ transforms::Normalize::Normalize(const float mean_, const float std_){
 // -----------------------------------------------------------------------
 void transforms::Normalize::forward(torch::Tensor &data_in, torch::Tensor &data_out){
     torch::Tensor data_out_src = (data_in - this->mean) / this->std;
-    data_out = data_out_src.clone();
+    data_out = data_out_src.detach().clone();
     return;
 }

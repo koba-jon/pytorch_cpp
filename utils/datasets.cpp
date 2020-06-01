@@ -79,7 +79,7 @@ void datasets::ImageFolderWithPaths::get(const size_t index, std::tuple<torch::T
     cv::Mat image_Mat = datasets::RGB_Loader(this->paths.at(index));
     torch::Tensor image = transforms::apply(this->transform, image_Mat);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
     std::string fname = this->fnames.at(index);
-    data = {image, fname};
+    data = {image.detach().clone(), fname};
     return;
 }
 
@@ -141,7 +141,7 @@ void datasets::ImageFolderPairWithPaths::get(const size_t index, std::tuple<torc
     torch::Tensor image2 = transforms::apply(this->transformO, image_Mat2);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
     std::string fname1 = this->fnames1.at(index);
     std::string fname2 = this->fnames2.at(index);
-    data = {image1, image2, fname1, fname2};
+    data = {image1.detach().clone(), image2.detach().clone(), fname1, fname2};
     return;
 }
 
@@ -209,7 +209,7 @@ void datasets::ImageFolderSegmentWithPaths::get(const size_t index, std::tuple<t
     torch::Tensor image2 = transforms::apply(this->transformO, image_Mat2);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
     std::string fname1 = this->fnames1.at(index);
     std::string fname2 = this->fnames2.at(index);
-    data = {image1, image2, fname1, fname2, this->label_palette};
+    data = {image1.detach().clone(), image2.detach().clone(), fname1, fname2, this->label_palette};
     return;
 }
 
