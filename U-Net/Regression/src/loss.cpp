@@ -59,7 +59,7 @@ SSIMLoss::SSIMLoss(const size_t nc_, const torch::Device device, const size_t wi
     this->c2_base = c2_base_;
 
     float *gauss_list = new float[this->window_size];
-    auto Gaussian_PDF = [](float mean, float std, float x){ return std::exp(- (x - mean) * (x - mean) / (2.0 * std * std)); };
+    auto Gaussian_PDF = [](float mean, float std, float x){ return (float)std::exp(- (x - mean) * (x - mean) / (2.0 * std * std)); };
     for (size_t i = 0; i < this->window_size; i++){
         gauss_list[i] = Gaussian_PDF(this->window_size/2, this->gauss_std, (float)i);
     }
