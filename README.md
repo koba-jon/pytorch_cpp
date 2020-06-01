@@ -28,26 +28,26 @@ This is used for pre-processing and post-processing. <br>
 Please refer to other sites for more detailed installation method.
 
 ### 3. OpenMP
-version : 4.5 (There is a possibility that other versions can do it.) <br>
+version : 4.5 (It works on other versions.) <br>
 This is used to load data in parallel. <br>
 It may be installed on standard Linux OS.
 
 ### 4. Boost
-version : 1.65.1 (There is a possibility that other versions can do it.) <br>
+version : 1.65.1 (It works on other versions.) <br>
 This is used for command line arguments, etc. <br>
 ~~~
 $ sudo apt install libboost-dev libboost-all-dev
 ~~~
 
 ### 5. Gnuplot
-version : 5.2 (There is a possibility that other versions can do it.) <br>
+version : 5.2 (It works on other versions.) <br>
 This is used to display loss graph. <br>
 ~~~
 $ sudo apt install gnuplot
 ~~~
 
 ### 6. libpng
-version : 0.2 (There is a possibility that other versions can do it.) <br>
+version : 0.2 (It works on other versions.) <br>
 This is used to load and save index-color image in semantic segmentation. <br>
 ~~~
 $ sudo apt install libpng++-dev
