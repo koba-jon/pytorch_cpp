@@ -4,6 +4,7 @@
 #include <torch/torch.h>
 // For Original Header
 #include "loss.hpp"
+#include "losses.hpp"
 
 
 // -----------------------------------

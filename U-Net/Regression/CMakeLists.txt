@@ -45,6 +45,7 @@ set(UTILITY
     ${UTILS_DIR}/transforms.cpp
     ${UTILS_DIR}/datasets.cpp
     ${UTILS_DIR}/dataloader.cpp
+    ${UTILS_DIR}/losses.cpp
     ${UTILS_DIR}/visualizer.cpp
     ${UTILS_DIR}/progress.cpp
 )
