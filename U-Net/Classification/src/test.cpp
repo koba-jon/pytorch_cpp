@@ -24,14 +24,17 @@ namespace po = boost::program_options;
 void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformO){
 
     // (0) Initialization and Declaration
+    size_t correct, correct_per_class, total_class_pixel, class_count;
     float ave_loss;
     double seconds, ave_time;
+    double pixel_wise_accuracy, ave_pixel_wise_accuracy;
+    double mean_accuracy, ave_mean_accuracy;
     std::string path, result_dir, fname;
     std::string input_dir, output_dir;
     std::ofstream ofs;
     std::chrono::system_clock::time_point start, end;
     std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>, std::vector<std::tuple<unsigned char, unsigned char, unsigned char>>> data;
-    torch::Tensor image, label, output, output_argmax;
+    torch::Tensor image, label, output, output_argmax, answer_mask, response_mask;
     torch::Tensor loss;
     datasets::ImageFolderSegmentWithPaths dataset;
     DataLoader::ImageFolderSegmentWithPaths dataloader;
@@ -52,6 +55,8 @@ void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector
 
     // (4) Initialization of Value
     ave_loss = 0.0;
+    ave_pixel_wise_accuracy = 0.0;
+    ave_mean_accuracy = 0.0;
     ave_time = 0.0;
 
     // (5) Tensor Forward
@@ -69,28 +74,49 @@ void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector
 
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
-        
+
         loss = criterion(output, label);
         
+        output_argmax = output.exp().argmax(/*dim=*/1, /*keepdim=*/true);
+        correct = (label == output_argmax).sum().to(torch::kInt).item<int>();
+        pixel_wise_accuracy = (double)correct / (double)(label.size(0) * label.size(1) * label.size(2));
+
+        class_count = 0;
+        mean_accuracy = 0.0;
+        for (size_t i = 0; i < std::get<4>(data).size(); i++){
+            answer_mask = torch::full({label.size(0), label.size(1), label.size(2)}, /*value=*/(long int)i, torch::TensorOptions().dtype(torch::kLong)).to(device);
+            total_class_pixel = (label == answer_mask).sum().to(torch::kInt).item<int>();
+            if (total_class_pixel != 0){
+                response_mask = torch::full({label.size(0), label.size(1), label.size(2)}, /*value=*/2, torch::TensorOptions().dtype(torch::kLong)).to(device);
+                correct_per_class = (((label == output_argmax).to(torch::kLong) + (label == answer_mask).to(torch::kLong)) == response_mask).sum().to(torch::kInt).item<int>();
+                mean_accuracy += (double)correct_per_class / (double)total_class_pixel;
+                class_count++;
+            }
+        }
+        mean_accuracy = mean_accuracy / (double)class_count;
+
         ave_loss += loss.item<float>();
+        ave_pixel_wise_accuracy += pixel_wise_accuracy;
+        ave_mean_accuracy += mean_accuracy;
         ave_time += seconds;
 
-        std::cout << '<' << std::get<2>(data).at(0) << "> cross-entropy:" << loss.item<float>() << std::endl;
-        ofs << '<' << std::get<2>(data).at(0) << "> cross-entropy:" << loss.item<float>() << std::endl;
+        std::cout << '<' << std::get<2>(data).at(0) << "> cross-entropy:" << loss.item<float>() << " pixel-wise-accuracy:" << pixel_wise_accuracy << " mean-accuracy:" << mean_accuracy << std::endl;
+        ofs << '<' << std::get<2>(data).at(0) << "> cross-entropy:" << loss.item<float>() << " pixel-wise-accuracy:" << pixel_wise_accuracy << " mean-accuracy:" << mean_accuracy << std::endl;
 
         fname = result_dir + '/' + std::get<3>(data).at(0);
-        output_argmax = output.exp().argmax(/*dim=*/1, /*keepdim=*/true);
         visualizer::save_label(output_argmax.detach(), fname, std::get<4>(data), /*cols=*/1, /*padding=*/0);
 
     }
 
     // (6) Calculate Average
     ave_loss = ave_loss / (float)dataset.size();
+    ave_pixel_wise_accuracy = ave_pixel_wise_accuracy / (double)dataset.size();
+    ave_mean_accuracy = ave_mean_accuracy / (double)dataset.size();
     ave_time = ave_time / (double)dataset.size();
 
     // (7) Average Output
-    std::cout << "<All> cross-entropy:" << ave_loss << " (time:" << ave_time << ')' << std::endl;
-    ofs << "<All> cross-entropy:" << ave_loss << " (time:" << ave_time << ')' << std::endl;
+    std::cout << "<All> cross-entropy:" << ave_loss << " pixel-wise-accuracy:" << ave_pixel_wise_accuracy << " mean-accuracy:" << ave_mean_accuracy << " (time:" << ave_time << ')' << std::endl;
+    ofs << "<All> cross-entropy:" << ave_loss << " pixel-wise-accuracy:" << ave_pixel_wise_accuracy << " mean-accuracy:" << ave_mean_accuracy << " (time:" << ave_time << ')' << std::endl;
 
     // Post Processing
     ofs.close();

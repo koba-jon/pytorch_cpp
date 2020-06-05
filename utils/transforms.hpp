@@ -68,6 +68,23 @@ namespace transforms{
         void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
         void forward(torch::Tensor &data_in, torch::Tensor &data_out) override{}
     };
+    
+
+    // ----------------------------------------------------
+    // namespace{transforms} -> class{ConvertIndex}(Compose)
+    // ----------------------------------------------------
+    class ConvertIndex : Compose{
+    private:
+        int before, after;
+    public:
+        ConvertIndex(){}
+        ConvertIndex(const int before_, const int after_);
+        bool type() override{return CV_MAT;}
+        void forward(cv::Mat &data_in, cv::Mat &data_out) override;
+        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{}
+        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
+        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override{}
+    };
 
 
     // ----------------------------------------------------

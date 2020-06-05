@@ -95,6 +95,36 @@ void transforms::Resize::forward(cv::Mat &data_in, cv::Mat &data_out){
 }
 
 
+// ---------------------------------------------------------------------------
+// namespace{transforms} -> class{ConvertIndex}(Compose) -> constructor
+// ---------------------------------------------------------------------------
+transforms::ConvertIndex::ConvertIndex(const int before_, const int after_){
+    this->before = before_;
+    this->after = after_;
+}
+
+
+// ---------------------------------------------------------------------------
+// namespace{transforms} -> class{ConvertIndex}(Compose) -> function{forward}
+// ---------------------------------------------------------------------------
+void transforms::ConvertIndex::forward(cv::Mat &data_in, cv::Mat &data_out){
+    size_t width = data_in.cols;
+    size_t height = data_in.rows;
+    data_out = cv::Mat(cv::Size(width, height), CV_32SC1);
+    for (size_t j = 0; j < height; j++){
+        for (size_t i = 0; i < width; i++){
+            if (data_in.at<int>(j, i) == this->before){
+                data_out.at<int>(j, i) = this->after;
+            }
+            else{
+                data_out.at<int>(j, i) = data_in.at<int>(j, i);
+            }
+        }
+    }
+    return;
+}
+
+
 // -----------------------------------------------------------------------
 // namespace{transforms} -> class{ToTensor}(Compose) -> function{forward}
 // -----------------------------------------------------------------------
