@@ -40,7 +40,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datalo
         kld = vm["Lambda"].as<float>() * model->kld_just_before();
         loss = rec + kld;
         total_rec_loss += rec.item<float>();
-        total_kld_loss += rec.item<float>();
+        total_kld_loss += kld.item<float>();
         iteration++;
     }
 
