@@ -24,9 +24,9 @@ DataLoader::ImageFolderWithPaths::ImageFolderWithPaths(datasets::ImageFolderWith
     this->num_workers = num_workers_;
 
     this->size = this->dataset.size();
-    this->index.reserve(size);
+    this->index = std::vector<size_t>(this->size);
     for (size_t i = 0; i < this->size; i++){
-        this->index.push_back(i);
+        this->index.at(i) = i;
     }
 
     this->count = 0;
@@ -112,9 +112,9 @@ DataLoader::ImageFolderPairWithPaths::ImageFolderPairWithPaths(datasets::ImageFo
     this->num_workers = num_workers_;
 
     this->size = this->dataset.size();
-    this->index.reserve(size);
+    this->index = std::vector<size_t>(this->size);
     for (size_t i = 0; i < this->size; i++){
-        this->index.push_back(i);
+        this->index.at(i) = i;
     }
 
     this->count = 0;
@@ -207,9 +207,9 @@ DataLoader::ImageFolderSegmentWithPaths::ImageFolderSegmentWithPaths(datasets::I
     this->num_workers = num_workers_;
 
     this->size = this->dataset.size();
-    this->index.reserve(size);
+    this->index = std::vector<size_t>(this->size);
     for (size_t i = 0; i < this->size; i++){
-        this->index.push_back(i);
+        this->index.at(i) = i;
     }
 
     this->count = 0;

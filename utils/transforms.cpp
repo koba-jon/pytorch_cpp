@@ -64,9 +64,9 @@ void transforms::Grayscale::forward(cv::Mat &data_in, cv::Mat &data_out){
     cv::cvtColor(float_mat, float_mat_gray, cv::COLOR_RGB2GRAY);
     float_mat_gray.convertTo(data_out, data_in.depth());  // continuous ===> discrete
     if (this->channels > 1){
-        std::vector<cv::Mat> multi;
+        std::vector<cv::Mat> multi(this->channels);
         for (int i = 0; i < this->channels; i++){
-            multi.push_back(data_out.clone());
+            multi.at(i) = data_out.clone();
         }
         cv::merge(multi, data_out);
     }

@@ -70,6 +70,8 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
     }
 
     // (3) Add images to the array
+    i = 0;
+    samples = std::vector<cv::Mat>(mini_batch_size);
     auto mini_batch = image.to(torch::kCPU).chunk(mini_batch_size, /*dim=*/0);  // {N,C,H,W} ===> {1,C,H,W} + {1,C,H,W} + ...
     for (auto &tensor : mini_batch){
         tensor_sq = torch::squeeze(tensor, /*dim=*/0);  // {1,C,H,W} ===> {C,H,W}
@@ -93,7 +95,8 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
             cv::cvtColor(RGB, BGR, cv::COLOR_RGB2BGR);  // {R,G,B} ===> {B,G,R}
             sample = BGR;
         }
-        samples.push_back(sample.clone());
+        sample.copyTo(samples.at(i));
+        i++;
     }
 
     // (4) Output Image Information
@@ -151,12 +154,15 @@ void visualizer::save_label(const torch::Tensor label, const std::string path, c
     width = label.size(3);
 
     // (2) Add images to the array
+    i = 0;
+    samples = std::vector<cv::Mat>(mini_batch_size);
     auto mini_batch = label.to(torch::kCPU).chunk(mini_batch_size, /*dim=*/0);  // {N,1,H,W} ===> {1,1,H,W} + {1,1,H,W} + ...
     for (auto &tensor : mini_batch){
         tensor_sq = torch::squeeze(tensor, /*dim=*/0);  // {1,1,H,W} ===> {1,H,W}
         tensor_per = tensor_sq.permute({1, 2, 0});  // {1,H,W} ===> {H,W,1}
         sample = cv::Mat(cv::Size(width, height), CV_32SC1, tensor_per.to(torch::kInt).data_ptr<int>());  // torch::Tensor ===> cv::Mat
-        samples.push_back(sample.clone());
+        sample.copyTo(samples.at(i));
+        i++;
     }
 
     // (3) Output Image Information
