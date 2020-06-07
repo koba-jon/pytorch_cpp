@@ -9,5 +9,4 @@ DATA='VOC2012'
     --size 256 \
     --batch_size 16 \
     --gpu_id 0 \
-    --nc 3 \
-    --no_dropout true
+    --nc 3

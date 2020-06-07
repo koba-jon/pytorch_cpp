@@ -7,5 +7,4 @@ DATA='VOC2012'
     --dataset ${DATA} \
     --size 256 \
     --gpu_id 0 \
-    --nc 3 \
-    --no_dropout true
+    --nc 3

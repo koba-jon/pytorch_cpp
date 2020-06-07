@@ -24,7 +24,7 @@
 #include "datasets.hpp"                // datasets::ImageFolderWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderWithPaths
 #include "visualizer.hpp"              // visualizer
-#include "progress.hpp"                // progress_display
+#include "progress.hpp"                // progress::display
 
 // Define Namespace
 namespace po = boost::program_options;
@@ -76,7 +76,7 @@ void train(po::variables_map &vm, torch::Device &device, GAN_Generator &gen, GAN
     datasets::ImageFolderWithPaths dataset, valid_dataset;
     DataLoader::ImageFolderWithPaths dataloader, valid_dataloader;
     visualizer::graph train_loss, train_loss_dis, valid_loss, valid_loss_dis;
-    progress_display *show_progress;
+    progress::display *show_progress;
 
 
     // -----------------------------------
@@ -194,7 +194,7 @@ void train(po::variables_map &vm, torch::Device &device, GAN_Generator &gen, GAN
         gen->train();
         dis->train();
         ofs << std::endl << "epoch:" << epoch << '/' << total_epoch << std::endl;
-        show_progress = new progress_display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"G", "D_Real", "D_Fake"});
+        show_progress = new progress::display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"G", "D_Real", "D_Fake"});
 
         // -----------------------------------
         // b1. Mini Batch Learning

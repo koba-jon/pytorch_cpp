@@ -24,7 +24,7 @@
 #include "datasets.hpp"                // datasets::ImageFolderSegmentWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderSegmentWithPaths
 #include "visualizer.hpp"              // visualizer
-#include "progress.hpp"                // progress_display
+#include "progress.hpp"                // progress::display
 
 // Define Namespace
 namespace po = boost::program_options;
@@ -72,7 +72,7 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
     datasets::ImageFolderSegmentWithPaths dataset, valid_dataset;
     DataLoader::ImageFolderSegmentWithPaths dataloader, valid_dataloader;
     visualizer::graph train_loss, valid_loss;
-    progress_display *show_progress;
+    progress::display *show_progress;
 
 
     // -----------------------------------
@@ -185,7 +185,7 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
 
         model->train();
         ofs << std::endl << "epoch:" << epoch << '/' << total_epoch << std::endl;
-        show_progress = new progress_display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"classify"});
+        show_progress = new progress::display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"classify"});
 
         // -----------------------------------
         // b1. Mini Batch Learning
