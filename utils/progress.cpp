@@ -13,10 +13,10 @@
 #include "progress.hpp"
 
 
-// ----------------------------------------------
-// class{progress_display} -> constructor
-// ----------------------------------------------
-progress_display::progress_display(const size_t count_max_, const std::pair<size_t, size_t> epoch, const std::vector<std::string> loss_){
+// ------------------------------------------------------
+// namespace{progress} -> class{display} -> constructor
+// ------------------------------------------------------
+progress::display::display(const size_t count_max_, const std::pair<size_t, size_t> epoch, const std::vector<std::string> loss_){
 
     this->count = 0;
     this->count_max = count_max_;
@@ -28,20 +28,17 @@ progress_display::progress_display(const size_t count_max_, const std::pair<size
     std::cout << ss.str() << std::flush;
     this->header = ss.str().length();
 
-    for (size_t i = 0; i < this->loss.size(); i++){
-        this->loss_sum.push_back(0.0);
-        this->loss_ave.push_back(0.0);
-    }
-
+    this->loss_sum = std::vector<float>(this->loss.size(), 0.0);
+    this->loss_ave = std::vector<float>(this->loss.size(), 0.0);
     this->start = std::chrono::system_clock::now();
 
 }
 
 
-// ----------------------------------------------
-// class{progress_display} -> function{increment}
-// ----------------------------------------------
-void progress_display::increment(const std::vector<float> loss_value){
+// -------------------------------------------------------------
+// namespace{progress} -> class{display} -> function{increment}
+// -------------------------------------------------------------
+void progress::display::increment(const std::vector<float> loss_value){
 
     // (0) Initialization and Declaration
     size_t i;
@@ -148,33 +145,29 @@ void progress_display::increment(const std::vector<float> loss_value){
 }
 
 
-// ----------------------------------------------
-// class{progress_display} -> function{get_iters}
-// ----------------------------------------------
-size_t progress_display::get_iters(){
+// -------------------------------------------------------------
+// namespace{progress} -> class{display} -> function{get_iters}
+// -------------------------------------------------------------
+size_t progress::display::get_iters(){
     return this->count;
 }
 
 
-// ----------------------------------------------
-// class{progress_display} -> function{get_ave}
-// ----------------------------------------------
-std::vector<float> progress_display::get_ave(){
+// -----------------------------------------------------------
+// namespace{progress} -> class{display} -> function{get_ave}
+// -----------------------------------------------------------
+std::vector<float> progress::display::get_ave(){
     return this->loss_ave;
 }
 
-
-// ----------------------------------------------
-// class{progress_display} -> function{get_ave}
-// ----------------------------------------------
-float progress_display::get_ave(const int index){
+float progress::display::get_ave(const int index){
     return this->loss_ave.at(index);
 }
 
 
-// ----------------------------------------------
-// class{progress_display} -> destructor
-// ----------------------------------------------
-progress_display::~progress_display(){
+// ----------------------------------------------------
+// namespace{progress} -> class{display} -> destructor
+// ----------------------------------------------------
+progress::display::~display(){
     std::cout << std::endl;
 }

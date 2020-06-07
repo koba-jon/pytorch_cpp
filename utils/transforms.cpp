@@ -89,7 +89,7 @@ transforms::Resize::Resize(const cv::Size size_, const int interpolation_){
 void transforms::Resize::forward(cv::Mat &data_in, cv::Mat &data_out){
     cv::Mat float_mat, float_mat_resize;
     data_in.convertTo(float_mat, CV_32F);  // discrete ===> continuous
-    cv::resize(float_mat, float_mat_resize, this->size, this->interpolation);
+    cv::resize(float_mat, float_mat_resize, this->size, 0.0, 0.0, this->interpolation);
     float_mat_resize.convertTo(data_out, data_in.depth());  // continuous ===> discrete
     return;
 }
@@ -155,8 +155,27 @@ void transforms::ToTensorLabel::forward(cv::Mat &data_in, torch::Tensor &data_ou
 // namespace{transforms} -> class{Normalize}(Compose) -> constructor
 // -----------------------------------------------------------------------
 transforms::Normalize::Normalize(const float mean_, const float std_){
+    this->flag = true;
     this->mean = mean_;
     this->std = std_;
+}
+
+transforms::Normalize::Normalize(const float mean_, const std::vector<float> std_){
+    this->flag = false;
+    this->mean_vec = std::vector<float>(std_.size(), mean_);
+    this->std_vec = std_;
+}
+
+transforms::Normalize::Normalize(const std::vector<float> mean_, const float std_){
+    this->flag = false;
+    this->mean_vec = mean_;
+    this->std_vec = std::vector<float>(mean_.size(), std_);
+}
+
+transforms::Normalize::Normalize(const std::vector<float> mean_, const std::vector<float> std_){
+    this->flag = false;
+    this->mean_vec = mean_;
+    this->std_vec = std_;
 }
 
 
@@ -164,7 +183,27 @@ transforms::Normalize::Normalize(const float mean_, const float std_){
 // namespace{transforms} -> class{Normalize}(Compose) -> function{forward}
 // -----------------------------------------------------------------------
 void transforms::Normalize::forward(torch::Tensor &data_in, torch::Tensor &data_out){
-    torch::Tensor data_out_src = (data_in - this->mean) / this->std;
+
+    torch::Tensor data_out_src;
+
+    if (this->flag){
+        data_out_src = (data_in - this->mean) / this->std;
+    }
+    else{
+        size_t counter = 0;
+        auto data_per_ch = data_in.chunk(data_in.size(0), /*dim=*/0);  // {C,H,W} ===> {1,H,W} + {1,H,W} + ...
+        for (auto &tensor : data_per_ch){
+            if (counter == 0){
+                data_out_src = (tensor - this->mean_vec.at(counter)) / this->std_vec.at(counter);
+            }
+            else{
+                data_out_src = torch::cat({data_out_src, (tensor - this->mean_vec.at(counter)) / this->std_vec.at(counter)}, /*dim=*/0);  // {i,H,W} + {1,H,W} ===> {i+1,H,W}
+            }
+            counter++;
+        }
+    }
+    
     data_out = data_out_src.detach().clone();
+    
     return;
 }

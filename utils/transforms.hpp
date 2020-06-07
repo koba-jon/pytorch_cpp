@@ -120,10 +120,15 @@ namespace transforms{
     // ----------------------------------------------------
     class Normalize : Compose{
     private:
+        bool flag;
         float mean, std;
+        std::vector<float> mean_vec, std_vec;
     public:
         Normalize(){}
         Normalize(const float mean_, const float std_);
+        Normalize(const float mean_, const std::vector<float> std_);
+        Normalize(const std::vector<float> mean_, const float std_);
+        Normalize(const std::vector<float> mean_, const std::vector<float> std_);
         bool type() override{return TORCH_TENSOR;}
         void forward(cv::Mat &data_in, cv::Mat &data_out) override{}
         void forward(cv::Mat &data_in, torch::Tensor &data_out) override{}

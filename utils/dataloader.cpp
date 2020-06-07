@@ -276,15 +276,15 @@ bool DataLoader::ImageFolderSegmentWithPaths::operator()(std::tuple<torch::Tenso
         tensor1 = torch::unsqueeze(tensor1, /*dim=*/0);  // {C,H,W} ===> {1,C,H,W}
         data1 = torch::cat({data1, tensor1}, /*dim=*/0);  // {i,C,H,W} + {1,C,H,W} ===> {i+1,C,H,W}
         tensor2 = std::get<1>(group);
-        tensor2 = torch::unsqueeze(tensor2, /*dim=*/0);  // {C,H,W} ===> {1,C,H,W}
-        data2 = torch::cat({data2, tensor2}, /*dim=*/0);  // {i,C,H,W} + {1,C,H,W} ===> {i+1,C,H,W}
+        tensor2 = torch::unsqueeze(tensor2, /*dim=*/0);  // {H,W} ===> {1,H,W}
+        data2 = torch::cat({data2, tensor2}, /*dim=*/0);  // {i,H,W} + {1,H,W} ===> {i+1,H,W}
         data3.push_back(std::get<2>(group));
         data4.push_back(std::get<3>(group));
     }
 
     // Post Processing
     this->count++;
-    data = {data1.detach().clone(), data2.detach().clone(), data3, data4, data5};  // {N,C,H,W} (images1), {N,C,H,W} (images2), {N} (fnames1), {N} (fnames2), {L} (label_palette)
+    data = {data1.detach().clone(), data2.detach().clone(), data3, data4, data5};  // {N,C,H,W} (images1), {N,H,W} (images2), {N} (fnames1), {N} (fnames2), {L} (label_palette)
     delete[] data_before;
 
     // End Processing
