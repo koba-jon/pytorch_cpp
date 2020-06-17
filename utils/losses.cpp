@@ -50,7 +50,7 @@ Losses::SSIMLoss::SSIMLoss(const size_t nc_, const torch::Device device, const s
     // 
     // -------------------------------------------------------------------------------------
 
-    this->window = tensor.to(device).detach();
+    this->window = tensor.to(device).detach().clone();
 
     delete[] gauss_list;
 
