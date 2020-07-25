@@ -1,5 +1,5 @@
 # VAE2d
-This is "Variational Autoencoder" corresponding to 2-dimensional shape.
+This is "Variational Autoencoder" corresponding to 2-dimensional shape.<br>
 Original paper: D. P. Kingma and M. Welling. Auto-Encoding Variational Bayes. In International Conference on Learning Representations, 2014. [link](https://arxiv.org/abs/1312.6114)
 
 ## Usage
@@ -17,7 +17,7 @@ $ cd ..
 ### 2. Dataset Setting
 
 #### Recommendation
-- Large-scale CelebFaces Attributes (CelebA) Dataset
+- Large-scale CelebFaces Attributes (CelebA) Dataset<br>
 This is a large-scale face attributes dataset with more than 200K celebrity images, each with 40 attribute annotations.<br>
 Link: [official](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
 
