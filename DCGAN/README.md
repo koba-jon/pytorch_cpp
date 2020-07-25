@@ -1,5 +1,5 @@
 # DCGAN
-This is "Deep Convolutional Generative Adversarial Networks".
+This is "Deep Convolutional Generative Adversarial Networks".<br>
 Original paper: A. Radford, L. Metz, and S. Chintala. Unsupervised representation learning with deep convolutional generative adversarial networks. In International Conference on Learning Representations, 2016. [link](https://arxiv.org/abs/1511.06434)
 
 ## Usage
@@ -17,7 +17,7 @@ $ cd ..
 ### 2. Dataset Setting
 
 #### Recommendation
-- Large-scale CelebFaces Attributes (CelebA) Dataset
+- Large-scale CelebFaces Attributes (CelebA) Dataset<br>
 This is a large-scale face attributes dataset with more than 200K celebrity images, each with 40 attribute annotations.<br>
 Link: [official](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
 
