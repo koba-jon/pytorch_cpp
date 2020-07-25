@@ -122,7 +122,7 @@ It corresponds to the following source code in the directory.
 ### 2. Check Progress
 There are a feature to check progress for training progress in this repository.<br>
 We can watch number of epoch, loss, time and speed in training.<br>
-![util1](https://user-images.githubusercontent.com/56967584/88464264-3f720300-cef4-11ea-85fd-360cb3a424d1.png)
+![util1](https://user-images.githubusercontent.com/56967584/88464264-3f720300-cef4-11ea-85fd-360cb3a424d1.png)<br>
 It corresponds to the following source code in the directory.
 - progress.cpp
 - progress.hpp
@@ -132,7 +132,7 @@ There are monitoring system for training in this repository.<br>
 We can watch output image and loss graph.<br>
 The feature to watch output image is in the "samples" in the directory "checkpoints" created during training.<br>
 The feature to watch loss graph is in the "graph" in the directory "checkpoints" created during training.<br>
-![util2](https://user-images.githubusercontent.com/56967584/88464268-40a33000-cef4-11ea-8a3c-da42d4c803b6.png)
+![util2](https://user-images.githubusercontent.com/56967584/88464268-40a33000-cef4-11ea-8a3c-da42d4c803b6.png)<br>
 It corresponds to the following source code in the directory.
 - visualizer.cpp
 - visualizer.hpp
