@@ -1,5 +1,5 @@
 # U-Net_Regression
-This is "U-Net" corresponding to regression.
+This is "U-Net" corresponding to regression.<br>
 Original paper: O. Ronneberger, P. Fischer, and T. Brox. U-net: Convolutional networks for biomedical image segmentation. In International Conference on Medical Image Computing and Computer-Assisted Intervention, 2015. [link](https://arxiv.org/abs/1505.04597)
 
 ## Usage
@@ -17,7 +17,7 @@ $ cd ..
 ### 2. Dataset Setting
 
 #### Recommendation
-- CMP Facade Database
+- CMP Facade Database<br>
 This is a dataset of facade images assembled at the Center for Machine Perception, which includes 606 rectified images of facades from various sources, which have been manually annotated.<br>
 Link: [official](http://cmp.felk.cvut.cz/~tylecr1/facade/)
 
