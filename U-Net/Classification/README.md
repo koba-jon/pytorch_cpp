@@ -1,5 +1,5 @@
 # U-Net_Classification
-This is "U-Net" corresponding to classification.
+This is "U-Net" corresponding to classification.<br>
 Original paper: O. Ronneberger, P. Fischer, and T. Brox. U-net: Convolutional networks for biomedical image segmentation. In International Conference on Medical Image Computing and Computer-Assisted Intervention, 2015. [link](https://arxiv.org/abs/1505.04597)
 
 ## Usage
@@ -17,7 +17,7 @@ $ cd ..
 ### 2. Dataset Setting
 
 #### Recommendation
-- The PASCAL Visual Object Classes Challenge 2012 (VOC2012)
+- The PASCAL Visual Object Classes Challenge 2012 (VOC2012)<br>
 This is a set of images that has an annotation file giving a bounding box and object class label for each object in one of the twenty classes present in the image.<br>
 Link: [official](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/)
 
