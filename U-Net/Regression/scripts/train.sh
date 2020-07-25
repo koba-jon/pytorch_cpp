@@ -1,13 +1,12 @@
 #!/bin/bash
 
-DATA='maps'
+DATA='facade'
 
 ./U-Net_Regression \
     --train true \
     --epochs 300 \
     --dataset ${DATA} \
     --size 256 \
-    --loss "l1" \
     --batch_size 16 \
     --gpu_id 0 \
     --input_nc 3 \

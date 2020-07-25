@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DATA='maps'
+DATA='facade'
 
 ./U-Net_Regression \
     --test true \
