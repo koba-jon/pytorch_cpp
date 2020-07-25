@@ -1,5 +1,5 @@
 # AE2d
-This is "Autoencoder" corresponding to 2-dimensional shape.
+This is "Autoencoder" corresponding to 2-dimensional shape.<br>
 Original paper: G. E. Hinton and R. R. Salakhutdinov. Reducing the dimensionality of data with neural networks. Science, 2006. [link](https://science.sciencemag.org/content/313/5786/504.abstract)
 
 ## Usage
@@ -17,7 +17,7 @@ $ cd ..
 ### 2. Dataset Setting
 
 #### Recommendation
-- Large-scale CelebFaces Attributes (CelebA) Dataset
+- Large-scale CelebFaces Attributes (CelebA) Dataset<br>
 This is a large-scale face attributes dataset with more than 200K celebrity images, each with 40 attribute annotations.<br>
 Link: [official](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
 
