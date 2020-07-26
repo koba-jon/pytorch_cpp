@@ -26,6 +26,7 @@ namespace progress{
     public:
         display(){}
         display(const size_t count_max_, const std::pair<size_t, size_t> epoch, const std::vector<std::string> loss_);
+        display(const size_t count_max_, const std::string header1, const std::string header2, const std::vector<std::string> loss_);
         void increment(const std::vector<float> loss_value);
         size_t get_iters();
         std::vector<float> get_ave();

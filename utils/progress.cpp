@@ -34,6 +34,24 @@ progress::display::display(const size_t count_max_, const std::pair<size_t, size
 
 }
 
+progress::display::display(const size_t count_max_, const std::string header1, const std::string header2, const std::vector<std::string> loss_){
+
+    this->count = 0;
+    this->count_max = count_max_;
+    this->length = 0;
+    this->loss = loss_;
+
+    std::stringstream ss;
+    ss << header1 << " " << header2 << " ";
+    std::cout << ss.str() << std::flush;
+    this->header = ss.str().length();
+
+    this->loss_sum = std::vector<float>(this->loss.size(), 0.0);
+    this->loss_ave = std::vector<float>(this->loss.size(), 0.0);
+    this->start = std::chrono::system_clock::now();
+
+}
+
 
 // -------------------------------------------------------------
 // namespace{progress} -> class{display} -> function{increment}
