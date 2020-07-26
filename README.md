@@ -14,12 +14,13 @@ In addition, I might adapt programs to the latest version. <br>
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Stable (1.5) <br>
+PyTorch Build : Stable (1.5.1) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 CUDA : 10.2 <br>
-Run this Command :
-    Download here (cxx11 ABI): https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.5.0.zip <br>
+Run this Command : Download here (cxx11 ABI) <br>
+GPU : https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.5.1.zip <br>
+CPU : https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.5.1%2Bcpu.zip <br>
 ***
 
 ### 2. OpenCV
@@ -28,25 +29,32 @@ This is used for pre-processing and post-processing. <br>
 Please refer to other sites for more detailed installation method.
 
 ### 3. OpenMP
-version : 4.5 (There is a possibility that other versions can do it.) <br>
+version : 4.5 (It works on other versions.) <br>
 This is used to load data in parallel. <br>
 It may be installed on standard Linux OS.
 
 ### 4. Boost
-version : 1.65.1 (There is a possibility that other versions can do it.) <br>
+version : 1.65.1 (It works on other versions.) <br>
 This is used for command line arguments, etc. <br>
 ~~~
 $ sudo apt install libboost-dev libboost-all-dev
 ~~~
 
 ### 5. Gnuplot
-version : 5.2 (There is a possibility that other versions can do it.) <br>
+version : 5.2 (It works on other versions.) <br>
 This is used to display loss graph. <br>
 ~~~
 $ sudo apt install gnuplot
 ~~~
 
-## Usage
+### 6. libpng
+version : 0.2 (It works on other versions.) <br>
+This is used to load and save index-color image in semantic segmentation. <br>
+~~~
+$ sudo apt install libpng++-dev
+~~~
+
+## Preparation
 
 ### 1. Git Clone
 ~~~
@@ -55,48 +63,43 @@ $ cd pytorch_cpp
 ~~~
 
 ### 2. Path Setting
-The following is an example of "ConvAE".
 ~~~
-$ cd ConvAE
-$ vi CMakeLists.txt
+$ vi utils/CMakeLists.txt
 ~~~
-Please change the 7th line of "CMakeLists.txt" according to the path of the directory "libtorch". <br>
+Please change the 4th line of "CMakeLists.txt" according to the path of the directory "libtorch". <br>
 The following is an example where the directory "libtorch" is located directly under the directory "HOME".
 ~~~
-6: # LibTorch
-7: set(LIBTORCH_DIR $ENV{HOME}/libtorch)
-8: list(APPEND CMAKE_PREFIX_PATH ${LIBTORCH_DIR})
+3: # LibTorch
+4: set(LIBTORCH_DIR $ENV{HOME}/libtorch)
+5: list(APPEND CMAKE_PREFIX_PATH ${LIBTORCH_DIR})
 ~~~
 
-### 3. Build
-Please build the source file according to the procedure.
-~~~
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make -j4
-$ cd ..
-~~~
+### 3. Execution
+Please move to the directory of each model and refer to "README.md".
 
-### 4. Dataset Setting
-Please create a link for the dataset.
+## Utility
+
+### 1. Making Original Dataset
+Please create a link for the original dataset.<br>
+The following is an example of "AE2d" using "celebA" Dataset.
 ~~~
-$ cd datasets
+$ cd AE2d/datasets
 $ ln -s <dataset_path> ./
 ~~~
-Please edit the file for original dataset.
+You should substitute the path of dataset for "<dataset_path>".<br>
+Please make sure you have training or test data directly under "<dataset_path>".
 ~~~
 $ vi hold_out.sh
 ~~~
-The following is an example for "celebA".
+Please edit the file for original dataset.
 ~~~
 #!/bin/bash
 
 python3 hold_out.py \
-        --input_dir celebA_org \
-        --output_dir celebA \
-        --train_rate 9 \
-        --valid_rate 1
+    --input_dir celebA_org \
+    --output_dir celebA \
+    --train_rate 9 \
+    --valid_rate 1
 ~~~
 By running this file, you can split it into training and validation data.
 ~~~
@@ -106,35 +109,35 @@ $ sh hold_out.sh
 $ cd ..
 ~~~
 
-### 5. Execute File Setting
-Please set the shell for executable file.
-~~~
-$ cd scripts
-$ vi train.sh
-~~~
-The following is an exmaple of the learning phase.<br>
-If you want to view specific examples of command line arguments, please view "src/main.cpp" or add "--help" to the argument.
-~~~
-#!/bin/bash
+### 2. Data Input System
+There are transform, dataset and dataloader for data input in this repository.<br>
+It corresponds to the following source code in the directory, and we can add new function to the source code below.
+- transforms.cpp
+- transforms.hpp
+- datasets.cpp
+- datasets.hpp
+- dataloader.cpp
+- dataloader.hpp
 
-DATA='celebA'
+### 3. Check Progress
+There are a feature to check progress for training in this repository.<br>
+We can watch number of epoch, loss, time and speed in training.<br>
+![util1](https://user-images.githubusercontent.com/56967584/88464264-3f720300-cef4-11ea-85fd-360cb3a424d1.png)<br>
+It corresponds to the following source code in the directory.
+- progress.cpp
+- progress.hpp
 
-./ConvAE \
-        --train true \
-        --epochs 300 \
-        --dataset ${DATA} \
-        --size 256 \
-        --loss "l1" \
-        --batch_size 16 \
-        --gpu_id 0 \
-        --nc 3
-~~~
-~~~
-$ cd ..
-~~~
+### 4. Monitoring System
+There are monitoring system for training in this repository.<br>
+We can watch output image and loss graph.<br>
+The feature to watch output image is in the "samples" in the directory "checkpoints" created during training.<br>
+The feature to watch loss graph is in the "graph" in the directory "checkpoints" created during training.<br>
+![util2](https://user-images.githubusercontent.com/56967584/88464268-40a33000-cef4-11ea-8a3c-da42d4c803b6.png)<br>
+It corresponds to the following source code in the directory.
+- visualizer.cpp
+- visualizer.hpp
 
-### 6. Run
-Please execute the following to start the Deep Learning program.
-~~~
-$ sh scripts/train.sh
-~~~
+## Conclusion
+I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
+If you have any problems with the source code of this repository, please feel free to "issue".<br>
+Let's have a good development and research life!
