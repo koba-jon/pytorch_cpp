@@ -32,7 +32,7 @@ EncoderImpl::EncoderImpl(po::variables_map &vm){
     for (size_t i = 0; i < num_downs - 5; i++){
         DownSampling(this->model, feature*8, feature*8, /*BN=*/true, /*ReLU=*/true);              // {8F,16,16}  ===> {8F,2,2}
     }
-    DownSampling(this->model, feature*8, vm["nz_c"].as<size_t>(), /*BN=*/false, /*ReLU=*/false);  // {8F,2,2}    ===> {Z,1,1}
+    DownSampling(this->model, feature*8, vm["nz_c"].as<size_t>(), /*BN=*/false, /*ReLU=*/false);  // {8F,2,2}    ===> {ZC,1,1}
     register_module("Encoder", this->model);
 
 }
@@ -55,7 +55,7 @@ DecoderImpl::DecoderImpl(po::variables_map &vm){
     size_t feature = vm["nf"].as<size_t>();
     size_t num_downs = (size_t)(std::log2(vm["size"].as<size_t>()));
 
-    UpSampling(this->model, vm["nz_c"].as<size_t>(), feature*8, /*BN=*/true, /*ReLU=*/true);    // {Z,1,1}     ===> {8F,2,2}
+    UpSampling(this->model, vm["nz_c"].as<size_t>(), feature*8, /*BN=*/true, /*ReLU=*/true);    // {ZC,1,1}     ===> {8F,2,2}
     for (size_t i = 0; i < num_downs - 5; i++){
         UpSampling(this->model, feature*8, feature*8, /*BN=*/true, /*ReLU=*/true);              // {8F,2,2}    ===> {8F,16,16}
     }
