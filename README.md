@@ -108,10 +108,9 @@ $ sh hold_out.sh
 $ cd ..
 ~~~
 
-### 2. Data Input/Output
-There are transform, dataset and dataloader for data input/output in this repository.<br>
-We can add new function to the source code below.<br>
-It corresponds to the following source code in the directory.
+### 2. Data Input System
+There are transform, dataset and dataloader for data input in this repository.<br>
+It corresponds to the following source code in the directory, and we can add new function to the source code below.
 - transforms.cpp
 - transforms.hpp
 - datasets.cpp
@@ -120,7 +119,7 @@ It corresponds to the following source code in the directory.
 - dataloader.hpp
 
 ### 3. Check Progress
-There are a feature to check progress for training progress in this repository.<br>
+There are a feature to check progress for training in this repository.<br>
 We can watch number of epoch, loss, time and speed in training.<br>
 ![util1](https://user-images.githubusercontent.com/56967584/88464264-3f720300-cef4-11ea-85fd-360cb3a424d1.png)<br>
 It corresponds to the following source code in the directory.
