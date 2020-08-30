@@ -19,8 +19,8 @@ Your OS : Linux <br>
 Package : LibTorch <br>
 CUDA : 10.2 <br>
 Run this Command : Download here (cxx11 ABI) <br>
-GPU : https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.5.1.zip <br>
-CPU : https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.5.1%2Bcpu.zip <br>
+GPU : https://download.pytorch.org/libtorch/nightly/cu102/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
+CPU : https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
 ***
 
 ### 2. OpenCV
