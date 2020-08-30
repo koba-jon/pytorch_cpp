@@ -14,7 +14,7 @@ In addition, I might adapt programs to the latest version. <br>
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Preview (Nightly) <br>
+PyTorch Build : Stable (1.5.1) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 CUDA : 10.2 <br>
