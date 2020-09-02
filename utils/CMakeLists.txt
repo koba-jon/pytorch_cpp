@@ -4,6 +4,9 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 set(LIBTORCH_DIR $ENV{HOME}/libtorch)
 list(APPEND CMAKE_PREFIX_PATH ${LIBTORCH_DIR})
 
+# Set Compiler Options
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall")
+
 # Directory Name
 set(UTILS_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 

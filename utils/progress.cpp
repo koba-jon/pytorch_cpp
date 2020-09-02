@@ -94,6 +94,7 @@ void progress::display::increment(const std::vector<float> loss_value){
     left_str += ss.str() + "%[";
 
     // (4) Get Times for Right String
+    sec_per_iter = 0.0; rem_times = 0;
     this->end = std::chrono::system_clock::now();
     for (i = 0; i < 6; i++){
         ss.str(""); ss.clear(std::stringstream::goodbit);
@@ -218,6 +219,7 @@ void progress::irregular::nab(const size_t count){
     std::stringstream ss;
     
     // (1) Get Times
+    sec_per_count = 0.0; rem_times = 0;
     this->end = std::chrono::system_clock::now();
     for (i = 0; i < 8; i++){
         ss.str(""); ss.clear(std::stringstream::goodbit);
