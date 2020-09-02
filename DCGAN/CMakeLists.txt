@@ -13,7 +13,7 @@ set(SRCS
     ${SRC_DIR}/main.cpp
     ${SRC_DIR}/train.cpp
     ${SRC_DIR}/valid.cpp
-    ${SRC_DIR}/test.cpp
+    ${SRC_DIR}/synth.cpp
     ${SRC_DIR}/loss.cpp
     ${SRC_DIR}/networks.cpp
 )

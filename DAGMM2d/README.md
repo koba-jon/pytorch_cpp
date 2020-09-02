@@ -1,5 +1,5 @@
 # DAGMM2d
-This is "Deep Autoencoding Gaussian Mixture Model" corresponding to 2-dimensional shape.<br>
+This is the implementation of "Deep Autoencoding Gaussian Mixture Model" corresponding to 2-dimensional shape.<br>
 Original paper: B. Zong, Q. Song, M. R. Min, W. Cheng, C. Lumezanu, D. Cho, and H. Chen. Deep autoencoding gaussian mixture model for unsupervised anomaly detection. In International Conference on Learning Representations, 2018. [link](https://openreview.net/forum?id=BJJLHbb0-)
 
 ## Usage
@@ -24,9 +24,7 @@ Link: [official](https://www.mvtec.com/company/research/datasets/mvtec-ad/)
 #### Setting
 
 Please create a link for the dataset.<br>
-You should substitute the path of training normal data for "<training_path>".<br>
-You should substitute the path of test anomaly data for "<test_anomaly_path>".<br>
-You should substitute the path of test normal data for "<test_normal_path>".<br>
+You should substitute the path of training normal data for "<training_path>", test anomaly data for "<test_anomaly_path>", test normal data for "<test_normal_path>", respectively.<br>
 The following is an example for "MVTecAD".
 ~~~
 $ cd datasets

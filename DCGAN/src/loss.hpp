@@ -11,7 +11,7 @@
 // -----------------------------------
 class Loss{
 private:
-    int flag;
+    int judge;
     float ideal;
 public:
     Loss(){}

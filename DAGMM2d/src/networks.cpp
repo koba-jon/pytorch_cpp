@@ -14,7 +14,7 @@
 #define PI 3.14159265358979
 
 // Define Namespace
-using namespace torch;
+namespace nn = torch::nn;
 
 
 // ----------------------------------------------------------------------
@@ -113,17 +113,17 @@ torch::Tensor EstimationNetworkImpl::forward(torch::Tensor z){
 // ----------------------------------------------------------------------
 // struct{EstimationNetworkImpl}(nn::Module) -> function{estimation}
 // ----------------------------------------------------------------------
-void EstimationNetworkImpl::estimation(torch::Tensor z, torch::Tensor gamma){
+void EstimationNetworkImpl::estimation(torch::Tensor z, torch::Tensor gamma_ap){
 
-    size_t nz = z.size(1);      // Z = number of latent variables
-    size_t nk = gamma.size(1);  // K = number of attribution probability
+    size_t nz = z.size(1);      // Z = the number of latent variables
+    size_t nk = gamma_ap.size(1);  // K = the number of attribution probability
 
-    torch::Tensor gamma_sum = torch::sum(gamma, /*dim=*/0);  // gamma{N,K} ===> gamma_sum{K}
-    torch::Tensor mu = torch::sum(gamma.unsqueeze(2) * z.unsqueeze(1), /*dim=*/0) / gamma_sum.unsqueeze(1);  // gamma{N,K,1}, z{N,1,Z}, gamma_sum{K,1} ===> mu{K,Z}
+    torch::Tensor gamma_sum = torch::sum(gamma_ap, /*dim=*/0);  // gamma_ap{N,K} ===> gamma_sum{K}
+    torch::Tensor mu = torch::sum(gamma_ap.unsqueeze(2) * z.unsqueeze(1), /*dim=*/0) / gamma_sum.unsqueeze(1);  // gamma_ap{N,K,1}, z{N,1,Z}, gamma_sum{K,1} ===> mu{K,Z}
     torch::Tensor z_dev = z.unsqueeze(1) - mu.unsqueeze(0);  // z{N,1,Z}, mu{1,K,Z} ===> z_dev{N,K,Z}
     torch::Tensor z_dev_mat = z_dev.unsqueeze(3) * z_dev.unsqueeze(2);  // z_dev{N,K,Z,1}, z_dev{N,K,1,Z} ===> z_dev_mat{N,K,Z,Z}
-    torch::Tensor sigma = torch::sum(gamma.unsqueeze(-1).unsqueeze(-1) * z_dev_mat, /*dim=*/0) / gamma_sum.unsqueeze(-1).unsqueeze(-1);  // gamma{N,K,1,1}, z_dev_mat{N,K,Z,Z}, gamma_sum{K,1,1} ===> sigma{K,Z,Z}
-    torch::Tensor phi = gamma_sum / gamma.size(0);  // gamma_sum{K} ===> phi{K}
+    torch::Tensor sigma = torch::sum(gamma_ap.unsqueeze(-1).unsqueeze(-1) * z_dev_mat, /*dim=*/0) / gamma_sum.unsqueeze(-1).unsqueeze(-1);  // gamma_ap{N,K,1,1}, z_dev_mat{N,K,Z,Z}, gamma_sum{K,1,1} ===> sigma{K,Z,Z}
+    torch::Tensor phi = gamma_sum / gamma_ap.size(0);  // gamma_sum{K} ===> phi{K}
 
     torch::Tensor sigma_k = sigma[0] + (torch::eye(nz) * this->eps).detach().to(z.device());  // sigma[i]{Z,Z} ===> sigma_k{Z,Z}
     torch::Tensor precision = torch::sum(1.0 / sigma_k.diag());  // sigma_k.diag{Z} ===> precision{}
@@ -153,18 +153,18 @@ void EstimationNetworkImpl::estimation(torch::Tensor z, torch::Tensor gamma){
 // ----------------------------------------------------------------------
 // struct{EstimationNetworkImpl}(nn::Module) -> function{estimationNVI}
 // ----------------------------------------------------------------------
-void EstimationNetworkImpl::estimationNVI(torch::Tensor z, torch::Tensor gamma){
+void EstimationNetworkImpl::estimationNVI(torch::Tensor z, torch::Tensor gamma_ap){
 
     size_t mini_batch_size = z.size(0);  // N = mini batch size
-    size_t nz = z.size(1);               // Z = number of latent variables
-    size_t nk = gamma.size(1);           // K = number of attribution probability
+    size_t nz = z.size(1);               // Z = the number of latent variables
+    size_t nk = gamma_ap.size(1);           // K = the number of attribution probability
 
-    torch::Tensor gamma_sum = torch::sum(gamma, /*dim=*/0);  // gamma{N,K} ===> gamma_sum{K}
-    torch::Tensor mu = torch::sum(gamma.unsqueeze(2) * z.unsqueeze(1), /*dim=*/0) / gamma_sum.unsqueeze(1);  // gamma{N,K,1}, z{N,1,Z}, gamma_sum{K,1} ===> mu{K,Z}
+    torch::Tensor gamma_sum = torch::sum(gamma_ap, /*dim=*/0);  // gamma_ap{N,K} ===> gamma_sum{K}
+    torch::Tensor mu = torch::sum(gamma_ap.unsqueeze(2) * z.unsqueeze(1), /*dim=*/0) / gamma_sum.unsqueeze(1);  // gamma_ap{N,K,1}, z{N,1,Z}, gamma_sum{K,1} ===> mu{K,Z}
     torch::Tensor z_dev = z.unsqueeze(1) - mu.unsqueeze(0);  // z{N,1,Z}, mu{1,K,Z} ===> z_dev{N,K,Z}
     torch::Tensor z_dev_mat = z_dev.unsqueeze(3) * z_dev.unsqueeze(2);  // z_dev{N,K,Z,1}, z_dev{N,K,1,Z} ===> z_dev_mat{N,K,Z,Z}
-    torch::Tensor sigma = torch::sum(gamma.unsqueeze(-1).unsqueeze(-1) * z_dev_mat, /*dim=*/0) / gamma_sum.unsqueeze(-1).unsqueeze(-1);  // gamma{N,K,1,1}, z_dev_mat{N,K,Z,Z}, gamma_sum{K,1,1} ===> sigma{K,Z,Z}
-    torch::Tensor phi = gamma_sum / gamma.size(0);  // gamma_sum{K} ===> phi{K}
+    torch::Tensor sigma = torch::sum(gamma_ap.unsqueeze(-1).unsqueeze(-1) * z_dev_mat, /*dim=*/0) / gamma_sum.unsqueeze(-1).unsqueeze(-1);  // gamma_ap{N,K,1,1}, z_dev_mat{N,K,Z,Z}, gamma_sum{K,1,1} ===> sigma{K,Z,Z}
+    torch::Tensor phi = gamma_sum / gamma_ap.size(0);  // gamma_sum{K} ===> phi{K}
 
     torch::Tensor sigma_k = sigma[0] + (torch::eye(nz) * this->eps).detach().to(z.device());  // sigma[i]{Z,Z} ===> sigma_k{Z,Z}
     torch::Tensor precision = torch::sum(1.0 / sigma_k.diag());  // sigma_k.diag{Z} ===> precision{}
@@ -174,7 +174,7 @@ void EstimationNetworkImpl::estimationNVI(torch::Tensor z, torch::Tensor gamma){
     }
 
     static auto criterion = nn::KLDivLoss(nn::KLDivLossOptions().reduction(torch::kSum));
-    torch::Tensor NVI = criterion(gamma.log(), phi.expand({(long int)mini_batch_size, (long int)nk}));  // gamma{N,K}, phi{N,K} ===> NVI{}
+    torch::Tensor NVI = criterion(gamma_ap.log(), phi.expand({(long int)mini_batch_size, (long int)nk}));  // gamma_ap{N,K}, phi{N,K} ===> NVI{}
 
     this->NVI_keep = NVI / (float)nk;  // NVI{} ===> NVI_keep{}
     this->precision_keep = precision / (float)nz / (float)nk;  // precision{} ===> precision_keep{}
@@ -202,17 +202,17 @@ void EstimationNetworkImpl::resetGMP(torch::Device device){
 // ----------------------------------------------------------------------
 // struct{EstimationNetworkImpl}(nn::Module) -> function{estimationGMP}
 // ----------------------------------------------------------------------
-void EstimationNetworkImpl::estimationGMP(torch::Tensor z, torch::Tensor gamma){
+void EstimationNetworkImpl::estimationGMP(torch::Tensor z, torch::Tensor gamma_ap){
 
     size_t mini_batch_size = z.size(0);  // N = mini batch size
 
-    torch::Tensor gamma_sum = torch::sum(gamma, /*dim=*/0);  // gamma{N,K} ===> gamma_sum{K}
-    torch::Tensor mu = torch::sum(gamma.unsqueeze(2) * z.unsqueeze(1), /*dim=*/0) / gamma_sum.unsqueeze(1);  // gamma{N,K,1}, z{N,1,Z}, gamma_sum{K,1} ===> mu{K,Z}
+    torch::Tensor gamma_sum = torch::sum(gamma_ap, /*dim=*/0);  // gamma_ap{N,K} ===> gamma_sum{K}
+    torch::Tensor mu = torch::sum(gamma_ap.unsqueeze(2) * z.unsqueeze(1), /*dim=*/0) / gamma_sum.unsqueeze(1);  // gamma_ap{N,K,1}, z{N,1,Z}, gamma_sum{K,1} ===> mu{K,Z}
     torch::Tensor z_dev = z.unsqueeze(1) - mu.unsqueeze(0);  // z{N,1,Z}, mu{1,K,Z} ===> z_dev{N,K,Z}
     torch::Tensor z_dev_mat = z_dev.unsqueeze(3) * z_dev.unsqueeze(2);  // z_dev{N,K,Z,1}, z_dev{N,K,1,Z} ===> z_dev_mat{N,K,Z,Z}
-    torch::Tensor sigma = torch::sum(gamma.unsqueeze(-1).unsqueeze(-1) * z_dev_mat, /*dim=*/0) / gamma_sum.unsqueeze(-1).unsqueeze(-1);  // gamma{N,K,1,1}, z_dev_mat{N,K,Z,Z}, gamma_sum{K,1,1} ===> sigma{K,Z,Z}
+    torch::Tensor sigma = torch::sum(gamma_ap.unsqueeze(-1).unsqueeze(-1) * z_dev_mat, /*dim=*/0) / gamma_sum.unsqueeze(-1).unsqueeze(-1);  // gamma_ap{N,K,1,1}, z_dev_mat{N,K,Z,Z}, gamma_sum{K,1,1} ===> sigma{K,Z,Z}
 
-    this->N += mini_batch_size;  // mini_batch_size{} ===> N{}
+    this->N += (size_t)mini_batch_size;  // mini_batch_size{} ===> N{}
     this->gamma_sum_keep = (this->gamma_sum_keep + gamma_sum).detach();  // gamma_sum{K} ===> gamma_sum_keep{K}
     this->mu_sum_keep = (this->mu_sum_keep + mu * gamma_sum.unsqueeze(-1)).detach();  // mu{K,Z}, gamma_sum{K,1} ===> mu_sum_keep{K,Z}
     this->sigma_sum_keep = (this->sigma_sum_keep + sigma * gamma_sum.unsqueeze(-1).unsqueeze(-1)).detach();  // sigma{K,Z,Z}, gamma_sum{K,1,1} ===> sigma_sum_keep{K,Z,Z}
@@ -244,7 +244,7 @@ torch::Tensor EstimationNetworkImpl::estimated_sigma(){
 // struct{EstimationNetworkImpl}(nn::Module) -> function{estimated_phi}
 // -----------------------------------------------------------------------------
 torch::Tensor EstimationNetworkImpl::estimated_phi(){
-    torch::Tensor phi = this->gamma_sum_keep / this->N;  // gamma_sum_keep{K}, N{} ===> phi{K}
+    torch::Tensor phi = this->gamma_sum_keep / (float)this->N;  // gamma_sum_keep{K}, N{} ===> phi{K}
     return phi.detach();
 }
 
@@ -278,8 +278,8 @@ torch::Tensor EstimationNetworkImpl::precision_just_before(){
 // ----------------------------------------------------------------------
 torch::Tensor EstimationNetworkImpl::anomaly_score(torch::Tensor z, torch::Tensor mu, torch::Tensor sigma, torch::Tensor phi){
 
-    size_t nz = mu.size(1);  // Z = number of latent variables
-    size_t nk = mu.size(0);  // K = number of attribution probability
+    size_t nz = mu.size(1);  // Z = the number of latent variables
+    size_t nk = mu.size(0);  // K = the number of attribution probability
 
     torch::Tensor z_dev = z.unsqueeze(1) - mu.unsqueeze(0);  // z{N,1,Z}, mu{1,K,Z} ===> z_dev{N,K,Z}
 

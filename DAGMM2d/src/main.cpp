@@ -40,7 +40,7 @@ po::options_description parse_arguments(){
         ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
         ("nz_c", po::value<size_t>()->default_value(16), "dimensions of compression features in latent space")
         ("nz_r", po::value<size_t>()->default_value(2), "dimensions of reconstruction features in latent space")
-        ("nk", po::value<size_t>()->default_value(3), "number of mixture component")
+        ("nk", po::value<size_t>()->default_value(3), "the number of mixture component")
         ("loss", po::value<std::string>()->default_value("l2"), "l1 (mean absolute error), l2 (mean squared error), ssim (structural similarity), etc.")
         ("RED", po::value<bool>()->default_value(true), "true is relative euclidean distance, false is absolute euclidean distance")
         ("gpu_id", po::value<int>()->default_value(0), "cuda device : 'x=-1' is cpu device")
@@ -75,18 +75,18 @@ po::options_description parse_arguments(){
         ("anomaly_path", po::value<std::string>()->default_value("anomaly.txt"), "path in which the result of anomaly image is written : ./<anomaly_path>")
         ("normal_path", po::value<std::string>()->default_value("normal.txt"), "path in which the result of normal image is written : ./<normal_path>")
         ("AD_result_dir", po::value<std::string>()->default_value("AD_result"), "anomaly detection result directory : ./<AD_result_dir>")
-        ("n_thresh", po::value<size_t>()->default_value(256), "number of threshold in anomaly detection")
+        ("n_thresh", po::value<size_t>()->default_value(256), "the number of threshold in anomaly detection")
 
         // (6) Define for Network Parameter
         ("lr_com", po::value<float>()->default_value(5e-4), "learning rate for compression network")
         ("lr_est", po::value<float>()->default_value(5e-4), "learning rate for estimation network")
         ("beta1", po::value<float>()->default_value(0.5), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
-        ("nf", po::value<size_t>()->default_value(64), "number of filters in convolution layer closest to image")
-        ("nr", po::value<size_t>()->default_value(100), "number of node for residual block in estimation network")
+        ("nf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image")
+        ("nr", po::value<size_t>()->default_value(100), "the number of node for residual block in estimation network")
         ("Lambda_E", po::value<float>()->default_value(0.1), "the multiple of energy")
         ("Lambda_P", po::value<float>()->default_value(0.005), "the multiple of penalty")
-        ("n_blocks", po::value<size_t>()->default_value(2), "number of residual blocks in estimation network")
+        ("n_blocks", po::value<size_t>()->default_value(2), "the number of residual blocks in estimation network")
         ("no_dropout", po::value<bool>()->default_value(false), "Dropout off/on")
 
     ;

@@ -1,5 +1,5 @@
 # AE2d
-This is "Autoencoder" corresponding to 2-dimensional shape.<br>
+This is the implementation of "Autoencoder" corresponding to 2-dimensional shape.<br>
 Original paper: G. E. Hinton and R. R. Salakhutdinov. Reducing the dimensionality of data with neural networks. Science, 2006. [link](https://science.sciencemag.org/content/313/5786/504.abstract)
 
 ## Usage
@@ -24,8 +24,7 @@ Link: [official](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
 #### Setting
 
 Please create a link for the dataset.<br>
-You should substitute the path of training data for "<training_path>".<br>
-You should substitute the path of test data for "<test_path>".<br>
+You should substitute the path of training data for "<training_path>", test data for "<test_path>", respectively.<br>
 The following is an example for "celebA".
 ~~~
 $ cd datasets

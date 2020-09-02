@@ -71,7 +71,7 @@ po::options_description parse_arguments(){
         ("lr", po::value<float>()->default_value(1e-4), "learning rate")
         ("beta1", po::value<float>()->default_value(0.5), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
-        ("nf", po::value<size_t>()->default_value(64), "number of filters in convolution layer closest to image")
+        ("nf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image")
         ("no_dropout", po::value<bool>()->default_value(false), "Dropout off/on")
 
     ;

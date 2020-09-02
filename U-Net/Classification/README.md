@@ -1,5 +1,5 @@
-# U-Net_Classification
-This is "U-Net" corresponding to classification.<br>
+# U-Net Classification
+This is the implementation of "U-Net" corresponding to classification.<br>
 Original paper: O. Ronneberger, P. Fischer, and T. Brox. U-net: Convolutional networks for biomedical image segmentation. In International Conference on Medical Image Computing and Computer-Assisted Intervention, 2015. [link](https://arxiv.org/abs/1505.04597)
 
 ## Usage
@@ -24,10 +24,7 @@ Link: [official](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/)
 #### Setting
 
 Please create a link for the dataset.<br>
-You should substitute the path of training input data for "<training_input_path>".<br>
-You should substitute the path of training output data for "<training_output_path>".<br>
-You should substitute the path of test input data for "<test_input_path>".<br>
-You should substitute the path of test output data for "<test_output_path>".<br>
+You should substitute the path of training input data for "<training_input_path>", training output data for "<training_output_path>", test input data for "<test_input_path>", test output data for "<test_output_path>", respectively.<br>
 The following is an example for "VOC2012".
 ~~~
 $ cd datasets

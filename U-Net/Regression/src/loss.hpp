@@ -11,7 +11,7 @@
 // -------------------
 class Loss{
 private:
-    int flag;
+    int judge;
 public:
     Loss(){}
     Loss(const std::string loss);

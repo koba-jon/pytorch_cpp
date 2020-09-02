@@ -12,13 +12,13 @@
 // -----------------------------------
 Loss::Loss(const std::string loss){
     if (loss == "l1"){
-        this->flag = 0;
+        this->judge = 0;
     }
     else if (loss == "l2"){
-        this->flag = 1;
+        this->judge = 1;
     }
     else if (loss == "ssim"){
-        this->flag = 2;
+        this->judge = 2;
     }
     else{
         std::cerr << "Error : The loss fuction isn't defined right." << std::endl;
@@ -31,11 +31,11 @@ Loss::Loss(const std::string loss){
 // class{Loss} -> operator
 // -----------------------------------
 torch::Tensor Loss::operator()(torch::Tensor &input, torch::Tensor &target){
-    if (this->flag == 0){
+    if (this->judge == 0){
         static auto criterion = torch::nn::L1Loss(torch::nn::L1LossOptions().reduction(torch::kMean));
         return criterion(input, target);
     }
-    else if (this->flag == 1){
+    else if (this->judge == 1){
         static auto criterion = torch::nn::MSELoss(torch::nn::MSELossOptions().reduction(torch::kMean));
         return criterion(input, target);
     }

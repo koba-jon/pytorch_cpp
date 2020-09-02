@@ -7,8 +7,7 @@
 #include <chrono>                      // std::chrono
 #include <algorithm>                   // std::find
 #include <utility>                     // std::pair
-#include <ios>                         // std::right
-#include <iomanip>                     // std::setw, std::setfill
+#include <cstdlib>                     // std::exit
 #include <cmath>                       // std::ceil
 #include <ctime>                       // std::time_t, std::ctime
 #include <sys/stat.h>                  // mkdir
@@ -24,7 +23,7 @@
 #include "datasets.hpp"                // datasets::ImageFolderSegmentWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderSegmentWithPaths
 #include "visualizer.hpp"              // visualizer
-#include "progress.hpp"                // progress::display
+#include "progress.hpp"                // progress::display, progress::irregular
 
 // Define Namespace
 namespace po = boost::program_options;
@@ -39,9 +38,9 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderSegmentWithPaths &valid
 void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformO){
 
     constexpr bool train_shuffle = true;  // whether to shuffle the training dataset
-    constexpr size_t train_workers = 4;  // number of workers to retrieve data from the training dataset
+    constexpr size_t train_workers = 4;  // the number of workers to retrieve data from the training dataset
     constexpr bool valid_shuffle = true;  // whether to shuffle the validation dataset
-    constexpr size_t valid_workers = 4;  // number of workers to retrieve data from the validation dataset
+    constexpr size_t valid_workers = 4;  // the number of workers to retrieve data from the validation dataset
     constexpr size_t save_sample_iter = 50;  // the frequency of iteration to save sample images
     constexpr std::string_view extension = "png";  // the extension of file name to save sample images
 
@@ -49,17 +48,13 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
     // a0. Initialization and Declaration
     // -----------------------------------
 
-    size_t i;
     size_t epoch, iter;
     size_t total_iter;
     size_t start_epoch, total_epoch;
     size_t length, both_width;
-    int elap_hour, elap_min, elap_sec, rem_times, rem_hour, rem_min, rem_sec;
-    double sec_per_epoch;
     struct winsize ws;
-    std::time_t time_now, time_fin;
-    std::string elap_hour_str, elap_min_str, elap_sec_str, sec_per_epoch_str, rem_hour_str, rem_min_str, rem_sec_str;
-    std::string date, date_fin, date_out;
+    std::time_t time_now;
+    std::string date, date_out;
     std::string buff, latest;
     std::string checkpoint_dir, save_images_dir, path;
     std::string input_dir, output_dir;
@@ -73,6 +68,7 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
     DataLoader::ImageFolderSegmentWithPaths dataloader, valid_dataloader;
     visualizer::graph train_loss, valid_loss;
     progress::display *show_progress;
+    progress::irregular irreg_progress;
 
 
     // -----------------------------------
@@ -180,7 +176,7 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
     total_epoch = vm["epochs"].as<size_t>();
 
     // (2) Training per Epoch
-    auto time_start = std::chrono::system_clock::now();
+    irreg_progress.restart(start_epoch - 1, total_epoch);
     for (epoch = start_epoch; epoch <= total_epoch; epoch++){
 
         model->train();
@@ -261,84 +257,20 @@ void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vecto
         // b6. Show Elapsed Time
         // -----------------------------------
         if (epoch % 10 == 0){
-            auto time_end = std::chrono::system_clock::now();
-            for (i = 0; i < 8; i++){
-                ss.str(""); ss.clear(std::stringstream::goodbit);
-                switch (i){
-                    case 0:
-                        elap_hour = (int)std::chrono::duration_cast<std::chrono::hours>(time_end - time_start).count();
-                        ss << std::setfill('0') << std::right << std::setw(2) << elap_hour;
-                        elap_hour_str = ss.str();
-                        break;
-                    case 1:
-                        elap_min = (int)std::chrono::duration_cast<std::chrono::minutes>(time_end - time_start).count() % 60;
-                        ss << std::setfill('0') << std::right << std::setw(2) << elap_min;
-                        elap_min_str = ss.str();
-                        break;
-                    case 2:
-                        elap_sec = (int)std::chrono::duration_cast<std::chrono::seconds>(time_end - time_start).count() % 60;
-                        ss << std::setfill('0') << std::right << std::setw(2) << elap_sec;
-                        elap_sec_str = ss.str();
-                        break;
-                    case 3:
-                        sec_per_epoch = (double)std::chrono::duration_cast<std::chrono::milliseconds>(time_end - time_start).count() * 0.001 / (double)(epoch - start_epoch + 1);
-                        ss << std::setprecision(5) << sec_per_epoch;
-                        sec_per_epoch_str = ss.str();
-                        break;
-                    case 4:
-                        rem_times = (int)(sec_per_epoch * (double)(total_epoch - epoch));
-                        break;
-                    case 5:
-                        rem_hour = rem_times / 3600;
-                        ss << std::setfill('0') << std::right << std::setw(2) << rem_hour;
-                        rem_hour_str = ss.str();
-                        break;
-                    case 6:
-                        rem_min = (rem_times / 60) % 60;
-                        ss << std::setfill('0') << std::right << std::setw(2) << rem_min;
-                        rem_min_str = ss.str();
-                        break;
-                    case 7:
-                        rem_sec = rem_times % 60;
-                        ss << std::setfill('0') << std::right << std::setw(2) << rem_sec;
-                        rem_sec_str = ss.str();
-                        break;
-                    default:
-                        std::cerr << "Error : There is an unexpected value in argument of 'switch'." << std::endl;
-                        std::exit(1);
-                }
-            }
 
             // -----------------------------------
-            // c1. Get Current Date
-            // -----------------------------------
-            time_now = std::chrono::system_clock::to_time_t(time_end);
-            ss.str(""); ss.clear(std::stringstream::goodbit);
-            ss << std::ctime(&time_now);
-            date = ss.str();
-            date.erase(std::find(date.begin(), date.end(), '\n'));
-
-            // -----------------------------------
-            // c2. Get Finish Date
-            // -----------------------------------
-            time_fin = time_now + (time_t)rem_times;
-            ss.str(""); ss.clear(std::stringstream::goodbit);
-            ss << std::ctime(&time_fin);
-            date_fin = ss.str();
-            date_fin.erase(std::find(date_fin.begin(), date_fin.end(), '\n'));
-
-            // -----------------------------------
-            // c3. Get Output String
+            // c1. Get Output String
             // -----------------------------------
             ss.str(""); ss.clear(std::stringstream::goodbit);
-            ss << "elapsed = " << elap_hour_str << ':' << elap_min_str << ':' << elap_sec_str << '(' << sec_per_epoch_str << "sec/epoch)   ";
-            ss << "remaining = " << rem_hour_str << ':' << rem_min_str << ':' << rem_sec_str << "   ";
-            ss << "now = " << date << "   ";
-            ss << "finish = " << date_fin;
+            irreg_progress.nab(epoch);
+            ss << "elapsed = " << irreg_progress.get_elap() << '(' << irreg_progress.get_sec_per() << "sec/epoch)   ";
+            ss << "remaining = " << irreg_progress.get_rem() << "   ";
+            ss << "now = " << irreg_progress.get_date() << "   ";
+            ss << "finish = " << irreg_progress.get_date_fin();
             date_out = ss.str();
 
             // -----------------------------------
-            // c4. Terminal Output
+            // c2. Terminal Output
             // -----------------------------------
             // (1) Catch Terminal Size
             if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) != -1){

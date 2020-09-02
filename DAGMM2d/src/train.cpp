@@ -7,8 +7,7 @@
 #include <chrono>                      // std::chrono
 #include <algorithm>                   // std::find
 #include <utility>                     // std::pair
-#include <ios>                         // std::right
-#include <iomanip>                     // std::setw, std::setfill
+#include <cstdlib>                     // std::exit
 #include <cmath>                       // std::ceil
 #include <ctime>                       // std::time_t, std::ctime
 #include <sys/stat.h>                  // mkdir
@@ -24,7 +23,7 @@
 #include "datasets.hpp"                // datasets::ImageFolderWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderWithPaths
 #include "visualizer.hpp"              // visualizer
-#include "progress.hpp"                // progress::display
+#include "progress.hpp"                // progress::display, progress::irregular
 
 // Define Namespace
 namespace po = boost::program_options;
@@ -40,9 +39,9 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datalo
 void train(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &dec, EstimationNetwork &est, std::vector<transforms::Compose*> &transform){
 
     constexpr bool train_shuffle = true;  // whether to shuffle the training dataset
-    constexpr size_t train_workers = 4;  // number of workers to retrieve data from the training dataset
+    constexpr size_t train_workers = 4;  // the number of workers to retrieve data from the training dataset
     constexpr bool valid_shuffle = true;  // whether to shuffle the validation dataset
-    constexpr size_t valid_workers = 4;  // number of workers to retrieve data from the validation dataset
+    constexpr size_t valid_workers = 4;  // the number of workers to retrieve data from the validation dataset
     constexpr size_t save_sample_iter = 50;  // the frequency of iteration to save sample images
     constexpr std::string_view extension = "jpg";  // the extension of file name to save sample images
     constexpr std::pair<float, float> output_range = {-1.0, 1.0};  // range of the value in output images
@@ -51,17 +50,13 @@ void train(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &
     // a0. Initialization and Declaration
     // -----------------------------------
 
-    size_t i;
     size_t epoch, iter;
     size_t total_iter;
     size_t start_epoch, total_epoch;
     size_t length, both_width;
-    int elap_hour, elap_min, elap_sec, rem_times, rem_hour, rem_min, rem_sec;
-    double sec_per_epoch;
     struct winsize ws;
-    std::time_t time_now, time_fin;
-    std::string elap_hour_str, elap_min_str, elap_sec_str, sec_per_epoch_str, rem_hour_str, rem_min_str, rem_sec_str;
-    std::string date, date_fin, date_out;
+    std::time_t time_now;
+    std::string date, date_out;
     std::string buff, latest;
     std::string checkpoint_dir, save_images_dir, path;
     std::string dataroot, valid_dataroot;
@@ -71,13 +66,14 @@ void train(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &
     std::tuple<torch::Tensor, std::vector<std::string>> mini_batch;
     torch::Tensor image, output;
     torch::Tensor mu, sigma, phi;
-    torch::Tensor z, z_c, z_r, z_r1, z_r2, gamma;
+    torch::Tensor z, z_c, z_r, z_r1, z_r2, gamma_ap;
     torch::Tensor rec, energy, penalty, loss;
     datasets::ImageFolderWithPaths dataset, valid_dataset;
     DataLoader::ImageFolderWithPaths dataloader, valid_dataloader;
     visualizer::graph train_loss, train_rec_loss;
     visualizer::graph valid_loss, valid_rec_loss;
     progress::display *show_progress;
+    progress::irregular irreg_progress;
 
 
     // -----------------------------------
@@ -193,7 +189,7 @@ void train(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &
     total_epoch = vm["epochs"].as<size_t>();
 
     // (2) Training per Epoch
-    auto time_start = std::chrono::system_clock::now();
+    irreg_progress.restart(start_epoch - 1, total_epoch);
     for (epoch = start_epoch; epoch <= total_epoch; epoch++){
 
         enc->train();
@@ -233,13 +229,13 @@ void train(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &
             z = torch::cat({z_c, z_r}, /*dim=*/1);  // {ZC} + {ZR} ===> {Z} = {ZC+ZR}
 
             // (3) Estimation of GMM-Parameters
-            gamma = est->forward(z);  // {Z} ===> {K}
+            gamma_ap = est->forward(z);  // {Z} ===> {K}
             if (vm["no_NVI"].as<bool>()){
-                est->estimation(z, gamma);  // calculation of mean, variance, mixing coefficient, energy, precision
+                est->estimation(z, gamma_ap);  // calculation of mean, variance, mixing coefficient, energy, precision
                 energy = est->energy_just_before() * vm["Lambda_E"].as<float>();
             }
             else{
-                est->estimationNVI(z, gamma);  // calculation of mean, variance, mixing coefficient, NVI, precision
+                est->estimationNVI(z, gamma_ap);  // calculation of mean, variance, mixing coefficient, NVI, precision
                 energy = est->NVI_just_before() * vm["Lambda_E"].as<float>();
             }
 
@@ -331,84 +327,20 @@ void train(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &
         // b7. Show Elapsed Time
         // -----------------------------------
         if (epoch % 10 == 0){
-            auto time_end = std::chrono::system_clock::now();
-            for (i = 0; i < 8; i++){
-                ss.str(""); ss.clear(std::stringstream::goodbit);
-                switch (i){
-                    case 0:
-                        elap_hour = (int)std::chrono::duration_cast<std::chrono::hours>(time_end - time_start).count();
-                        ss << std::setfill('0') << std::right << std::setw(2) << elap_hour;
-                        elap_hour_str = ss.str();
-                        break;
-                    case 1:
-                        elap_min = (int)std::chrono::duration_cast<std::chrono::minutes>(time_end - time_start).count() % 60;
-                        ss << std::setfill('0') << std::right << std::setw(2) << elap_min;
-                        elap_min_str = ss.str();
-                        break;
-                    case 2:
-                        elap_sec = (int)std::chrono::duration_cast<std::chrono::seconds>(time_end - time_start).count() % 60;
-                        ss << std::setfill('0') << std::right << std::setw(2) << elap_sec;
-                        elap_sec_str = ss.str();
-                        break;
-                    case 3:
-                        sec_per_epoch = (double)std::chrono::duration_cast<std::chrono::milliseconds>(time_end - time_start).count() * 0.001 / (double)(epoch - start_epoch + 1);
-                        ss << std::setprecision(5) << sec_per_epoch;
-                        sec_per_epoch_str = ss.str();
-                        break;
-                    case 4:
-                        rem_times = (int)(sec_per_epoch * (double)(total_epoch - epoch));
-                        break;
-                    case 5:
-                        rem_hour = rem_times / 3600;
-                        ss << std::setfill('0') << std::right << std::setw(2) << rem_hour;
-                        rem_hour_str = ss.str();
-                        break;
-                    case 6:
-                        rem_min = (rem_times / 60) % 60;
-                        ss << std::setfill('0') << std::right << std::setw(2) << rem_min;
-                        rem_min_str = ss.str();
-                        break;
-                    case 7:
-                        rem_sec = rem_times % 60;
-                        ss << std::setfill('0') << std::right << std::setw(2) << rem_sec;
-                        rem_sec_str = ss.str();
-                        break;
-                    default:
-                        std::cerr << "Error : There is an unexpected value in argument of 'switch'." << std::endl;
-                        std::exit(1);
-                }
-            }
 
             // -----------------------------------
-            // c1. Get Current Date
-            // -----------------------------------
-            time_now = std::chrono::system_clock::to_time_t(time_end);
-            ss.str(""); ss.clear(std::stringstream::goodbit);
-            ss << std::ctime(&time_now);
-            date = ss.str();
-            date.erase(std::find(date.begin(), date.end(), '\n'));
-
-            // -----------------------------------
-            // c2. Get Finish Date
-            // -----------------------------------
-            time_fin = time_now + (time_t)rem_times;
-            ss.str(""); ss.clear(std::stringstream::goodbit);
-            ss << std::ctime(&time_fin);
-            date_fin = ss.str();
-            date_fin.erase(std::find(date_fin.begin(), date_fin.end(), '\n'));
-
-            // -----------------------------------
-            // c3. Get Output String
+            // c1. Get Output String
             // -----------------------------------
             ss.str(""); ss.clear(std::stringstream::goodbit);
-            ss << "elapsed = " << elap_hour_str << ':' << elap_min_str << ':' << elap_sec_str << '(' << sec_per_epoch_str << "sec/epoch)   ";
-            ss << "remaining = " << rem_hour_str << ':' << rem_min_str << ':' << rem_sec_str << "   ";
-            ss << "now = " << date << "   ";
-            ss << "finish = " << date_fin;
+            irreg_progress.nab(epoch);
+            ss << "elapsed = " << irreg_progress.get_elap() << '(' << irreg_progress.get_sec_per() << "sec/epoch)   ";
+            ss << "remaining = " << irreg_progress.get_rem() << "   ";
+            ss << "now = " << irreg_progress.get_date() << "   ";
+            ss << "finish = " << irreg_progress.get_date_fin();
             date_out = ss.str();
 
             // -----------------------------------
-            // c4. Terminal Output
+            // c2. Terminal Output
             // -----------------------------------
             // (1) Catch Terminal Size
             if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) != -1){
@@ -442,7 +374,7 @@ void get_gmp(po::variables_map &vm, DataLoader::ImageFolderWithPaths &dataloader
 
     // (0) Initialization and Declaration
     torch::Tensor image, output;
-    torch::Tensor z, z_c, z_r, z_r1, z_r2, gamma;
+    torch::Tensor z, z_c, z_r, z_r1, z_r2, gamma_ap;
     std::tuple<torch::Tensor, std::vector<std::string>> mini_batch;
     progress::display *show_progress;
 
@@ -474,8 +406,8 @@ void get_gmp(po::variables_map &vm, DataLoader::ImageFolderWithPaths &dataloader
         z = torch::cat({z_c, z_r}, /*dim=*/1);  // {ZC} + {ZR} ===> {Z} = {ZC+ZR}
 
         // (1.3) Estimation of Gaussian Mixture Parameters
-        gamma = est->forward(z);  // {Z} ===> {K}
-        est->estimationGMP(z, gamma);
+        gamma_ap = est->forward(z);  // {Z} ===> {K}
+        est->estimationGMP(z, gamma_ap);
         show_progress->increment(/*loss_value=*/{});
 
     }

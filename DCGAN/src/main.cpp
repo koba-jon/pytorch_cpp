@@ -17,7 +17,7 @@ namespace po = boost::program_options;
 
 // Function Prototype
 void train(po::variables_map &vm, torch::Device &device, GAN_Generator &gen, GAN_Discriminator &dis, std::vector<transforms::Compose*> &transform);
-void test(po::variables_map &vm, torch::Device &device, GAN_Generator &gen);
+void synth(po::variables_map &vm, torch::Device &device, GAN_Generator &gen);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode);
@@ -59,12 +59,12 @@ po::options_description parse_arguments(){
         ("valid_sigma_max", po::value<float>()->default_value(3.0), "maximum value of latent variable for output images in validation")
         ("valid_sigma_inter", po::value<float>()->default_value(0.5), "the interval of latent variable for output images in validation")
 
-        // (4) Define for Test
-        ("test", po::value<bool>()->default_value(false), "test mode on/off")
-        ("test_load_epoch", po::value<std::string>()->default_value("latest"), "training epoch used for testing")
-        ("test_result_dir", po::value<std::string>()->default_value("test_result"), "test result directory : ./<test_result_dir>")
-        ("test_sigma_max", po::value<float>()->default_value(3.0), "maximum value of latent variable for output images in test")
-        ("test_sigma_inter", po::value<float>()->default_value(0.5), "the interval of latent variable for output images in test")
+        // (4) Define for Synthesis
+        ("synth", po::value<bool>()->default_value(false), "synthesis mode on/off")
+        ("synth_load_epoch", po::value<std::string>()->default_value("latest"), "training epoch used for synthesis")
+        ("synth_result_dir", po::value<std::string>()->default_value("synth_result"), "synthesis result directory : ./<synth_result_dir>")
+        ("synth_sigma_max", po::value<float>()->default_value(3.0), "maximum value of latent variable for output images in synthesis")
+        ("synth_sigma_inter", po::value<float>()->default_value(0.5), "the interval of latent variable for output images in synthesis")
 
         // (5) Define for Network Parameter
         ("lr_gen", po::value<float>()->default_value(1e-3), "learning rate for generator")
@@ -73,8 +73,8 @@ po::options_description parse_arguments(){
         ("D_ltw", po::value<float>()->default_value(0.5), "the weight of loss threshold for stable training in discriminator : x=0.0 is normal training")
         ("beta1", po::value<float>()->default_value(0.5), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
-        ("ngf", po::value<size_t>()->default_value(64), "number of filters in convolution layer closest to image in generator")
-        ("ndf", po::value<size_t>()->default_value(64), "number of filters in convolution layer closest to image in discriminator")
+        ("ngf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image in generator")
+        ("ndf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image in discriminator")
 
     ;
     
@@ -143,10 +143,10 @@ int main(int argc, const char *argv[]){
         train(vm, device, gen, dis, transform);
     }
 
-    // (8.2) Test Phase
-    if (vm["test"].as<bool>()){
-        Set_Options(vm, argc, argv, args, "test");
-        test(vm, device, gen);
+    // (8.2) Synthesis Phase
+    if (vm["synth"].as<bool>()){
+        Set_Options(vm, argc, argv, args, "synth");
+        synth(vm, device, gen);
     }
 
     // End Processing

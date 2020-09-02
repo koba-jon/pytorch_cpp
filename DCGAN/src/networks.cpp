@@ -6,7 +6,7 @@
 #include "networks.hpp"
 
 // Define Namespace
-using namespace torch;
+namespace nn = torch::nn;
 
 
 // ----------------------------------------------------------------------

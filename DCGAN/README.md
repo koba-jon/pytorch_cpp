@@ -1,5 +1,5 @@
 # DCGAN
-This is "Deep Convolutional Generative Adversarial Networks".<br>
+This is the implementation of "Deep Convolutional Generative Adversarial Networks".<br>
 Original paper: A. Radford, L. Metz, and S. Chintala. Unsupervised representation learning with deep convolutional generative adversarial networks. In International Conference on Learning Representations, 2016. [link](https://arxiv.org/abs/1511.06434)
 
 ## Usage
@@ -65,14 +65,14 @@ Please execute the following to start the program.
 $ sh scripts/train.sh
 ~~~
 
-### 4. Image Generation
+### 4. Image Synthesis
 
 #### Setting
 Please set the shell for executable file.
 ~~~
-$ vi scripts/test.sh
+$ vi scripts/synth.sh
 ~~~
-The following is an exmaple of the test phase.<br>
+The following is an exmaple of the synthesis phase.<br>
 If you want to view specific examples of command line arguments, please view "src/main.cpp" or add "--help" to the argument.
 ~~~
 #!/bin/bash
@@ -80,7 +80,7 @@ If you want to view specific examples of command line arguments, please view "sr
 DATA='celebA'
 
 ./DCGAN \
-    --test true \
+    --synth true \
     --dataset ${DATA} \
     --size 256 \
     --gpu_id 0 \
@@ -91,6 +91,6 @@ If you want to generate image, the above settings will work.
 #### Run
 Please execute the following to start the program.
 ~~~
-$ sh scripts/test.sh
+$ sh scripts/synth.sh
 ~~~
 

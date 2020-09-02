@@ -14,13 +14,13 @@ In addition, I might adapt programs to the latest version. <br>
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Stable (1.6.0) <br>
+PyTorch Build : Preview (Nightly) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 CUDA : 10.2 <br>
 Run this Command : Download here (cxx11 ABI) <br>
-GPU : https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.6.0.zip <br>
-CPU : https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.6.0%2Bcpu.zip <br>
+GPU : https://download.pytorch.org/libtorch/nightly/cu102/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
+CPU : https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
 ***
 
 ### 2. OpenCV
@@ -29,26 +29,21 @@ This is used for pre-processing and post-processing. <br>
 Please refer to other sites for more detailed installation method.
 
 ### 3. OpenMP
-version : 4.5 (It works on other versions.) <br>
-This is used to load data in parallel. <br>
-It may be installed on standard Linux OS.
+This is used to load data in parallel. 
 
 ### 4. Boost
-version : 1.65.1 (It works on other versions.) <br>
 This is used for command line arguments, etc. <br>
 ~~~
 $ sudo apt install libboost-dev libboost-all-dev
 ~~~
 
 ### 5. Gnuplot
-version : 5.2 (It works on other versions.) <br>
 This is used to display loss graph. <br>
 ~~~
 $ sudo apt install gnuplot
 ~~~
 
 ### 6. libpng
-version : 0.2 (It works on other versions.) <br>
 This is used to load and save index-color image in semantic segmentation. <br>
 ~~~
 $ sudo apt install libpng++-dev
@@ -58,7 +53,7 @@ $ sudo apt install libpng++-dev
 
 ### 1. Git Clone
 ~~~
-$ git clone https://github.com/koba-jon/pytorch_cpp.git
+$ git clone -b develop/v1.6.1 https://github.com/koba-jon/pytorch_cpp.git
 $ cd pytorch_cpp
 ~~~
 
