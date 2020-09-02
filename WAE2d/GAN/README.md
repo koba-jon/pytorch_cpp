@@ -1,6 +1,6 @@
-# VAE2d
-This is the implementation of "Variational Autoencoder" corresponding to 2-dimensional shape.<br>
-Original paper: D. P. Kingma and M. Welling. Auto-Encoding Variational Bayes. In International Conference on Learning Representations, 2014. [link](https://arxiv.org/abs/1312.6114)
+# WAE2d GAN
+This is the implementation of "Wasserstein Autoencoder" with GAN corresponding to 2-dimensional shape.<br>
+Original paper: I. Tolstikhin, O. Bousquet, S. Gelly, and B. Schölkopf. Wasserstein auto-encoders. In International Conference on Learning Representations, 2018. [link](https://openreview.net/forum?id=HkL7n1-0b)
 
 ## Usage
 
@@ -49,7 +49,7 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='celebA'
 
-./VAE2d \
+./WAE2d_GAN \
     --train true \
     --epochs 300 \
     --dataset ${DATA} \
@@ -79,7 +79,7 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='celebA'
 
-./VAE2d \
+./WAE2d_GAN \
     --test true \
     --dataset ${DATA} \
     --test_in_dir "test" \

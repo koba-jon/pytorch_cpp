@@ -17,8 +17,8 @@
 #include <torch/torch.h>               // torch
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
-#include "loss.hpp"                    // Loss
-#include "networks.hpp"                // VariationalAutoEncoder
+#include "loss.hpp"                    // Loss, MMDLoss
+#include "networks.hpp"                // WAE_Encoder, WAE_Decoder
 #include "transforms.hpp"              // transforms::Compose
 #include "datasets.hpp"                // datasets::ImageFolderWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderWithPaths
@@ -29,13 +29,13 @@
 namespace po = boost::program_options;
 
 // Function Prototype
-void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, VariationalAutoEncoder &model, const size_t epoch, visualizer::graph &writer);
+void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, MMDLoss &criterion_MMD, WAE_Encoder &enc, WAE_Decoder &dec, const size_t epoch, visualizer::graph &writer);
 
 
 // -------------------
 // Training Function
 // -------------------
-void train(po::variables_map &vm, torch::Device &device, VariationalAutoEncoder &model, std::vector<transforms::Compose*> &transform){
+void train(po::variables_map &vm, torch::Device &device, WAE_Encoder &enc, WAE_Decoder &dec, std::vector<transforms::Compose*> &transform){
 
     constexpr bool train_shuffle = true;  // whether to shuffle the training dataset
     constexpr size_t train_workers = 4;  // the number of workers to retrieve data from the training dataset
@@ -53,6 +53,7 @@ void train(po::variables_map &vm, torch::Device &device, VariationalAutoEncoder 
     size_t total_iter;
     size_t start_epoch, total_epoch;
     size_t length, both_width;
+    size_t mini_batch_size;
     struct winsize ws;
     std::time_t time_now;
     std::string date, date_out;
@@ -63,7 +64,8 @@ void train(po::variables_map &vm, torch::Device &device, VariationalAutoEncoder 
     std::ifstream infoi;
     std::ofstream ofs, init, infoo;
     std::tuple<torch::Tensor, std::vector<std::string>> mini_batch;
-    torch::Tensor rec, kld, loss, image, output;
+    torch::Tensor image, output, z_real, z_fake;
+    torch::Tensor loss, rec_loss, mmd_loss;
     datasets::ImageFolderWithPaths dataset, valid_dataset;
     DataLoader::ImageFolderWithPaths dataloader, valid_dataloader;
     visualizer::graph train_loss, valid_loss;
@@ -90,10 +92,12 @@ void train(po::variables_map &vm, torch::Device &device, VariationalAutoEncoder 
     }
 
     // (3) Set Optimizer Method
-    auto optimizer = torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(vm["lr"].as<float>()).betas({vm["beta1"].as<float>(), vm["beta2"].as<float>()}));
+    auto enc_optimizer = torch::optim::Adam(enc->parameters(), torch::optim::AdamOptions(vm["lr_enc"].as<float>()).betas({vm["beta1"].as<float>(), vm["beta2"].as<float>()}));
+    auto dec_optimizer = torch::optim::Adam(dec->parameters(), torch::optim::AdamOptions(vm["lr_dec"].as<float>()).betas({vm["beta1"].as<float>(), vm["beta2"].as<float>()}));
 
     // (4) Set Loss Function
     auto criterion = Loss(vm["loss"].as<std::string>());
+    auto criterion_MMD = MMDLoss();
 
     // (5) Make Directories
     checkpoint_dir = "checkpoints/" + vm["dataset"].as<std::string>();
@@ -104,14 +108,15 @@ void train(po::variables_map &vm, torch::Device &device, VariationalAutoEncoder 
 
     // (6) Set Training Loss for Graph
     path = checkpoint_dir + "/graph";
-    train_loss = visualizer::graph(path, /*gname_=*/"train_loss", /*label_=*/{"Total", "Reconstruct", "KL-divergence"});
+    train_loss = visualizer::graph(path, /*gname_=*/"train_loss", /*label_=*/{"Reconstruct", "MMD"});
     if (vm["valid"].as<bool>()){
-        valid_loss = visualizer::graph(path, /*gname_=*/"valid_loss", /*label_=*/{"Total", "Reconstruct", "KL-divergence"});
+        valid_loss = visualizer::graph(path, /*gname_=*/"valid_loss", /*label_=*/{"Reconstruct", "MMD"});
     }
     
     // (7) Get Weights and File Processing
     if (vm["train_load_epoch"].as<std::string>() == ""){
-        model->apply(weights_init);
+        enc->apply(weights_init);
+        dec->apply(weights_init);
         ofs.open(checkpoint_dir + "/log/train.txt", std::ios::out);
         if (vm["valid"].as<bool>()){
             init.open(checkpoint_dir + "/log/valid.txt", std::ios::trunc);
@@ -120,8 +125,10 @@ void train(po::variables_map &vm, torch::Device &device, VariationalAutoEncoder 
         start_epoch = 0;
     }
     else{
-        path = checkpoint_dir + "/models/epoch_" + vm["train_load_epoch"].as<std::string>() + ".pth";  torch::load(model, path);
-        path = checkpoint_dir + "/optims/epoch_" + vm["train_load_epoch"].as<std::string>() + ".pth";  torch::load(optimizer, path);
+        path = checkpoint_dir + "/models/epoch_" + vm["train_load_epoch"].as<std::string>() + "_enc.pth";  torch::load(enc, path);
+        path = checkpoint_dir + "/models/epoch_" + vm["train_load_epoch"].as<std::string>() + "_dec.pth";  torch::load(dec, path);
+        path = checkpoint_dir + "/optims/epoch_" + vm["train_load_epoch"].as<std::string>() + "_enc.pth";  torch::load(enc_optimizer, path);
+        path = checkpoint_dir + "/optims/epoch_" + vm["train_load_epoch"].as<std::string>() + "_dec.pth";  torch::load(dec_optimizer, path);
         ofs.open(checkpoint_dir + "/log/train.txt", std::ios::app);
         ofs << std::endl << std::endl;
         if (vm["train_load_epoch"].as<std::string>() == "latest"){
@@ -177,34 +184,47 @@ void train(po::variables_map &vm, torch::Device &device, VariationalAutoEncoder 
     irreg_progress.restart(start_epoch - 1, total_epoch);
     for (epoch = start_epoch; epoch <= total_epoch; epoch++){
 
-        model->train();
+        enc->train();
+        dec->train();
         ofs << std::endl << "epoch:" << epoch << '/' << total_epoch << std::endl;
-        show_progress = new progress::display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"rec", "kld"});
+        show_progress = new progress::display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"rec", "mmd"});
 
         // -----------------------------------
         // b1. Mini Batch Learning
         // -----------------------------------
         while (dataloader(mini_batch)){
 
-            // -----------------------------------
-            // c1. Variational Auto Encoder Training Phase
-            // -----------------------------------
             image = std::get<0>(mini_batch).to(device);
-            output = model->forward(image);
-            rec = criterion(output, image);
-            kld = vm["Lambda"].as<float>() * model->kld_just_before();
-            loss = rec + kld;
-            optimizer.zero_grad();
+            mini_batch_size = image.size(0);
+
+            // ---------------------------------------------
+            // c1. Wasserstein Auto Encoder Training Phase
+            // ---------------------------------------------
+
+            // (1) Calculation of Reconstruction Loss
+            z_real = torch::randn({(long int)mini_batch_size, (long int)vm["nz"].as<size_t>()}).to(device);
+            z_fake = enc->forward(image);
+            output = dec->forward(z_fake);
+            rec_loss = criterion(output, image);
+
+            // (2) Calculation of Maximum Mean Discrepancy (MMD) Loss
+            mmd_loss = criterion_MMD(z_fake, z_real) * vm["Lambda"].as<float>();
+            
+            // (3) Update
+            loss = rec_loss + mmd_loss;
+            enc_optimizer.zero_grad();
+            dec_optimizer.zero_grad();
             loss.backward();
-            optimizer.step();
+            enc_optimizer.step();
+            dec_optimizer.step();
 
             // -----------------------------------
             // c2. Record Loss (iteration)
             // -----------------------------------
-            show_progress->increment(/*loss_value=*/{rec.item<float>(), kld.item<float>()});
+            show_progress->increment(/*loss_value=*/{rec_loss.item<float>(), mmd_loss.item<float>()});
             ofs << "iters:" << show_progress->get_iters() << '/' << total_iter << ' ' << std::flush;
-            ofs << "rec:" << rec.item<float>() << "(ave:" <<  show_progress->get_ave(0) << ") " << std::flush;
-            ofs << "kld:" << kld.item<float>() << "(ave:" <<  show_progress->get_ave(1) << ')' << std::endl;
+            ofs << "rec:" << rec_loss.item<float>() << "(ave:" <<  show_progress->get_ave(0) << ") " << std::flush;
+            ofs << "mmd:" << mmd_loss.item<float>() << "(ave:" <<  show_progress->get_ave(1) << ")" << std::endl;
 
             // -----------------------------------
             // c3. Save Sample Images
@@ -221,7 +241,7 @@ void train(po::variables_map &vm, torch::Device &device, VariationalAutoEncoder 
         // -----------------------------------
         // b2. Record Loss (epoch)
         // -----------------------------------
-        train_loss.plot(/*base=*/epoch, /*value=*/{show_progress->get_ave(0) + show_progress->get_ave(1), show_progress->get_ave(0), show_progress->get_ave(1)});
+        train_loss.plot(/*base=*/epoch, /*value=*/show_progress->get_ave());
 
         // -----------------------------------
         // b3. Save Sample Images
@@ -235,18 +255,22 @@ void train(po::variables_map &vm, torch::Device &device, VariationalAutoEncoder 
         // b4. Validation Mode
         // -----------------------------------
         if (vm["valid"].as<bool>() && ((epoch - 1) % vm["valid_freq"].as<size_t>() == 0)){
-            valid(vm, valid_dataloader, device, criterion, model, epoch, valid_loss);
+            valid(vm, valid_dataloader, device, criterion, criterion_MMD, enc, dec, epoch, valid_loss);
         }
 
         // -----------------------------------
         // b5. Save Model Weights and Optimizer Parameters
         // -----------------------------------
         if (epoch % vm["save_epoch"].as<size_t>() == 0){
-            path = checkpoint_dir + "/models/epoch_" + std::to_string(epoch) + ".pth";  torch::save(model, path);
-            path = checkpoint_dir + "/optims/epoch_" + std::to_string(epoch) + ".pth";  torch::save(optimizer, path);
+            path = checkpoint_dir + "/models/epoch_" + std::to_string(epoch) + "_enc.pth";  torch::save(enc, path);
+            path = checkpoint_dir + "/models/epoch_" + std::to_string(epoch) + "_dec.pth";  torch::save(dec, path);
+            path = checkpoint_dir + "/optims/epoch_" + std::to_string(epoch) + "_enc.pth";  torch::save(enc_optimizer, path);
+            path = checkpoint_dir + "/optims/epoch_" + std::to_string(epoch) + "_dec.pth";  torch::save(dec_optimizer, path);
         }
-        path = checkpoint_dir + "/models/epoch_latest.pth";  torch::save(model, path);
-        path = checkpoint_dir + "/optims/epoch_latest.pth";  torch::save(optimizer, path);
+        path = checkpoint_dir + "/models/epoch_latest_enc.pth";  torch::save(enc, path);
+        path = checkpoint_dir + "/models/epoch_latest_dec.pth";  torch::save(dec, path);
+        path = checkpoint_dir + "/optims/epoch_latest_enc.pth";  torch::save(enc_optimizer, path);
+        path = checkpoint_dir + "/optims/epoch_latest_dec.pth";  torch::save(dec_optimizer, path);
         infoo.open(checkpoint_dir + "/models/info.txt", std::ios::out);
         infoo << "latest = " << epoch << std::endl;
         infoo.close();

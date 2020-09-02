@@ -6,7 +6,7 @@
 #include <boost/program_options.hpp>
 
 // Define Namespace
-using namespace torch;
+namespace nn = torch::nn;
 namespace po = boost::program_options;
 
 // Function Prototype

@@ -72,10 +72,10 @@ po::options_description parse_arguments(){
         ("lr_dis", po::value<float>()->default_value(2e-4), "learning rate for discriminator")
         ("beta1", po::value<float>()->default_value(0.5), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
-        ("ngf", po::value<size_t>()->default_value(64), "number of filters in convolution layer closest to image in generator")
-        ("ndf", po::value<size_t>()->default_value(64), "number of filters in convolution layer closest to image in discriminator")
+        ("ngf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image in generator")
+        ("ndf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image in discriminator")
         ("Lambda", po::value<float>()->default_value(100.0), "the multiple of L1 norm")
-        ("n_layers", po::value<size_t>()->default_value(3), "number of layers in PatchGAN")
+        ("n_layers", po::value<size_t>()->default_value(3), "the number of layers in PatchGAN")
         ("no_dropout", po::value<bool>()->default_value(false), "Dropout off/on")
 
     ;

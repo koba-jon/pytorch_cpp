@@ -1,5 +1,5 @@
 # pix2pix
-This is "pix2pix".<br>
+This is the implementation of "pix2pix".<br>
 Original paper: P. Isola, J.-Y. Zhu, T. Zhou, and A. A. Efros. Image-to-image translation with conditional adversarial networks. In Proceesings of the IEEE Conference on Computer Vision and Pattern Recognition, 2017. [link](https://openaccess.thecvf.com/content_cvpr_2017/html/Isola_Image-To-Image_Translation_With_CVPR_2017_paper.html)
 
 ## Usage
@@ -24,10 +24,7 @@ Link: [official](http://cmp.felk.cvut.cz/~tylecr1/facade/)
 #### Setting
 
 Please create a link for the dataset.<br>
-You should substitute the path of training input data for "<training_input_path>".<br>
-You should substitute the path of training output data for "<training_output_path>".<br>
-You should substitute the path of test input data for "<test_input_path>".<br>
-You should substitute the path of test output data for "<test_output_path>".<br>
+You should substitute the path of training input data for "<training_input_path>", training output data for "<training_output_path>", test input data for "<test_input_path>", test output data for "<test_output_path>", respectively.<br>
 The following is an example for "facade".
 ~~~
 $ cd datasets

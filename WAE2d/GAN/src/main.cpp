@@ -9,15 +9,15 @@
 #include <opencv2/opencv.hpp>          // cv::Mat
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
-#include "networks.hpp"                // VariationalAutoEncoder
+#include "networks.hpp"                // WAE_Encoder, WAE_Decoder, GAN_Discriminator
 #include "transforms.hpp"              // transforms
 
 // Define Namespace
 namespace po = boost::program_options;
 
 // Function Prototype
-void train(po::variables_map &vm, torch::Device &device, VariationalAutoEncoder &model, std::vector<transforms::Compose*> &transform);
-void test(po::variables_map &vm, torch::Device &device, VariationalAutoEncoder &model, std::vector<transforms::Compose*> &transform);
+void train(po::variables_map &vm, torch::Device &device, WAE_Encoder &enc, WAE_Decoder &dec, GAN_Discriminator &dis, std::vector<transforms::Compose*> &transform);
+void test(po::variables_map &vm, torch::Device &device, WAE_Encoder &enc, WAE_Decoder &dec, std::vector<transforms::Compose*> &transform);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode);
@@ -65,11 +65,15 @@ po::options_description parse_arguments(){
         ("test_result_dir", po::value<std::string>()->default_value("test_result"), "test result directory : ./<test_result_dir>")
 
         // (5) Define for Network Parameter
-        ("lr", po::value<float>()->default_value(1e-4), "learning rate")
+        ("lr_enc", po::value<float>()->default_value(1e-4), "learning rate for encoder")
+        ("lr_dec", po::value<float>()->default_value(1e-4), "learning rate for decoder")
+        ("lr_dis", po::value<float>()->default_value(1e-4), "learning rate for discriminator")
         ("beta1", po::value<float>()->default_value(0.5), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
         ("nf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image")
-        ("Lambda", po::value<float>()->default_value(0.1), "the multiple of KL divergence Loss")
+        ("nd", po::value<size_t>()->default_value(512), "the number of node for linear block in discriminator")
+        ("Lambda", po::value<float>()->default_value(0.01), "the multiple of adversarial loss")
+        ("n_blocks", po::value<size_t>()->default_value(3), "the number of linear blocks in discriminator")
 
     ;
     
@@ -119,8 +123,9 @@ int main(int argc, const char *argv[]){
     }
     
     // (5) Define Network
-    VariationalAutoEncoder VAE(vm);
-    VAE->to(device);
+    WAE_Encoder enc(vm); enc->to(device);
+    WAE_Decoder dec(vm); dec->to(device);
+    GAN_Discriminator dis(vm); dis->to(device);
     
     // (6) Make Directories
     std::string dir = "checkpoints/";
@@ -129,18 +134,20 @@ int main(int argc, const char *argv[]){
     mkdir(dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
 
     // (7) Save Model Parameters
-    Set_Model_Params(vm, VAE, "VAE");
+    Set_Model_Params(vm, enc, "Encoder");
+    Set_Model_Params(vm, dec, "Decoder");
+    Set_Model_Params(vm, dis, "Discriminator");
 
     // (8.1) Training Phase
     if (vm["train"].as<bool>()){
         Set_Options(vm, argc, argv, args, "train");
-        train(vm, device, VAE, transform);
+        train(vm, device, enc, dec, dis, transform);
     }
 
     // (8.2) Test Phase
     if (vm["test"].as<bool>()){
         Set_Options(vm, argc, argv, args, "test");
-        test(vm, device, VAE, transform);
+        test(vm, device, enc, dec, transform);
     }
 
     // End Processing

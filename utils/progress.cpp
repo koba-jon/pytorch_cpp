@@ -7,6 +7,8 @@
 #include <utility>
 #include <ios>
 #include <iomanip>
+#include <cstdlib>
+#include <ctime>
 #include <sys/ioctl.h>
 #include <unistd.h>
 // For Original Header
@@ -188,4 +190,139 @@ float progress::display::get_ave(const int index){
 // ----------------------------------------------------
 progress::display::~display(){
     std::cout << std::endl;
+}
+
+
+// --------------------------------------------------------------
+// namespace{progress} -> class{irregular} -> function{restart}
+// --------------------------------------------------------------
+void progress::irregular::restart(const size_t count_start_, const size_t count_end_){
+    this->count_start = count_start_;
+    this->count_end = count_end_;
+    this->start = std::chrono::system_clock::now();
+}
+
+
+// ----------------------------------------------------------
+// namespace{progress} -> class{irregular} -> function{nab}
+// ----------------------------------------------------------
+void progress::irregular::nab(const size_t count){
+
+    // (0) Initialization and Declaration
+    size_t i;
+    int elap_hour, elap_min, elap_sec, rem_times, rem_hour, rem_min, rem_sec;
+    double sec_per_count;
+    std::time_t time_now, time_fin;
+    std::string elap_hour_str, elap_min_str, elap_sec_str, sec_per_count_str, rem_hour_str, rem_min_str, rem_sec_str;
+    std::string date, date_fin, date_out;
+    std::stringstream ss;
+    
+    // (1) Get Times
+    this->end = std::chrono::system_clock::now();
+    for (i = 0; i < 8; i++){
+        ss.str(""); ss.clear(std::stringstream::goodbit);
+        switch (i){
+            case 0:
+                elap_hour = (int)std::chrono::duration_cast<std::chrono::hours>(this->end - this->start).count();
+                ss << std::setfill('0') << std::right << std::setw(2) << elap_hour;
+                elap_hour_str = ss.str();
+                break;
+            case 1:
+                elap_min = (int)std::chrono::duration_cast<std::chrono::minutes>(this->end - this->start).count() % 60;
+                ss << std::setfill('0') << std::right << std::setw(2) << elap_min;
+                elap_min_str = ss.str();
+                break;
+            case 2:
+                elap_sec = (int)std::chrono::duration_cast<std::chrono::seconds>(this->end - this->start).count() % 60;
+                ss << std::setfill('0') << std::right << std::setw(2) << elap_sec;
+                elap_sec_str = ss.str();
+                break;
+            case 3:
+                sec_per_count = (double)std::chrono::duration_cast<std::chrono::milliseconds>(this->end - this->start).count() * 0.001 / (double)(count - this->count_start);
+                ss << std::setprecision(5) << sec_per_count;
+                sec_per_count_str = ss.str();
+                break;
+            case 4:
+                rem_times = (int)(sec_per_count * (double)(this->count_end - count));
+                break;
+            case 5:
+                rem_hour = rem_times / 3600;
+                ss << std::setfill('0') << std::right << std::setw(2) << rem_hour;
+                rem_hour_str = ss.str();
+                break;
+            case 6:
+                rem_min = (rem_times / 60) % 60;
+                ss << std::setfill('0') << std::right << std::setw(2) << rem_min;
+                rem_min_str = ss.str();
+                break;
+            case 7:
+                rem_sec = rem_times % 60;
+                ss << std::setfill('0') << std::right << std::setw(2) << rem_sec;
+                rem_sec_str = ss.str();
+                break;
+            default:
+                std::cerr << "Error : There is an unexpected value in argument of 'switch'." << std::endl;
+                std::exit(1);
+        }
+    }
+    this->elap = elap_hour_str + ':' + elap_min_str + ':' + elap_sec_str;
+    this->rem = rem_hour_str + ':' + rem_min_str + ':' + rem_sec_str;
+    this->sec_per = sec_per_count_str;
+    
+    // (2) Get Current Date
+    time_now = std::chrono::system_clock::to_time_t(this->end);
+    ss.str(""); ss.clear(std::stringstream::goodbit);
+    ss << std::ctime(&time_now);
+    this->date = ss.str();
+    this->date.erase(std::find(this->date.begin(), this->date.end(), '\n'));
+
+    // (3) Get Finish Date
+    time_fin = time_now + (time_t)rem_times;
+    ss.str(""); ss.clear(std::stringstream::goodbit);
+    ss << std::ctime(&time_fin);
+    this->date_fin = ss.str();
+    this->date_fin.erase(std::find(this->date_fin.begin(), this->date_fin.end(), '\n'));
+
+    return;
+
+}
+
+
+// --------------------------------------------------------------
+// namespace{progress} -> class{irregular} -> function{get_elap}
+// --------------------------------------------------------------
+std::string progress::irregular::get_elap(){
+    return this->elap;
+}
+
+
+// --------------------------------------------------------------
+// namespace{progress} -> class{irregular} -> function{get_rem}
+// --------------------------------------------------------------
+std::string progress::irregular::get_rem(){
+    return this->rem;
+}
+
+
+// --------------------------------------------------------------
+// namespace{progress} -> class{irregular} -> function{get_date}
+// --------------------------------------------------------------
+std::string progress::irregular::get_date(){
+    return this->date;
+}
+
+
+// ------------------------------------------------------------------
+// namespace{progress} -> class{irregular} -> function{get_date_fin}
+// ------------------------------------------------------------------
+std::string progress::irregular::get_date_fin(){
+    return this->date_fin;
+}
+
+
+// -----------------------------------------------------------------
+// namespace{progress} -> class{irregular} -> function{get_sec_per}
+// -----------------------------------------------------------------
+std::string progress::irregular::get_sec_per(){
+    return this->sec_per;
 }

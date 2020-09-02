@@ -1,7 +1,7 @@
 #ifndef NETWORKS_HPP
 #define NETWORKS_HPP
 
-#include <utility>
+#include <vector>
 // For External Library
 #include <torch/torch.h>
 #include <boost/program_options.hpp>
@@ -17,45 +17,44 @@ void UpSampling(nn::Sequential &sq, const size_t in_nc, const size_t out_nc, con
 
 
 // -------------------------------------------------
-// struct{UNet_GeneratorImpl}(nn::Module)
+// struct{WAE_EncoderImpl}(nn::Module)
 // -------------------------------------------------
-struct UNet_GeneratorImpl : nn::Module{
+struct WAE_EncoderImpl : nn::Module{
 private:
     nn::Sequential model;
 public:
-    UNet_GeneratorImpl(){}
-    UNet_GeneratorImpl(po::variables_map &vm);
+    WAE_EncoderImpl(){}
+    WAE_EncoderImpl(po::variables_map &vm);
     torch::Tensor forward(torch::Tensor x);
 };
 
 // -------------------------------------------------
-// struct{UNetBlockImpl}(nn::Module)
+// struct{WAE_DecoderImpl}(nn::Module)
 // -------------------------------------------------
-struct UNetBlockImpl : nn::Module{
-private:
-    bool outermost;
-    nn::Sequential model;
-public:
-    UNetBlockImpl(){}    
-    UNetBlockImpl(const std::pair<size_t, size_t> outside_nc, const size_t inside_nc, UNetBlockImpl &submodule, bool outermost_=false, bool innermost=false, bool use_dropout=false);
-    torch::Tensor forward(torch::Tensor x);
-};
-
-// -------------------------------------------------
-// struct{PatchGAN_DiscriminatorImpl}(nn::Module)
-// -------------------------------------------------
-struct PatchGAN_DiscriminatorImpl : nn::Module{
+struct WAE_DecoderImpl : nn::Module{
 private:
     nn::Sequential model;
 public:
-    PatchGAN_DiscriminatorImpl(){}
-    PatchGAN_DiscriminatorImpl(po::variables_map &vm);
+    WAE_DecoderImpl(){}
+    WAE_DecoderImpl(po::variables_map &vm);
+    torch::Tensor forward(torch::Tensor z);
+};
+
+// -------------------------------------------------
+// struct{ViewImpl}(nn::Module)
+// -------------------------------------------------
+struct ViewImpl : nn::Module{
+private:
+    std::vector<long int> shape;
+public:
+    ViewImpl(){}
+    ViewImpl(std::vector<long int> shape_);
     torch::Tensor forward(torch::Tensor x);
 };
 
-TORCH_MODULE(UNet_Generator);
-TORCH_MODULE(UNetBlock);
-TORCH_MODULE(PatchGAN_Discriminator);
+TORCH_MODULE(WAE_Encoder);
+TORCH_MODULE(WAE_Decoder);
+TORCH_MODULE(View);
 
 
 #endif
