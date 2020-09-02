@@ -116,7 +116,7 @@ It corresponds to the following source code in the directory, and we can add new
 
 ### 3. Check Progress
 There are a feature to check progress for training in this repository.<br>
-We can watch number of epoch, loss, time and speed in training.<br>
+We can watch the number of epoch, loss, time and speed in training.<br>
 ![util1](https://user-images.githubusercontent.com/56967584/88464264-3f720300-cef4-11ea-85fd-360cb3a424d1.png)<br>
 It corresponds to the following source code in the directory.
 - progress.cpp
