@@ -21,14 +21,14 @@ In addition, I might adapt programs to the latest version. <br>
 
 ### Generative Adversarial Networks
 
-|Model|Paper|Conference/Journal|Code|
+|Model|Paper|Conference/Journal|Code|Release Version|
 |---|---|---|---|
 |DCGAN|[link](https://arxiv.org/abs/1511.06434)|ICLR 2016|[DCGAN](DCGAN)|v1.5.1|
 |pix2pix|[link](https://openaccess.thecvf.com/content_cvpr_2017/html/Isola_Image-To-Image_Translation_With_CVPR_2017_paper.html)|CVPR 2017|[pix2pix](pix2pix)|v1.5.1|
 
 ### Density Estimation Networks
 
-|Model|Paper|Conference/Journal|Code|
+|Model|Paper|Conference/Journal|Code|Release Version|
 |---|---|---|---|
 |DAGMM|[link](https://openreview.net/forum?id=BJJLHbb0-)|ICLR 2018|[DAGMM2d](DAGMM2d)|v1.6.0|
 
