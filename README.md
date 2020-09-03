@@ -8,6 +8,30 @@ However, there is very little source code written in C++ of compiler language.<b
 Therefore, I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
 In addition, I might adapt programs to the latest version. <br>
 
+## Implementation
+
+### Encoder-Decoder Networks
+
+|Model|Paper|Conference/Journal|Destination|
+|---|---|---|---|
+|Autoencoder|[link](https://science.sciencemag.org/content/313/5786/504.abstract)|Science 2006|AE2d|
+|Variational Autoencoder|[link](https://arxiv.org/abs/1312.6114)|ICLR 2014|VAE2d|
+|Wasserstein Autoencoder|[link](https://openreview.net/forum?id=HkL7n1-0b)|ICLR 2018|WAE2d|
+|U-Net|[link](https://arxiv.org/abs/1505.04597)|MICCAI 2015|U-Net|
+
+### Generative Adversarial Networks
+
+|Model|Paper|Conference/Journal|Destination|
+|---|---|---|---|
+|DCGAN|[link](https://arxiv.org/abs/1511.06434)|ICLR 2016|DCGAN|
+|pix2pix|[link](https://openaccess.thecvf.com/content_cvpr_2017/html/Isola_Image-To-Image_Translation_With_CVPR_2017_paper.html)|CVPR 2017|pix2pix|
+
+### Density Estimation Networks
+
+|Model|Paper|Conference/Journal|Destination|
+|---|---|---|---|
+|DAGMM|[link](https://openreview.net/forum?id=BJJLHbb0-)|ICLR 2018|DAGMM2d|
+
 ## Requirement
 
 ### 1. PyTorch C++
