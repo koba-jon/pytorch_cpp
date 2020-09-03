@@ -12,7 +12,7 @@ In addition, I might adapt programs to the latest version. <br>
 
 ### Encoder-Decoder Networks
 
-|Model|Paper|Conference/Journal|Destination|
+|Model|Paper|Conference/Journal|Code|
 |---|---|---|---|
 |Autoencoder|[link](https://science.sciencemag.org/content/313/5786/504.abstract)|Science 2006|[AE2d](AE2d)|
 |Variational Autoencoder|[link](https://arxiv.org/abs/1312.6114)|ICLR 2014|[VAE2d](VAE2d)|
@@ -21,14 +21,14 @@ In addition, I might adapt programs to the latest version. <br>
 
 ### Generative Adversarial Networks
 
-|Model|Paper|Conference/Journal|Destination|
+|Model|Paper|Conference/Journal|Code|
 |---|---|---|---|
 |DCGAN|[link](https://arxiv.org/abs/1511.06434)|ICLR 2016|[DCGAN](DCGAN)|
 |pix2pix|[link](https://openaccess.thecvf.com/content_cvpr_2017/html/Isola_Image-To-Image_Translation_With_CVPR_2017_paper.html)|CVPR 2017|[pix2pix](pix2pix)|
 
 ### Density Estimation Networks
 
-|Model|Paper|Conference/Journal|Destination|
+|Model|Paper|Conference/Journal|Code|
 |---|---|---|---|
 |DAGMM|[link](https://openreview.net/forum?id=BJJLHbb0-)|ICLR 2018|[DAGMM2d](DAGMM2d)|
 
