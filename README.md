@@ -14,7 +14,7 @@ In addition, I might adapt programs to the latest version. <br>
 
 |Model|Paper|Conference/Journal|Destination|
 |---|---|---|---|
-|Autoencoder|[link](https://science.sciencemag.org/content/313/5786/504.abstract)|Science 2006|AE2d|
+|Autoencoder|[link](https://science.sciencemag.org/content/313/5786/504.abstract)|Science 2006|[AE2d](AE2d)|
 |Variational Autoencoder|[link](https://arxiv.org/abs/1312.6114)|ICLR 2014|VAE2d|
 |Wasserstein Autoencoder|[link](https://openreview.net/forum?id=HkL7n1-0b)|ICLR 2018|WAE2d|
 |U-Net|[link](https://arxiv.org/abs/1505.04597)|MICCAI 2015|U-Net|
