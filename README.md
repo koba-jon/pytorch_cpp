@@ -10,13 +10,18 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Implementation
 
-### Encoder-Decoder Networks
+### Autoencoders
 
 |Model|Paper|Conference/Journal|Code|Release Version|
 |---|---|---|---|---|
 |Autoencoder|[link](https://science.sciencemag.org/content/313/5786/504.abstract)|Science 2006|[AE2d](AE2d)|v1.5.0|
 |Variational Autoencoder|[link](https://arxiv.org/abs/1312.6114)|ICLR 2014|[VAE2d](VAE2d)|v1.5.1|
 |Wasserstein Autoencoder|[link](https://openreview.net/forum?id=HkL7n1-0b)|ICLR 2018|[WAE2d](WAE2d)|**v1.6.1(Latest)**|
+
+### Encoder-Decoder Networks
+
+|Model|Paper|Conference/Journal|Code|Release Version|
+|---|---|---|---|---|
 |U-Net|[link](https://arxiv.org/abs/1505.04597)|MICCAI 2015|[U-Net](U-Net)|v1.5.1|
 
 ### Generative Adversarial Networks
