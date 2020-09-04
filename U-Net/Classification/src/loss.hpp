@@ -1,7 +1,6 @@
 #ifndef LOSS_HPP
 #define LOSS_HPP
 
-#include <string>
 // For External Library
 #include <torch/torch.h>
 
