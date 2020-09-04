@@ -1,6 +1,7 @@
 #include <iostream>                    // std::cout
 #include <fstream>                     // std::ofstream
 #include <string>                      // std::string
+#include <vector>                      // std::vector
 #include <random>                      // std::random_device
 #include <cstdlib>                     // std::srand, std::rand
 #include <sys/stat.h>                  // mkdir
