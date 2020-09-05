@@ -77,6 +77,21 @@ namespace datasets{
         void get(const size_t index, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string, std::vector<std::tuple<unsigned char, unsigned char, unsigned char>>> &data);
         size_t size();
     };
+    
+    // ----------------------------------------------------------
+    // namespace{datasets} -> class{ImageFolderClassesWithPaths}
+    // ----------------------------------------------------------
+    class ImageFolderClassesWithPaths{
+    private:
+        std::vector<transforms::Compose*> transform;
+        std::vector<std::string> paths, fnames;
+        std::vector<size_t> class_ids;
+    public:
+        ImageFolderClassesWithPaths(){}
+        ImageFolderClassesWithPaths(const std::string root, std::vector<transforms::Compose*> &transform_, const std::vector<std::string> class_names);
+        void get(const size_t index, std::tuple<torch::Tensor, torch::Tensor, std::string> &data);
+        size_t size();
+    };
 
 }
 

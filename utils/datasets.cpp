@@ -306,3 +306,55 @@ void datasets::ImageFolderSegmentWithPaths::get(const size_t index, std::tuple<t
 size_t datasets::ImageFolderSegmentWithPaths::size(){
     return this->fnames1.size();
 }
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderClassesWithPaths} -> constructor
+// -------------------------------------------------------------------------
+datasets::ImageFolderClassesWithPaths::ImageFolderClassesWithPaths(const std::string root, std::vector<transforms::Compose*> &transform_, const std::vector<std::string> class_names){
+    std::string class_name, class_root;
+    fs::path ROOT;
+    for (size_t i = 0; i < class_names.size(); i++){
+        std::vector<std::string> paths_tmp, fnames_tmp;
+        class_name = class_names.at(i);
+        class_root = root + '/' + class_name;
+        ROOT = fs::path(class_root);
+        for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
+            if (!fs::is_directory(p)){
+                std::stringstream rpath, fname;
+                rpath << p.path().string();
+                fname << p.path().filename().string();
+                paths_tmp.push_back(rpath.str());
+                fnames_tmp.push_back(class_name + '/' + fname.str());
+                class_ids.push_back(i);
+            }
+        }
+        std::sort(paths_tmp.begin(), paths_tmp.end());
+        std::sort(fnames_tmp.begin(), fnames_tmp.end());
+        std::copy(paths_tmp.begin(), paths_tmp.end(), std::back_inserter(this->paths));
+        std::copy(fnames_tmp.begin(), fnames_tmp.end(), std::back_inserter(this->fnames));
+    }
+    this->transform = transform_;
+}
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderClassesWithPaths} -> function{get}
+// -------------------------------------------------------------------------
+void datasets::ImageFolderClassesWithPaths::get(const size_t index, std::tuple<torch::Tensor,  torch::Tensor, std::string> &data){
+    cv::Mat image_Mat = datasets::RGB_Loader(this->paths.at(index));
+    torch::Tensor image = transforms::apply(this->transform, image_Mat);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
+    torch::Tensor class_id = torch::full({}, (long int)this->class_ids.at(index), torch::TensorOptions().dtype(torch::kLong));
+    std::string fname = this->fnames.at(index);
+    data = {image.detach().clone(), class_id.detach().clone(), fname};
+    return;
+}
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderClassesWithPaths} -> function{size}
+// -------------------------------------------------------------------------
+size_t datasets::ImageFolderClassesWithPaths::size(){
+    return this->fnames.size();
+}
+
