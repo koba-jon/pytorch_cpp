@@ -78,17 +78,17 @@ void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector
         loss = criterion(output, label);
         
         output_argmax = output.exp().argmax(/*dim=*/1, /*keepdim=*/true);
-        correct = (label == output_argmax).sum().to(torch::kInt).item<int>();
+        correct = (label == output_argmax).sum().item<long int>();
         pixel_wise_accuracy = (double)correct / (double)(label.size(0) * label.size(1) * label.size(2));
 
         class_count = 0;
         mean_accuracy = 0.0;
         for (size_t i = 0; i < std::get<4>(data).size(); i++){
             answer_mask = torch::full({label.size(0), label.size(1), label.size(2)}, /*value=*/(long int)i, torch::TensorOptions().dtype(torch::kLong)).to(device);
-            total_class_pixel = (label == answer_mask).sum().to(torch::kInt).item<int>();
+            total_class_pixel = (label == answer_mask).sum().item<long int>();
             if (total_class_pixel != 0){
                 response_mask = torch::full({label.size(0), label.size(1), label.size(2)}, /*value=*/2, torch::TensorOptions().dtype(torch::kLong)).to(device);
-                correct_per_class = (((label == output_argmax).to(torch::kLong) + (label == answer_mask).to(torch::kLong)) == response_mask).sum().to(torch::kInt).item<int>();
+                correct_per_class = (((label == output_argmax).to(torch::kLong) + (label == answer_mask).to(torch::kLong)) == response_mask).sum().item<long int>();
                 mean_accuracy += (double)correct_per_class / (double)total_class_pixel;
                 class_count++;
             }
