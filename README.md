@@ -10,6 +10,12 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Implementation
 
+### Multiclass-Classification Networks
+
+|Model|Paper|Conference/Journal|Code|Release Version|
+|---|---|---|---|---|
+|AlexNet|[link](http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networ)|NeurIPS 2012|[AlexNet](Multiclass-Classification/AlexNet)|**v1.6.1(Latest)**|
+
 ### Autoencoders
 
 |Model|Paper|Conference/Journal|Code|Release Version|
