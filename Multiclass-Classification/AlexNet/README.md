@@ -59,6 +59,8 @@ The following is an example for "MNIST".<br>
 This is downloaded and placed, maintaining the above hierarchical relationships.
 ~~~
 $ cd datasets
+$ sudo apt install python3 python3-pip
+$ pip3 install scikit-image
 $ sh set_MNIST.sh
 $ cd ..
 ~~~
