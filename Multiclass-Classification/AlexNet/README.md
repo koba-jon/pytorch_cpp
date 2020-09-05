@@ -19,7 +19,7 @@ $ cd ..
 #### Recommendation
 - THE MNIST DATABASE of handwritten digits<br>
 This is the dataset of 28x28 grayscale for handwritten digits in 10 classes that has a training set of 60000 images and a test set of 10000 images.<br>
-Link: [official](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
+Link: [official](http://yann.lecun.com/exdb/mnist/)
 
 - The CIFAR-10 dataset<br>
 This is the dataset of 32x32 color based on labeled tiny images in 10 classes that has a training set of 50000 images and a test set of 10000 images.<br>
@@ -41,7 +41,9 @@ datasets
 |--Dataset2
 |    |
 |    |--train
+|    |    |
 |    |    |--class1
+|    |    |    |
 |    |    |    |--image1.png
 |    |    |    |--image2.png
 |    |    |    |--image3.png
