@@ -41,7 +41,7 @@ Please set the shell for executable file.
 ~~~
 $ vi scripts/train.sh
 ~~~
-The following is an exmaple of the training phase.<br>
+The following is an example of the training phase.<br>
 If you want to view specific examples of command line arguments, please view "src/main.cpp" or add "--help" to the argument.
 ~~~
 #!/bin/bash
@@ -72,7 +72,7 @@ Please set the shell for executable file.
 ~~~
 $ vi scripts/synth.sh
 ~~~
-The following is an exmaple of the synthesis phase.<br>
+The following is an example of the synthesis phase.<br>
 If you want to view specific examples of command line arguments, please view "src/main.cpp" or add "--help" to the argument.
 ~~~
 #!/bin/bash

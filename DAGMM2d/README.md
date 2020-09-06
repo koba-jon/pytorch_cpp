@@ -43,7 +43,7 @@ Please set the shell for executable file.
 ~~~
 $ vi scripts/train.sh
 ~~~
-The following is an exmaple of the training phase.<br>
+The following is an example of the training phase.<br>
 If you want to view specific examples of command line arguments, please view "src/main.cpp" or add "--help" to the argument.
 ~~~
 #!/bin/bash
@@ -73,7 +73,7 @@ Please set the shell for executable file.
 ~~~
 $ vi scripts/test.sh
 ~~~
-The following is an exmaple of the test phase.<br>
+The following is an example of the test phase.<br>
 If you want to view specific examples of command line arguments, please view "src/main.cpp" or add "--help" to the argument.
 ~~~
 #!/bin/bash
@@ -112,7 +112,7 @@ Please set the shell for executable file.
 ~~~
 $ vi scripts/anomaly_detection.sh
 ~~~
-The following is an exmaple of the anomaly detection phase.<br>
+The following is an example of the anomaly detection phase.<br>
 If you want to view specific examples of command line arguments, please view "src/main.cpp" or add "--help" to the argument.
 ~~~
 #!/bin/bash
