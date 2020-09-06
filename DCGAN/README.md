@@ -24,6 +24,22 @@ Link: [official](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
 #### Setting
 
 Please create a link for the dataset.<br>
+The following hierarchical relationships are recommended.
+
+~~~
+datasets
+|--Dataset1
+|    |--train
+|    |    |--image1.png
+|    |    |--image2.bmp
+|    |    |--image3.jpg
+|    |
+|    |--valid
+|
+|--Dataset2
+|--Dataset3
+~~~
+
 You should substitute the path of training data for "<training_path>".<br>
 The following is an example for "celebA".
 ~~~

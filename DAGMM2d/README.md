@@ -24,6 +24,25 @@ Link: [official](https://www.mvtec.com/company/research/datasets/mvtec-ad/)
 #### Setting
 
 Please create a link for the dataset.<br>
+The following hierarchical relationships are recommended.
+
+~~~
+datasets
+|--Dataset1
+|    |--train
+|    |    |--image1.png
+|    |    |--image2.bmp
+|    |    |--image3.jpg
+|    |
+|    |--valid
+|    |--test_anomaly
+|    |--test_normal
+|
+|--Dataset2
+|--Dataset3
+~~~
+
+
 You should substitute the path of training normal data for "<training_path>", test anomaly data for "<test_anomaly_path>", test normal data for "<test_normal_path>", respectively.<br>
 The following is an example for "MVTecAD".
 ~~~
