@@ -14,35 +14,35 @@ In addition, I might adapt programs to the latest version. <br>
 
 |Model|Paper|Conference/Journal|Code|Release Version|
 |---|---|---|---|---|
-|AlexNet|[link](http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networ)|NeurIPS 2012|[AlexNet](Multiclass-Classification/AlexNet)|**v1.6.1(Latest)**|
-|VGG|[link](https://arxiv.org/abs/1409.1556)|ICLR 2015|[VGG](Multiclass-Classification/VGG)|**v1.6.1(Latest)**|
+|AlexNet|[A. Krizhevsky et al.](http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networ)|NeurIPS 2012|[AlexNet](Multiclass-Classification/AlexNet)|**v1.6.1(Latest)**|
+|VGG|[K. Simonyan et al.](https://arxiv.org/abs/1409.1556)|ICLR 2015|[VGG](Multiclass-Classification/VGG)|**v1.6.1(Latest)**|
 
 ### Autoencoders
 
 |Model|Paper|Conference/Journal|Code|Release Version|
 |---|---|---|---|---|
-|Autoencoder|[link](https://science.sciencemag.org/content/313/5786/504.abstract)|Science 2006|[AE2d](AE2d)|v1.5.0|
-|Variational Autoencoder|[link](https://arxiv.org/abs/1312.6114)|ICLR 2014|[VAE2d](VAE2d)|v1.5.1|
-|Wasserstein Autoencoder|[link](https://openreview.net/forum?id=HkL7n1-0b)|ICLR 2018|[WAE2d](WAE2d)|**v1.6.1(Latest)**|
+|Autoencoder|[G. E. Hinton et al.](https://science.sciencemag.org/content/313/5786/504.abstract)|Science 2006|[AE2d](AE2d)|v1.5.0|
+|Variational Autoencoder|[D. P. Kingma et al.](https://arxiv.org/abs/1312.6114)|ICLR 2014|[VAE2d](VAE2d)|v1.5.1|
+|Wasserstein Autoencoder|[I. Tolstikhin et al.](https://openreview.net/forum?id=HkL7n1-0b)|ICLR 2018|[WAE2d](WAE2d)|**v1.6.1(Latest)**|
 
 ### Encoder-Decoder Networks
 
 |Model|Paper|Conference/Journal|Code|Release Version|
 |---|---|---|---|---|
-|U-Net|[link](https://arxiv.org/abs/1505.04597)|MICCAI 2015|[U-Net](U-Net)|v1.5.1|
+|U-Net|[O. Ronneberger et al.](https://arxiv.org/abs/1505.04597)|MICCAI 2015|[U-Net](U-Net)|v1.5.1|
 
 ### Generative Adversarial Networks
 
 |Model|Paper|Conference/Journal|Code|Release Version|
 |---|---|---|---|---|
-|DCGAN|[link](https://arxiv.org/abs/1511.06434)|ICLR 2016|[DCGAN](DCGAN)|v1.5.1|
-|pix2pix|[link](https://openaccess.thecvf.com/content_cvpr_2017/html/Isola_Image-To-Image_Translation_With_CVPR_2017_paper.html)|CVPR 2017|[pix2pix](pix2pix)|v1.5.1|
+|DCGAN|[A. Radford et al.](https://arxiv.org/abs/1511.06434)|ICLR 2016|[DCGAN](DCGAN)|v1.5.1|
+|pix2pix|[P. Isola et al.](https://openaccess.thecvf.com/content_cvpr_2017/html/Isola_Image-To-Image_Translation_With_CVPR_2017_paper.html)|CVPR 2017|[pix2pix](pix2pix)|v1.5.1|
 
 ### Density Estimation Networks
 
 |Model|Paper|Conference/Journal|Code|Release Version|
 |---|---|---|---|---|
-|DAGMM|[link](https://openreview.net/forum?id=BJJLHbb0-)|ICLR 2018|[DAGMM2d](DAGMM2d)|v1.6.0|
+|DAGMM|[B. Zong et al.](https://openreview.net/forum?id=BJJLHbb0-)|ICLR 2018|[DAGMM2d](DAGMM2d)|v1.6.0|
 
 ## Requirement
 
