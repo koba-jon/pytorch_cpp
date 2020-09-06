@@ -24,6 +24,30 @@ Link: [official](http://cmp.felk.cvut.cz/~tylecr1/facade/)
 #### Setting
 
 Please create a link for the dataset.<br>
+The following hierarchical relationships are recommended.
+
+~~~
+datasets
+|--Dataset1
+|    |--trainI
+|    |    |--image1.png
+|    |    |--image2.bmp
+|    |    |--image3.jpg
+|    |
+|    |--trainO
+|    |    |--image1.png
+|    |    |--image2.bmp
+|    |    |--image3.jpg
+|    |
+|    |--validI
+|    |--validO
+|    |--testI
+|    |--testO
+|
+|--Dataset2
+|--Dataset3
+~~~
+
 You should substitute the path of training input data for "<training_input_path>", training output data for "<training_output_path>", test input data for "<test_input_path>", test output data for "<test_output_path>", respectively.<br>
 The following is an example for "facade".
 ~~~

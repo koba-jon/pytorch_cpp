@@ -32,27 +32,25 @@ Link: [official](https://www.cs.toronto.edu/~kriz/cifar.html)
 #### Setting
 
 Please create a link for the dataset.<br>
-Please keep the following hierarchical relationships in this program.
+The following hierarchical relationships are recommended.
 
 ~~~
 datasets
-|
 |--Dataset1
-|--Dataset2
-|    |
 |    |--train
-|    |    |
 |    |    |--class1
-|    |    |    |
 |    |    |    |--image1.png
-|    |    |    |--image2.png
-|    |    |    |--image3.png
+|    |    |    |--image2.bmp
+|    |    |    |--image3.jpg
 |    |    |
 |    |    |--class2
 |    |    |--class3
 |    |
 |    |--valid
 |    |--test
+|
+|--Dataset2
+|--Dataset3
 ~~~
 
 The following is an example for "MNIST".<br>

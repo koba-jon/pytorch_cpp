@@ -24,6 +24,30 @@ Link: [official](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/)
 #### Setting
 
 Please create a link for the dataset.<br>
+The following hierarchical relationships are recommended.
+
+~~~
+datasets
+|--Dataset1
+|    |--trainI
+|    |    |--image1.png
+|    |    |--image2.bmp
+|    |    |--image3.jpg
+|    |
+|    |--trainO
+|    |    |--image1.png
+|    |    |--image2.png
+|    |    |--image3.png
+|    |
+|    |--validI
+|    |--validO
+|    |--testI
+|    |--testO
+|
+|--Dataset2
+|--Dataset3
+~~~
+
 You should substitute the path of training input data for "<training_input_path>", training output data for "<training_output_path>", test input data for "<test_input_path>", test output data for "<test_output_path>", respectively.<br>
 The following is an example for "VOC2012".
 ~~~
