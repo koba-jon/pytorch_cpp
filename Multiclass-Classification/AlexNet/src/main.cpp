@@ -37,7 +37,7 @@ po::options_description parse_arguments(){
         // (1) Define for General Parameter
         ("help", "produce help message")
         ("dataset", po::value<std::string>(), "dataset name")
-        ("class_list", po::value<std::string>()->default_value("list/MNIST.txt"), "file name in which class names are listed")
+        ("class_list", po::value<std::string>()->default_value("list/ImageNet.txt"), "file name in which class names are listed")
         ("class_num", po::value<size_t>()->default_value(1000), "total classes")
         ("size", po::value<size_t>()->default_value(224), "image width and height")
         ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
