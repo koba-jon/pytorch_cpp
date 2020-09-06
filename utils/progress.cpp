@@ -15,6 +15,56 @@
 #include "progress.hpp"
 
 
+// -------------------------------------------
+// namespace{progress} -> function{separator}
+// -------------------------------------------
+std::string progress::separator(){
+    size_t length;
+    struct winsize ws;
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) != -1){
+       length = ws.ws_col - 1;
+    }
+    else{
+        std::cerr << "Error : Couldn't get the width of terminal." << std::endl;
+        std::exit(1);
+    }
+    return std::string(length, '-');
+}
+
+
+// --------------------------------------------------
+// namespace{progress} -> function{separator_center}
+// --------------------------------------------------
+std::string progress::separator_center(const std::string word){
+    size_t length;
+    struct winsize ws;
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) != -1){
+       length = ws.ws_col - 1;
+    }
+    else{
+        std::cerr << "Error : Couldn't get the width of terminal." << std::endl;
+        std::exit(1);
+    }
+    size_t both_width = length - word.length() - 2;
+    return std::string(both_width/2, '-') + " " + word + " " + std::string(both_width/2, '-');
+}
+
+
+// ----------------------------------------------
+// namespace{progress} -> function{current_date}
+// ----------------------------------------------
+std::string progress::current_date(){
+    std::string date;
+    std::stringstream ss;
+    auto now = std::chrono::system_clock::now();
+    std::time_t time_now = std::chrono::system_clock::to_time_t(now);
+    ss << std::ctime(&time_now);
+    date = ss.str();
+    date.erase(std::find(date.begin(), date.end(), '\n'));
+    return date;
+}
+
+
 // ------------------------------------------------------
 // namespace{progress} -> class{display} -> constructor
 // ------------------------------------------------------
@@ -146,7 +196,7 @@ void progress::display::increment(const std::vector<float> loss_value){
        ideal_length = ws.ws_col - this->header - 1;
     }
     else{
-        std::cerr << "Error : Couldn't get the width of terminal" << std::endl;
+        std::cerr << "Error : Couldn't get the width of terminal." << std::endl;
         std::exit(1);
     }
 

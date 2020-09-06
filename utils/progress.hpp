@@ -11,6 +11,11 @@
 // -------------------------
 namespace progress{
 
+    // Function Prototype
+    std::string separator();
+    std::string separator_center(const std::string word);
+    std::string current_date();
+
     // ---------------------------------------
     // namespace{progress} -> class{display}
     // ---------------------------------------

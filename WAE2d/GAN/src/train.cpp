@@ -4,15 +4,9 @@
 #include <sstream>                     // std::stringstream
 #include <tuple>                       // std::tuple
 #include <vector>                      // std::vector
-#include <chrono>                      // std::chrono
-#include <algorithm>                   // std::find
 #include <utility>                     // std::pair
-#include <cstdlib>                     // std::exit
 #include <cmath>                       // std::ceil
-#include <ctime>                       // std::time_t, std::ctime
 #include <sys/stat.h>                  // mkdir
-#include <sys/ioctl.h>                 // ioctl, TIOCGWINSZ
-#include <unistd.h>                    // STDOUT_FILENO
 // For External Library
 #include <torch/torch.h>               // torch
 #include <boost/program_options.hpp>   // boost::program_options
@@ -23,7 +17,7 @@
 #include "datasets.hpp"                // datasets::ImageFolderWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderWithPaths
 #include "visualizer.hpp"              // visualizer
-#include "progress.hpp"                // progress::display, progress::irregular
+#include "progress.hpp"                // progress
 
 // Define Namespace
 namespace po = boost::program_options;
@@ -52,10 +46,7 @@ void train(po::variables_map &vm, torch::Device &device, WAE_Encoder &enc, WAE_D
     size_t epoch, iter;
     size_t total_iter;
     size_t start_epoch, total_epoch;
-    size_t length, both_width;
     size_t mini_batch_size;
-    struct winsize ws;
-    std::time_t time_now;
     std::string date, date_out;
     std::string buff, latest;
     std::string checkpoint_dir, save_images_dir, path;
@@ -159,27 +150,11 @@ void train(po::variables_map &vm, torch::Device &device, WAE_Encoder &enc, WAE_D
         }
     }
 
-    // (8) Catch Terminal Size
-    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) != -1){
-       length = ws.ws_col - 1;
-    }
-    else{
-        std::cerr << "Error : Couldn't get the width of terminal" << std::endl;
-        std::exit(1);
-    }
-
-    // (9) Display Date
-    auto now = std::chrono::system_clock::now();
-    time_now = std::chrono::system_clock::to_time_t(now);
-    ss.str(""); ss.clear(std::stringstream::goodbit);
-    ss << std::ctime(&time_now);
-    date = ss.str();
-    date.erase(std::find(date.begin(), date.end(), '\n'));
-    ss.str(""); ss.clear(std::stringstream::goodbit);
-    ss << " Train Loss (" << date << ") ";
-    both_width = length - ss.str().length();
-    std::cout << std::endl << std::endl << std::string(both_width/2, '-') << ss.str() << std::string(both_width/2, '-') << std::endl;
-    ofs << std::string(both_width/2, '-') << ss.str() << std::string(both_width/2, '-') << std::endl;
+    // (8) Display Date
+    date = progress::current_date();
+    date = progress::separator_center("Train Loss (" + date + ")");
+    std::cout << std::endl << std::endl << date << std::endl;
+    ofs << date << std::endl;
 
 
     // -----------------------------------
@@ -326,17 +301,8 @@ void train(po::variables_map &vm, torch::Device &device, WAE_Encoder &enc, WAE_D
             // -----------------------------------
             // c2. Terminal Output
             // -----------------------------------
-            // (1) Catch Terminal Size
-            if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) != -1){
-               length = ws.ws_col - 1;
-            }
-            else{
-                std::cerr << "Error : Couldn't get the width of terminal" << std::endl;
-                std::exit(1);
-            }
-            // (2) Times and Dates Output
-            std::cout << date_out << std::endl << std::string(length, '-') << std::endl;
-            ofs << date_out << std::endl << std::string(length, '-') << std::endl;
+            std::cout << date_out << std::endl << progress::separator() << std::endl;
+            ofs << date_out << std::endl << progress::separator() << std::endl;
 
         }
 
