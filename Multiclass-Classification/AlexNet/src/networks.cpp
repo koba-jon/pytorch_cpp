@@ -15,10 +15,10 @@ namespace F = torch::nn::functional;
 MC_AlexNetImpl::MC_AlexNetImpl(po::variables_map &vm){
 
     this->features = nn::Sequential(
-        nn::Conv2d(nn::Conv2dOptions(/*in_channels=*/vm["nc"].as<size_t>(), /*out_channels=*/96, /*kernel_size=*/11).stride(4)),  // {C,224,224} ===> {96,54,54}
+        nn::Conv2d(nn::Conv2dOptions(/*in_channels=*/vm["nc"].as<size_t>(), /*out_channels=*/96, /*kernel_size=*/11).stride(4)),  // {C,227,227} ===> {96,55,55}
         nn::ReLU(nn::ReLUOptions().inplace(true)),
         nn::LocalResponseNorm(nn::LocalResponseNormOptions(/*size=*/5).alpha(0.0001).beta(0.75).k(2.0)),
-        nn::MaxPool2d(nn::MaxPool2dOptions(/*kernel_size=*/3).stride(2)),                                                         // {96,54,54} ===> {96,27,27}
+        nn::MaxPool2d(nn::MaxPool2dOptions(/*kernel_size=*/3).stride(2)),                                                         // {96,55,55} ===> {96,27,27}
         nn::Conv2d(nn::Conv2dOptions(/*in_channels=*/96, /*out_channels=*/256, /*kernel_size=*/5).stride(1).padding(2)),          // {96,27,27} ===> {256,27,27}
         nn::ReLU(nn::ReLUOptions().inplace(true)),
         nn::LocalResponseNorm(nn::LocalResponseNormOptions(/*size=*/5).alpha(0.0001).beta(0.75).k(2.0)),
@@ -67,7 +67,7 @@ void MC_AlexNetImpl::init(){
 // ---------------------------------------------------------
 torch::Tensor MC_AlexNetImpl::forward(torch::Tensor x){
     torch::Tensor feature, out;
-    feature = this->features->forward(x);       // {C,224,224} ===> {256,6,6}
+    feature = this->features->forward(x);       // {C,227,227} ===> {256,6,6}
     feature = this->avgpool->forward(feature);  // {256,X,X} ===> {256,6,6}
     feature = feature.view({-1, 256*6*6});      // {256,6,6} ===> {256*6*6}
     out = this->classifier->forward(feature);   // {256*6*6} ===> {CN}

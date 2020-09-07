@@ -15,7 +15,7 @@ In addition, I might adapt programs to the latest version. <br>
 |Model|Paper|Conference/Journal|Code|Release Version|
 |---|---|---|---|---|
 |AlexNet|[A. Krizhevsky et al.](http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networ)|NeurIPS 2012|[AlexNet](Multiclass-Classification/AlexNet)|**v1.6.1(Latest)**|
-|VGG|[K. Simonyan et al.](https://arxiv.org/abs/1409.1556)|ICLR 2015|[VGG](Multiclass-Classification/VGG)|**v1.6.1(Latest)**|
+|VGGNet|[K. Simonyan et al.](https://arxiv.org/abs/1409.1556)|ICLR 2015|[VGGNet](Multiclass-Classification/VGGNet)|**v1.6.1(Latest)**|
 
 ### Autoencoders
 

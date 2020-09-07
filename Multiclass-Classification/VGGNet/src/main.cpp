@@ -10,15 +10,15 @@
 #include <opencv2/opencv.hpp>          // cv::Mat
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
-#include "networks.hpp"                // MC_AlexNet
+#include "networks.hpp"                // MC_VGGNet
 #include "transforms.hpp"              // transforms
 
 // Define Namespace
 namespace po = boost::program_options;
 
 // Function Prototype
-void train(po::variables_map &vm, torch::Device &device, MC_AlexNet &model, std::vector<transforms::Compose*> &transform, const std::vector<std::string> class_names);
-void test(po::variables_map &vm, torch::Device &device, MC_AlexNet &model, std::vector<transforms::Compose*> &transform, const std::vector<std::string> class_names);
+void train(po::variables_map &vm, torch::Device &device, MC_VGGNet &model, std::vector<transforms::Compose*> &transform, const std::vector<std::string> class_names);
+void test(po::variables_map &vm, torch::Device &device, MC_VGGNet &model, std::vector<transforms::Compose*> &transform, const std::vector<std::string> class_names);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 std::vector<std::string> Set_Class_Names(const std::string path, const size_t class_num);
@@ -39,7 +39,7 @@ po::options_description parse_arguments(){
         ("dataset", po::value<std::string>(), "dataset name")
         ("class_list", po::value<std::string>()->default_value("list/ImageNet.txt"), "file name in which class names are listed")
         ("class_num", po::value<size_t>()->default_value(1000), "total classes")
-        ("size", po::value<size_t>()->default_value(227), "image width and height")
+        ("size", po::value<size_t>()->default_value(224), "image width and height")
         ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
         ("gpu_id", po::value<int>()->default_value(0), "cuda device : 'x=-1' is cpu device")
         ("seed_random", po::value<bool>()->default_value(false), "whether to make the seed of random number in a random")
@@ -69,6 +69,8 @@ po::options_description parse_arguments(){
         ("lr", po::value<float>()->default_value(1e-4), "learning rate")
         ("beta1", po::value<float>()->default_value(0.5), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
+        ("n_layers", po::value<size_t>(), "the number of layer in model")
+        ("BN", po::value<bool>(), "whether to use batch normalization")
 
     ;
     
@@ -118,7 +120,7 @@ int main(int argc, const char *argv[]){
     }
     
     // (5) Define Network
-    MC_AlexNet model(vm);
+    MC_VGGNet model(vm);
     model->to(device);
     
     // (6) Make Directories
@@ -128,7 +130,7 @@ int main(int argc, const char *argv[]){
     mkdir(dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
 
     // (7) Save Model Parameters
-    Set_Model_Params(vm, model, "AlexNet");
+    Set_Model_Params(vm, model, "VGGNet");
 
     // (8) Set Class Names
     std::vector<std::string> class_names = Set_Class_Names(vm["class_list"].as<std::string>(), vm["class_num"].as<size_t>());

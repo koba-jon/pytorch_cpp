@@ -1,6 +1,6 @@
-# AlexNet
-This is the implementation of "AlexNet" for Multiclass-Classification.<br>
-Original paper: A. Krizhevsky, I. Sutskever, and G. E. Hinton. ImageNet classification with deep convolutional neural networks. In Proceedings of the 25th International Conference on Neural Information Processing Systems, 2012. [link](http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networ)
+# VGGNet
+This is the implementation of "VGGNet" for Multiclass-Classification.<br>
+Original paper: K. Simonyan and A. Zisserman. Very deep convolutional networks for large-scale image recognition. In International Conference on Learning Representations, 2015. [link](https://arxiv.org/abs/1409.1556)
 
 ## Usage
 
@@ -96,14 +96,16 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='MNIST'
 
-./AlexNet \
+./VGGNet \
     --train true \
+    --n_layers 16 \
+    --BN true \
     --epochs 300 \
     --dataset ${DATA} \
     --class_list "list/${DATA}.txt" \
     --class_num 10 \
-    --size 227 \
-    --batch_size 64 \
+    --size 224 \
+    --batch_size 16 \
     --gpu_id 0 \
     --nc 1
 ~~~
@@ -128,12 +130,14 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='MNIST'
 
-./AlexNet \
+./VGGNet \
     --test true \
+    --n_layers 16 \
+    --BN true \
     --dataset ${DATA} \
     --class_list "list/${DATA}.txt" \
     --class_num 10 \
-    --size 227 \
+    --size 224 \
     --gpu_id 0 \
     --nc 1
 ~~~
