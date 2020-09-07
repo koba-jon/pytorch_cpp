@@ -15,7 +15,7 @@ namespace F = torch::nn::functional;
 // ----------------------------------------------------------------------
 // struct{MC_VGGNetImpl}(nn::Module) -> constructor
 // ----------------------------------------------------------------------
-MC_VGGImpl::MC_VGGNetImpl(po::variables_map &vm){
+MC_VGGNetImpl::MC_VGGNetImpl(po::variables_map &vm){
 
     std::vector<long int> cfg;
     size_t n_layers = vm["n_layers"].as<size_t>();
