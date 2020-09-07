@@ -1,8 +1,8 @@
 #include <iostream>                    // std::cout, std::flush
 #include <fstream>                     // std::ifstream, std::ofstream
+#include <filesystem>                  // std::filesystem
 #include <string>                      // std::string
 #include <vector>                      // std::vector
-#include <sys/stat.h>                  // mkdir
 // For External Library
 #include <boost/program_options.hpp>   // boost::program_options
 
@@ -10,6 +10,7 @@
 #define ANOMALY 1
 
 // Define Namespace
+namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
@@ -39,7 +40,7 @@ void anomaly_detection(po::variables_map &vm){
     // (1) Set Directory and Path
     result_dir = vm["AD_result_dir"].as<std::string>();
     result_path = vm["AD_result_dir"].as<std::string>() + "/accuracy.csv";
-    mkdir(result_dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
+    fs::create_directories(result_dir);
 
     // (2.1) Set Anomaly Data
     ifs.open(vm["anomaly_path"].as<std::string>());

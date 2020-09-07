@@ -1,10 +1,10 @@
 #include <iostream>                    // std::cout, std::cerr
 #include <fstream>                     // std::ifstream, std::ofstream
+#include <filesystem>                  // std::filesystem
 #include <string>                      // std::string
 #include <vector>                      // std::vector
 #include <random>                      // std::random_device
 #include <cstdlib>                     // std::srand, std::rand, std::exit
-#include <sys/stat.h>                  // mkdir
 // For External Library
 #include <torch/torch.h>               // torch
 #include <opencv2/opencv.hpp>          // cv::Mat
@@ -14,6 +14,7 @@
 #include "transforms.hpp"              // transforms
 
 // Define Namespace
+namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
@@ -122,10 +123,8 @@ int main(int argc, const char *argv[]){
     model->to(device);
     
     // (6) Make Directories
-    std::string dir = "checkpoints/";
-    mkdir(dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
-    dir += vm["dataset"].as<std::string>();
-    mkdir(dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
+    std::string dir = "checkpoints/" + vm["dataset"].as<std::string>();
+    fs::create_directories(dir);
 
     // (7) Save Model Parameters
     Set_Model_Params(vm, model, "AlexNet");
@@ -178,7 +177,7 @@ void Set_Model_Params(po::variables_map &vm, T &model, const std::string name){
 
     // (1) Make Directory
     std::string dir = "checkpoints/" + vm["dataset"].as<std::string>() + "/model_params/";
-    mkdir(dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
+    fs::create_directories(dir);
 
     // (2.1) File Open
     std::string fname = dir + name + ".txt";
@@ -234,7 +233,7 @@ void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::option
 
     // (1) Make Directory
     std::string dir = "checkpoints/" + vm["dataset"].as<std::string>() + "/options/";
-    mkdir(dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
+    fs::create_directories(dir);
 
     // (2) Terminal Output
     std::cout << "--------------------------------------------" << std::endl;

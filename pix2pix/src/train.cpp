@@ -1,12 +1,12 @@
 #include <iostream>                    // std::cout, std::flush
 #include <fstream>                     // std::ifstream, std::ofstream
+#include <filesystem>                  // std::filesystem
 #include <string>                      // std::string
 #include <sstream>                     // std::stringstream
 #include <tuple>                       // std::tuple
 #include <vector>                      // std::vector
 #include <utility>                     // std::pair
 #include <cmath>                       // std::ceil
-#include <sys/stat.h>                  // mkdir
 // For External Library
 #include <torch/torch.h>               // torch
 #include <boost/program_options.hpp>   // boost::program_options
@@ -20,6 +20,7 @@
 #include "progress.hpp"                // progress
 
 // Define Namespace
+namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
@@ -99,10 +100,10 @@ void train(po::variables_map &vm, torch::Device &device, UNet_Generator &gen, Pa
 
     // (5) Make Directories
     checkpoint_dir = "checkpoints/" + vm["dataset"].as<std::string>();
-    path = checkpoint_dir + "/models";  mkdir(path.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
-    path = checkpoint_dir + "/optims";  mkdir(path.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
-    path = checkpoint_dir + "/log";  mkdir(path.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
-    save_images_dir = checkpoint_dir + "/samples";  mkdir(save_images_dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
+    path = checkpoint_dir + "/models";  fs::create_directories(path);
+    path = checkpoint_dir + "/optims";  fs::create_directories(path);
+    path = checkpoint_dir + "/log";  fs::create_directories(path);
+    save_images_dir = checkpoint_dir + "/samples";  fs::create_directories(save_images_dir);
 
     // (6) Set Training Loss for Graph
     path = checkpoint_dir + "/graph";

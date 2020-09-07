@@ -1,8 +1,8 @@
 #include <iostream>                    // std::cout
 #include <fstream>                     // std::ifstream, std::ofstream
+#include <filesystem>                  // std::filesystem
 #include <string>                      // std::string
 #include <chrono>                      // std::chrono
-#include <sys/stat.h>                  // mkdir
 // For External Library
 #include <torch/torch.h>               // torch
 #include <boost/program_options.hpp>   // boost::program_options
@@ -15,6 +15,7 @@
 #include "visualizer.hpp"              // visualizer
 
 // Define Namespace
+namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 
@@ -58,7 +59,7 @@ void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector
 
     // (5) Tensor Forward
     model->eval();
-    result_dir = vm["test_result_dir"].as<std::string>();  mkdir(result_dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
+    result_dir = vm["test_result_dir"].as<std::string>();  fs::create_directories(result_dir);
     ofs.open(result_dir + "/loss.txt", std::ios::out);
     while (dataloader(data)){
         

@@ -1,6 +1,6 @@
+#include <filesystem>                  // std::filesystem
 #include <string>                      // std::string
 #include <sstream>                     // std::stringstream
-#include <sys/stat.h>                  // mkdir
 // For External Library
 #include <torch/torch.h>               // torch
 #include <boost/program_options.hpp>   // boost::program_options
@@ -10,6 +10,7 @@
 #include "visualizer.hpp"              // visualizer
 
 // Define Namespace
+namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 
@@ -43,7 +44,7 @@ void synth(po::variables_map &vm, torch::Device &device, GAN_Generator &gen){
         output = gen->forward(z);
         outputs = torch::cat({outputs, output}, /*dim=*/0);
     }
-    result_dir = vm["synth_result_dir"].as<std::string>();  mkdir(result_dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
+    result_dir = vm["synth_result_dir"].as<std::string>();  fs::create_directories(result_dir);
     ss.str(""); ss.clear(std::stringstream::goodbit);
     ss << result_dir << "/Generated_Image."  << extension;
     visualizer::save_image(outputs.detach(), ss.str(), /*range=*/output_range, /*cols=*/max_counter);

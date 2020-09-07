@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -7,13 +8,15 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
-#include <sys/stat.h>
 // For External Library
 #include <torch/torch.h>
 #include <opencv2/opencv.hpp>
 #include <png++/png.hpp>
 // For Original Header
 #include "visualizer.hpp"
+
+// Define Namespace
+namespace fs = std::filesystem;
 
 
 // ----------------------------------------------------------
@@ -221,8 +224,8 @@ visualizer::graph::graph(const std::string dir_, const std::string gname_, const
     this->graph_fname= this->dir + '/' + this->gname + ".png";
     this->data_fname= this->data_dir + '/' + this->gname + ".dat";
     this->label = label_;
-    mkdir(this->dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
-    mkdir(this->data_dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
+    fs::create_directories(this->dir);
+    fs::create_directories(this->data_dir);
 }
 
 
