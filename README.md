@@ -12,10 +12,29 @@ In addition, I might adapt programs to the latest version. <br>
 
 ### Multiclass-Classification
 
-|Model|Paper|Conference/Journal|Code|Release Version|
-|---|---|---|---|---|
-|AlexNet|[A. Krizhevsky et al.](http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networ)|NeurIPS 2012|[AlexNet](Multiclass-Classification/AlexNet)|**v1.6.1(Latest)**|
-|VGGNet|[K. Simonyan et al.](https://arxiv.org/abs/1409.1556)|ICLR 2015|[VGGNet](Multiclass-Classification/VGGNet)|**v1.6.1(Latest)**|
+<table>
+  <tr>
+    <th>Model</th>
+    <th>Paper</th>
+    <th>Conference / Journal</th>
+    <th>Code</th>
+    <th>Release Version</th>
+  </tr>
+  <tr>
+    <td>AlexNet</td>
+    <td><a href="http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networ">A. Krizhevsky et al.</a></td>
+    <td>NeurIPS 2012</td>
+    <td><a href="Multiclass-Classification/AlexNet">AlexNet</a></td>
+    <td><b>v1.6.1(Latest)</b><td>
+  </tr>
+  <tr>
+    <td>VGGNet</td>
+    <td><a href="https://arxiv.org/abs/1409.1556">K. Simonyan et al.</a></td>
+    <td>ICLR 2015</td>
+    <td><a href="Multiclass-Classification/VGGNet">VGGNet</a></td>
+    <td><b>v1.6.1(Latest)</b><td>
+  </tr>
+</table>
 
 ### Autoencoders
 
