@@ -112,7 +112,7 @@ In addition, I might adapt programs to the latest version. <br>
     <td>v1.5.1<td>
   </tr>
   <tr>
-    <td><pix2pix/td>
+    <td>pix2pix</td>
     <td><a href="https://openaccess.thecvf.com/content_cvpr_2017/html/Isola_Image-To-Image_Translation_With_CVPR_2017_paper.html">P. Isola et al.</a></td>
     <td>CVPR 2017</td>
     <td><a href="pix2pix">pix2pix</a></td>
