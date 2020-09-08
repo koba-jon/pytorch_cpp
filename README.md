@@ -10,7 +10,7 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Implementation
 
-### Multiclass-Classification Networks
+### Multiclass-Classification
 
 |Model|Paper|Conference/Journal|Code|Release Version|
 |---|---|---|---|---|
@@ -23,13 +23,15 @@ In addition, I might adapt programs to the latest version. <br>
 |---|---|---|---|---|
 |Autoencoder|[G. E. Hinton et al.](https://science.sciencemag.org/content/313/5786/504.abstract)|Science 2006|[AE2d](AE2d)|v1.5.0|
 |Variational Autoencoder|[D. P. Kingma et al.](https://arxiv.org/abs/1312.6114)|ICLR 2014|[VAE2d](VAE2d)|v1.5.1|
-|Wasserstein Autoencoder|[I. Tolstikhin et al.](https://openreview.net/forum?id=HkL7n1-0b)|ICLR 2018|[WAE2d](WAE2d)|**v1.6.1(Latest)**|
+|Wasserstein Autoencoder|[I. Tolstikhin et al.](https://openreview.net/forum?id=HkL7n1-0b)|ICLR 2018|[WAE2d GAN](WAE2d/GAN)|**v1.6.1(Latest)**|
+|^|^|^|[WAE2d MMD](WAE2d/MMD)|^|
 
 ### Encoder-Decoder Networks
 
 |Model|Paper|Conference/Journal|Code|Release Version|
 |---|---|---|---|---|
-|U-Net|[O. Ronneberger et al.](https://arxiv.org/abs/1505.04597)|MICCAI 2015|[U-Net](U-Net)|v1.5.1|
+|U-Net|[O. Ronneberger et al.](https://arxiv.org/abs/1505.04597)|MICCAI 2015|[U-Net Classification](U-Net/Classification)|v1.5.1|
+|^|^|^|[U-Net Regression](U-Net/Regression)|^|
 
 ### Generative Adversarial Networks
 
@@ -38,7 +40,7 @@ In addition, I might adapt programs to the latest version. <br>
 |DCGAN|[A. Radford et al.](https://arxiv.org/abs/1511.06434)|ICLR 2016|[DCGAN](DCGAN)|v1.5.1|
 |pix2pix|[P. Isola et al.](https://openaccess.thecvf.com/content_cvpr_2017/html/Isola_Image-To-Image_Translation_With_CVPR_2017_paper.html)|CVPR 2017|[pix2pix](pix2pix)|v1.5.1|
 
-### Density Estimation Networks
+### Anomaly Detection
 
 |Model|Paper|Conference/Journal|Code|Release Version|
 |---|---|---|---|---|
