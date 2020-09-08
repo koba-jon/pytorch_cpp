@@ -38,32 +38,106 @@ In addition, I might adapt programs to the latest version. <br>
 
 ### Autoencoders
 
-|Model|Paper|Conference/Journal|Code|Release Version|
-|---|---|---|---|---|
-|Autoencoder|[G. E. Hinton et al.](https://science.sciencemag.org/content/313/5786/504.abstract)|Science 2006|[AE2d](AE2d)|v1.5.0|
-|Variational Autoencoder|[D. P. Kingma et al.](https://arxiv.org/abs/1312.6114)|ICLR 2014|[VAE2d](VAE2d)|v1.5.1|
-|Wasserstein Autoencoder|[I. Tolstikhin et al.](https://openreview.net/forum?id=HkL7n1-0b)|ICLR 2018|[WAE2d GAN](WAE2d/GAN)|**v1.6.1(Latest)**|
-|^|^|^|[WAE2d MMD](WAE2d/MMD)|^|
+<table>
+  <tr>
+    <th>Model</th>
+    <th>Paper</th>
+    <th>Conference / Journal</th>
+    <th>Code</th>
+    <th>Release Version</th>
+  </tr>
+  <tr>
+    <td>Autoencoder</td>
+    <td><a href="https://science.sciencemag.org/content/313/5786/504.abstract">G. E. Hinton et al.</a></td>
+    <td>Science 2006</td>
+    <td><a href="AE2d">AE2d</a></td>
+    <td>v1.5.0<td>
+  </tr>
+  <tr>
+    <td>Variational Autoencoder</td>
+    <td><a href="https://arxiv.org/abs/1312.6114">D. P. Kingma et al.</a></td>
+    <td>ICLR 2014</td>
+    <td><a href="VAE2d">VAE2d</a></td>
+    <td>v1.5.1<td>
+  </tr>
+  <tr>
+    <td rowspan="2">Wasserstein Autoencoder</td>
+    <td rowspan="2"><a href="https://openreview.net/forum?id=HkL7n1-0b">I. Tolstikhin et al.</a></td>
+    <td rowspan="2">ICLR 2018</td>
+    <td><a href="WAE2d/GAN">WAE2d GAN</a></td>
+    <td rowspan="2"><b>v1.6.1(Latest)</b><td>
+  </tr>
+  <tr>
+    <td><a href="WAE2d/MMD">WAE2d MMD</a></td>
+  </tr>
+</table>
 
 ### Encoder-Decoder Networks
 
-|Model|Paper|Conference/Journal|Code|Release Version|
-|---|---|---|---|---|
-|U-Net|[O. Ronneberger et al.](https://arxiv.org/abs/1505.04597)|MICCAI 2015|[U-Net Classification](U-Net/Classification)|v1.5.1|
-|^|^|^|[U-Net Regression](U-Net/Regression)|^|
+<table>
+  <tr>
+    <th>Model</th>
+    <th>Paper</th>
+    <th>Conference / Journal</th>
+    <th>Code</th>
+    <th>Release Version</th>
+  </tr>
+  <tr>
+    <td rowspan="2">U-Net</td>
+    <td rowspan="2"><a href="https://arxiv.org/abs/1505.04597">O. Ronneberger et al.</a></td>
+    <td rowspan="2">MICCAI 2015</td>
+    <td><a href="U-Net/Classification">U-Net Classification</a></td>
+    <td rowspan="2">v1.5.1<td>
+  </tr>
+  <tr>
+    <td><a href="U-Net/Regression">U-Net Regression</a></td>
+  </tr>
+</table>
 
 ### Generative Adversarial Networks
 
-|Model|Paper|Conference/Journal|Code|Release Version|
-|---|---|---|---|---|
-|DCGAN|[A. Radford et al.](https://arxiv.org/abs/1511.06434)|ICLR 2016|[DCGAN](DCGAN)|v1.5.1|
-|pix2pix|[P. Isola et al.](https://openaccess.thecvf.com/content_cvpr_2017/html/Isola_Image-To-Image_Translation_With_CVPR_2017_paper.html)|CVPR 2017|[pix2pix](pix2pix)|v1.5.1|
+<table>
+  <tr>
+    <th>Model</th>
+    <th>Paper</th>
+    <th>Conference / Journal</th>
+    <th>Code</th>
+    <th>Release Version</th>
+  </tr>
+  <tr>
+    <td>DCGAN</td>
+    <td><a href="https://arxiv.org/abs/1511.06434">A. Radford et al.</a></td>
+    <td>ICLR 2016</td>
+    <td><a href="DCGAN">DCGAN</a></td>
+    <td>v1.5.1<td>
+  </tr>
+  <tr>
+    <td><pix2pix/td>
+    <td><a href="https://openaccess.thecvf.com/content_cvpr_2017/html/Isola_Image-To-Image_Translation_With_CVPR_2017_paper.html">P. Isola et al.</a></td>
+    <td>CVPR 2017</td>
+    <td><a href="pix2pix">pix2pix</a></td>
+    <td>v1.5.1<td>
+  </tr>
+</table>
 
 ### Anomaly Detection
 
-|Model|Paper|Conference/Journal|Code|Release Version|
-|---|---|---|---|---|
-|DAGMM|[B. Zong et al.](https://openreview.net/forum?id=BJJLHbb0-)|ICLR 2018|[DAGMM2d](DAGMM2d)|v1.6.0|
+<table>
+  <tr>
+    <th>Model</th>
+    <th>Paper</th>
+    <th>Conference / Journal</th>
+    <th>Code</th>
+    <th>Release Version</th>
+  </tr>
+  <tr>
+    <td>DAGMM</td>
+    <td><a href="https://openreview.net/forum?id=BJJLHbb0-">B. Zong et al.</a></td>
+    <td>ICLR 2018</td>
+    <td><a href="DAGMM2d">DAGMM2d</a></td>
+    <td>v1.6.0<td>
+  </tr>
+</table>
 
 ## Requirement
 
