@@ -144,3 +144,7 @@ Please execute the following to start the program.
 $ sh scripts/test.sh
 ~~~
 
+
+## Acknowledgement
+This code is inspired by [alexnet-pytorch](https://github.com/dansuh17/alexnet-pytorch).
+

@@ -124,3 +124,6 @@ Please execute the following to start the program.
 $ sh scripts/test.sh
 ~~~
 
+
+## Acknowledgement
+This code is inspired by [pytorch-CycleGAN-and-pix2pix](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix).

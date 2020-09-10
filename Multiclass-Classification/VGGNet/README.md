@@ -148,3 +148,7 @@ Please execute the following to start the program.
 $ sh scripts/test.sh
 ~~~
 
+
+## Acknowledgement
+This code is inspired by [VGG16-PyTorch](https://github.com/minar09/VGG16-PyTorch).
+

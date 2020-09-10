@@ -115,3 +115,7 @@ Please execute the following to start the program.
 $ sh scripts/test.sh
 ~~~
 
+
+## Acknowledgement
+This code is inspired by [WAE-pytorch](https://github.com/1Konny/WAE-pytorch).
+

@@ -143,7 +143,7 @@ In addition, I might adapt programs to the latest version. <br>
 
 ### 1. PyTorch C++
 Please select the environment to use as follows on PyTorch official. <br>
-PyTorch official : https://pytorch.org/ <br>
+Official : https://pytorch.org/ <br>
 ***
 PyTorch Build : Preview (Nightly) <br>
 Your OS : Linux <br>
@@ -155,26 +155,32 @@ CPU : https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-share
 ***
 
 ### 2. OpenCV
+Official : https://opencv.org/ <br>
 version : 3.0.0 or more <br>
 This is used for pre-processing and post-processing. <br>
 Please refer to other sites for more detailed installation method.
 
 ### 3. OpenMP
-This is used to load data in parallel. 
+Official : https://www.openmp.org/ <br>
+This is used to load data in parallel. <br>
+(It may be installed on standard Linux OS.)
 
 ### 4. Boost
+Official : https://www.boost.org/ <br>
 This is used for command line arguments, etc. <br>
 ~~~
 $ sudo apt install libboost-dev libboost-all-dev
 ~~~
 
 ### 5. Gnuplot
+Official : http://www.gnuplot.info/ <br>
 This is used to display loss graph. <br>
 ~~~
 $ sudo apt install gnuplot
 ~~~
 
 ### 6. libpng
+Official : http://www.libpng.org/pub/png/libpng.html <br>
 This is used to load and save index-color image in semantic segmentation. <br>
 ~~~
 $ sudo apt install libpng++-dev

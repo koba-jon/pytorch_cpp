@@ -152,3 +152,6 @@ Please execute the following to start the program.
 $ sh scripts/anomaly_detection.sh
 ~~~
 
+
+## Acknowledgement
+This code is inspired by [dagmm](https://github.com/danieltan07/dagmm).
