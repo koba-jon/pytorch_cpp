@@ -275,7 +275,7 @@ If you exploit external libraries, many copyrights occur.<br>
 At a minumum, the license notation at the following URL is required.<br>
 In addition, third party copyrights belong to their respective owners.<br>
 
-- My Repository (MIT License) <br>
+- This Repository (MIT License) <br>
 License : [https://github.com/koba-jon/pytorch_cpp](LICENSE) <br>
 
 - PyTorch <br>
