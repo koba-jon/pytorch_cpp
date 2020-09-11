@@ -16,7 +16,7 @@ In addition, I might adapt programs to the latest version. <br>
   <tr>
     <th>Model</th>
     <th>Paper</th>
-    <th>Conference / Journal</th>
+    <th>Conference/Journal</th>
     <th>Code</th>
     <th>Release Version</th>
   </tr>
@@ -42,7 +42,7 @@ In addition, I might adapt programs to the latest version. <br>
   <tr>
     <th>Model</th>
     <th>Paper</th>
-    <th>Conference / Journal</th>
+    <th>Conference/Journal</th>
     <th>Code</th>
     <th>Release Version</th>
   </tr>
@@ -78,7 +78,7 @@ In addition, I might adapt programs to the latest version. <br>
   <tr>
     <th>Model</th>
     <th>Paper</th>
-    <th>Conference / Journal</th>
+    <th>Conference/Journal</th>
     <th>Code</th>
     <th>Release Version</th>
   </tr>
@@ -100,7 +100,7 @@ In addition, I might adapt programs to the latest version. <br>
   <tr>
     <th>Model</th>
     <th>Paper</th>
-    <th>Conference / Journal</th>
+    <th>Conference/Journal</th>
     <th>Code</th>
     <th>Release Version</th>
   </tr>
@@ -126,7 +126,7 @@ In addition, I might adapt programs to the latest version. <br>
   <tr>
     <th>Model</th>
     <th>Paper</th>
-    <th>Conference / Journal</th>
+    <th>Conference/Journal</th>
     <th>Code</th>
     <th>Release Version</th>
   </tr>
@@ -143,7 +143,7 @@ In addition, I might adapt programs to the latest version. <br>
 
 ### 1. PyTorch C++
 Please select the environment to use as follows on PyTorch official. <br>
-Official : https://pytorch.org/ <br>
+PyTorch official : https://pytorch.org/ <br>
 ***
 PyTorch Build : Preview (Nightly) <br>
 Your OS : Linux <br>
@@ -155,35 +155,30 @@ CPU : https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-share
 ***
 
 ### 2. OpenCV
-Official : https://opencv.org/ <br>
 version : 3.0.0 or more <br>
 This is used for pre-processing and post-processing. <br>
 Please refer to other sites for more detailed installation method.
 
 ### 3. OpenMP
-Official : https://www.openmp.org/ <br>
 This is used to load data in parallel. <br>
 (It may be installed on standard Linux OS.)
 
 ### 4. Boost
-Official : https://www.boost.org/ <br>
 This is used for command line arguments, etc. <br>
 ~~~
 $ sudo apt install libboost-dev libboost-all-dev
 ~~~
 
 ### 5. Gnuplot
-Official : http://www.gnuplot.info/ <br>
 This is used to display loss graph. <br>
 ~~~
 $ sudo apt install gnuplot
 ~~~
 
-### 6. libpng
-Official : http://www.libpng.org/pub/png/libpng.html <br>
+### 6. libpng/png++
 This is used to load and save index-color image in semantic segmentation. <br>
 ~~~
-$ sudo apt install libpng++-dev
+$ sudo apt install libpng-dev libpng++-dev
 ~~~
 
 ## Preparation
@@ -273,3 +268,38 @@ It corresponds to the following source code in the directory.
 I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
 If you have any problems with the source code of this repository, please feel free to "issue".<br>
 Let's have a good development and research life!
+
+
+## License
+If you exploit external libraries, many copyrights occur.<br>
+At a minumum, the license notation at the following URL is required.<br>
+In addition, third party copyrights belong to their respective owners.<br>
+
+- My Repository (MIT License)
+License : [https://github.com/koba-jon/pytorch_cpp](LICENSE) <br>
+
+- PyTorch
+Official : https://pytorch.org/ <br>
+License : https://github.com/pytorch/pytorch/blob/master/LICENSE <br>
+
+- OpenCV
+Official : https://opencv.org/ <br>
+License : https://opencv.org/license/ <br>
+
+- OpenMP
+Official : https://www.openmp.org/ <br>
+License : https://gcc.gnu.org/onlinedocs/ <br>
+
+- Boost
+Official : https://www.boost.org/ <br>
+License : https://www.boost.org/users/license.html <br>
+
+- Gnuplot
+Official : http://www.gnuplot.info/ <br>
+License : https://sourceforge.net/p/gnuplot/gnuplot-main/ci/master/tree/Copyright <br>
+
+- libpng/png++
+Official (libpng) : http://www.libpng.org/pub/png/libpng.html <br>
+License (libpng) : http://www.libpng.org/pub/png/src/libpng-LICENSE.txt <br>
+Official (png++) : https://www.nongnu.org/pngpp/ <br>
+License (png++) : https://www.nongnu.org/pngpp/license.html <br>
