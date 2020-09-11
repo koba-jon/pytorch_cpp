@@ -275,30 +275,30 @@ If you exploit external libraries, many copyrights occur.<br>
 At a minumum, the license notation at the following URL is required.<br>
 In addition, third party copyrights belong to their respective owners.<br>
 
-- My Repository (MIT License)
+- My Repository (MIT License) <br>
 License : [https://github.com/koba-jon/pytorch_cpp](LICENSE) <br>
 
-- PyTorch
+- PyTorch <br>
 Official : https://pytorch.org/ <br>
 License : https://github.com/pytorch/pytorch/blob/master/LICENSE <br>
 
-- OpenCV
+- OpenCV <br>
 Official : https://opencv.org/ <br>
 License : https://opencv.org/license/ <br>
 
-- OpenMP
+- OpenMP <br>
 Official : https://www.openmp.org/ <br>
 License : https://gcc.gnu.org/onlinedocs/ <br>
 
-- Boost
+- Boost <br>
 Official : https://www.boost.org/ <br>
 License : https://www.boost.org/users/license.html <br>
 
-- Gnuplot
+- Gnuplot <br>
 Official : http://www.gnuplot.info/ <br>
 License : https://sourceforge.net/p/gnuplot/gnuplot-main/ci/master/tree/Copyright <br>
 
-- libpng/png++
+- libpng/png++ <br>
 Official (libpng) : http://www.libpng.org/pub/png/libpng.html <br>
 License (libpng) : http://www.libpng.org/pub/png/src/libpng-LICENSE.txt <br>
 Official (png++) : https://www.nongnu.org/pngpp/ <br>
