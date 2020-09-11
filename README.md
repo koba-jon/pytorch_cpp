@@ -272,7 +272,7 @@ Let's have a good development and research life!
 
 ## License
 If you exploit external libraries, many copyrights occur.<br>
-At a minumum, the license notation at the following URL is required.<br>
+At a minimum, the license notation at the following URL is required.<br>
 In addition, third party copyrights belong to their respective owners.<br>
 
 - This Repository (MIT License) <br>
