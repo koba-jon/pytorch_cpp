@@ -271,12 +271,10 @@ Let's have a good development and research life!
 
 
 ## License
-If you exploit external libraries, many copyrights occur.<br>
+You can feel free to use all source code in this repository.<br>
+But if you exploit external libraries (e.g. redistribution), you should be careful.<br>
 At a minimum, the license notation at the following URL is required.<br>
 In addition, third party copyrights belong to their respective owners.<br>
-
-- This Repository (MIT License) <br>
-License : [https://github.com/koba-jon/pytorch_cpp](LICENSE) <br>
 
 - PyTorch <br>
 Official : https://pytorch.org/ <br>
