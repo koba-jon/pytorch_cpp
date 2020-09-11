@@ -211,7 +211,7 @@ Please create a link for the original dataset.<br>
 The following is an example of "AE2d" using "celebA" Dataset.
 ~~~
 $ cd AE2d/datasets
-$ ln -s <dataset_path> ./
+$ ln -s <dataset_path> ./celebA_org
 ~~~
 You should substitute the path of dataset for "<dataset_path>".<br>
 Please make sure you have training or test data directly under "<dataset_path>".
@@ -233,7 +233,7 @@ By running this file, you can split it into training and validation data.
 $ sudo apt install python3 python3-pip
 $ pip3 install natsort
 $ sh hold_out.sh
-$ cd ..
+$ cd ../..
 ~~~
 
 ### 2. Data Input System
