@@ -125,5 +125,5 @@ $ sh scripts/test.sh
 ~~~
 
 
-## Acknowledgement
+## Acknowledgments
 This code is inspired by [pytorch-CycleGAN-and-pix2pix](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix).

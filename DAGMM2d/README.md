@@ -153,5 +153,5 @@ $ sh scripts/anomaly_detection.sh
 ~~~
 
 
-## Acknowledgement
+## Acknowledgments
 This code is inspired by [dagmm](https://github.com/danieltan07/dagmm).

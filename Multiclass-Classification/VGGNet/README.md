@@ -149,6 +149,6 @@ $ sh scripts/test.sh
 ~~~
 
 
-## Acknowledgement
+## Acknowledgments
 This code is inspired by [VGG16-PyTorch](https://github.com/minar09/VGG16-PyTorch).
 

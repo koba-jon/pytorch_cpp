@@ -145,6 +145,6 @@ $ sh scripts/test.sh
 ~~~
 
 
-## Acknowledgement
+## Acknowledgments
 This code is inspired by [alexnet-pytorch](https://github.com/dansuh17/alexnet-pytorch).
 

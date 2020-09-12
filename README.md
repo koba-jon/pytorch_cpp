@@ -272,6 +272,8 @@ Let's have a good development and research life!
 
 ## License
 You can feel free to use all source code in this repository.<br>
+(Click [here](LICENSE) for details.)<br><br>
+
 But if you exploit external libraries (e.g. redistribution), you should be careful.<br>
 At a minimum, the license notation at the following URL is required.<br>
 In addition, third party copyrights belong to their respective owners.<br>

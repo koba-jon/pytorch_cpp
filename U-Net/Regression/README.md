@@ -1,5 +1,5 @@
 # U-Net Regression
-This is the implementation of "U-Net" corresponding to regression.<br>
+This is the implementation of "U-Net" for regression.<br>
 Original paper: O. Ronneberger, P. Fischer, and T. Brox. U-net: Convolutional networks for biomedical image segmentation. In International Conference on Medical Image Computing and Computer-Assisted Intervention, 2015. [link](https://arxiv.org/abs/1505.04597)
 
 ## Usage
@@ -124,5 +124,5 @@ $ sh scripts/test.sh
 ~~~
 
 
-## Acknowledgement
+## Acknowledgments
 This code is inspired by [pytorch-CycleGAN-and-pix2pix](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix).

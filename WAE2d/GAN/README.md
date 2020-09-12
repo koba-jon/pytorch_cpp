@@ -116,6 +116,6 @@ $ sh scripts/test.sh
 ~~~
 
 
-## Acknowledgement
+## Acknowledgments
 This code is inspired by [WAE-pytorch](https://github.com/1Konny/WAE-pytorch).
 
