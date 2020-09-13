@@ -34,6 +34,13 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="Multiclass-Classification/VGGNet">VGGNet</a></td>
     <td><b>v1.6.1(Latest)</b></td>
   </tr>
+  <tr>
+    <td>ResNet</td>
+    <td><a href="https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html">K. He et al.</a></td>
+    <td>CVPR 2016</td>
+    <td><a href="Multiclass-Classification/ResNet">ResNet</a></td>
+    <td><b>v1.6.1(Latest)</b></td>
+  </tr>
 </table>
 
 ### Autoencoders
