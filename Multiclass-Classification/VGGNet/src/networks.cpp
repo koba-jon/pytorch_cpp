@@ -1,5 +1,7 @@
+#include <iostream>
 #include <vector>
 #include <typeinfo>
+#include <cstdlib>
 // For External Library
 #include <torch/torch.h>
 // For Original Header
@@ -71,10 +73,10 @@ void MC_VGGNetImpl::init(){
 // ---------------------------------------------------------
 torch::Tensor MC_VGGNetImpl::forward(torch::Tensor x){
     torch::Tensor feature, out;
-    feature = this->features->forward(x);       // {C,224,224} ===> {512,7,7}
-    feature = this->avgpool->forward(feature);  // {512,X,X} ===> {512,7,7}
-    feature = feature.view({-1, 512*7*7});      // {512,7,7} ===> {512*7*7}
-    out = this->classifier->forward(feature);   // {512*7*7} ===> {CN}
+    feature = this->features->forward(x);           // {C,224,224} ===> {512,7,7}
+    feature = this->avgpool->forward(feature);      // {512,X,X} ===> {512,7,7}
+    feature = feature.view({feature.size(0), -1});  // {512,7,7} ===> {512*7*7}
+    out = this->classifier->forward(feature);       // {512*7*7} ===> {CN}
     out = F::log_softmax(out, /*dim=*/1);
     return out;
 }

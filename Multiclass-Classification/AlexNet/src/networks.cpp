@@ -67,10 +67,10 @@ void MC_AlexNetImpl::init(){
 // ---------------------------------------------------------
 torch::Tensor MC_AlexNetImpl::forward(torch::Tensor x){
     torch::Tensor feature, out;
-    feature = this->features->forward(x);       // {C,227,227} ===> {256,6,6}
-    feature = this->avgpool->forward(feature);  // {256,X,X} ===> {256,6,6}
-    feature = feature.view({-1, 256*6*6});      // {256,6,6} ===> {256*6*6}
-    out = this->classifier->forward(feature);   // {256*6*6} ===> {CN}
+    feature = this->features->forward(x);           // {C,227,227} ===> {256,6,6}
+    feature = this->avgpool->forward(feature);      // {256,X,X} ===> {256,6,6}
+    feature = feature.view({feature.size(0), -1});  // {256,6,6} ===> {256*6*6}
+    out = this->classifier->forward(feature);       // {256*6*6} ===> {CN}
     out = F::log_softmax(out, /*dim=*/1);
     return out;
 }
