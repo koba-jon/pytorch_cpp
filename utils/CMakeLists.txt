@@ -5,7 +5,11 @@ set(LIBTORCH_DIR $ENV{HOME}/libtorch)
 list(APPEND CMAKE_PREFIX_PATH ${LIBTORCH_DIR})
 
 # Set Compiler Options
+set(CXX_LIBRARIES "stdc++fs")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall")
+if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8)
+    set(CMAKE_CXX_COMPILER "g++-8")
+endif ()
 
 # Directory Name
 set(UTILS_DIR ${CMAKE_CURRENT_SOURCE_DIR})
@@ -32,6 +36,7 @@ set(INCLUDE_DIRS
 
 # Set Libraries
 set(LIBRARIES
+    ${CXX_LIBRARIES}
     ${TORCH_LIBRARIES}
     ${OpenCV_LIBRARIES}
     ${Boost_LIBRARIES}
