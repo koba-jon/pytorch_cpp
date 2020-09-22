@@ -444,9 +444,9 @@ void save_params(const std::string path, torch::Tensor mu, torch::Tensor sigma, 
 
     nk = mu.size(0);
     nz = mu.size(1);
-    mu_array = mu.data_ptr<float>();
-    sigma_array = sigma.data_ptr<float>();
-    phi_array = phi.data_ptr<float>();
+    mu_array = mu.to(torch::kCPU).data_ptr<float>();
+    sigma_array = sigma.to(torch::kCPU).data_ptr<float>();
+    phi_array = phi.to(torch::kCPU).data_ptr<float>();
 
     std::ofstream ofs(path, std::ios::binary|std::ios::out);
     ofs.write((char*)&nk, sizeof(nk));
