@@ -43,7 +43,7 @@ In addition, I might adapt programs to the latest version. <br>
   </tr>
 </table>
 
-### Autoencoders
+### Dimension Reduction
 
 <table>
   <tr>
@@ -59,6 +59,19 @@ In addition, I might adapt programs to the latest version. <br>
     <td>Science 2006</td>
     <td><a href="AE2d">AE2d</a></td>
     <td>v1.5.0</td>
+  </tr>
+</table>
+
+
+### Generative Models
+
+<table>
+  <tr>
+    <th>Model</th>
+    <th>Paper</th>
+    <th>Conference/Journal</th>
+    <th>Code</th>
+    <th>Release Version</th>
   </tr>
   <tr>
     <td>Variational Autoencoder</td>
@@ -77,40 +90,6 @@ In addition, I might adapt programs to the latest version. <br>
   <tr>
     <td><a href="WAE2d/MMD">WAE2d MMD</a></td>
   </tr>
-</table>
-
-### Encoder-Decoder Networks
-
-<table>
-  <tr>
-    <th>Model</th>
-    <th>Paper</th>
-    <th>Conference/Journal</th>
-    <th>Code</th>
-    <th>Release Version</th>
-  </tr>
-  <tr>
-    <td rowspan="2">U-Net</td>
-    <td rowspan="2"><a href="https://arxiv.org/abs/1505.04597">O. Ronneberger et al.</a></td>
-    <td rowspan="2">MICCAI 2015</td>
-    <td><a href="U-Net/Classification">U-Net Classification</a></td>
-    <td rowspan="2">v1.5.1</td>
-  </tr>
-  <tr>
-    <td><a href="U-Net/Regression">U-Net Regression</a></td>
-  </tr>
-</table>
-
-### Generative Adversarial Networks
-
-<table>
-  <tr>
-    <th>Model</th>
-    <th>Paper</th>
-    <th>Conference/Journal</th>
-    <th>Code</th>
-    <th>Release Version</th>
-  </tr>
   <tr>
     <td>DCGAN</td>
     <td><a href="https://arxiv.org/abs/1511.06434">A. Radford et al.</a></td>
@@ -118,11 +97,49 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="DCGAN">DCGAN</a></td>
     <td>v1.5.1</td>
   </tr>
+</table>
+
+### Image-to-Image Translation
+
+<table>
+  <tr>
+    <th>Model</th>
+    <th>Paper</th>
+    <th>Conference/Journal</th>
+    <th>Code</th>
+    <th>Release Version</th>
+  </tr>
+  <tr>
+    <td>U-Net</td>
+    <td><a href="https://arxiv.org/abs/1505.04597">O. Ronneberger et al.</a></td>
+    <td>MICCAI 2015</td>
+    <td><a href="U-Net/Regression">U-Net Regression</a></td>
+    <td>v1.5.1</td>
+  </tr>
   <tr>
     <td>pix2pix</td>
     <td><a href="https://openaccess.thecvf.com/content_cvpr_2017/html/Isola_Image-To-Image_Translation_With_CVPR_2017_paper.html">P. Isola et al.</a></td>
     <td>CVPR 2017</td>
     <td><a href="pix2pix">pix2pix</a></td>
+    <td>v1.5.1</td>
+  </tr>
+</table>
+
+### Semantic Segmentation
+
+<table>
+  <tr>
+    <th>Model</th>
+    <th>Paper</th>
+    <th>Conference/Journal</th>
+    <th>Code</th>
+    <th>Release Version</th>
+  </tr>
+  <tr>
+    <td>U-Net</td>
+    <td><a href="https://arxiv.org/abs/1505.04597">O. Ronneberger et al.</a></td>
+    <td>MICCAI 2015</td>
+    <td><a href="U-Net/Classification">U-Net Classification</a></td>
     <td>v1.5.1</td>
   </tr>
 </table>
