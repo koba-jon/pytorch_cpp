@@ -43,7 +43,7 @@ In addition, I might adapt programs to the latest version. <br>
   </tr>
 </table>
 
-### Dimension Reduction
+### Dimensionality Reduction
 
 <table>
   <tr>
