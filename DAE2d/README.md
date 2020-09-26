@@ -89,7 +89,7 @@ This noise is generated from random number that follow Bernoulli distribution wi
 In addition, the final pixel value is replaced with the generated pixel value, which the original pixel value does not contribute the final one.
 
 - Gaussian Noise (GN)<br>
-This noise is generated from random number that follow normal distribution with a fixed mean and fixed standard deviation.<br>
+This noise is generated from random number that follow normal distribution with a fixed mean and a fixed standard deviation.<br>
 In addition, the final pixel value is the sum of the generated pixel value and the original pixel value.
 
 #### Run
