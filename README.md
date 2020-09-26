@@ -60,6 +60,13 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="AE2d">AE2d</a></td>
     <td>v1.5.0</td>
   </tr>
+  <tr>
+    <td>Denoising Autoencoder</td>
+    <td><a href="https://dl.acm.org/doi/abs/10.1145/1390156.1390294">P. Vincent et al.</a></td>
+    <td>ICML 2008</td>
+    <td><a href="DAE2d">DAE2d</a></td>
+    <td><b>v1.6.1(Latest)</b></td>
+  </tr>
 </table>
 
 

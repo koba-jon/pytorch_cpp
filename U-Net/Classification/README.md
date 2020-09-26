@@ -35,9 +35,9 @@ datasets
 |    |    |--image3.jpg
 |    |
 |    |--trainO
-|    |    |--image1.png
-|    |    |--image2.png
-|    |    |--image3.png
+|    |    |--label1.png
+|    |    |--label2.png
+|    |    |--label3.png
 |    |
 |    |--validI
 |    |--validO

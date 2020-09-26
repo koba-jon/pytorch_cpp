@@ -2,6 +2,7 @@
 #define TRANSFORMS_HPP
 
 #include <vector>
+#include <utility>
 // For External Library
 #include <torch/torch.h>
 #include <opencv2/opencv.hpp>
@@ -112,6 +113,62 @@ namespace transforms{
         void forward(cv::Mat &data_in, torch::Tensor &data_out) override;
         void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
         void forward(torch::Tensor &data_in, torch::Tensor &data_out) override{}
+    };
+
+    
+    // -----------------------------------------------------
+    // namespace{transforms} -> class{AddRVINoise}(Compose)
+    // -----------------------------------------------------
+    class AddRVINoise : Compose{
+    private:
+        float occur_prob;
+        std::pair<float, float> range;
+    public:
+        AddRVINoise(){}
+        AddRVINoise(const float occur_prob_=0.01, const std::pair<float, float> range_={0.0, 1.0});
+        bool type() override{return TORCH_TENSOR;}
+        void forward(cv::Mat &data_in, cv::Mat &data_out) override{}
+        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{}
+        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
+        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override;
+    };
+
+    
+    // ----------------------------------------------------
+    // namespace{transforms} -> class{AddSPNoise}(Compose)
+    // ----------------------------------------------------
+    class AddSPNoise : Compose{
+    private:
+        float occur_prob;
+        float salt_rate;
+        std::pair<float, float> range;
+    public:
+        AddSPNoise(){}
+        AddSPNoise(const float occur_prob_=0.01, const float salt_rate_=0.5, const std::pair<float, float> range_={0.0, 1.0});
+        bool type() override{return TORCH_TENSOR;}
+        void forward(cv::Mat &data_in, cv::Mat &data_out) override{}
+        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{}
+        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
+        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override;
+    };
+
+
+    // ------------------------------------------------------
+    // namespace{transforms} -> class{AddGaussNoise}(Compose)
+    // ------------------------------------------------------
+    class AddGaussNoise : Compose{
+    private:
+        float occur_prob;
+        float mean, std;
+        std::pair<float, float> range;
+    public:
+        AddGaussNoise(){}
+        AddGaussNoise(const float occur_prob_=1.0, const float mean_=0.0, const float std_=0.01, const std::pair<float, float> range_={0.0, 1.0});
+        bool type() override{return TORCH_TENSOR;}
+        void forward(cv::Mat &data_in, cv::Mat &data_out) override{}
+        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{}
+        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
+        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override;
     };
     
 
