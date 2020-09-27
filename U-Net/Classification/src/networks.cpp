@@ -8,6 +8,7 @@
 
 // Define Namespace
 namespace nn = torch::nn;
+namespace F = torch::nn::functional;
 
 
 // ----------------------------------------------------------------------
@@ -40,7 +41,7 @@ UNetImpl::UNetImpl(po::variables_map &vm){
 // ----------------------------------------------------------------------
 torch::Tensor UNetImpl::forward(torch::Tensor x){
     torch::Tensor out = this->model->forward(x);  // {IC,256,256} ===> {OC,256,256}
-    out = torch::log_softmax(out, /*dim=*/1);
+    out = F::log_softmax(out, /*dim=*/1);
     return out;
 }
 

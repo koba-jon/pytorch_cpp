@@ -92,7 +92,7 @@ bool DataLoader::ImageFolderWithPaths::operator()(std::tuple<torch::Tensor, std:
 
     // Post Processing
     this->count++;
-    data = {data1.detach().clone(), data2};  // {N,C,H,W} (images), {N} (fnames)
+    data = {data1.contiguous().detach().clone(), data2};  // {N,C,H,W} (images), {N} (fnames)
     delete[] data_before;
 
     // End Processing
@@ -187,7 +187,7 @@ bool DataLoader::ImageFolderPairWithPaths::operator()(std::tuple<torch::Tensor, 
 
     // Post Processing
     this->count++;
-    data = {data1.detach().clone(), data2.detach().clone(), data3, data4};  // {N,C,H,W} (images1), {N,C,H,W} (images2), {N} (fnames1), {N} (fnames2)
+    data = {data1.contiguous().detach().clone(), data2.contiguous().detach().clone(), data3, data4};  // {N,C,H,W} (images1), {N,C,H,W} (images2), {N} (fnames1), {N} (fnames2)
     delete[] data_before;
 
     // End Processing
@@ -290,7 +290,7 @@ bool DataLoader::ImageFolderPairAndRandomSamplingWithPaths::operator()(std::tupl
 
     // Post Processing
     this->count++;
-    data = {data1.detach().clone(), data2.detach().clone(), data3.detach().clone(), data4, data5, data6};  // {N,C,H,W} (images1), {N,C,H,W} (images2), {N,C,H,W} (images_rand), {N} (fnames1), {N} (fnames2), {N} (fnames_rand)
+    data = {data1.contiguous().detach().clone(), data2.contiguous().detach().clone(), data3.contiguous().detach().clone(), data4, data5, data6};  // {N,C,H,W} (images1), {N,C,H,W} (images2), {N,C,H,W} (images_rand), {N} (fnames1), {N} (fnames2), {N} (fnames_rand)
     delete[] data_before;
 
     // End Processing
@@ -387,10 +387,10 @@ bool DataLoader::ImageFolderSegmentWithPaths::operator()(std::tuple<torch::Tenso
 
     // Post Processing
     this->count++;
-    data = {data1.detach().clone(), data2.detach().clone(), data3, data4, data5};  // {N,C,H,W} (images1), {N,H,W} (images2), {N} (fnames1), {N} (fnames2), {L} (label_palette)
+    data = {data1.contiguous().detach().clone(), data2.contiguous().detach().clone(), data3, data4, data5};  // {N,C,H,W} (images1), {N,H,W} (images2), {N} (fnames1), {N} (fnames2), {L} (label_palette)
     delete[] data_before;
 
-    // End Processing
+    // End Processings
     return true;
     
 }
@@ -480,7 +480,7 @@ bool DataLoader::ImageFolderClassesWithPaths::operator()(std::tuple<torch::Tenso
 
     // Post Processing
     this->count++;
-    data = {data1.detach().clone(), data2.detach().clone(), data3};  // {N,C,H,W} (images), {N} (class ids), {N} (fnames)
+    data = {data1.contiguous().detach().clone(), data2.contiguous().detach().clone(), data3};  // {N,C,H,W} (images), {N} (class ids), {N} (fnames)
     delete[] data_before;
 
     // End Processing
