@@ -172,7 +172,7 @@ void transforms::AddRVINoise::forward(torch::Tensor &data_in, torch::Tensor &dat
 
     torch::Tensor randu = torch::rand({1, height, width}).to(data_in.device());
     torch::Tensor noise_flag = (randu < this->occur_prob).to(torch::kFloat).expand({channels, height, width});
-    torch::Tensor base_flag = (~(randu < this->occur_prob)).to(torch::kFloat).expand({channels, height, width});
+    torch::Tensor base_flag = ((randu < this->occur_prob) == false).to(torch::kFloat).expand({channels, height, width});
 
     torch::Tensor noise = torch::rand({channels, height, width}).to(data_in.device()) * (this->range.second - this->range.first) + this->range.first;
     torch::Tensor data_mix = data_in * base_flag + noise * noise_flag;
@@ -203,11 +203,11 @@ void transforms::AddSPNoise::forward(torch::Tensor &data_in, torch::Tensor &data
 
     torch::Tensor randu = torch::rand({1, height, width}).to(data_in.device());
     torch::Tensor noise_flag = (randu < this->occur_prob).to(torch::kFloat).expand({channels, height, width});
-    torch::Tensor base_flag = (~(randu < this->occur_prob)).to(torch::kFloat).expand({channels, height, width});
+    torch::Tensor base_flag = ((randu < this->occur_prob) == false).to(torch::kFloat).expand({channels, height, width});
 
     torch::Tensor randu2 = torch::rand({1, height, width}).to(data_in.device());
     torch::Tensor salt_flag = (randu2 < this->salt_rate).to(torch::kFloat).expand({channels, height, width}) * noise_flag;
-    torch::Tensor pepper_flag = (~(randu2 < this->salt_rate)).to(torch::kFloat).expand({channels, height, width}) * noise_flag;
+    torch::Tensor pepper_flag = ((randu2 < this->salt_rate) == false).to(torch::kFloat).expand({channels, height, width}) * noise_flag;
 
     torch::Tensor data_mix = data_in * base_flag + this->range.first * pepper_flag + this->range.second * salt_flag;
     data_out = data_mix.contiguous().detach().clone();
