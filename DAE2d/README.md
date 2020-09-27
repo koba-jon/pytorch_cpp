@@ -124,6 +124,9 @@ DATA='celebA'
     --gpu_id 0 \
     --nc 3
 ~~~
+If you want to test the denoising of real image, set "test_in_dir" to "directory of noisy images" and "test_out_dir" to "directory of output ground truth".
+In addition, you should turn off the flag of "RVIN", "SPN", and "GN".
+However, the two file names must correspond.
 
 #### Run
 Please execute the following to start the program.
