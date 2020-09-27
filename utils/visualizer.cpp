@@ -76,7 +76,7 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
     // (3) Add images to the array
     i = 0;
     samples = std::vector<cv::Mat>(mini_batch_size);
-    auto mini_batch = image.contiguous().to(torch::kCPU).chunk(mini_batch_size, /*dim=*/0);  // {N,C,H,W} ===> {1,C,H,W} + {1,C,H,W} + ...
+    auto mini_batch = image.clamp(/*min=*/range.first, /*max=*/range.second).contiguous().to(torch::kCPU).chunk(mini_batch_size, /*dim=*/0);  // {N,C,H,W} ===> {1,C,H,W} + {1,C,H,W} + ...
     for (auto &tensor : mini_batch){
         tensor_sq = torch::squeeze(tensor, /*dim=*/0);  // {1,C,H,W} ===> {C,H,W}
         tensor_per = tensor_sq.permute({1, 2, 0});  // {C,H,W} ===> {H,W,C}
