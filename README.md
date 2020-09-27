@@ -143,6 +143,13 @@ In addition, I might adapt programs to the latest version. <br>
     <th>Release Version</th>
   </tr>
   <tr>
+    <td>SegNet</td>
+    <td><a href="https://arxiv.org/abs/1511.00561">V. Badrinarayanan et al.</a></td>
+    <td>CVPR 2015</td>
+    <td><a href="SegNet">SegNet</a></td>
+    <td><b>v1.6.1(Latest)</b></td>
+  </tr>
+  <tr>
     <td>U-Net</td>
     <td><a href="https://arxiv.org/abs/1505.04597">O. Ronneberger et al.</a></td>
     <td>MICCAI 2015</td>
