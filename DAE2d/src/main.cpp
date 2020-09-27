@@ -75,7 +75,8 @@ po::options_description parse_arguments(){
 
         // (5) Define for Test
         ("test", po::value<bool>()->default_value(false), "test mode on/off")
-        ("test_dir", po::value<std::string>()->default_value("test"), "test image directory : ./datasets/<dataset>/<test_dir>/<image files>")
+        ("test_in_dir", po::value<std::string>()->default_value("testI"), "test input image directory : ./datasets/<dataset>/<test_in_dir>/<image files>")
+        ("test_out_dir", po::value<std::string>()->default_value("testO"), "test output image directory : ./datasets/<dataset>/<test_out_dir>/<image files>")
         ("test_load_epoch", po::value<std::string>()->default_value("latest"), "training epoch used for testing")
         ("test_result_dir", po::value<std::string>()->default_value("test_result"), "test result directory : ./<test_result_dir>")
 
