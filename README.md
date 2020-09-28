@@ -176,6 +176,13 @@ In addition, I might adapt programs to the latest version. <br>
     <td><b>v1.6.1(Latest)</b></td>
   </tr>
   <tr>
+    <td>EGBAD</td>
+    <td><a href="https://arxiv.org/abs/1802.06222">H. Zenati et al.</a></td>
+    <td>ICLR Workshop 2018</td>
+    <td><a href="EGBAD2d">EGBAD2d</a></td>
+    <td><b>v1.6.1(Latest)</b></td>
+  </tr>
+  <tr>
     <td>DAGMM</td>
     <td><a href="https://openreview.net/forum?id=BJJLHbb0-">B. Zong et al.</a></td>
     <td>ICLR 2018</td>
