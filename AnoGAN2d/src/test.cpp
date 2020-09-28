@@ -94,15 +94,14 @@ void test(po::variables_map &vm, torch::Device &device, GAN_Generator &gen, GAN_
             show_progress->increment(/*loss_value=*/{loss.item<float>(), res_loss.item<float>(), dis_loss.item<float>()});
         }
         output = gen->forward(z);
-
-        end = std::chrono::system_clock::now();
-        seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
-        delete show_progress;
-        
         anomaly_score_with_alpha = AnomalyScore(image, output, dis, vm["test_Lambda"].as<float>());
         anomaly_score = std::get<0>(anomaly_score_with_alpha);
         res_loss = std::get<1>(anomaly_score_with_alpha);
         dis_loss = std::get<2>(anomaly_score_with_alpha);
+
+        end = std::chrono::system_clock::now();
+        seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
+        delete show_progress;
         
         ave_anomaly_score += anomaly_score.item<float>();
         ave_res_loss += res_loss.item<float>();
