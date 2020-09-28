@@ -47,8 +47,10 @@ void anomaly_detection(po::variables_map &vm){
     ifs >> data_one;
     min = data_one;
     max = data_one;
-    while (!ifs.eof()){
+    data[ANOMALY].push_back(data_one);
+    while (true){
         ifs >> data_one;
+        if (ifs.eof()) break;
         if (data_one > max){
             max = data_one;
         }
@@ -61,8 +63,9 @@ void anomaly_detection(po::variables_map &vm){
 
     // (2.2) Set Normal Data
     ifs.open(vm["normal_path"].as<std::string>());
-    while (!ifs.eof()){
+    while (true){
         ifs >> data_one;
+        if (ifs.eof()) break;
         if (data_one > max){
             max = data_one;
         }
