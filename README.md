@@ -169,6 +169,13 @@ In addition, I might adapt programs to the latest version. <br>
     <th>Release Version</th>
   </tr>
   <tr>
+    <td>AnoGAN</td>
+    <td><a href="https://arxiv.org/abs/1703.05921">T. Schlegl et al.</a></td>
+    <td>IPMI 2017</td>
+    <td><a href="AnoGAN2d">AnoGAN2d</a></td>
+    <td><b>v1.6.1(Latest)</b></td>
+  </tr>
+  <tr>
     <td>DAGMM</td>
     <td><a href="https://openreview.net/forum?id=BJJLHbb0-">B. Zong et al.</a></td>
     <td>ICLR 2018</td>
