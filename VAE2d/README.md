@@ -1,6 +1,6 @@
 # VAE2d
 This is the implementation of "Variational Autoencoder" corresponding to 2-dimensional shape.<br>
-Original paper: D. P. Kingma and M. Welling. Auto-Encoding Variational Bayes. In International Conference on Learning Representations, 2014. [link](https://arxiv.org/abs/1312.6114)
+Original paper: D. P. Kingma and M. Welling. Auto-encoding variational bayes. In International Conference on Learning Representations, 2014. [link](https://arxiv.org/abs/1312.6114)
 
 ## Usage
 
