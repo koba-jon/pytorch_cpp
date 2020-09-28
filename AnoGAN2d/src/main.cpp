@@ -59,6 +59,8 @@ po::options_description parse_arguments(){
         ("valid_dir", po::value<std::string>()->default_value("valid"), "validation image directory : ./datasets/<dataset>/<valid_dir>/<image files>")
         ("valid_batch_size", po::value<size_t>()->default_value(1), "validation batch size")
         ("valid_freq", po::value<size_t>()->default_value(1), "validation frequency to training epoch")
+        ("valid_sigma_max", po::value<float>()->default_value(3.0), "maximum value of latent variable for output images in validation")
+        ("valid_sigma_inter", po::value<float>()->default_value(0.5), "the interval of latent variable for output images in validation")
 
         // (4) Define for Test
         ("test", po::value<bool>()->default_value(false), "test mode on/off")
