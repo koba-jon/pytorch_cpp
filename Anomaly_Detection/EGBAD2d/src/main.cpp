@@ -104,7 +104,7 @@ int main(int argc, const char *argv[]){
     // (1) Extract Arguments
     po::options_description args = parse_arguments();
     po::variables_map vm{};
-    po::store(parse_command_line(argc, argv, args), vm);
+    po::store(po::parse_command_line(argc, argv, args), vm);
     po::notify(vm);
     if (vm.empty() || vm.count("help")){
         std::cout << args << std::endl;
