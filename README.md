@@ -57,14 +57,14 @@ In addition, I might adapt programs to the latest version. <br>
     <td>Autoencoder</td>
     <td><a href="https://science.sciencemag.org/content/313/5786/504.abstract">G. E. Hinton et al.</a></td>
     <td>Science 2006</td>
-    <td><a href="AE2d">AE2d</a></td>
+    <td><a href="Dimensionality_Reduction/AE2d">AE2d</a></td>
     <td>v1.5.0</td>
   </tr>
   <tr>
     <td>Denoising Autoencoder</td>
     <td><a href="https://dl.acm.org/doi/abs/10.1145/1390156.1390294">P. Vincent et al.</a></td>
     <td>ICML 2008</td>
-    <td><a href="DAE2d">DAE2d</a></td>
+    <td><a href="Dimensionality_Reduction/DAE2d">DAE2d</a></td>
     <td><b>v1.6.1(Latest)</b></td>
   </tr>
 </table>
@@ -84,24 +84,24 @@ In addition, I might adapt programs to the latest version. <br>
     <td>Variational Autoencoder</td>
     <td><a href="https://arxiv.org/abs/1312.6114">D. P. Kingma et al.</a></td>
     <td>ICLR 2014</td>
-    <td><a href="VAE2d">VAE2d</a></td>
+    <td><a href="Generative_Models/VAE2d">VAE2d</a></td>
     <td>v1.5.1</td>
   </tr>
   <tr>
     <td rowspan="2">Wasserstein Autoencoder</td>
     <td rowspan="2"><a href="https://openreview.net/forum?id=HkL7n1-0b">I. Tolstikhin et al.</a></td>
     <td rowspan="2">ICLR 2018</td>
-    <td><a href="WAE2d/GAN">WAE2d GAN</a></td>
+    <td><a href="Generative_Models/WAE2d_GAN">WAE2d GAN</a></td>
     <td rowspan="2"><b>v1.6.1(Latest)</b></td>
   </tr>
   <tr>
-    <td><a href="WAE2d/MMD">WAE2d MMD</a></td>
+    <td><a href="Generative_Models/WAE2d_MMD">WAE2d MMD</a></td>
   </tr>
   <tr>
     <td>DCGAN</td>
     <td><a href="https://arxiv.org/abs/1511.06434">A. Radford et al.</a></td>
     <td>ICLR 2016</td>
-    <td><a href="DCGAN">DCGAN</a></td>
+    <td><a href="Generative_Models/DCGAN">DCGAN</a></td>
     <td>v1.5.1</td>
   </tr>
 </table>
@@ -120,14 +120,14 @@ In addition, I might adapt programs to the latest version. <br>
     <td>U-Net</td>
     <td><a href="https://arxiv.org/abs/1505.04597">O. Ronneberger et al.</a></td>
     <td>MICCAI 2015</td>
-    <td><a href="U-Net/Regression">U-Net Regression</a></td>
+    <td><a href="Image-to-Image_Translation/U-Net_Regression">U-Net Regression</a></td>
     <td>v1.5.1</td>
   </tr>
   <tr>
     <td>pix2pix</td>
     <td><a href="https://openaccess.thecvf.com/content_cvpr_2017/html/Isola_Image-To-Image_Translation_With_CVPR_2017_paper.html">P. Isola et al.</a></td>
     <td>CVPR 2017</td>
-    <td><a href="pix2pix">pix2pix</a></td>
+    <td><a href="Image-to-Image_Translation/pix2pix">pix2pix</a></td>
     <td>v1.5.1</td>
   </tr>
 </table>
@@ -146,14 +146,14 @@ In addition, I might adapt programs to the latest version. <br>
     <td>SegNet</td>
     <td><a href="https://arxiv.org/abs/1511.00561">V. Badrinarayanan et al.</a></td>
     <td>CVPR 2015</td>
-    <td><a href="SegNet">SegNet</a></td>
+    <td><a href="Semantic_Segmentation/SegNet">SegNet</a></td>
     <td><b>v1.6.1(Latest)</b></td>
   </tr>
   <tr>
     <td>U-Net</td>
     <td><a href="https://arxiv.org/abs/1505.04597">O. Ronneberger et al.</a></td>
     <td>MICCAI 2015</td>
-    <td><a href="U-Net/Classification">U-Net Classification</a></td>
+    <td><a href="Semantic_Segmentation/U-Net_Classification">U-Net Classification</a></td>
     <td>v1.5.1</td>
   </tr>
 </table>
@@ -172,21 +172,21 @@ In addition, I might adapt programs to the latest version. <br>
     <td>AnoGAN</td>
     <td><a href="https://arxiv.org/abs/1703.05921">T. Schlegl et al.</a></td>
     <td>IPMI 2017</td>
-    <td><a href="AnoGAN2d">AnoGAN2d</a></td>
+    <td><a href="Anomaly_Detection/AnoGAN2d">AnoGAN2d</a></td>
     <td><b>v1.6.1(Latest)</b></td>
   </tr>
   <tr>
     <td>EGBAD</td>
     <td><a href="https://arxiv.org/abs/1802.06222">H. Zenati et al.</a></td>
     <td>ICLR Workshop 2018</td>
-    <td><a href="EGBAD2d">EGBAD2d</a></td>
+    <td><a href="Anomaly_Detection/EGBAD2d">EGBAD2d</a></td>
     <td><b>v1.6.1(Latest)</b></td>
   </tr>
   <tr>
     <td>DAGMM</td>
     <td><a href="https://openreview.net/forum?id=BJJLHbb0-">B. Zong et al.</a></td>
     <td>ICLR 2018</td>
-    <td><a href="DAGMM2d">DAGMM2d</a></td>
+    <td><a href="Anomaly_Detection/DAGMM2d">DAGMM2d</a></td>
     <td>v1.6.0</td>
   </tr>
 </table>
