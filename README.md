@@ -88,6 +88,13 @@ In addition, I might adapt programs to the latest version. <br>
     <td>v1.5.1</td>
   </tr>
   <tr>
+    <td>DCGAN</td>
+    <td><a href="https://arxiv.org/abs/1511.06434">A. Radford et al.</a></td>
+    <td>ICLR 2016</td>
+    <td><a href="Generative_Models/DCGAN">DCGAN</a></td>
+    <td>v1.5.1</td>
+  </tr>
+  <tr>
     <td rowspan="2">Wasserstein Autoencoder</td>
     <td rowspan="2"><a href="https://openreview.net/forum?id=HkL7n1-0b">I. Tolstikhin et al.</a></td>
     <td rowspan="2">ICLR 2018</td>
@@ -96,13 +103,6 @@ In addition, I might adapt programs to the latest version. <br>
   </tr>
   <tr>
     <td><a href="Generative_Models/WAE2d_MMD">WAE2d MMD</a></td>
-  </tr>
-  <tr>
-    <td>DCGAN</td>
-    <td><a href="https://arxiv.org/abs/1511.06434">A. Radford et al.</a></td>
-    <td>ICLR 2016</td>
-    <td><a href="Generative_Models/DCGAN">DCGAN</a></td>
-    <td>v1.5.1</td>
   </tr>
 </table>
 
@@ -176,6 +176,13 @@ In addition, I might adapt programs to the latest version. <br>
     <td><b>v1.6.1(Latest)</b></td>
   </tr>
   <tr>
+    <td>DAGMM</td>
+    <td><a href="https://openreview.net/forum?id=BJJLHbb0-">B. Zong et al.</a></td>
+    <td>ICLR 2018</td>
+    <td><a href="Anomaly_Detection/DAGMM2d">DAGMM2d</a></td>
+    <td>v1.6.0</td>
+  </tr>
+  <tr>
     <td>EGBAD</td>
     <td><a href="https://arxiv.org/abs/1802.06222">H. Zenati et al.</a></td>
     <td>ICLR Workshop 2018</td>
@@ -183,11 +190,11 @@ In addition, I might adapt programs to the latest version. <br>
     <td><b>v1.6.1(Latest)</b></td>
   </tr>
   <tr>
-    <td>DAGMM</td>
-    <td><a href="https://openreview.net/forum?id=BJJLHbb0-">B. Zong et al.</a></td>
-    <td>ICLR 2018</td>
-    <td><a href="Anomaly_Detection/DAGMM2d">DAGMM2d</a></td>
-    <td>v1.6.0</td>
+    <td>GANomaly</td>
+    <td><a href="https://arxiv.org/abs/1805.06725">S. Akcay et al.</a></td>
+    <td>ACCV 2018</td>
+    <td><a href="Anomaly_Detection/GANomaly2d">GANomaly2d</a></td>
+    <td>v1.6.1(Latest)</td>
   </tr>
 </table>
 
@@ -253,7 +260,13 @@ The following is an example where the directory "libtorch" is located directly u
 5: list(APPEND CMAKE_PREFIX_PATH ${LIBTORCH_DIR})
 ~~~
 
-### 3. Execution
+### 3. Compiler Install
+If you don't have g++ version 8 or above, install it.
+~~~
+$ sudo apt install g++-8
+~~~
+
+### 4. Execution
 Please move to the directory of each model and refer to "README.md".
 
 ## Utility
@@ -262,7 +275,7 @@ Please move to the directory of each model and refer to "README.md".
 Please create a link for the original dataset.<br>
 The following is an example of "AE2d" using "celebA" Dataset.
 ~~~
-$ cd AE2d/datasets
+$ cd Dimensionality_Reduction/AE2d/datasets
 $ ln -s <dataset_path> ./celebA_org
 ~~~
 You should substitute the path of dataset for "<dataset_path>".<br>
@@ -285,7 +298,7 @@ By running this file, you can split it into training and validation data.
 $ sudo apt install python3 python3-pip
 $ pip3 install natsort
 $ sh hold_out.sh
-$ cd ../..
+$ cd ../../..
 ~~~
 
 ### 2. Data Input System
