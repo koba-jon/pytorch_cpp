@@ -70,7 +70,7 @@ In addition, I might adapt programs to the latest version. <br>
 </table>
 
 
-### Generative Models
+### Generative Modeling
 
 <table>
   <tr>
@@ -84,25 +84,25 @@ In addition, I might adapt programs to the latest version. <br>
     <td>Variational Autoencoder</td>
     <td><a href="https://arxiv.org/abs/1312.6114">D. P. Kingma et al.</a></td>
     <td>ICLR 2014</td>
-    <td><a href="Generative_Models/VAE2d">VAE2d</a></td>
+    <td><a href="Generative_Modeling/VAE2d">VAE2d</a></td>
     <td>v1.5.1</td>
   </tr>
   <tr>
     <td>DCGAN</td>
     <td><a href="https://arxiv.org/abs/1511.06434">A. Radford et al.</a></td>
     <td>ICLR 2016</td>
-    <td><a href="Generative_Models/DCGAN">DCGAN</a></td>
+    <td><a href="Generative_Modeling/DCGAN">DCGAN</a></td>
     <td>v1.5.1</td>
   </tr>
   <tr>
     <td rowspan="2">Wasserstein Autoencoder</td>
     <td rowspan="2"><a href="https://openreview.net/forum?id=HkL7n1-0b">I. Tolstikhin et al.</a></td>
     <td rowspan="2">ICLR 2018</td>
-    <td><a href="Generative_Models/WAE2d_GAN">WAE2d GAN</a></td>
+    <td><a href="Generative_Modeling/WAE2d_GAN">WAE2d GAN</a></td>
     <td rowspan="2"><b>v1.6.1(Latest)</b></td>
   </tr>
   <tr>
-    <td><a href="Generative_Models/WAE2d_MMD">WAE2d MMD</a></td>
+    <td><a href="Generative_Modeling/WAE2d_MMD">WAE2d MMD</a></td>
   </tr>
 </table>
 
