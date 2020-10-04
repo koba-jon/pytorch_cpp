@@ -4,6 +4,7 @@
 #include <string>                      // std::string
 #include <chrono>                      // std::chrono
 #include <cmath>                       // std::isinf
+#include <utility>                     // std::pair
 // For External Library
 #include <torch/torch.h>               // torch
 #include <boost/program_options.hpp>   // boost::program_options

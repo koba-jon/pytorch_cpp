@@ -1,6 +1,6 @@
 # GANomaly2d
 This is the implementation of "GANomaly" corresponding to 2-dimensional shape.<br>
-Original paper: S. Akcay, A. Atapour-Abarghouei, and T. P. Breckon. Ganomaly: Semi-supervised anomaly detection via adversarial training. In Proceedings of the 14th Asian Conference on Computer Vision, 2018. [link](https://arxiv.org/abs/1805.06725)
+Original paper: S. Akçay, A. Atapour-Abarghouei, and T. P. Breckon. Ganomaly: Semi-supervised anomaly detection via adversarial training. In Proceedings of the 14th Asian Conference on Computer Vision, 2018. [link](https://arxiv.org/abs/1805.06725)
 
 ## Usage
 
