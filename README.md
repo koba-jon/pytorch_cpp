@@ -288,13 +288,13 @@ $ ln -s <dataset_path> ./celebA_org
 You should substitute the path of dataset for "<dataset_path>".<br>
 Please make sure you have training or test data directly under "<dataset_path>".
 ~~~
-$ vi hold_out.sh
+$ vi ../../../scripts/hold_out.sh
 ~~~
 Please edit the file for original dataset.
 ~~~
 #!/bin/bash
 
-python3 hold_out.py \
+python3 ../../../scripts/hold_out.py \
     --input_dir celebA_org \
     --output_dir celebA \
     --train_rate 9 \
@@ -304,7 +304,7 @@ By running this file, you can split it into training and validation data.
 ~~~
 $ sudo apt install python3 python3-pip
 $ pip3 install natsort
-$ sh hold_out.sh
+$ sh ../../../scripts/hold_out.sh
 $ cd ../../..
 ~~~
 
