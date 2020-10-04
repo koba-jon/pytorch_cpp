@@ -1,3 +1,4 @@
+#include <vector>
 #include <typeinfo>
 // For External Library
 #include <torch/torch.h>
@@ -65,12 +66,35 @@ torch::Tensor VariationalAutoEncoderImpl::forward(torch::Tensor x){
 }
 
 
+// ----------------------------------------------------------------------
+// struct{VariationalAutoEncoderImpl}(nn::Module) -> function{forward_z}
+// ----------------------------------------------------------------------
+torch::Tensor VariationalAutoEncoderImpl::forward_z(torch::Tensor z){
+    torch::Tensor out = this->decoder->forward(z);  // {Z,4,4} ===> {C,256,256}
+    return out;
+}
+
+
 // -----------------------------------------------------------------------------
 // struct{VariationalAutoEncoderImpl}(nn::Module) -> function{kld_just_before}
 // -----------------------------------------------------------------------------
 torch::Tensor VariationalAutoEncoderImpl::kld_just_before(){
     torch::Tensor kld = - 0.5 * torch::mean(1.0 + torch::log(this->var_keep) - this->mean_keep * this->mean_keep - this->var_keep);
     return kld;
+}
+
+
+// -----------------------------------------------------------------------------
+// struct{VariationalAutoEncoderImpl}(nn::Module) -> function{get_z_shape}
+// -----------------------------------------------------------------------------
+std::vector<long int> VariationalAutoEncoderImpl::get_z_shape(const std::vector<long int> x_shape, torch::Device &device){
+    torch::Tensor x = torch::full(x_shape, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
+    torch::Tensor mid = this->encoder->forward(x);    // {C,256,256} ===> {Z,8,8}
+    torch::Tensor mean = this->encoder_mean->forward(mid);
+    torch::Tensor var = F::softplus(this->encoder_var->forward(mid));
+    torch::Tensor z = this->sampling(mean, var);
+    std::vector<long int> z_shape = {z.size(0), z.size(1), z.size(2), z.size(3)};
+    return z_shape;
 }
 
 

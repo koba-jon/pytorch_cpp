@@ -115,3 +115,62 @@ Please execute the following to start the program.
 $ sh scripts/test.sh
 ~~~
 
+### 5. Image Synthesis
+
+#### Setting
+Please set the shell for executable file.
+~~~
+$ vi scripts/synth.sh
+~~~
+The following is an example of the synthesis phase.<br>
+If you want to view specific examples of command line arguments, please view "src/main.cpp" or add "--help" to the argument.
+~~~
+#!/bin/bash
+
+DATA='celebA'
+
+./VAE2d \
+    --synth true \
+    --dataset ${DATA} \
+    --size 256 \
+    --gpu_id 0 \
+    --nc 3
+~~~
+If you want to generate image, the above settings will work.
+
+#### Run
+Please execute the following to start the program.
+~~~
+$ sh scripts/synth.sh
+~~~
+
+### 6. Image Sampling
+
+#### Setting
+Please set the shell for executable file.
+~~~
+$ vi scripts/sample.sh
+~~~
+The following is an example of the sampling phase.<br>
+If you want to view specific examples of command line arguments, please view "src/main.cpp" or add "--help" to the argument.
+~~~
+#!/bin/bash
+
+DATA='celebA'
+
+./VAE2d \
+    --sample true \
+    --dataset ${DATA} \
+    --sample_total 100 \
+    --size 256 \
+    --gpu_id 0 \
+    --nc 3
+~~~
+If you want to generate image, the above settings will work.
+
+#### Run
+Please execute the following to start the program.
+~~~
+$ sh scripts/sample.sh
+~~~
+

@@ -1,6 +1,7 @@
 #ifndef NETWORKS_HPP
 #define NETWORKS_HPP
 
+#include <vector>
 // For External Library
 #include <torch/torch.h>
 #include <boost/program_options.hpp>
@@ -28,7 +29,9 @@ public:
     VariationalAutoEncoderImpl(){}
     VariationalAutoEncoderImpl(po::variables_map &vm);
     torch::Tensor forward(torch::Tensor x);
+    torch::Tensor forward_z(torch::Tensor z);
     torch::Tensor kld_just_before();
+    std::vector<long int> get_z_shape(const std::vector<long int> x_shape, torch::Device &device);
 };
 
 TORCH_MODULE(VariationalAutoEncoder);

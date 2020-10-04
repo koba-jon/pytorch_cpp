@@ -20,6 +20,7 @@ namespace po = boost::program_options;
 // Function Prototype
 void train(po::variables_map &vm, torch::Device &device, GAN_Generator &gen, GAN_Discriminator &dis, std::vector<transforms::Compose*> &transform);
 void synth(po::variables_map &vm, torch::Device &device, GAN_Generator &gen);
+void sample(po::variables_map &vm, torch::Device &device, GAN_Generator &gen);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode);
@@ -68,7 +69,13 @@ po::options_description parse_arguments(){
         ("synth_sigma_max", po::value<float>()->default_value(3.0), "maximum value of latent variable for output images in synthesis")
         ("synth_sigma_inter", po::value<float>()->default_value(0.5), "the interval of latent variable for output images in synthesis")
 
-        // (5) Define for Network Parameter
+        // (5) Define for Sampling
+        ("sample", po::value<bool>()->default_value(false), "sampling mode on/off")
+        ("sample_load_epoch", po::value<std::string>()->default_value("latest"), "training epoch used for sampling")
+        ("sample_result_dir", po::value<std::string>()->default_value("sample_result"), "sampling result directory : ./<sample_result_dir>")
+        ("sample_total", po::value<size_t>()->default_value(100), "total number of data obtained by random sampling")
+
+        // (6) Define for Network Parameter
         ("lr_gen", po::value<float>()->default_value(1e-3), "learning rate for generator")
         ("lr_dis", po::value<float>()->default_value(2.5e-4), "learning rate for discriminator")
         ("G_ltw", po::value<float>()->default_value(0.5), "the weight of loss threshold for stable training in generator : x=0.0 is normal training")
@@ -147,6 +154,12 @@ int main(int argc, const char *argv[]){
     if (vm["synth"].as<bool>()){
         Set_Options(vm, argc, argv, args, "synth");
         synth(vm, device, gen);
+    }
+
+    // (8.3) Sampling Phase
+    if (vm["sample"].as<bool>()){
+        Set_Options(vm, argc, argv, args, "sample");
+        sample(vm, device, gen);
     }
 
     // End Processing

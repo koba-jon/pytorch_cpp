@@ -20,6 +20,8 @@ namespace po = boost::program_options;
 // Function Prototype
 void train(po::variables_map &vm, torch::Device &device, WAE_Encoder &enc, WAE_Decoder &dec, GAN_Discriminator &dis, std::vector<transforms::Compose*> &transform);
 void test(po::variables_map &vm, torch::Device &device, WAE_Encoder &enc, WAE_Decoder &dec, std::vector<transforms::Compose*> &transform);
+void synth(po::variables_map &vm, torch::Device &device, WAE_Decoder &dec);
+void sample(po::variables_map &vm, torch::Device &device, WAE_Decoder &dec);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode);
@@ -66,7 +68,20 @@ po::options_description parse_arguments(){
         ("test_load_epoch", po::value<std::string>()->default_value("latest"), "training epoch used for testing")
         ("test_result_dir", po::value<std::string>()->default_value("test_result"), "test result directory : ./<test_result_dir>")
 
-        // (5) Define for Network Parameter
+        // (5) Define for Synthesis
+        ("synth", po::value<bool>()->default_value(false), "synthesis mode on/off")
+        ("synth_load_epoch", po::value<std::string>()->default_value("latest"), "training epoch used for synthesis")
+        ("synth_result_dir", po::value<std::string>()->default_value("synth_result"), "synthesis result directory : ./<synth_result_dir>")
+        ("synth_sigma_max", po::value<float>()->default_value(3.0), "maximum value of latent variable for output images in synthesis")
+        ("synth_sigma_inter", po::value<float>()->default_value(0.5), "the interval of latent variable for output images in synthesis")
+
+        // (6) Define for Sampling
+        ("sample", po::value<bool>()->default_value(false), "sampling mode on/off")
+        ("sample_load_epoch", po::value<std::string>()->default_value("latest"), "training epoch used for sampling")
+        ("sample_result_dir", po::value<std::string>()->default_value("sample_result"), "sampling result directory : ./<sample_result_dir>")
+        ("sample_total", po::value<size_t>()->default_value(100), "total number of data obtained by random sampling")
+
+        // (7) Define for Network Parameter
         ("lr_enc", po::value<float>()->default_value(1e-4), "learning rate for encoder")
         ("lr_dec", po::value<float>()->default_value(1e-4), "learning rate for decoder")
         ("lr_dis", po::value<float>()->default_value(1e-4), "learning rate for discriminator")
@@ -148,6 +163,18 @@ int main(int argc, const char *argv[]){
     if (vm["test"].as<bool>()){
         Set_Options(vm, argc, argv, args, "test");
         test(vm, device, enc, dec, transform);
+    }
+
+    // (8.3) Synthesis Phase
+    if (vm["synth"].as<bool>()){
+        Set_Options(vm, argc, argv, args, "synth");
+        synth(vm, device, dec);
+    }
+
+    // (8.4) Sampling Phase
+    if (vm["sample"].as<bool>()){
+        Set_Options(vm, argc, argv, args, "sample");
+        sample(vm, device, dec);
     }
 
     // End Processing
