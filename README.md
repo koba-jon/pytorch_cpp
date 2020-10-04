@@ -191,9 +191,16 @@ In addition, I might adapt programs to the latest version. <br>
   </tr>
   <tr>
     <td>GANomaly</td>
-    <td><a href="https://arxiv.org/abs/1805.06725">S. Akcay et al.</a></td>
+    <td><a href="https://arxiv.org/abs/1805.06725">S. Akçay et al.</a></td>
     <td>ACCV 2018</td>
     <td><a href="Anomaly_Detection/GANomaly2d">GANomaly2d</a></td>
+    <td><b>v1.6.1(Latest)</b></td>
+  </tr>
+  <tr>
+    <td>Skip-GANomaly</td>
+    <td><a href="https://arxiv.org/abs/1901.08954">S. Akçay et al.</a></td>
+    <td>IJCNN 2019</td>
+    <td><a href="Anomaly_Detection/Skip-GANomaly2d">Skip-GANomaly2d</a></td>
     <td><b>v1.6.1(Latest)</b></td>
   </tr>
 </table>
