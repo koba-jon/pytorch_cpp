@@ -211,13 +211,13 @@ In addition, I might adapt programs to the latest version. <br>
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Stable (1.7.0) <br>
+PyTorch Build : Preview (Nightly) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
-CUDA : 10.2 <br>
+CUDA : 11.0 <br>
 Run this Command : Download here (cxx11 ABI) <br>
-GPU : https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.7.0.zip <br>
-CPU : https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.7.0%2Bcpu.zip <br>
+GPU : https://download.pytorch.org/libtorch/nightly/cu110/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
+CPU : https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
 ***
 
 ### 2. OpenCV
