@@ -187,7 +187,7 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="https://arxiv.org/abs/1802.06222">H. Zenati et al.</a></td>
     <td>ICLR Workshop 2018</td>
     <td><a href="Anomaly_Detection/EGBAD2d">EGBAD2d</a></td>
-    <td>v1.7.0/td>
+    <td>v1.7.0</td>
   </tr>
   <tr>
     <td>GANomaly</td>
