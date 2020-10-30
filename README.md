@@ -251,7 +251,7 @@ $ sudo apt install libpng-dev libpng++-dev
 
 ### 1. Git Clone
 ~~~
-$ git clone https://github.com/koba-jon/pytorch_cpp.git
+$ git clone -b support/v1.7.0 https://github.com/koba-jon/pytorch_cpp.git
 $ cd pytorch_cpp
 ~~~
 
