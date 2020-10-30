@@ -1,18 +1,22 @@
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <string>
 #include <tuple>
 #include <vector>
 #include <utility>
 #include <cstdio>
+#include <cstdlib>
 #include <cmath>
-#include <sys/stat.h>
 // For External Library
 #include <torch/torch.h>
 #include <opencv2/opencv.hpp>
 #include <png++/png.hpp>
 // For Original Header
 #include "visualizer.hpp"
+
+// Define Namespace
+namespace fs = std::filesystem;
 
 
 // ----------------------------------------------------------
@@ -26,7 +30,7 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
     size_t width, height, channels, mini_batch_size;
     size_t width_out, height_out;
     size_t ncol, nrow;
-    int flag_in, flag_out;
+    int mtype_in, mtype_out;
     cv::Mat float_mat, normal_mat, bit_mat, RGB, BGR;
     cv::Mat sample, output;
     std::vector<cv::Mat> samples;
@@ -38,14 +42,14 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
     height = image.size(2);
     width = image.size(3);
 
-    // (2) Judge number of channels and bits
-    flag_in = CV_32FC1;
+    // (2) Judge the number of channels and bits
+    mtype_in = CV_32FC1;
     if (channels == 1){
         if (bits == 8){
-            flag_out = CV_8UC1;
+            mtype_out = CV_8UC1;
         }
         else if (bits == 16){
-            flag_out = CV_16UC1;
+            mtype_out = CV_16UC1;
         }
         else{
             std::cerr << "Error : Bits of the image to be saved is inappropriate." << std::endl;
@@ -54,10 +58,10 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
     }
     else if (channels == 3){
         if (bits == 8){
-            flag_out = CV_8UC3;
+            mtype_out = CV_8UC3;
         }
         else if (bits == 16){
-            flag_out = CV_16UC3;
+            mtype_out = CV_16UC3;
         }
         else{
             std::cerr << "Error : Bits of the image to be saved is inappropriate." << std::endl;
@@ -72,7 +76,7 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
     // (3) Add images to the array
     i = 0;
     samples = std::vector<cv::Mat>(mini_batch_size);
-    auto mini_batch = image.to(torch::kCPU).chunk(mini_batch_size, /*dim=*/0);  // {N,C,H,W} ===> {1,C,H,W} + {1,C,H,W} + ...
+    auto mini_batch = image.clamp(/*min=*/range.first, /*max=*/range.second).contiguous().to(torch::kCPU).chunk(mini_batch_size, /*dim=*/0);  // {N,C,H,W} ===> {1,C,H,W} + {1,C,H,W} + ...
     for (auto &tensor : mini_batch){
         tensor_sq = torch::squeeze(tensor, /*dim=*/0);  // {1,C,H,W} ===> {C,H,W}
         tensor_per = tensor_sq.permute({1, 2, 0});  // {C,H,W} ===> {H,W,C}
@@ -80,16 +84,16 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
             auto tensor_vec = tensor_per.chunk(channels, /*dim=*/2);  // {H,W,3} ===> {H,W,1} + {H,W,1} + {H,W,1}
             std::vector<cv::Mat> mv;
             for (auto &tensor_channel : tensor_vec){
-                mv.push_back(cv::Mat(cv::Size(width, height), flag_in, tensor_channel.data_ptr<float>()));  // torch::Tensor ===> cv::Mat
+                mv.push_back(cv::Mat(cv::Size(width, height), mtype_in, tensor_channel.data_ptr<float>()));  // torch::Tensor ===> cv::Mat
             }
             cv::merge(mv, float_mat);  // {H,W,1} + {H,W,1} + {H,W,1} ===> {H,W,3}
         }
         else{
-            float_mat = cv::Mat(cv::Size(width, height), flag_in, tensor_per.data_ptr<float>());  // torch::Tensor ===> cv::Mat
+            float_mat = cv::Mat(cv::Size(width, height), mtype_in, tensor_per.data_ptr<float>());  // torch::Tensor ===> cv::Mat
         }
         normal_mat = (float_mat - range.first) / (float)(range.second - range.first);  // [range.first, range.second] ===> [0,1]
         bit_mat = normal_mat * (std::pow(2.0, bits) - 1.0);  // [0,1] ===> [0,255] or [0,65535]
-        bit_mat.convertTo(sample, flag_out);  // {32F} ===> {8U} or {16U}
+        bit_mat.convertTo(sample, mtype_out);  // {32F} ===> {8U} or {16U}
         if (channels == 3){
             RGB = sample;
             cv::cvtColor(RGB, BGR, cv::COLOR_RGB2BGR);  // {R,G,B} ===> {B,G,R}
@@ -106,7 +110,7 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
     height_out =  height * nrow + padding * (nrow + 1);
 
     // (5) Value Substitution for Output Image
-    output = cv::Mat(cv::Size(width_out, height_out), flag_out, cv::Scalar::all(0));
+    output = cv::Mat(cv::Size(width_out, height_out), mtype_out, cv::Scalar::all(0));
     for (l = 0; l < mini_batch_size; l++){
         sample = samples.at(l);
         i_dev = (l % ncol) * width + padding * (l % ncol + 1);
@@ -156,7 +160,7 @@ void visualizer::save_label(const torch::Tensor label, const std::string path, c
     // (2) Add images to the array
     i = 0;
     samples = std::vector<cv::Mat>(mini_batch_size);
-    auto mini_batch = label.to(torch::kCPU).chunk(mini_batch_size, /*dim=*/0);  // {N,1,H,W} ===> {1,1,H,W} + {1,1,H,W} + ...
+    auto mini_batch = label.contiguous().to(torch::kCPU).chunk(mini_batch_size, /*dim=*/0);  // {N,1,H,W} ===> {1,1,H,W} + {1,1,H,W} + ...
     for (auto &tensor : mini_batch){
         tensor_sq = torch::squeeze(tensor, /*dim=*/0);  // {1,1,H,W} ===> {1,H,W}
         tensor_per = tensor_sq.permute({1, 2, 0});  // {1,H,W} ===> {H,W,1}
@@ -220,8 +224,8 @@ visualizer::graph::graph(const std::string dir_, const std::string gname_, const
     this->graph_fname= this->dir + '/' + this->gname + ".png";
     this->data_fname= this->data_dir + '/' + this->gname + ".dat";
     this->label = label_;
-    mkdir(this->dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
-    mkdir(this->data_dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
+    fs::create_directories(this->dir);
+    fs::create_directories(this->data_dir);
 }
 
 

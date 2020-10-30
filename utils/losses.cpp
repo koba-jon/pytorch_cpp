@@ -88,5 +88,5 @@ torch::Tensor Losses::SSIMLoss::Structural_Similarity(torch::Tensor &image1, tor
 // namespace{Losses} -> class{SSIMLoss} -> operator
 // -------------------------------------------------
 torch::Tensor Losses::SSIMLoss::operator()(torch::Tensor &input, torch::Tensor &target){
-    return - this->Structural_Similarity(input, target) + 1.0;  // 0.0<=SSIM<=2.0 (0.0 is best matching)
+    return -this->Structural_Similarity(input, target) * 0.5 + 0.5;  // 0.0<=SSIM<=1.0 (0.0 is best matching)
 }

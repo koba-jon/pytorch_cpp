@@ -1,4 +1,5 @@
 #include <vector>
+#include <utility>
 #include <cmath>
 // For External Library
 #include <torch/torch.h>
@@ -13,7 +14,7 @@
 torch::Tensor transforms::apply(std::vector<transforms::Compose*> &transform, cv::Mat &data_in){
     torch::Tensor data_out;
     transforms::forward<cv::Mat, torch::Tensor>(transform, data_in, data_out, transform.size());
-    return data_out.detach().clone();
+    return data_out.contiguous().detach().clone();
 }
 
 
@@ -134,7 +135,7 @@ void transforms::ToTensor::forward(cv::Mat &data_in, torch::Tensor &data_out){
     float_mat *= 1.0 / (std::pow(2.0, data_in.elemSize1()*8) - 1.0);  // [0,255] or [0,65535] ===> [0,1]
     torch::Tensor data_out_src = torch::from_blob(float_mat.data, {float_mat.rows, float_mat.cols, float_mat.channels()}, torch::kFloat);  // {0,1,2} = {H,W,C}
     data_out_src = data_out_src.permute({2, 0, 1});  // {0,1,2} = {H,W,C} ===> {0,1,2} = {C,H,W}
-    data_out = data_out_src.detach().clone();
+    data_out = data_out_src.contiguous().detach().clone();
     return;
 }
 
@@ -146,7 +147,102 @@ void transforms::ToTensorLabel::forward(cv::Mat &data_in, torch::Tensor &data_ou
     torch::Tensor data_out_src = torch::from_blob(data_in.data, {data_in.rows, data_in.cols, data_in.channels()}, torch::kInt).to(torch::kLong);  // {0,1,2} = {H,W,C}
     data_out_src = data_out_src.permute({2, 0, 1});  // {0,1,2} = {H,W,C} ===> {0,1,2} = {C,H,W}
     data_out_src = torch::squeeze(data_out_src, /*dim=*/0);  // {C,H,W} ===> {H,W}
-    data_out = data_out_src.detach().clone();
+    data_out = data_out_src.contiguous().detach().clone();
+    return;
+}
+
+
+// ---------------------------------------------------------------------
+// namespace{transforms} -> class{AddRVINoise}(Compose) -> constructor
+// ---------------------------------------------------------------------
+transforms::AddRVINoise::AddRVINoise(const float occur_prob_, const std::pair<float, float> range_){
+    this->occur_prob = occur_prob_;
+    this->range = range_;
+}
+
+
+// ---------------------------------------------------------------------------
+// namespace{transforms} -> class{AddRVINoise}(Compose) -> function{forward}
+// ---------------------------------------------------------------------------
+void transforms::AddRVINoise::forward(torch::Tensor &data_in, torch::Tensor &data_out){
+
+    long int width = data_in.size(2);
+    long int height = data_in.size(1);
+    long int channels = data_in.size(0);
+
+    torch::Tensor randu = torch::rand({1, height, width}).to(data_in.device());
+    torch::Tensor noise_flag = (randu < this->occur_prob).to(torch::kFloat).expand({channels, height, width});
+    torch::Tensor base_flag = ((randu < this->occur_prob) == false).to(torch::kFloat).expand({channels, height, width});
+
+    torch::Tensor noise = torch::rand({channels, height, width}).to(data_in.device()) * (this->range.second - this->range.first) + this->range.first;
+    torch::Tensor data_mix = data_in * base_flag + noise * noise_flag;
+    data_out = data_mix.contiguous().detach().clone();
+
+    return;
+}
+
+
+// --------------------------------------------------------------------
+// namespace{transforms} -> class{AddSPNoise}(Compose) -> constructor
+// --------------------------------------------------------------------
+transforms::AddSPNoise::AddSPNoise(const float occur_prob_, const float salt_rate_, const std::pair<float, float> range_){
+    this->occur_prob = occur_prob_;
+    this->salt_rate = salt_rate_;
+    this->range = range_;
+}
+
+
+// ---------------------------------------------------------------------------
+// namespace{transforms} -> class{AddSPNoise}(Compose) -> function{forward}
+// ---------------------------------------------------------------------------
+void transforms::AddSPNoise::forward(torch::Tensor &data_in, torch::Tensor &data_out){
+    
+    long int width = data_in.size(2);
+    long int height = data_in.size(1);
+    long int channels = data_in.size(0);
+
+    torch::Tensor randu = torch::rand({1, height, width}).to(data_in.device());
+    torch::Tensor noise_flag = (randu < this->occur_prob).to(torch::kFloat).expand({channels, height, width});
+    torch::Tensor base_flag = ((randu < this->occur_prob) == false).to(torch::kFloat).expand({channels, height, width});
+
+    torch::Tensor randu2 = torch::rand({1, height, width}).to(data_in.device());
+    torch::Tensor salt_flag = (randu2 < this->salt_rate).to(torch::kFloat).expand({channels, height, width}) * noise_flag;
+    torch::Tensor pepper_flag = ((randu2 < this->salt_rate) == false).to(torch::kFloat).expand({channels, height, width}) * noise_flag;
+
+    torch::Tensor data_mix = data_in * base_flag + this->range.first * pepper_flag + this->range.second * salt_flag;
+    data_out = data_mix.contiguous().detach().clone();
+
+    return;
+}
+
+
+// ----------------------------------------------------------------------
+// namespace{transforms} -> class{AddGaussNoise}(Compose) -> constructor
+// ----------------------------------------------------------------------
+transforms::AddGaussNoise::AddGaussNoise(const float occur_prob_, const float mean_, const float std_, const std::pair<float, float> range_){
+    this->occur_prob = occur_prob_;
+    this->mean = mean_;
+    this->std = std_;
+    this->range = range_;
+}
+
+
+// ----------------------------------------------------------------------------
+// namespace{transforms} -> class{AddGaussNoise}(Compose) -> function{forward}
+// ----------------------------------------------------------------------------
+void transforms::AddGaussNoise::forward(torch::Tensor &data_in, torch::Tensor &data_out){
+    
+    long int width = data_in.size(2);
+    long int height = data_in.size(1);
+    long int channels = data_in.size(0);
+
+    torch::Tensor randu = torch::rand({1, height, width}).to(data_in.device());
+    torch::Tensor noise_flag = (randu < this->occur_prob).to(torch::kFloat).expand({channels, height, width});
+
+    torch::Tensor noise = torch::randn({channels, height, width}).to(data_in.device()) * this->std + this->mean;
+    torch::Tensor data_mix = (data_in + noise * noise_flag).clamp(/*min=*/this->range.first, /*max=*/this->range.second);
+    data_out = data_mix.contiguous().detach().clone();
+
     return;
 }
 
@@ -203,7 +299,7 @@ void transforms::Normalize::forward(torch::Tensor &data_in, torch::Tensor &data_
         }
     }
     
-    data_out = data_out_src.detach().clone();
+    data_out = data_out_src.contiguous().detach().clone();
     
     return;
 }

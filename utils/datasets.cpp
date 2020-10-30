@@ -154,6 +154,92 @@ size_t datasets::ImageFolderPairWithPaths::size(){
 }
 
 
+// ----------------------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderPairAndRandomSamplingWithPaths} -> constructor
+// ----------------------------------------------------------------------------------------
+datasets::ImageFolderPairAndRandomSamplingWithPaths::ImageFolderPairAndRandomSamplingWithPaths(const std::string root1, const std::string root2, const std::string root_rand, std::vector<transforms::Compose*> &transformI_, std::vector<transforms::Compose*> &transformO_, std::vector<transforms::Compose*> &transform_rand_){
+
+    fs::path ROOT;
+    
+    ROOT = fs::path(root1);
+    for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
+        if (!fs::is_directory(p)){
+            std::stringstream path1, fname1;
+            path1 << p.path().string();
+            fname1 << p.path().filename().string();
+            this->paths1.push_back(path1.str());
+            this->fnames1.push_back(fname1.str());
+        }
+    }
+    std::sort(this->paths1.begin(), this->paths1.end());
+    std::sort(this->fnames1.begin(), this->fnames1.end());
+
+    ROOT = fs::path(root2);
+    for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
+        if (!fs::is_directory(p)){
+            std::stringstream path2, fname2;
+            path2 << p.path().string();
+            fname2 << p.path().filename().string();
+            this->paths2.push_back(path2.str());
+            this->fnames2.push_back(fname2.str());
+        }
+    }
+    std::sort(this->paths2.begin(), this->paths2.end());
+    std::sort(this->fnames2.begin(), this->fnames2.end());
+
+    ROOT = fs::path(root_rand);
+    for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
+        if (!fs::is_directory(p)){
+            std::stringstream path_rand, fname_rand;
+            path_rand << p.path().string();
+            fname_rand << p.path().filename().string();
+            this->paths_rand.push_back(path_rand.str());
+            this->fnames_rand.push_back(fname_rand.str());
+        }
+    }
+    std::sort(this->paths_rand.begin(), this->paths_rand.end());
+    std::sort(this->fnames_rand.begin(), this->fnames_rand.end());
+
+    this->transformI = transformI_;
+    this->transformO = transformO_;
+    this->transform_rand = transform_rand_;
+
+}
+
+
+// ------------------------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderPairAndRandomSamplingWithPaths} -> function{get}
+// ------------------------------------------------------------------------------------------
+void datasets::ImageFolderPairAndRandomSamplingWithPaths::get(const size_t index, const size_t index_rand, std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, std::string, std::string, std::string> &data){
+    cv::Mat image_Mat1 = datasets::RGB_Loader(this->paths1.at(index));
+    cv::Mat image_Mat2 = datasets::RGB_Loader(this->paths2.at(index));
+    cv::Mat image_Mat_rand = datasets::RGB_Loader(this->paths_rand.at(index_rand));
+    torch::Tensor image1 = transforms::apply(this->transformI, image_Mat1);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
+    torch::Tensor image2 = transforms::apply(this->transformO, image_Mat2);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
+    torch::Tensor image_rand = transforms::apply(this->transform_rand, image_Mat_rand);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
+    std::string fname1 = this->fnames1.at(index);
+    std::string fname2 = this->fnames2.at(index);
+    std::string fname_rand = this->fnames_rand.at(index_rand);
+    data = {image1.detach().clone(), image2.detach().clone(), image_rand.detach().clone(), fname1, fname2, fname_rand};
+    return;
+}
+
+
+// -------------------------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderPairAndRandomSamplingWithPaths} -> function{size}
+// -------------------------------------------------------------------------------------------
+size_t datasets::ImageFolderPairAndRandomSamplingWithPaths::size(){
+    return this->fnames1.size();
+}
+
+
+// -----------------------------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderPairAndRandomSamplingWithPaths} -> function{size_rand}
+// -----------------------------------------------------------------------------------------------
+size_t datasets::ImageFolderPairAndRandomSamplingWithPaths::size_rand(){
+    return this->fnames_rand.size();
+}
+
 
 // -------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderSegmentWithPaths} -> constructor
@@ -220,3 +306,55 @@ void datasets::ImageFolderSegmentWithPaths::get(const size_t index, std::tuple<t
 size_t datasets::ImageFolderSegmentWithPaths::size(){
     return this->fnames1.size();
 }
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderClassesWithPaths} -> constructor
+// -------------------------------------------------------------------------
+datasets::ImageFolderClassesWithPaths::ImageFolderClassesWithPaths(const std::string root, std::vector<transforms::Compose*> &transform_, const std::vector<std::string> class_names){
+    std::string class_name, class_root;
+    fs::path ROOT;
+    for (size_t i = 0; i < class_names.size(); i++){
+        std::vector<std::string> paths_tmp, fnames_tmp;
+        class_name = class_names.at(i);
+        class_root = root + '/' + class_name;
+        ROOT = fs::path(class_root);
+        for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
+            if (!fs::is_directory(p)){
+                std::stringstream rpath, fname;
+                rpath << p.path().string();
+                fname << p.path().filename().string();
+                paths_tmp.push_back(rpath.str());
+                fnames_tmp.push_back(class_name + '/' + fname.str());
+                class_ids.push_back(i);
+            }
+        }
+        std::sort(paths_tmp.begin(), paths_tmp.end());
+        std::sort(fnames_tmp.begin(), fnames_tmp.end());
+        std::copy(paths_tmp.begin(), paths_tmp.end(), std::back_inserter(this->paths));
+        std::copy(fnames_tmp.begin(), fnames_tmp.end(), std::back_inserter(this->fnames));
+    }
+    this->transform = transform_;
+}
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderClassesWithPaths} -> function{get}
+// -------------------------------------------------------------------------
+void datasets::ImageFolderClassesWithPaths::get(const size_t index, std::tuple<torch::Tensor,  torch::Tensor, std::string> &data){
+    cv::Mat image_Mat = datasets::RGB_Loader(this->paths.at(index));
+    torch::Tensor image = transforms::apply(this->transform, image_Mat);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
+    torch::Tensor class_id = torch::full({}, (long int)this->class_ids.at(index), torch::TensorOptions().dtype(torch::kLong));
+    std::string fname = this->fnames.at(index);
+    data = {image.detach().clone(), class_id.detach().clone(), fname};
+    return;
+}
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderClassesWithPaths} -> function{size}
+// -------------------------------------------------------------------------
+size_t datasets::ImageFolderClassesWithPaths::size(){
+    return this->fnames.size();
+}
+

@@ -11,6 +11,11 @@
 // -------------------------
 namespace progress{
 
+    // Function Prototype
+    std::string separator();
+    std::string separator_center(const std::string word);
+    std::string current_date();
+
     // ---------------------------------------
     // namespace{progress} -> class{display}
     // ---------------------------------------
@@ -32,6 +37,25 @@ namespace progress{
         std::vector<float> get_ave();
         float get_ave(const int index);
         ~display();
+    };
+
+    // ---------------------------------------
+    // namespace{progress} -> class{irregular}
+    // ---------------------------------------
+    class irregular{
+    private:
+        size_t count_start, count_end;
+        std::string elap, rem, date, date_fin, sec_per;
+        std::chrono::system_clock::time_point start, end;
+    public:
+        irregular(){}
+        void restart(const size_t count_start_, const size_t count_end_);
+        void nab(const size_t count);
+        std::string get_elap();
+        std::string get_rem();
+        std::string get_date();
+        std::string get_date_fin();
+        std::string get_sec_per();
     };
 
 }
