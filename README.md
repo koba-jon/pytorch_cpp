@@ -25,21 +25,21 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networ">A. Krizhevsky et al.</a></td>
     <td>NeurIPS 2012</td>
     <td><a href="Multiclass_Classification/AlexNet">AlexNet</a></td>
-    <td><b>v1.7.0(Latest)</b></td>
+    <td>v1.7.0</td>
   </tr>
   <tr>
     <td>VGGNet</td>
     <td><a href="https://arxiv.org/abs/1409.1556">K. Simonyan et al.</a></td>
     <td>ICLR 2015</td>
     <td><a href="Multiclass_Classification/VGGNet">VGGNet</a></td>
-    <td><b>v1.7.0(Latest)</b></td>
+    <td>v1.7.0</td>
   </tr>
   <tr>
     <td>ResNet</td>
     <td><a href="https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html">K. He et al.</a></td>
     <td>CVPR 2016</td>
     <td><a href="Multiclass_Classification/ResNet">ResNet</a></td>
-    <td><b>v1.7.0(Latest)</b></td>
+    <td>v1.7.0</td>
   </tr>
 </table>
 
@@ -65,7 +65,7 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="https://dl.acm.org/doi/abs/10.1145/1390156.1390294">P. Vincent et al.</a></td>
     <td>ICML 2008</td>
     <td><a href="Dimensionality_Reduction/DAE2d">DAE2d</a></td>
-    <td><b>v1.7.0(Latest)</b></td>
+    <td>v1.7.0</td>
   </tr>
 </table>
 
@@ -99,7 +99,7 @@ In addition, I might adapt programs to the latest version. <br>
     <td rowspan="2"><a href="https://openreview.net/forum?id=HkL7n1-0b">I. Tolstikhin et al.</a></td>
     <td rowspan="2">ICLR 2018</td>
     <td><a href="Generative_Modeling/WAE2d_GAN">WAE2d GAN</a></td>
-    <td rowspan="2"><b>v1.7.0(Latest)</b></td>
+    <td rowspan="2">v1.7.0</td>
   </tr>
   <tr>
     <td><a href="Generative_Modeling/WAE2d_MMD">WAE2d MMD</a></td>
@@ -147,7 +147,7 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="https://arxiv.org/abs/1511.00561">V. Badrinarayanan et al.</a></td>
     <td>CVPR 2015</td>
     <td><a href="Semantic_Segmentation/SegNet">SegNet</a></td>
-    <td><b>v1.7.0(Latest)</b></td>
+    <td>v1.7.0</td>
   </tr>
   <tr>
     <td>U-Net</td>
@@ -173,7 +173,7 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="https://arxiv.org/abs/1703.05921">T. Schlegl et al.</a></td>
     <td>IPMI 2017</td>
     <td><a href="Anomaly_Detection/AnoGAN2d">AnoGAN2d</a></td>
-    <td><b>v1.7.0(Latest)</b></td>
+    <td>v1.7.0</td>
   </tr>
   <tr>
     <td>DAGMM</td>
@@ -187,21 +187,21 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="https://arxiv.org/abs/1802.06222">H. Zenati et al.</a></td>
     <td>ICLR Workshop 2018</td>
     <td><a href="Anomaly_Detection/EGBAD2d">EGBAD2d</a></td>
-    <td><b>v1.7.0(Latest)</b></td>
+    <td>v1.7.0/td>
   </tr>
   <tr>
     <td>GANomaly</td>
     <td><a href="https://arxiv.org/abs/1805.06725">S. Akçay et al.</a></td>
     <td>ACCV 2018</td>
     <td><a href="Anomaly_Detection/GANomaly2d">GANomaly2d</a></td>
-    <td><b>v1.7.0(Latest)</b></td>
+    <td>v1.7.0</td>
   </tr>
   <tr>
     <td>Skip-GANomaly</td>
     <td><a href="https://arxiv.org/abs/1901.08954">S. Akçay et al.</a></td>
     <td>IJCNN 2019</td>
     <td><a href="Anomaly_Detection/Skip-GANomaly2d">Skip-GANomaly2d</a></td>
-    <td><b>v1.7.0(Latest)</b></td>
+    <td>v1.7.0</td>
   </tr>
 </table>
 
@@ -251,7 +251,7 @@ $ sudo apt install libpng-dev libpng++-dev
 
 ### 1. Git Clone
 ~~~
-$ git clone https://github.com/koba-jon/pytorch_cpp.git
+$ git clone -b develop/v1.7.1 https://github.com/koba-jon/pytorch_cpp.git
 $ cd pytorch_cpp
 ~~~
 
