@@ -1,5 +1,5 @@
 # VGGNet
-This is the implementation of "VGGNet" for Multiclass-Classification.<br>
+This is the implementation of "VGGNet" for Multiclass Classification.<br>
 Original paper: K. Simonyan and A. Zisserman. Very deep convolutional networks for large-scale image recognition. In International Conference on Learning Representations, 2015. [link](https://arxiv.org/abs/1409.1556)
 
 ## Usage

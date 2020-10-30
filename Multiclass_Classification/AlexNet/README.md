@@ -1,5 +1,5 @@
 # AlexNet
-This is the implementation of "AlexNet" for Multiclass-Classification.<br>
+This is the implementation of "AlexNet" for Multiclass Classification.<br>
 Original paper: A. Krizhevsky, I. Sutskever, and G. E. Hinton. ImageNet classification with deep convolutional neural networks. In Proceedings of the 25th International Conference on Neural Information Processing Systems, 2012. [link](http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networ)
 
 ## Usage

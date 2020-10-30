@@ -10,7 +10,7 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Implementation
 
-### Multiclass-Classification
+### Multiclass Classification
 
 <table>
   <tr>
@@ -24,21 +24,21 @@ In addition, I might adapt programs to the latest version. <br>
     <td>AlexNet</td>
     <td><a href="http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networ">A. Krizhevsky et al.</a></td>
     <td>NeurIPS 2012</td>
-    <td><a href="Multiclass-Classification/AlexNet">AlexNet</a></td>
+    <td><a href="Multiclass_Classification/AlexNet">AlexNet</a></td>
     <td><b>v1.6.1(Latest)</b></td>
   </tr>
   <tr>
     <td>VGGNet</td>
     <td><a href="https://arxiv.org/abs/1409.1556">K. Simonyan et al.</a></td>
     <td>ICLR 2015</td>
-    <td><a href="Multiclass-Classification/VGGNet">VGGNet</a></td>
+    <td><a href="Multiclass_Classification/VGGNet">VGGNet</a></td>
     <td><b>v1.6.1(Latest)</b></td>
   </tr>
   <tr>
     <td>ResNet</td>
     <td><a href="https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html">K. He et al.</a></td>
     <td>CVPR 2016</td>
-    <td><a href="Multiclass-Classification/ResNet">ResNet</a></td>
+    <td><a href="Multiclass_Classification/ResNet">ResNet</a></td>
     <td><b>v1.6.1(Latest)</b></td>
   </tr>
 </table>

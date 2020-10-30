@@ -1,5 +1,5 @@
 # ResNet
-This is the implementation of "ResNet" for Multiclass-Classification.<br>
+This is the implementation of "ResNet" for Multiclass Classification.<br>
 Original paper: K. He, X. Zhang, S. Ren, and J. Sun. Deep residual learning for image recognition. In Proceesings of the IEEE Conference on Computer Vision and Pattern Recognition, 2016. [link](http://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html)
 
 ## Usage
