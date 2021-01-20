@@ -25,10 +25,10 @@ void anomaly_detection(po::variables_map &vm){
     // (0) Initialization and Declaration
     size_t i, j;
     size_t TP, FP, TN, FN;
-    size_t total_data, index;
+    size_t total_data, idx;
     double data_one;
     double min, max, step, thresh;
-    double SED, SED_min, cutoff_index, cutoff_th;
+    double SED, SED_min, cutoff_idx, cutoff_th;
     double TP_rate, FP_rate, TN_rate, FN_rate, pre_TP_rate, pre_FP_rate;
     double precision, recall, specificity;
     double accuracy, F, AUC;
@@ -93,14 +93,14 @@ void anomaly_detection(po::variables_map &vm){
     pre_TP_rate = 1.0;
     pre_FP_rate = 1.0;
     SED_min = 1.0;
-    index = 1;
-    cutoff_index = 1;
+    idx = 1;
+    cutoff_idx = 1;
     cutoff_th = min;
     thresh = min;
     for (i = 0; i < vm["n_thresh"].as<size_t>(); i++){
 
         thresh += step;
-        index++;
+        idx++;
 
         // (5.1) Get TP, FN, TN and FP
         TP = 0, FP = 0, TN = 0, FN = 0;
@@ -139,7 +139,7 @@ void anomaly_detection(po::variables_map &vm){
         SED = (1.0 - TP_rate) * (1.0 - TP_rate) + FP_rate * FP_rate;
         if (SED < SED_min){
             SED_min = SED;
-            cutoff_index = index;
+            cutoff_idx = idx;
             cutoff_th = thresh;
         }
 
@@ -156,7 +156,7 @@ void anomaly_detection(po::variables_map &vm){
     // (6) File Output
     ofs << std::endl;
     ofs << "ROC-AUC," << AUC << std::endl;
-    ofs << "index(Cut-Off)," << cutoff_index << std::endl;
+    ofs << "index(Cut-Off)," << cutoff_idx << std::endl;
     ofs << "threshold(Cut-Off)," << cutoff_th << std::endl;
 
     // Post Processing

@@ -26,7 +26,7 @@ namespace DataLoader{
         bool shuffle;
         size_t num_workers;
         size_t size;
-        std::vector<size_t> index;
+        std::vector<size_t> idx;
         size_t count;
         size_t count_max;
         std::mt19937 mt;
@@ -46,7 +46,7 @@ namespace DataLoader{
         bool shuffle;
         size_t num_workers;
         size_t size;
-        std::vector<size_t> index;
+        std::vector<size_t> idx;
         size_t count;
         size_t count_max;
         std::mt19937 mt;
@@ -66,7 +66,7 @@ namespace DataLoader{
         bool shuffle;
         size_t num_workers;
         size_t size;
-        std::vector<size_t> index;
+        std::vector<size_t> idx;
         size_t count;
         size_t count_max;
         std::mt19937 mt;
@@ -87,7 +87,7 @@ namespace DataLoader{
         bool shuffle;
         size_t num_workers;
         size_t size;
-        std::vector<size_t> index;
+        std::vector<size_t> idx;
         size_t count;
         size_t count_max;
         std::mt19937 mt;
@@ -107,7 +107,7 @@ namespace DataLoader{
         bool shuffle;
         size_t num_workers;
         size_t size;
-        std::vector<size_t> index;
+        std::vector<size_t> idx;
         size_t count;
         size_t count_max;
         std::mt19937 mt;

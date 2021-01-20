@@ -24,9 +24,9 @@ DataLoader::ImageFolderWithPaths::ImageFolderWithPaths(datasets::ImageFolderWith
     this->num_workers = num_workers_;
 
     this->size = this->dataset.size();
-    this->index = std::vector<size_t>(this->size);
+    this->idx = std::vector<size_t>(this->size);
     for (size_t i = 0; i < this->size; i++){
-        this->index.at(i) = i;
+        this->idx.at(i) = i;
     }
 
     this->count = 0;
@@ -44,9 +44,9 @@ bool DataLoader::ImageFolderWithPaths::operator()(std::tuple<torch::Tensor, std:
 
     // (0) Initialization and Declaration
     size_t i;
-    size_t index_start = this->batch_size * this->count;
-    size_t index_end = std::min(this->size, (index_start + this->batch_size));
-    size_t mini_batch_size = index_end - index_start;
+    size_t idx_start = this->batch_size * this->count;
+    size_t idx_end = std::min(this->size, (idx_start + this->batch_size));
+    size_t mini_batch_size = idx_end - idx_start;
     torch::Tensor data1, tensor;
     std::vector<std::string> data2;
     std::tuple<torch::Tensor, std::string> group;
@@ -54,7 +54,7 @@ bool DataLoader::ImageFolderWithPaths::operator()(std::tuple<torch::Tensor, std:
 
     // (1) Special Handling on Certain Count
     if ((this->count == 0) && this->shuffle){
-        std::shuffle(this->index.begin(), this->index.end(), this->mt);
+        std::shuffle(this->idx.begin(), this->idx.end(), this->mt);
     }
     else if(this->count == this->count_max){
         this->count = 0;
@@ -66,7 +66,7 @@ bool DataLoader::ImageFolderWithPaths::operator()(std::tuple<torch::Tensor, std:
     // (2.1) Get Mini Batch Data using Single Thread
     if (this->num_workers == 0){
         for (i = 0; i < mini_batch_size; i++){
-            this->dataset.get(this->index.at(index_start + i), data_before[i]);
+            this->dataset.get(this->idx.at(idx_start + i), data_before[i]);
         }
     }
     // (2.2) Get Mini Batch Data using Multi Thread
@@ -74,7 +74,7 @@ bool DataLoader::ImageFolderWithPaths::operator()(std::tuple<torch::Tensor, std:
         omp_set_num_threads(this->num_workers);
         #pragma omp parallel for
         for (i = 0; i < mini_batch_size; i++){
-            this->dataset.get(this->index.at(index_start + i), data_before[i]);
+            this->dataset.get(this->idx.at(idx_start + i), data_before[i]);
         }
     }
 
@@ -112,9 +112,9 @@ DataLoader::ImageFolderPairWithPaths::ImageFolderPairWithPaths(datasets::ImageFo
     this->num_workers = num_workers_;
 
     this->size = this->dataset.size();
-    this->index = std::vector<size_t>(this->size);
+    this->idx = std::vector<size_t>(this->size);
     for (size_t i = 0; i < this->size; i++){
-        this->index.at(i) = i;
+        this->idx.at(i) = i;
     }
 
     this->count = 0;
@@ -132,9 +132,9 @@ bool DataLoader::ImageFolderPairWithPaths::operator()(std::tuple<torch::Tensor, 
 
     // (0) Initialization and Declaration
     size_t i;
-    size_t index_start = this->batch_size * this->count;
-    size_t index_end = std::min(this->size, (index_start + this->batch_size));
-    size_t mini_batch_size = index_end - index_start;
+    size_t idx_start = this->batch_size * this->count;
+    size_t idx_end = std::min(this->size, (idx_start + this->batch_size));
+    size_t mini_batch_size = idx_end - idx_start;
     torch::Tensor data1, data2, tensor1, tensor2;
     std::vector<std::string> data3, data4;
     std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> group;
@@ -142,7 +142,7 @@ bool DataLoader::ImageFolderPairWithPaths::operator()(std::tuple<torch::Tensor, 
 
     // (1) Special Handling on Certain Count
     if ((this->count == 0) && this->shuffle){
-        std::shuffle(this->index.begin(), this->index.end(), this->mt);
+        std::shuffle(this->idx.begin(), this->idx.end(), this->mt);
     }
     else if(this->count == this->count_max){
         this->count = 0;
@@ -154,7 +154,7 @@ bool DataLoader::ImageFolderPairWithPaths::operator()(std::tuple<torch::Tensor, 
     // (2.1) Get Mini Batch Data using Single Thread
     if (this->num_workers == 0){
         for (i = 0; i < mini_batch_size; i++){
-            this->dataset.get(this->index.at(index_start + i), data_before[i]);
+            this->dataset.get(this->idx.at(idx_start + i), data_before[i]);
         }
     }
     // (2.2) Get Mini Batch Data using Multi Thread
@@ -162,7 +162,7 @@ bool DataLoader::ImageFolderPairWithPaths::operator()(std::tuple<torch::Tensor, 
         omp_set_num_threads(this->num_workers);
         #pragma omp parallel for
         for (i = 0; i < mini_batch_size; i++){
-            this->dataset.get(this->index.at(index_start + i), data_before[i]);
+            this->dataset.get(this->idx.at(idx_start + i), data_before[i]);
         }
     }
 
@@ -207,9 +207,9 @@ DataLoader::ImageFolderPairAndRandomSamplingWithPaths::ImageFolderPairAndRandomS
     this->num_workers = num_workers_;
 
     this->size = this->dataset.size();
-    this->index = std::vector<size_t>(this->size);
+    this->idx = std::vector<size_t>(this->size);
     for (size_t i = 0; i < this->size; i++){
-        this->index.at(i) = i;
+        this->idx.at(i) = i;
     }
 
     this->count = 0;
@@ -228,9 +228,9 @@ bool DataLoader::ImageFolderPairAndRandomSamplingWithPaths::operator()(std::tupl
 
     // (0) Initialization and Declaration
     size_t i;
-    size_t index_start = this->batch_size * this->count;
-    size_t index_end = std::min(this->size, (index_start + this->batch_size));
-    size_t mini_batch_size = index_end - index_start;
+    size_t idx_start = this->batch_size * this->count;
+    size_t idx_end = std::min(this->size, (idx_start + this->batch_size));
+    size_t mini_batch_size = idx_end - idx_start;
     torch::Tensor data1, data2, data3, tensor1, tensor2, tensor3;
     std::vector<std::string> data4, data5, data6;
     std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, std::string, std::string, std::string> group;
@@ -238,7 +238,7 @@ bool DataLoader::ImageFolderPairAndRandomSamplingWithPaths::operator()(std::tupl
 
     // (1) Special Handling on Certain Count
     if ((this->count == 0) && this->shuffle){
-        std::shuffle(this->index.begin(), this->index.end(), this->mt);
+        std::shuffle(this->idx.begin(), this->idx.end(), this->mt);
     }
     else if(this->count == this->count_max){
         this->count = 0;
@@ -250,7 +250,7 @@ bool DataLoader::ImageFolderPairAndRandomSamplingWithPaths::operator()(std::tupl
     // (2.1) Get Mini Batch Data using Single Thread
     if (this->num_workers == 0){
         for (i = 0; i < mini_batch_size; i++){
-            this->dataset.get(this->index.at(index_start + i), this->int_rand(this->mt), data_before[i]);
+            this->dataset.get(this->idx.at(idx_start + i), this->int_rand(this->mt), data_before[i]);
         }
     }
     // (2.2) Get Mini Batch Data using Multi Thread
@@ -258,7 +258,7 @@ bool DataLoader::ImageFolderPairAndRandomSamplingWithPaths::operator()(std::tupl
         omp_set_num_threads(this->num_workers);
         #pragma omp parallel for
         for (i = 0; i < mini_batch_size; i++){
-            this->dataset.get(this->index.at(index_start + i), this->int_rand(this->mt), data_before[i]);
+            this->dataset.get(this->idx.at(idx_start + i), this->int_rand(this->mt), data_before[i]);
         }
     }
 
@@ -310,9 +310,9 @@ DataLoader::ImageFolderSegmentWithPaths::ImageFolderSegmentWithPaths(datasets::I
     this->num_workers = num_workers_;
 
     this->size = this->dataset.size();
-    this->index = std::vector<size_t>(this->size);
+    this->idx = std::vector<size_t>(this->size);
     for (size_t i = 0; i < this->size; i++){
-        this->index.at(i) = i;
+        this->idx.at(i) = i;
     }
 
     this->count = 0;
@@ -330,9 +330,9 @@ bool DataLoader::ImageFolderSegmentWithPaths::operator()(std::tuple<torch::Tenso
 
     // (0) Initialization and Declaration
     size_t i;
-    size_t index_start = this->batch_size * this->count;
-    size_t index_end = std::min(this->size, (index_start + this->batch_size));
-    size_t mini_batch_size = index_end - index_start;
+    size_t idx_start = this->batch_size * this->count;
+    size_t idx_end = std::min(this->size, (idx_start + this->batch_size));
+    size_t mini_batch_size = idx_end - idx_start;
     torch::Tensor data1, data2, tensor1, tensor2;
     std::vector<std::string> data3, data4;
     std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> data5;
@@ -341,7 +341,7 @@ bool DataLoader::ImageFolderSegmentWithPaths::operator()(std::tuple<torch::Tenso
 
     // (1) Special Handling on Certain Count
     if ((this->count == 0) && this->shuffle){
-        std::shuffle(this->index.begin(), this->index.end(), this->mt);
+        std::shuffle(this->idx.begin(), this->idx.end(), this->mt);
     }
     else if(this->count == this->count_max){
         this->count = 0;
@@ -353,7 +353,7 @@ bool DataLoader::ImageFolderSegmentWithPaths::operator()(std::tuple<torch::Tenso
     // (2.1) Get Mini Batch Data using Single Thread
     if (this->num_workers == 0){
         for (i = 0; i < mini_batch_size; i++){
-            this->dataset.get(this->index.at(index_start + i), data_before[i]);
+            this->dataset.get(this->idx.at(idx_start + i), data_before[i]);
         }
     }
     // (2.2) Get Mini Batch Data using Multi Thread
@@ -361,7 +361,7 @@ bool DataLoader::ImageFolderSegmentWithPaths::operator()(std::tuple<torch::Tenso
         omp_set_num_threads(this->num_workers);
         #pragma omp parallel for
         for (i = 0; i < mini_batch_size; i++){
-            this->dataset.get(this->index.at(index_start + i), data_before[i]);
+            this->dataset.get(this->idx.at(idx_start + i), data_before[i]);
         }
     }
 
@@ -407,9 +407,9 @@ DataLoader::ImageFolderClassesWithPaths::ImageFolderClassesWithPaths(datasets::I
     this->num_workers = num_workers_;
 
     this->size = this->dataset.size();
-    this->index = std::vector<size_t>(this->size);
+    this->idx = std::vector<size_t>(this->size);
     for (size_t i = 0; i < this->size; i++){
-        this->index.at(i) = i;
+        this->idx.at(i) = i;
     }
 
     this->count = 0;
@@ -427,9 +427,9 @@ bool DataLoader::ImageFolderClassesWithPaths::operator()(std::tuple<torch::Tenso
 
     // (0) Initialization and Declaration
     size_t i;
-    size_t index_start = this->batch_size * this->count;
-    size_t index_end = std::min(this->size, (index_start + this->batch_size));
-    size_t mini_batch_size = index_end - index_start;
+    size_t idx_start = this->batch_size * this->count;
+    size_t idx_end = std::min(this->size, (idx_start + this->batch_size));
+    size_t mini_batch_size = idx_end - idx_start;
     torch::Tensor data1, data2, tensor1, tensor2;
     std::vector<std::string> data3;
     std::tuple<torch::Tensor, torch::Tensor, std::string> group;
@@ -437,7 +437,7 @@ bool DataLoader::ImageFolderClassesWithPaths::operator()(std::tuple<torch::Tenso
 
     // (1) Special Handling on Certain Count
     if ((this->count == 0) && this->shuffle){
-        std::shuffle(this->index.begin(), this->index.end(), this->mt);
+        std::shuffle(this->idx.begin(), this->idx.end(), this->mt);
     }
     else if(this->count == this->count_max){
         this->count = 0;
@@ -449,7 +449,7 @@ bool DataLoader::ImageFolderClassesWithPaths::operator()(std::tuple<torch::Tenso
     // (2.1) Get Mini Batch Data using Single Thread
     if (this->num_workers == 0){
         for (i = 0; i < mini_batch_size; i++){
-            this->dataset.get(this->index.at(index_start + i), data_before[i]);
+            this->dataset.get(this->idx.at(idx_start + i), data_before[i]);
         }
     }
     // (2.2) Get Mini Batch Data using Multi Thread
@@ -457,7 +457,7 @@ bool DataLoader::ImageFolderClassesWithPaths::operator()(std::tuple<torch::Tenso
         omp_set_num_threads(this->num_workers);
         #pragma omp parallel for
         for (i = 0; i < mini_batch_size; i++){
-            this->dataset.get(this->index.at(index_start + i), data_before[i]);
+            this->dataset.get(this->idx.at(idx_start + i), data_before[i]);
         }
     }
 

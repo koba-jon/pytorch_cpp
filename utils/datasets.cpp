@@ -75,10 +75,10 @@ datasets::ImageFolderWithPaths::ImageFolderWithPaths(const std::string root, std
 // -------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderWithPaths} -> function{get}
 // -------------------------------------------------------------------------
-void datasets::ImageFolderWithPaths::get(const size_t index, std::tuple<torch::Tensor, std::string> &data){
-    cv::Mat image_Mat = datasets::RGB_Loader(this->paths.at(index));
+void datasets::ImageFolderWithPaths::get(const size_t idx, std::tuple<torch::Tensor, std::string> &data){
+    cv::Mat image_Mat = datasets::RGB_Loader(this->paths.at(idx));
     torch::Tensor image = transforms::apply(this->transform, image_Mat);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
-    std::string fname = this->fnames.at(index);
+    std::string fname = this->fnames.at(idx);
     data = {image.detach().clone(), fname};
     return;
 }
@@ -134,13 +134,13 @@ datasets::ImageFolderPairWithPaths::ImageFolderPairWithPaths(const std::string r
 // -------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderPairWithPaths} -> function{get}
 // -------------------------------------------------------------------------
-void datasets::ImageFolderPairWithPaths::get(const size_t index, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> &data){
-    cv::Mat image_Mat1 = datasets::RGB_Loader(this->paths1.at(index));
-    cv::Mat image_Mat2 = datasets::RGB_Loader(this->paths2.at(index));
+void datasets::ImageFolderPairWithPaths::get(const size_t idx, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> &data){
+    cv::Mat image_Mat1 = datasets::RGB_Loader(this->paths1.at(idx));
+    cv::Mat image_Mat2 = datasets::RGB_Loader(this->paths2.at(idx));
     torch::Tensor image1 = transforms::apply(this->transformI, image_Mat1);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
     torch::Tensor image2 = transforms::apply(this->transformO, image_Mat2);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
-    std::string fname1 = this->fnames1.at(index);
-    std::string fname2 = this->fnames2.at(index);
+    std::string fname1 = this->fnames1.at(idx);
+    std::string fname2 = this->fnames2.at(idx);
     data = {image1.detach().clone(), image2.detach().clone(), fname1, fname2};
     return;
 }
@@ -210,16 +210,16 @@ datasets::ImageFolderPairAndRandomSamplingWithPaths::ImageFolderPairAndRandomSam
 // ------------------------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderPairAndRandomSamplingWithPaths} -> function{get}
 // ------------------------------------------------------------------------------------------
-void datasets::ImageFolderPairAndRandomSamplingWithPaths::get(const size_t index, const size_t index_rand, std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, std::string, std::string, std::string> &data){
-    cv::Mat image_Mat1 = datasets::RGB_Loader(this->paths1.at(index));
-    cv::Mat image_Mat2 = datasets::RGB_Loader(this->paths2.at(index));
-    cv::Mat image_Mat_rand = datasets::RGB_Loader(this->paths_rand.at(index_rand));
+void datasets::ImageFolderPairAndRandomSamplingWithPaths::get(const size_t idx, const size_t idx_rand, std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, std::string, std::string, std::string> &data){
+    cv::Mat image_Mat1 = datasets::RGB_Loader(this->paths1.at(idx));
+    cv::Mat image_Mat2 = datasets::RGB_Loader(this->paths2.at(idx));
+    cv::Mat image_Mat_rand = datasets::RGB_Loader(this->paths_rand.at(idx_rand));
     torch::Tensor image1 = transforms::apply(this->transformI, image_Mat1);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
     torch::Tensor image2 = transforms::apply(this->transformO, image_Mat2);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
     torch::Tensor image_rand = transforms::apply(this->transform_rand, image_Mat_rand);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
-    std::string fname1 = this->fnames1.at(index);
-    std::string fname2 = this->fnames2.at(index);
-    std::string fname_rand = this->fnames_rand.at(index_rand);
+    std::string fname1 = this->fnames1.at(idx);
+    std::string fname2 = this->fnames2.at(idx);
+    std::string fname_rand = this->fnames_rand.at(idx_rand);
     data = {image1.detach().clone(), image2.detach().clone(), image_rand.detach().clone(), fname1, fname2, fname_rand};
     return;
 }
@@ -288,13 +288,13 @@ datasets::ImageFolderSegmentWithPaths::ImageFolderSegmentWithPaths(const std::st
 // -------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderSegmentWithPaths} -> function{get}
 // -------------------------------------------------------------------------
-void datasets::ImageFolderSegmentWithPaths::get(const size_t index, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string, std::vector<std::tuple<unsigned char, unsigned char, unsigned char>>> &data){
-    cv::Mat image_Mat1 = datasets::RGB_Loader(this->paths1.at(index));
-    cv::Mat image_Mat2 = datasets::Index_Loader(this->paths2.at(index));
+void datasets::ImageFolderSegmentWithPaths::get(const size_t idx, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string, std::vector<std::tuple<unsigned char, unsigned char, unsigned char>>> &data){
+    cv::Mat image_Mat1 = datasets::RGB_Loader(this->paths1.at(idx));
+    cv::Mat image_Mat2 = datasets::Index_Loader(this->paths2.at(idx));
     torch::Tensor image1 = transforms::apply(this->transformI, image_Mat1);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
     torch::Tensor image2 = transforms::apply(this->transformO, image_Mat2);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
-    std::string fname1 = this->fnames1.at(index);
-    std::string fname2 = this->fnames2.at(index);
+    std::string fname1 = this->fnames1.at(idx);
+    std::string fname2 = this->fnames2.at(idx);
     data = {image1.detach().clone(), image2.detach().clone(), fname1, fname2, this->label_palette};
     return;
 }
@@ -341,11 +341,11 @@ datasets::ImageFolderClassesWithPaths::ImageFolderClassesWithPaths(const std::st
 // -------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderClassesWithPaths} -> function{get}
 // -------------------------------------------------------------------------
-void datasets::ImageFolderClassesWithPaths::get(const size_t index, std::tuple<torch::Tensor,  torch::Tensor, std::string> &data){
-    cv::Mat image_Mat = datasets::RGB_Loader(this->paths.at(index));
+void datasets::ImageFolderClassesWithPaths::get(const size_t idx, std::tuple<torch::Tensor,  torch::Tensor, std::string> &data){
+    cv::Mat image_Mat = datasets::RGB_Loader(this->paths.at(idx));
     torch::Tensor image = transforms::apply(this->transform, image_Mat);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
-    torch::Tensor class_id = torch::full({}, (long int)this->class_ids.at(index), torch::TensorOptions().dtype(torch::kLong));
-    std::string fname = this->fnames.at(index);
+    torch::Tensor class_id = torch::full({}, (long int)this->class_ids.at(idx), torch::TensorOptions().dtype(torch::kLong));
+    std::string fname = this->fnames.at(idx);
     data = {image.detach().clone(), class_id.detach().clone(), fname};
     return;
 }
