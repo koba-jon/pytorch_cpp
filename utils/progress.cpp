@@ -231,8 +231,8 @@ std::vector<float> progress::display::get_ave(){
     return this->loss_ave;
 }
 
-float progress::display::get_ave(const int index){
-    return this->loss_ave.at(index);
+float progress::display::get_ave(const int idx){
+    return this->loss_ave.at(idx);
 }
 
 

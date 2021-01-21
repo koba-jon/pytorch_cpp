@@ -30,7 +30,7 @@ namespace datasets{
     public:
         ImageFolderWithPaths(){}
         ImageFolderWithPaths(const std::string root, std::vector<transforms::Compose*> &transform_);
-        void get(const size_t index, std::tuple<torch::Tensor, std::string> &data);
+        void get(const size_t idx, std::tuple<torch::Tensor, std::string> &data);
         size_t size();
     };
 
@@ -44,7 +44,7 @@ namespace datasets{
     public:
         ImageFolderPairWithPaths(){}
         ImageFolderPairWithPaths(const std::string root1, const std::string root2, std::vector<transforms::Compose*> &transformI_, std::vector<transforms::Compose*> &transformO_);
-        void get(const size_t index, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> &data);
+        void get(const size_t idx, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> &data);
         size_t size();
     };
 
@@ -58,7 +58,7 @@ namespace datasets{
     public:
         ImageFolderPairAndRandomSamplingWithPaths(){}
         ImageFolderPairAndRandomSamplingWithPaths(const std::string root1, const std::string root2, const std::string root_rand, std::vector<transforms::Compose*> &transformI_, std::vector<transforms::Compose*> &transformO_, std::vector<transforms::Compose*> &transform_rand_);
-        void get(const size_t index, const size_t index_rand, std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, std::string, std::string, std::string> &data);
+        void get(const size_t idx, const size_t idx_rand, std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, std::string, std::string, std::string> &data);
         size_t size();
         size_t size_rand();
     };
@@ -74,7 +74,7 @@ namespace datasets{
     public:
         ImageFolderSegmentWithPaths(){}
         ImageFolderSegmentWithPaths(const std::string root1, const std::string root2, std::vector<transforms::Compose*> &transformI_, std::vector<transforms::Compose*> &transformO_);
-        void get(const size_t index, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string, std::vector<std::tuple<unsigned char, unsigned char, unsigned char>>> &data);
+        void get(const size_t idx, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string, std::vector<std::tuple<unsigned char, unsigned char, unsigned char>>> &data);
         size_t size();
     };
     
@@ -89,7 +89,7 @@ namespace datasets{
     public:
         ImageFolderClassesWithPaths(){}
         ImageFolderClassesWithPaths(const std::string root, std::vector<transforms::Compose*> &transform_, const std::vector<std::string> class_names);
-        void get(const size_t index, std::tuple<torch::Tensor, torch::Tensor, std::string> &data);
+        void get(const size_t idx, std::tuple<torch::Tensor, torch::Tensor, std::string> &data);
         size_t size();
     };
 

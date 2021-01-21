@@ -35,7 +35,7 @@ namespace progress{
         void increment(const std::vector<float> loss_value);
         size_t get_iters();
         std::vector<float> get_ave();
-        float get_ave(const int index);
+        float get_ave(const int idx);
         ~display();
     };
 

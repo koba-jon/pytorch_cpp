@@ -177,9 +177,7 @@ namespace transforms{
     // ----------------------------------------------------
     class Normalize : Compose{
     private:
-        bool flag;
-        float mean, std;
-        std::vector<float> mean_vec, std_vec;
+        torch::Tensor mean, std;
     public:
         Normalize(){}
         Normalize(const float mean_, const float std_);
