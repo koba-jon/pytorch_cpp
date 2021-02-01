@@ -78,7 +78,7 @@ void anomaly_detection(po::variables_map &vm){
 
     // (3) Pre-Processing
     ofs.open(result_path);
-    ofs << "threshold,TP,FP,TN,FN,TP rate,FP rate,TN rate,FN rate,SED,precision,recall,specificity,accuracy,F" << std::endl;
+    ofs << "index,threshold,TP,FP,TN,FN,TP rate,FP rate,TN rate,FN rate,SED,precision,recall,specificity,accuracy,F" << std::endl;
     total_data = data[NORMAL].size() + data[ANOMALY].size();
     std::cout << "total anomaly detection data : " << total_data << std::endl;
 
@@ -98,9 +98,6 @@ void anomaly_detection(po::variables_map &vm){
     cutoff_th = min;
     thresh = min;
     for (i = 0; i < vm["n_thresh"].as<size_t>(); i++){
-
-        thresh += step;
-        idx++;
 
         // (5.1) Get TP, FN, TN and FP
         TP = 0, FP = 0, TN = 0, FN = 0;
@@ -144,12 +141,16 @@ void anomaly_detection(po::variables_map &vm){
         }
 
         // (5.4) File Output
+        ofs << idx << "," << std::flush;
         ofs << thresh << "," << std::flush;
         ofs << TP << "," << FP << "," << TN << "," << FN << "," << std::flush;
         ofs << TP_rate << "," << FP_rate << "," << TN_rate << "," << FN_rate << "," << std::flush;
         ofs << SED << "," << std::flush;
         ofs << precision << "," << recall << "," << specificity << "," << std::flush;
         ofs << accuracy << "," << F << std::endl;
+
+        thresh += step;
+        idx++;
 
     }
 
