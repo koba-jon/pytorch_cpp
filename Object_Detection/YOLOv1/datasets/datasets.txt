@@ -1,6 +1,6 @@
 1. What kind of dataset do you need?
 
-Please prepare RGB or grayscale images that can be read by OpenCV for input image, text files for output label.
+Please prepare RGB or grayscale images that can be read by OpenCV for input image, annotation text files with bounding box information for output label.
 Also, all data must be paired images with matching file name excluding extension.
 
 
