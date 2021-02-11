@@ -4,7 +4,6 @@ DATA='VOC2012'
 
 ./YOLOv1 \
     --train true \
-    --valid true \
     --epochs 300 \
     --dataset ${DATA} \
     --class_list "list/${DATA}.txt" \

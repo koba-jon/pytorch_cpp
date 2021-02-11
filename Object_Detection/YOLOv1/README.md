@@ -100,7 +100,7 @@ $ cd ../..
 
 - Output Label
 
-You should get the id (class number), x-coordinate center, y-coordinate center, width, and height from the coordinate data in the XML file and normalize them.<br>
+You should get the id (class number), x-coordinate center, y-coordinate center, width, and height from the class and coordinate data of bounding boxes in the XML file and normalize them.<br>
 Please follow the steps below to convert XML file to text file.<br>
 Here, you should substitute the path of training XML data for "<training_xml_path>", test XML data for "<test_xml_path>", respectively.<br>
 The following is an example for "VOC2012".
@@ -146,6 +146,11 @@ python3 ${SCRIPT_DIR}/xml2txt.py \
     --input_dir "datasets/VOC2012/testX" \
     --output_dir "datasets/VOC2012/testO" \
     --class_list "list/VOC2012.txt"
+~~~
+
+The data will be converted by the following procedure.
+~~~
+sh ../../scripts/xml2txt.sh
 ~~~
 
 ### 3. Training
