@@ -32,7 +32,6 @@ YOLOPreprocess::YOLOPreprocess(const double flip_rate_, const double scale_rate_
 // class{YOLOPreprocess}(transforms::Compose) -> function{deepcopy}
 // --------------------------------------------------------------------------
 void YOLOPreprocess::deepcopy(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
-    data_out1 = cv::Mat();
     data_in1.copyTo(data_out1);
     if (std::get<0>(data_in2).numel() > 0){
         data_out2 = {std::get<0>(data_in2).clone(), std::get<1>(data_in2).clone()};
@@ -459,7 +458,10 @@ void YOLOPreprocess::forward(cv::Mat &data_in1, std::tuple<torch::Tensor, torch:
     // (1) Get Global Parameter
     size_t threads = omp_get_num_threads();
     while (threads > this->mt.size()){
-        this->mt.push_back(std::mt19937(std::rand()));
+        #pragma omp critical
+        {
+            this->mt.push_back(std::mt19937(std::rand()));
+        }
     }
 
     // (2) Get Local Parameter
