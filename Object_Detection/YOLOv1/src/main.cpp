@@ -85,6 +85,7 @@ po::options_description parse_arguments(){
         // (6) Define for Demo
         ("demo", po::value<bool>()->default_value(false), "demo mode on/off")
         ("cam_num", po::value<size_t>()->default_value(0), "the port number of camera")
+        ("movie", po::value<std::string>()->default_value(""), "movie file name : ./<movie>")
         ("window_w", po::value<size_t>()->default_value(1920), "width of window size")
         ("window_h", po::value<size_t>()->default_value(1080), "height of window size")
         ("demo_load_epoch", po::value<std::string>()->default_value("latest"), "training epoch used for demo")

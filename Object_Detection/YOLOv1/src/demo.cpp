@@ -51,7 +51,12 @@ void demo(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vect
     std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette = detector.get_label_palette();
 
     // (3) Set Camera Device
-    cap.open(vm["cam_num"].as<size_t>());
+    if (vm["movie"].as<std::string>() == ""){
+        cap.open(vm["cam_num"].as<size_t>());
+    }
+    else{
+        cap.open(vm["movie"].as<std::string>());
+    }
     if (!cap.isOpened()){
         std::cerr << "Error : Couldn't open the camera '" << vm["cam_num"].as<size_t>() << "'." << std::endl;
         std::exit(1);
