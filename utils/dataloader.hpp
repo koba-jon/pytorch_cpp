@@ -70,7 +70,7 @@ namespace DataLoader{
         size_t count;
         size_t count_max;
         std::mt19937 mt;
-        std::uniform_int_distribution<> int_rand;
+        std::uniform_int_distribution<int> int_rand;
     public:
         ImageFolderPairAndRandomSamplingWithPaths(){}
         ImageFolderPairAndRandomSamplingWithPaths(datasets::ImageFolderPairAndRandomSamplingWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_);
@@ -115,6 +115,26 @@ namespace DataLoader{
         ImageFolderClassesWithPaths(){}
         ImageFolderClassesWithPaths(datasets::ImageFolderClassesWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_);
         bool operator()(std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>> &data);
+    };
+    
+    // ----------------------------------------------------
+    // namespace{DataLoader} -> class{ImageFolderBBWithPaths}
+    // ----------------------------------------------------
+    class ImageFolderBBWithPaths{
+    private:
+        datasets::ImageFolderBBWithPaths dataset;
+        size_t batch_size;
+        bool shuffle;
+        size_t num_workers;
+        size_t size;
+        std::vector<size_t> idx;
+        size_t count;
+        size_t count_max;
+        std::mt19937 mt;
+    public:
+        ImageFolderBBWithPaths(){}
+        ImageFolderBBWithPaths(datasets::ImageFolderBBWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_);
+        bool operator()(std::tuple<torch::Tensor, std::vector<std::tuple<torch::Tensor, torch::Tensor>>, std::vector<std::string>, std::vector<std::string>> &data);
     };
 
 }

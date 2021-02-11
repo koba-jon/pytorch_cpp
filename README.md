@@ -158,6 +158,25 @@ In addition, I might adapt programs to the latest version. <br>
   </tr>
 </table>
 
+### Object Detection
+
+<table>
+  <tr>
+    <th>Model</th>
+    <th>Paper</th>
+    <th>Conference/Journal</th>
+    <th>Code</th>
+    <th>Release Version</th>
+  </tr>
+  <tr>
+    <td>YOLOv1</td>
+    <td><a href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/html/Redmon_You_Only_Look_CVPR_2016_paper.html">J. Redmon et al.</a></td>
+    <td>CVPR 2016</td>
+    <td><a href="Object_Detection/YOLOv1">YOLOv1</a></td>
+    <td><b>v1.8.0</b></td>
+  </tr>
+</table>
+
 ### Anomaly Detection
 
 <table>

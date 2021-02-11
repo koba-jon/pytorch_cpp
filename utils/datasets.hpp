@@ -19,6 +19,7 @@ namespace datasets{
     // Function Prototype
     cv::Mat RGB_Loader(std::string &path);
     cv::Mat Index_Loader(std::string &path);
+    std::tuple<torch::Tensor, torch::Tensor> BoundingBox_Loader(std::string &path);
 
     // ----------------------------------------------------
     // namespace{datasets} -> class{ImageFolderWithPaths}
@@ -90,6 +91,21 @@ namespace datasets{
         ImageFolderClassesWithPaths(){}
         ImageFolderClassesWithPaths(const std::string root, std::vector<transforms::Compose*> &transform_, const std::vector<std::string> class_names);
         void get(const size_t idx, std::tuple<torch::Tensor, torch::Tensor, std::string> &data);
+        size_t size();
+    };
+    
+    // ----------------------------------------------------
+    // namespace{datasets} -> class{ImageFolderBBWithPaths}
+    // ----------------------------------------------------
+    class ImageFolderBBWithPaths{
+    private:
+        std::vector<transforms::Compose*> transformBB, transformI;
+        std::vector<std::string> paths1, paths2, fnames1, fnames2;
+        void deepcopy(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2);
+    public:
+        ImageFolderBBWithPaths(){}
+        ImageFolderBBWithPaths(const std::string root1, const std::string root2, std::vector<transforms::Compose*> &transformBB_, std::vector<transforms::Compose*> &transformI_);
+        void get(const size_t idx, std::tuple<torch::Tensor, std::tuple<torch::Tensor, torch::Tensor>, std::string, std::string> &data);
         size_t size();
     };
 

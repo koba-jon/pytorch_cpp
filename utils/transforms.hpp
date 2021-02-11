@@ -24,10 +24,11 @@ namespace transforms{
     public:
         Compose(){}
         virtual bool type() = 0;
-        virtual void forward(cv::Mat &data_in, cv::Mat &data_out) = 0;
-        virtual void forward(cv::Mat &data_in, torch::Tensor &data_out) = 0;
-        virtual void forward(torch::Tensor &data_in, cv::Mat &data_out) = 0;
-        virtual void forward(torch::Tensor &data_in, torch::Tensor &data_out) = 0;
+        virtual void forward(cv::Mat &data_in, cv::Mat &data_out){}
+        virtual void forward(cv::Mat &data_in, torch::Tensor &data_out){}
+        virtual void forward(torch::Tensor &data_in, cv::Mat &data_out){}
+        virtual void forward(torch::Tensor &data_in, torch::Tensor &data_out){}
+        virtual void forward(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){}
         virtual ~Compose(){}
     };
 
@@ -39,7 +40,7 @@ namespace transforms{
     // ----------------------------------------------------
     // namespace{transforms} -> class{Grayscale}(Compose)
     // ----------------------------------------------------
-    class Grayscale : Compose{
+    class Grayscale : public Compose{
     private:
         int channels;
     public:
@@ -47,16 +48,13 @@ namespace transforms{
         Grayscale(const int channels_=1);
         bool type() override{return CV_MAT;}
         void forward(cv::Mat &data_in, cv::Mat &data_out) override;
-        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{}
-        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
-        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override{}
     };
 
 
     // ----------------------------------------------------
     // namespace{transforms} -> class{Resize}(Compose)
     // ----------------------------------------------------
-    class Resize : Compose{
+    class Resize : public Compose{
     private:
         cv::Size size;
         int interpolation;
@@ -65,16 +63,13 @@ namespace transforms{
         Resize(const cv::Size size_, const int interpolation_=cv::INTER_LINEAR);
         bool type() override{return CV_MAT;}
         void forward(cv::Mat &data_in, cv::Mat &data_out) override;
-        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{}
-        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
-        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override{}
     };
     
 
     // ----------------------------------------------------
     // namespace{transforms} -> class{ConvertIndex}(Compose)
     // ----------------------------------------------------
-    class ConvertIndex : Compose{
+    class ConvertIndex : public Compose{
     private:
         int before, after;
     public:
@@ -82,44 +77,35 @@ namespace transforms{
         ConvertIndex(const int before_, const int after_);
         bool type() override{return CV_MAT;}
         void forward(cv::Mat &data_in, cv::Mat &data_out) override;
-        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{}
-        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
-        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override{}
     };
 
 
     // ----------------------------------------------------
     // namespace{transforms} -> class{ToTensor}(Compose)
     // ----------------------------------------------------
-    class ToTensor : Compose{
+    class ToTensor : public Compose{
     public:
         ToTensor(){}
         bool type() override{return TORCH_TENSOR;}
-        void forward(cv::Mat &data_in, cv::Mat &data_out) override{}
         void forward(cv::Mat &data_in, torch::Tensor &data_out) override;
-        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
-        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override{}
     };
 
 
     // -------------------------------------------------------
     // namespace{transforms} -> class{ToTensorLabel}(Compose)
     // -------------------------------------------------------
-    class ToTensorLabel : Compose{
+    class ToTensorLabel : public Compose{
     public:
         ToTensorLabel(){}
         bool type() override{return TORCH_TENSOR;}
-        void forward(cv::Mat &data_in, cv::Mat &data_out) override{}
         void forward(cv::Mat &data_in, torch::Tensor &data_out) override;
-        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
-        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override{}
     };
 
     
     // -----------------------------------------------------
     // namespace{transforms} -> class{AddRVINoise}(Compose)
     // -----------------------------------------------------
-    class AddRVINoise : Compose{
+    class AddRVINoise : public Compose{
     private:
         float occur_prob;
         std::pair<float, float> range;
@@ -127,9 +113,6 @@ namespace transforms{
         AddRVINoise(){}
         AddRVINoise(const float occur_prob_=0.01, const std::pair<float, float> range_={0.0, 1.0});
         bool type() override{return TORCH_TENSOR;}
-        void forward(cv::Mat &data_in, cv::Mat &data_out) override{}
-        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{}
-        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
         void forward(torch::Tensor &data_in, torch::Tensor &data_out) override;
     };
 
@@ -137,7 +120,7 @@ namespace transforms{
     // ----------------------------------------------------
     // namespace{transforms} -> class{AddSPNoise}(Compose)
     // ----------------------------------------------------
-    class AddSPNoise : Compose{
+    class AddSPNoise : public Compose{
     private:
         float occur_prob;
         float salt_rate;
@@ -146,9 +129,6 @@ namespace transforms{
         AddSPNoise(){}
         AddSPNoise(const float occur_prob_=0.01, const float salt_rate_=0.5, const std::pair<float, float> range_={0.0, 1.0});
         bool type() override{return TORCH_TENSOR;}
-        void forward(cv::Mat &data_in, cv::Mat &data_out) override{}
-        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{}
-        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
         void forward(torch::Tensor &data_in, torch::Tensor &data_out) override;
     };
 
@@ -156,7 +136,7 @@ namespace transforms{
     // ------------------------------------------------------
     // namespace{transforms} -> class{AddGaussNoise}(Compose)
     // ------------------------------------------------------
-    class AddGaussNoise : Compose{
+    class AddGaussNoise : public Compose{
     private:
         float occur_prob;
         float mean, std;
@@ -165,9 +145,6 @@ namespace transforms{
         AddGaussNoise(){}
         AddGaussNoise(const float occur_prob_=1.0, const float mean_=0.0, const float std_=0.01, const std::pair<float, float> range_={0.0, 1.0});
         bool type() override{return TORCH_TENSOR;}
-        void forward(cv::Mat &data_in, cv::Mat &data_out) override{}
-        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{}
-        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
         void forward(torch::Tensor &data_in, torch::Tensor &data_out) override;
     };
     
@@ -175,7 +152,7 @@ namespace transforms{
     // ----------------------------------------------------
     // namespace{transforms} -> class{Normalize}(Compose)
     // ----------------------------------------------------
-    class Normalize : Compose{
+    class Normalize : public Compose{
     private:
         torch::Tensor mean, std;
     public:
@@ -185,9 +162,6 @@ namespace transforms{
         Normalize(const std::vector<float> mean_, const float std_);
         Normalize(const std::vector<float> mean_, const std::vector<float> std_);
         bool type() override{return TORCH_TENSOR;}
-        void forward(cv::Mat &data_in, cv::Mat &data_out) override{}
-        void forward(cv::Mat &data_in, torch::Tensor &data_out) override{}
-        void forward(torch::Tensor &data_in, cv::Mat &data_out) override{}
         void forward(torch::Tensor &data_in, torch::Tensor &data_out) override;
     };
 
