@@ -53,17 +53,21 @@ void demo(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vect
     // (3) Set Camera Device
     if (vm["movie"].as<std::string>() == ""){
         cap.open(vm["cam_num"].as<size_t>());
+        if (!cap.isOpened()){
+            std::cerr << "Error : Couldn't open the camera '" << vm["cam_num"].as<size_t>() << "'." << std::endl;
+            std::exit(1);
+        }
+        else{
+            cap.set(cv::CAP_PROP_FRAME_WIDTH, vm["window_w"].as<size_t>());
+            cap.set(cv::CAP_PROP_FRAME_HEIGHT, vm["window_h"].as<size_t>());
+        }
     }
     else{
         cap.open(vm["movie"].as<std::string>());
-    }
-    if (!cap.isOpened()){
-        std::cerr << "Error : Couldn't open the camera '" << vm["cam_num"].as<size_t>() << "'." << std::endl;
-        std::exit(1);
-    }
-    else{
-        cap.set(cv::CAP_PROP_FRAME_WIDTH, vm["window_w"].as<size_t>());
-        cap.set(cv::CAP_PROP_FRAME_HEIGHT, vm["window_h"].as<size_t>());
+        if (!cap.isOpened()){
+            std::cerr << "Error : Couldn't open the movie '" << vm["movie"].as<std::string>() << "'." << std::endl;
+            std::exit(1);
+        }
     }
 
     // (4) Show Key Information
