@@ -128,7 +128,7 @@ python3 ${SCRIPT_DIR}/xml2txt.py \
 
 The data will be converted by the following procedure.
 ~~~
-sh ../../scripts/xml2txt.sh
+$ sh ../../scripts/xml2txt.sh
 ~~~
 
 Please create a text file for test data.
@@ -150,7 +150,7 @@ python3 ${SCRIPT_DIR}/xml2txt.py \
 
 The data will be converted by the following procedure.
 ~~~
-sh ../../scripts/xml2txt.sh
+$ sh ../../scripts/xml2txt.sh
 ~~~
 
 ### 3. Training
