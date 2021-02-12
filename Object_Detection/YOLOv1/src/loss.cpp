@@ -274,7 +274,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
     torch::Tensor target_conf_conf, noobj_conf_mask, input_noobj_conf, target_noobj_conf, loss_noobj;
     /*************************************************************************/
     target_conf_conf = target_conf.unsqueeze(/*dim=*/-1).expand({target_conf.size(0), target_conf.size(1), target_conf.size(2), this->nb});  // target_conf{N,G,G} ===> target_conf_conf{N,G,G,BB}
-    noobj_conf_mask = (target_conf_conf == 0.0);  // target_conf_conf{N,G,G,BB} ===> noobj_conf_mask{N,G,G,BB}
+    noobj_conf_mask = (target_conf_conf < 0.5);  // target_conf_conf{N,G,G,BB} ===> noobj_conf_mask{N,G,G,BB}
     input_noobj_conf = input_conf.masked_select(/*mask=*/noobj_conf_mask);  // input_conf{N,G,G,BB} ===> input_noobj_conf{no object confidence}
     target_noobj_conf = target_conf_conf.masked_select(/*mask=*/noobj_conf_mask);  // target_conf_conf{N,G,G,BB} ===> target_noobj_conf{no object confidence}
     loss_noobj = criterion(input_noobj_conf, target_noobj_conf);
@@ -284,7 +284,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
     /*************************************************************************/
     if (obj_flag){
         target_conf_class = target_conf.unsqueeze(/*dim=*/-1).expand({target_conf.size(0), target_conf.size(1), target_conf.size(2), this->class_num});  // target_conf{N,G,G} ===> target_conf_class{N,G,G,CN}
-        obj_class_mask = (target_conf_class > 0.0);  // target_conf_class{N,G,G,CN} ===> obj_class_mask{N,G,G,CN}
+        obj_class_mask = (target_conf_class > 0.5);  // target_conf_class{N,G,G,CN} ===> obj_class_mask{N,G,G,CN}
         input_obj_class = input_class.masked_select(/*mask=*/obj_class_mask);  // input_class{N,G,G,CN} ===> input_noobj_conf{CN}
         target_obj_class = target_class.masked_select(/*mask=*/obj_class_mask);  // target_class{N,G,G,CN} ===> target_noobj_conf{object class}
         loss_class = criterion(input_obj_class, target_obj_class);
