@@ -275,7 +275,21 @@ transforms::Normalize::Normalize(const std::vector<float> mean_, const std::vect
 // namespace{transforms} -> class{Normalize}(Compose) -> function{forward}
 // -----------------------------------------------------------------------
 void transforms::Normalize::forward(torch::Tensor &data_in, torch::Tensor &data_out){
-    torch::Tensor data_out_src = (data_in - this->mean.to(data_in.device())) / this->std.to(data_in.device());  // data_in{C,H,W}, mean{*,1,1}, std{*,1,1} ===> data_out_src{C,H,W}
+
+    long int channels = data_in.size(0);
+
+    torch::Tensor meanF = this->mean;
+    if (channels < meanF.size(0)){
+        meanF = meanF.split(/*split_size=*/channels, /*dim=*/0).at(0);  // meanF{*,1,1} ===> {C,1,1}
+    }
+
+    torch::Tensor stdF = this->std;
+    if (channels < stdF.size(0)){
+        stdF = stdF.split(/*split_size=*/channels, /*dim=*/0).at(0);  // stdF{*,1,1} ===> {C,1,1}
+    }
+    
+    torch::Tensor data_out_src = (data_in - meanF.to(data_in.device())) / stdF.to(data_in.device());  // data_in{C,H,W}, meanF{*,1,1}, stdF{*,1,1} ===> data_out_src{C,H,W}
     data_out = data_out_src.contiguous().detach().clone();
+
     return;
 }

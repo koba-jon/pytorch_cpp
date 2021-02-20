@@ -19,6 +19,29 @@ namespace fs = boost::filesystem;
 
 
 // -----------------------------------------------
+// namespace{datasets} -> function{collect}
+// -----------------------------------------------
+void datasets::collect(const std::string root, const std::string sub, std::vector<std::string> &paths, std::vector<std::string> &fnames){
+    fs::path ROOT = fs::path(root);
+    for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
+        if (!fs::is_directory(p)){
+            std::stringstream rpath, fname;
+            rpath << p.path().string();
+            fname << p.path().filename().string();
+            paths.push_back(rpath.str());
+            fnames.push_back(sub + fname.str());
+        }
+        else{
+            std::stringstream subsub;
+            subsub << p.path().leaf().string();
+            datasets::collect(root + '/' + subsub.str(), sub + subsub.str() + '/', paths, fnames);
+        }
+    }
+    return;
+}
+
+
+// -----------------------------------------------
 // namespace{datasets} -> function{RGB_Loader}
 // -----------------------------------------------
 cv::Mat datasets::RGB_Loader(std::string &path){
@@ -115,16 +138,7 @@ std::tuple<torch::Tensor, torch::Tensor> datasets::BoundingBox_Loader(std::strin
 // namespace{datasets} -> class{ImageFolderWithPaths} -> constructor
 // -------------------------------------------------------------------------
 datasets::ImageFolderWithPaths::ImageFolderWithPaths(const std::string root, std::vector<transforms::Compose*> &transform_){
-    fs::path ROOT = fs::path(root);
-    for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
-        if (!fs::is_directory(p)){
-            std::stringstream rpath, fname;
-            rpath << p.path().string();
-            fname << p.path().filename().string();
-            this->paths.push_back(rpath.str());
-            this->fnames.push_back(fname.str());
-        }
-    }
+    datasets::collect(root, "", this->paths, this->fnames);
     std::sort(this->paths.begin(), this->paths.end());
     std::sort(this->fnames.begin(), this->fnames.end());
     this->transform = transform_;
@@ -156,31 +170,11 @@ size_t datasets::ImageFolderWithPaths::size(){
 // -------------------------------------------------------------------------
 datasets::ImageFolderPairWithPaths::ImageFolderPairWithPaths(const std::string root1, const std::string root2, std::vector<transforms::Compose*> &transformI_, std::vector<transforms::Compose*> &transformO_){
 
-    fs::path ROOT;
-    
-    ROOT = fs::path(root1);
-    for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
-        if (!fs::is_directory(p)){
-            std::stringstream path1, fname1;
-            path1 << p.path().string();
-            fname1 << p.path().filename().string();
-            this->paths1.push_back(path1.str());
-            this->fnames1.push_back(fname1.str());
-        }
-    }
+    datasets::collect(root1, "", this->paths1, this->fnames1);
     std::sort(this->paths1.begin(), this->paths1.end());
     std::sort(this->fnames1.begin(), this->fnames1.end());
 
-    ROOT = fs::path(root2);
-    for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
-        if (!fs::is_directory(p)){
-            std::stringstream path2, fname2;
-            path2 << p.path().string();
-            fname2 << p.path().filename().string();
-            this->paths2.push_back(path2.str());
-            this->fnames2.push_back(fname2.str());
-        }
-    }
+    datasets::collect(root2, "", this->paths2, this->fnames2);
     std::sort(this->paths2.begin(), this->paths2.end());
     std::sort(this->fnames2.begin(), this->fnames2.end());
 
@@ -218,44 +212,15 @@ size_t datasets::ImageFolderPairWithPaths::size(){
 // ----------------------------------------------------------------------------------------
 datasets::ImageFolderPairAndRandomSamplingWithPaths::ImageFolderPairAndRandomSamplingWithPaths(const std::string root1, const std::string root2, const std::string root_rand, std::vector<transforms::Compose*> &transformI_, std::vector<transforms::Compose*> &transformO_, std::vector<transforms::Compose*> &transform_rand_){
 
-    fs::path ROOT;
-    
-    ROOT = fs::path(root1);
-    for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
-        if (!fs::is_directory(p)){
-            std::stringstream path1, fname1;
-            path1 << p.path().string();
-            fname1 << p.path().filename().string();
-            this->paths1.push_back(path1.str());
-            this->fnames1.push_back(fname1.str());
-        }
-    }
+    datasets::collect(root1, "", this->paths1, this->fnames1);
     std::sort(this->paths1.begin(), this->paths1.end());
     std::sort(this->fnames1.begin(), this->fnames1.end());
 
-    ROOT = fs::path(root2);
-    for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
-        if (!fs::is_directory(p)){
-            std::stringstream path2, fname2;
-            path2 << p.path().string();
-            fname2 << p.path().filename().string();
-            this->paths2.push_back(path2.str());
-            this->fnames2.push_back(fname2.str());
-        }
-    }
+    datasets::collect(root2, "", this->paths2, this->fnames2);
     std::sort(this->paths2.begin(), this->paths2.end());
     std::sort(this->fnames2.begin(), this->fnames2.end());
 
-    ROOT = fs::path(root_rand);
-    for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
-        if (!fs::is_directory(p)){
-            std::stringstream path_rand, fname_rand;
-            path_rand << p.path().string();
-            fname_rand << p.path().filename().string();
-            this->paths_rand.push_back(path_rand.str());
-            this->fnames_rand.push_back(fname_rand.str());
-        }
-    }
+    datasets::collect(root_rand, "", this->paths_rand, this->fnames_rand);
     std::sort(this->paths_rand.begin(), this->paths_rand.end());
     std::sort(this->fnames_rand.begin(), this->fnames_rand.end());
 
@@ -305,16 +270,7 @@ size_t datasets::ImageFolderPairAndRandomSamplingWithPaths::size_rand(){
 // -------------------------------------------------------------------------
 datasets::ImageFolderSegmentWithPaths::ImageFolderSegmentWithPaths(const std::string root1, const std::string root2, std::vector<transforms::Compose*> &transformI_, std::vector<transforms::Compose*> &transformO_){
 
-    fs::path ROOT = fs::path(root1);
-    for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
-        if (!fs::is_directory(p)){
-            std::stringstream path1, fname;
-            path1 << p.path().string();
-            fname << p.path().filename().string();
-            this->paths1.push_back(path1.str());
-            this->fnames1.push_back(fname.str());
-        }
-    }
+    datasets::collect(root1, "", this->paths1, this->fnames1);
     std::sort(this->paths1.begin(), this->paths1.end());
     std::sort(this->fnames1.begin(), this->fnames1.end());
 
@@ -371,29 +327,28 @@ size_t datasets::ImageFolderSegmentWithPaths::size(){
 // namespace{datasets} -> class{ImageFolderClassesWithPaths} -> constructor
 // -------------------------------------------------------------------------
 datasets::ImageFolderClassesWithPaths::ImageFolderClassesWithPaths(const std::string root, std::vector<transforms::Compose*> &transform_, const std::vector<std::string> class_names){
+    
     std::string class_name, class_root;
-    fs::path ROOT;
+    
     for (size_t i = 0; i < class_names.size(); i++){
+        
         std::vector<std::string> paths_tmp, fnames_tmp;
         class_name = class_names.at(i);
         class_root = root + '/' + class_name;
-        ROOT = fs::path(class_root);
-        for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
-            if (!fs::is_directory(p)){
-                std::stringstream rpath, fname;
-                rpath << p.path().string();
-                fname << p.path().filename().string();
-                paths_tmp.push_back(rpath.str());
-                fnames_tmp.push_back(class_name + '/' + fname.str());
-                class_ids.push_back(i);
-            }
-        }
+        
+        datasets::collect(class_root, class_name + '/', paths_tmp, fnames_tmp);
         std::sort(paths_tmp.begin(), paths_tmp.end());
         std::sort(fnames_tmp.begin(), fnames_tmp.end());
         std::copy(paths_tmp.begin(), paths_tmp.end(), std::back_inserter(this->paths));
         std::copy(fnames_tmp.begin(), fnames_tmp.end(), std::back_inserter(this->fnames));
+
+        std::vector<size_t> class_ids_tmp(paths_tmp.size(), i);
+        std::copy(class_ids_tmp.begin(), class_ids_tmp.end(), std::back_inserter(this->class_ids));
+
     }
+
     this->transform = transform_;
+
 }
 
 
@@ -423,16 +378,7 @@ size_t datasets::ImageFolderClassesWithPaths::size(){
 // -------------------------------------------------------------------------
 datasets::ImageFolderBBWithPaths::ImageFolderBBWithPaths(const std::string root1, const std::string root2, std::vector<transforms::Compose*> &transformBB_, std::vector<transforms::Compose*> &transformI_){
 
-    fs::path ROOT = fs::path(root1);
-    for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
-        if (!fs::is_directory(p)){
-            std::stringstream path1, fname;
-            path1 << p.path().string();
-            fname << p.path().filename().string();
-            this->paths1.push_back(path1.str());
-            this->fnames1.push_back(fname.str());
-        }
-    }
+    datasets::collect(root1, "", this->paths1, this->fnames1);
     std::sort(this->paths1.begin(), this->paths1.end());
     std::sort(this->fnames1.begin(), this->fnames1.end());
 

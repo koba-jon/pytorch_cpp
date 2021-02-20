@@ -17,6 +17,7 @@
 namespace datasets{
 
     // Function Prototype
+    void collect(const std::string root, const std::string sub, std::vector<std::string> &paths, std::vector<std::string> &fnames);
     cv::Mat RGB_Loader(std::string &path);
     cv::Mat Index_Loader(std::string &path);
     std::tuple<torch::Tensor, torch::Tensor> BoundingBox_Loader(std::string &path);
