@@ -119,10 +119,14 @@ int main(int argc, const char *argv[]){
         std::random_device rd;
         std::srand(rd());
         torch::manual_seed(std::rand());
+        torch::globalContext().setDeterministicCuDNN(false);
+        torch::globalContext().setBenchmarkCuDNN(true);
     }
     else{
         std::srand(vm["seed"].as<int>());
         torch::manual_seed(std::rand());
+        torch::globalContext().setDeterministicCuDNN(true);
+        torch::globalContext().setBenchmarkCuDNN(false);
     }
 
     // (4) Set Transforms
@@ -163,6 +167,11 @@ int main(int argc, const char *argv[]){
     if (vm["AD"].as<bool>()){
         Set_Options(vm, argc, argv, args, "anomaly_detection");
         anomaly_detection(vm);
+    }
+
+    // Post Processing
+    for (size_t i = 0; i < transform.size(); i++){
+        delete transform.at(i);
     }
 
     // End Processing
