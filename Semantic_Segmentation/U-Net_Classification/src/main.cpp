@@ -127,7 +127,7 @@ int main(int argc, const char *argv[]){
     }
     std::vector<transforms::Compose*> transformO{
         (transforms::Compose*)new transforms::Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_NEAREST),  // {IH,IW,1} ===method{OW,OH}===> {OH,OW,1}
-        // (transforms::Compose*)new transforms::ConvertIndex(255, 0),                                                                   // pixel_value=255 ===> pixel_value=0
+        // (transforms::Compose*)new transforms::ConvertIndex(255, 21),                                                                   // pixel_value=255 ===> pixel_value=21
         (transforms::Compose*)new transforms::ToTensorLabel()                                                                         // Mat Image ===> Tensor Label
     };
     
