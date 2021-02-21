@@ -19,10 +19,10 @@ namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
-void train(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms::Compose*> &transformBB, std::vector<transforms::Compose*> &transformI, const std::vector<std::string> class_names);
-void test(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms::Compose*> &transform, const std::vector<std::string> class_names);
-void detect(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformD, const std::vector<std::string> class_names);
-void demo(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformD, const std::vector<std::string> class_names);
+void train(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms_Compose> &transformBB, std::vector<transforms_Compose> &transformI, const std::vector<std::string> class_names);
+void test(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms_Compose> &transform, const std::vector<std::string> class_names);
+void detect(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformD, const std::vector<std::string> class_names);
+void demo(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformD, const std::vector<std::string> class_names);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 std::vector<std::string> Set_Class_Names(const std::string path, const size_t class_num);
@@ -144,18 +144,18 @@ int main(int argc, const char *argv[]){
     }
 
     // (4) Set Transforms
-    std::vector<transforms::Compose*> transformBB{
-        (transforms::Compose*)new YOLOPreprocess()  // apply "flip", "scale", "blur", "brightness", "hue", "saturation", "shift", "crop"
+    std::vector<transforms_Compose> transformBB{
+        YOLOPreprocess()  // apply "flip", "scale", "blur", "brightness", "hue", "saturation", "shift", "crop"
     };
-    std::vector<transforms::Compose*> transformI{
-        (transforms::Compose*)new transforms::Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
-        (transforms::Compose*)new transforms::ToTensor()                                                                             // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
+    std::vector<transforms_Compose> transformI{
+        transforms_Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
+        transforms_ToTensor()                                                                             // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
     };
     if (vm["nc"].as<size_t>() == 1){
-        transformI.insert(transformI.begin(), (transforms::Compose*)new transforms::Grayscale(1));
+        transformI.insert(transformI.begin(), transforms_Grayscale(1));
     }
-    std::vector<transforms::Compose*> transformD{
-        (transforms::Compose*)new transforms::ToTensor()  // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
+    std::vector<transforms_Compose> transformD{
+        transforms_ToTensor()  // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
     };
     
     // (5) Define Network
@@ -194,17 +194,6 @@ int main(int argc, const char *argv[]){
     if (vm["demo"].as<bool>()){
         Set_Options(vm, argc, argv, args, "demo");
         demo(vm, device, model, transformI, transformD, class_names);
-    }
-
-    // Post Processing
-    for (size_t i = 0; i < transformBB.size(); i++){
-        delete transformBB.at(i);
-    }
-    for (size_t i = 0; i < transformI.size(); i++){
-        delete transformI.at(i);
-    }
-    for (size_t i = 0; i < transformD.size(); i++){
-        delete transformD.at(i);
     }
 
     // End Processing

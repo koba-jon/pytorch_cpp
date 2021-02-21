@@ -14,7 +14,7 @@
 // For Original Header
 #include "networks.hpp"                // YOLOv1
 #include "detector.hpp"                // YOLODetector
-#include "transforms.hpp"              // transforms::Compose
+#include "transforms.hpp"              // transforms_Compose
 #include "datasets.hpp"                // datasets::ImageFolderPairWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderPairWithPaths
 #include "visualizer.hpp"              // visualizer
@@ -27,7 +27,7 @@ namespace po = boost::program_options;
 // --------------------
 // Detection Function
 // --------------------
-void detect(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformD, const std::vector<std::string> class_names){
+void detect(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformD, const std::vector<std::string> class_names){
 
     constexpr std::pair<float, float> output_range = {0.0, 1.0};  // range of the value in output images
 

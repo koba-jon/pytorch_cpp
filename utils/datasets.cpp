@@ -137,7 +137,7 @@ std::tuple<torch::Tensor, torch::Tensor> datasets::BoundingBox_Loader(std::strin
 // -------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderWithPaths} -> constructor
 // -------------------------------------------------------------------------
-datasets::ImageFolderWithPaths::ImageFolderWithPaths(const std::string root, std::vector<transforms::Compose*> &transform_){
+datasets::ImageFolderWithPaths::ImageFolderWithPaths(const std::string root, std::vector<transforms_Compose> &transform_){
     datasets::collect(root, "", this->paths, this->fnames);
     std::sort(this->paths.begin(), this->paths.end());
     std::sort(this->fnames.begin(), this->fnames.end());
@@ -168,7 +168,7 @@ size_t datasets::ImageFolderWithPaths::size(){
 // -------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderPairWithPaths} -> constructor
 // -------------------------------------------------------------------------
-datasets::ImageFolderPairWithPaths::ImageFolderPairWithPaths(const std::string root1, const std::string root2, std::vector<transforms::Compose*> &transformI_, std::vector<transforms::Compose*> &transformO_){
+datasets::ImageFolderPairWithPaths::ImageFolderPairWithPaths(const std::string root1, const std::string root2, std::vector<transforms_Compose> &transformI_, std::vector<transforms_Compose> &transformO_){
 
     datasets::collect(root1, "", this->paths1, this->fnames1);
     std::sort(this->paths1.begin(), this->paths1.end());
@@ -210,7 +210,7 @@ size_t datasets::ImageFolderPairWithPaths::size(){
 // ----------------------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderPairAndRandomSamplingWithPaths} -> constructor
 // ----------------------------------------------------------------------------------------
-datasets::ImageFolderPairAndRandomSamplingWithPaths::ImageFolderPairAndRandomSamplingWithPaths(const std::string root1, const std::string root2, const std::string root_rand, std::vector<transforms::Compose*> &transformI_, std::vector<transforms::Compose*> &transformO_, std::vector<transforms::Compose*> &transform_rand_){
+datasets::ImageFolderPairAndRandomSamplingWithPaths::ImageFolderPairAndRandomSamplingWithPaths(const std::string root1, const std::string root2, const std::string root_rand, std::vector<transforms_Compose> &transformI_, std::vector<transforms_Compose> &transformO_, std::vector<transforms_Compose> &transform_rand_){
 
     datasets::collect(root1, "", this->paths1, this->fnames1);
     std::sort(this->paths1.begin(), this->paths1.end());
@@ -268,7 +268,7 @@ size_t datasets::ImageFolderPairAndRandomSamplingWithPaths::size_rand(){
 // -------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderSegmentWithPaths} -> constructor
 // -------------------------------------------------------------------------
-datasets::ImageFolderSegmentWithPaths::ImageFolderSegmentWithPaths(const std::string root1, const std::string root2, std::vector<transforms::Compose*> &transformI_, std::vector<transforms::Compose*> &transformO_){
+datasets::ImageFolderSegmentWithPaths::ImageFolderSegmentWithPaths(const std::string root1, const std::string root2, std::vector<transforms_Compose> &transformI_, std::vector<transforms_Compose> &transformO_){
 
     datasets::collect(root1, "", this->paths1, this->fnames1);
     std::sort(this->paths1.begin(), this->paths1.end());
@@ -326,7 +326,7 @@ size_t datasets::ImageFolderSegmentWithPaths::size(){
 // -------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderClassesWithPaths} -> constructor
 // -------------------------------------------------------------------------
-datasets::ImageFolderClassesWithPaths::ImageFolderClassesWithPaths(const std::string root, std::vector<transforms::Compose*> &transform_, const std::vector<std::string> class_names){
+datasets::ImageFolderClassesWithPaths::ImageFolderClassesWithPaths(const std::string root, std::vector<transforms_Compose> &transform_, const std::vector<std::string> class_names){
     
     std::string class_name, class_root;
     
@@ -376,7 +376,7 @@ size_t datasets::ImageFolderClassesWithPaths::size(){
 // -------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderBBWithPaths} -> constructor
 // -------------------------------------------------------------------------
-datasets::ImageFolderBBWithPaths::ImageFolderBBWithPaths(const std::string root1, const std::string root2, std::vector<transforms::Compose*> &transformBB_, std::vector<transforms::Compose*> &transformI_){
+datasets::ImageFolderBBWithPaths::ImageFolderBBWithPaths(const std::string root1, const std::string root2, std::vector<transforms_Compose> &transformBB_, std::vector<transforms_Compose> &transformI_){
 
     datasets::collect(root1, "", this->paths1, this->fnames1);
     std::sort(this->paths1.begin(), this->paths1.end());

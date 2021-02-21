@@ -68,12 +68,12 @@ The following is an example for "VOC2012", and you can change the index value fr
 $ vi src/main.cpp
 ~~~
 
-Please comment out "transforms::ConvertIndex" of "transformO".
+Please comment out "transforms_ConvertIndex" of "transformO".
 ~~~
-std::vector<transforms::Compose*> transformO{
-    (transforms::Compose*)new transforms::Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_NEAREST),
-    (transforms::Compose*)new transforms::ConvertIndex(255, 21),
-    (transforms::Compose*)new transforms::ToTensorLabel()
+std::vector<transforms_Compose> transformO{
+    transforms_Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_NEAREST),
+    // transforms_ConvertIndex(255, 21),
+    transforms_ToTensorLabel()
 };
 ~~~
 

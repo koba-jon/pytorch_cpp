@@ -18,8 +18,8 @@ namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
-void train(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncoder &model, std::vector<transforms::Compose*> &transform);
-void test(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncoder &model, std::vector<transforms::Compose*> &transform);
+void train(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncoder &model, std::vector<transforms_Compose> &transform);
+void test(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncoder &model, std::vector<transforms_Compose> &transform);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode);
@@ -114,13 +114,13 @@ int main(int argc, const char *argv[]){
     }
 
     // (4) Set Transforms
-    std::vector<transforms::Compose*> transform{
-        (transforms::Compose*)new transforms::Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
-        (transforms::Compose*)new transforms::ToTensor(),                                                                            // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
-        (transforms::Compose*)new transforms::Normalize(0.5, 0.5)                                                                    // [0,1] ===> [-1,1]
+    std::vector<transforms_Compose> transform{
+        transforms_Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
+        transforms_ToTensor(),                                                                            // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
+        transforms_Normalize(0.5, 0.5)                                                                    // [0,1] ===> [-1,1]
     };
     if (vm["nc"].as<size_t>() == 1){
-        transform.insert(transform.begin(), (transforms::Compose*)new transforms::Grayscale(1));
+        transform.insert(transform.begin(), transforms_Grayscale(1));
     }
     
     // (5) Define Network
@@ -144,11 +144,6 @@ int main(int argc, const char *argv[]){
     if (vm["test"].as<bool>()){
         Set_Options(vm, argc, argv, args, "test");
         test(vm, device, CAE, transform);
-    }
-
-    // Post Processing
-    for (size_t i = 0; i < transform.size(); i++){
-        delete transform.at(i);
     }
 
     // End Processing

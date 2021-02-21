@@ -18,8 +18,8 @@ namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
-void train(po::variables_map &vm, torch::Device &device, SegNet &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformO);
-void test(po::variables_map &vm, torch::Device &device, SegNet &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformO);
+void train(po::variables_map &vm, torch::Device &device, SegNet &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformO);
+void test(po::variables_map &vm, torch::Device &device, SegNet &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformO);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode);
@@ -117,18 +117,18 @@ int main(int argc, const char *argv[]){
     }
 
     // (4) Set Transforms
-    std::vector<transforms::Compose*> transformI{
-        (transforms::Compose*)new transforms::Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
-        (transforms::Compose*)new transforms::ToTensor(),                                                                            // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
-        (transforms::Compose*)new transforms::Normalize(0.5, 0.5)                                                                    // [0,1] ===> [-1,1]
+    std::vector<transforms_Compose> transformI{
+        transforms_Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
+        transforms_ToTensor(),                                                                            // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
+        transforms_Normalize(0.5, 0.5)                                                                    // [0,1] ===> [-1,1]
     };
     if (vm["nc"].as<size_t>() == 1){
-        transformI.insert(transformI.begin(), (transforms::Compose*)new transforms::Grayscale(1));
+        transformI.insert(transformI.begin(), transforms_Grayscale(1));
     }
-    std::vector<transforms::Compose*> transformO{
-        (transforms::Compose*)new transforms::Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_NEAREST),  // {IH,IW,1} ===method{OW,OH}===> {OH,OW,1}
-        // (transforms::Compose*)new transforms::ConvertIndex(255, 21),                                                                   // pixel_value=255 ===> pixel_value=21
-        (transforms::Compose*)new transforms::ToTensorLabel()                                                                         // Mat Image ===> Tensor Label
+    std::vector<transforms_Compose> transformO{
+        transforms_Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_NEAREST),  // {IH,IW,1} ===method{OW,OH}===> {OH,OW,1}
+        // transforms_ConvertIndex(255, 21),                                                                   // pixel_value=255 ===> pixel_value=21
+        transforms_ToTensorLabel()                                                                         // Mat Image ===> Tensor Label
     };
     
     // (5) Define Network
@@ -152,14 +152,6 @@ int main(int argc, const char *argv[]){
     if (vm["test"].as<bool>()){
         Set_Options(vm, argc, argv, args, "test");
         test(vm, device, segnet, transformI, transformO);
-    }
-
-    // Post Processing
-    for (size_t i = 0; i < transformI.size(); i++){
-        delete transformI.at(i);
-    }
-    for (size_t i = 0; i < transformO.size(); i++){
-        delete transformO.at(i);
     }
 
     // End Processing

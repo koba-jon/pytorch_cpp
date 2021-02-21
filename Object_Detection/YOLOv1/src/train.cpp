@@ -15,7 +15,7 @@
 #include "loss.hpp"                    // Loss
 #include "networks.hpp"                // YOLOv1
 #include "detector.hpp"                // YOLODetector
-#include "transforms.hpp"              // transforms::Compose
+#include "transforms.hpp"              // transforms_Compose
 #include "datasets.hpp"                // datasets::ImageFolderBBWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderBBWithPaths
 #include "visualizer.hpp"              // visualizer
@@ -33,7 +33,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderBBWithPaths &valid_data
 // -------------------
 // Training Function
 // -------------------
-void train(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms::Compose*> &transformBB, std::vector<transforms::Compose*> &transformI, const std::vector<std::string> class_names){
+void train(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms_Compose> &transformBB, std::vector<transforms_Compose> &transformI, const std::vector<std::string> class_names){
 
     constexpr bool train_shuffle = true;  // whether to shuffle the training dataset
     constexpr size_t train_workers = 4;  // the number of workers to retrieve data from the training dataset
@@ -67,7 +67,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vec
     std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> losses;
     std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> detect_result;
     std::vector<std::tuple<torch::Tensor, torch::Tensor>> label;
-    std::vector<transforms::Compose*> null;
+    std::vector<transforms_Compose> null;
     datasets::ImageFolderBBWithPaths dataset, valid_dataset;
     DataLoader::ImageFolderBBWithPaths dataloader, valid_dataloader;
     visualizer::graph train_loss;

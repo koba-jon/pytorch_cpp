@@ -10,7 +10,7 @@
 // For Original Header
 #include "loss.hpp"                    // Loss
 #include "networks.hpp"                // UNet
-#include "transforms.hpp"              // transforms::Compose
+#include "transforms.hpp"              // transforms_Compose
 #include "datasets.hpp"                // datasets::ImageFolderPairWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderPairWithPaths
 #include "visualizer.hpp"              // visualizer
@@ -23,7 +23,7 @@ namespace po = boost::program_options;
 // ---------------
 // Test Function
 // ---------------
-void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformO){
+void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformO){
 
     constexpr std::pair<float, float> output_range = {-1.0, 1.0};  // range of the value in output images
 

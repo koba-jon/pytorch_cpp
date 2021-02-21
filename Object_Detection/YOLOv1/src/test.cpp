@@ -10,7 +10,7 @@
 // For Original Header
 #include "loss.hpp"                    // Loss
 #include "networks.hpp"                // YOLOv1
-#include "transforms.hpp"              // transforms::Compose
+#include "transforms.hpp"              // transforms_Compose
 #include "datasets.hpp"                // datasets::ImageFolderBBWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderBBWithPaths
 
@@ -22,7 +22,7 @@ namespace po = boost::program_options;
 // ---------------
 // Test Function
 // ---------------
-void test(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms::Compose*> &transform, const std::vector<std::string> class_names){
+void test(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms_Compose> &transform, const std::vector<std::string> class_names){
 
     // (0) Initialization and Declaration
     float ave_loss_coord_xy, ave_loss_coord_wh, ave_loss_obj, ave_loss_noobj, ave_loss_class;
@@ -38,7 +38,7 @@ void test(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vect
     std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> losses;
     datasets::ImageFolderBBWithPaths dataset;
     DataLoader::ImageFolderBBWithPaths dataloader;
-    std::vector<transforms::Compose*> null;
+    std::vector<transforms_Compose> null;
 
     // (1) Get Test Dataset
     input_dir = "datasets/" + vm["dataset"].as<std::string>() + '/' + vm["test_in_dir"].as<std::string>();

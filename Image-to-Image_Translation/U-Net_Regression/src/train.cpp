@@ -13,7 +13,7 @@
 // For Original Header
 #include "loss.hpp"                    // Loss
 #include "networks.hpp"                // UNet
-#include "transforms.hpp"              // transforms::Compose
+#include "transforms.hpp"              // transforms_Compose
 #include "datasets.hpp"                // datasets::ImageFolderPairWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderPairWithPaths
 #include "visualizer.hpp"              // visualizer
@@ -30,7 +30,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderPairWithPaths &valid_da
 // -------------------
 // Training Function
 // -------------------
-void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformO){
+void train(po::variables_map &vm, torch::Device &device, UNet &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformO){
 
     constexpr bool train_shuffle = true;  // whether to shuffle the training dataset
     constexpr size_t train_workers = 4;  // the number of workers to retrieve data from the training dataset

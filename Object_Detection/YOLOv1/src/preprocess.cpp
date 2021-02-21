@@ -12,10 +12,10 @@
 #include "transforms.hpp"
 
 
-// -----------------------------------------------------------------
-// class{YOLOPreprocess}(transforms::Compose) -> constructor
-// -----------------------------------------------------------------
-YOLOPreprocess::YOLOPreprocess(const double flip_rate_, const double scale_rate_, const double blur_rate_, const double brightness_rate_, const double hue_rate_, const double saturation_rate_, const double shift_rate_, const double crop_rate_){
+// ------------------------------------------------------------------
+// class{YOLOPreprocessImpl}(transforms::ComposeImpl) -> constructor
+// ------------------------------------------------------------------
+YOLOPreprocessImpl::YOLOPreprocessImpl(const double flip_rate_, const double scale_rate_, const double blur_rate_, const double brightness_rate_, const double hue_rate_, const double saturation_rate_, const double shift_rate_, const double crop_rate_){
     this->flip_rate = flip_rate_;
     this->scale_rate = scale_rate_;
     this->blur_rate = blur_rate_;
@@ -29,9 +29,9 @@ YOLOPreprocess::YOLOPreprocess(const double flip_rate_, const double scale_rate_
 
 
 // --------------------------------------------------------------------------
-// class{YOLOPreprocess}(transforms::Compose) -> function{deepcopy}
+// class{YOLOPreprocessImpl}(transforms::ComposeImpl) -> function{deepcopy}
 // --------------------------------------------------------------------------
-void YOLOPreprocess::deepcopy(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
+void YOLOPreprocessImpl::deepcopy(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
     data_in1.copyTo(data_out1);
     if (std::get<0>(data_in2).numel() > 0){
         data_out2 = {std::get<0>(data_in2).clone(), std::get<1>(data_in2).clone()};
@@ -44,9 +44,9 @@ void YOLOPreprocess::deepcopy(cv::Mat &data_in1, std::tuple<torch::Tensor, torch
 
 
 // --------------------------------------------------------------------------
-// class{YOLOPreprocess}(transforms::Compose) -> function{random_flip}
+// class{YOLOPreprocessImpl}(transforms::ComposeImpl) -> function{random_flip}
 // --------------------------------------------------------------------------
-void YOLOPreprocess::random_flip(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
+void YOLOPreprocessImpl::random_flip(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
 
     size_t i, j, k;
     size_t i_flip;
@@ -88,9 +88,9 @@ void YOLOPreprocess::random_flip(cv::Mat &data_in1, std::tuple<torch::Tensor, to
 
 
 // --------------------------------------------------------------------------
-// class{YOLOPreprocess}(transforms::Compose) -> function{random_scale}
+// class{YOLOPreprocessImpl}(transforms::ComposeImpl) -> function{random_scale}
 // --------------------------------------------------------------------------
-void YOLOPreprocess::random_scale(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
+void YOLOPreprocessImpl::random_scale(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
 
     size_t width, height;
     std::uniform_real_distribution<double> urand(0.8, 1.2);
@@ -115,9 +115,9 @@ void YOLOPreprocess::random_scale(cv::Mat &data_in1, std::tuple<torch::Tensor, t
 
 
 // --------------------------------------------------------------------------
-// class{YOLOPreprocess}(transforms::Compose) -> function{random_blur}
+// class{YOLOPreprocessImpl}(transforms::ComposeImpl) -> function{random_blur}
 // --------------------------------------------------------------------------
-void YOLOPreprocess::random_blur(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
+void YOLOPreprocessImpl::random_blur(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
 
     size_t ksize;
     std::uniform_int_distribution<int> urand(2, 5);
@@ -141,9 +141,9 @@ void YOLOPreprocess::random_blur(cv::Mat &data_in1, std::tuple<torch::Tensor, to
 
 
 // --------------------------------------------------------------------------
-// class{YOLOPreprocess}(transforms::Compose) -> function{random_brightness}
+// class{YOLOPreprocessImpl}(transforms::ComposeImpl) -> function{random_brightness}
 // --------------------------------------------------------------------------
-void YOLOPreprocess::random_brightness(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
+void YOLOPreprocessImpl::random_brightness(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
 
     cv::Mat data_mid1, HSV, V;
     std::vector<cv::Mat> HSV_vec;
@@ -173,9 +173,9 @@ void YOLOPreprocess::random_brightness(cv::Mat &data_in1, std::tuple<torch::Tens
 
 
 // --------------------------------------------------------------------------
-// class{YOLOPreprocess}(transforms::Compose) -> function{random_hue}
+// class{YOLOPreprocessImpl}(transforms::ComposeImpl) -> function{random_hue}
 // --------------------------------------------------------------------------
-void YOLOPreprocess::random_hue(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
+void YOLOPreprocessImpl::random_hue(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
 
     cv::Mat data_mid1, HSV, H;
     std::vector<cv::Mat> HSV_vec;
@@ -205,9 +205,9 @@ void YOLOPreprocess::random_hue(cv::Mat &data_in1, std::tuple<torch::Tensor, tor
 
 
 // --------------------------------------------------------------------------
-// class{YOLOPreprocess}(transforms::Compose) -> function{random_saturation}
+// class{YOLOPreprocessImpl}(transforms::ComposeImpl) -> function{random_saturation}
 // --------------------------------------------------------------------------
-void YOLOPreprocess::random_saturation(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
+void YOLOPreprocessImpl::random_saturation(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
 
     cv::Mat data_mid1, HSV, S;
     std::vector<cv::Mat> HSV_vec;
@@ -237,9 +237,9 @@ void YOLOPreprocess::random_saturation(cv::Mat &data_in1, std::tuple<torch::Tens
 
 
 // --------------------------------------------------------------------------
-// class{YOLOPreprocess}(transforms::Compose) -> function{random_shift}
+// class{YOLOPreprocessImpl}(transforms::ComposeImpl) -> function{random_shift}
 // --------------------------------------------------------------------------
-void YOLOPreprocess::random_shift(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
+void YOLOPreprocessImpl::random_shift(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
 
     int i, j, k, i_in, j_in;
     int dx, dy;
@@ -343,9 +343,9 @@ void YOLOPreprocess::random_shift(cv::Mat &data_in1, std::tuple<torch::Tensor, t
 
 
 // --------------------------------------------------------------------------
-// class{YOLOPreprocess}(transforms::Compose) -> function{random_crop}
+// class{YOLOPreprocessImpl}(transforms::ComposeImpl) -> function{random_crop}
 // --------------------------------------------------------------------------
-void YOLOPreprocess::random_crop(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
+void YOLOPreprocessImpl::random_crop(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
 
     int i, j, k, i_in, j_in;
     int dx, dy;
@@ -447,9 +447,9 @@ void YOLOPreprocess::random_crop(cv::Mat &data_in1, std::tuple<torch::Tensor, to
 
 
 // -----------------------------------------------------------------
-// class{YOLOPreprocess}(transforms::Compose) -> function{forward}
+// class{YOLOPreprocessImpl}(transforms::ComposeImpl) -> function{forward}
 // -----------------------------------------------------------------
-void YOLOPreprocess::forward(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
+void YOLOPreprocessImpl::forward(cv::Mat &data_in1, std::tuple<torch::Tensor, torch::Tensor> &data_in2, cv::Mat &data_out1, std::tuple<torch::Tensor, torch::Tensor> &data_out2){
 
     // --------------------------------------
     // 1. Parallel Processing Settings

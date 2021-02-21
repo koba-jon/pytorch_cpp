@@ -10,7 +10,7 @@
 // For Original Header
 #include "loss.hpp"                    // Loss
 #include "networks.hpp"                // WAE_Encoder, WAE_Decoder
-#include "transforms.hpp"              // transforms::Compose
+#include "transforms.hpp"              // transforms_Compose
 #include "datasets.hpp"                // datasets::ImageFolderPairWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderPairWithPaths
 #include "visualizer.hpp"              // visualizer
@@ -23,7 +23,7 @@ namespace po = boost::program_options;
 // ---------------
 // Test Function
 // ---------------
-void test(po::variables_map &vm, torch::Device &device, WAE_Encoder &enc, WAE_Decoder &dec, std::vector<transforms::Compose*> &transform){
+void test(po::variables_map &vm, torch::Device &device, WAE_Encoder &enc, WAE_Decoder &dec, std::vector<transforms_Compose> &transform){
 
     constexpr std::pair<float, float> output_range = {-1.0, 1.0};  // range of the value in output images
 

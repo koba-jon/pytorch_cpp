@@ -9,7 +9,7 @@
 // For Original Header
 #include "loss.hpp"                    // Loss
 #include "networks.hpp"                // MC_VGGNet
-#include "transforms.hpp"              // transforms::Compose
+#include "transforms.hpp"              // transforms_Compose
 #include "datasets.hpp"                // datasets::ImageFolderClassesWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderClassesWithPaths
 
@@ -21,7 +21,7 @@ namespace po = boost::program_options;
 // ---------------
 // Test Function
 // ---------------
-void test(po::variables_map &vm, torch::Device &device, MC_VGGNet &model, std::vector<transforms::Compose*> &transform, const std::vector<std::string> class_names){
+void test(po::variables_map &vm, torch::Device &device, MC_VGGNet &model, std::vector<transforms_Compose> &transform, const std::vector<std::string> class_names){
 
     // (0) Initialization and Declaration
     size_t class_num;

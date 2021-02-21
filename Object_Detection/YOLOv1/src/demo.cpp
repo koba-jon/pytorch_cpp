@@ -14,7 +14,7 @@
 // For Original Header
 #include "networks.hpp"                // YOLOv1
 #include "detector.hpp"                // YOLODetector
-#include "transforms.hpp"              // transforms::Compose, transforms::apply
+#include "transforms.hpp"              // transforms_Compose, transforms::apply
 #include "visualizer.hpp"              // visualizer
 
 // Define Namespace
@@ -24,7 +24,7 @@ namespace po = boost::program_options;
 // -------------------
 // Demo Function
 // -------------------
-void demo(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformD, const std::vector<std::string> class_names){
+void demo(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformD, const std::vector<std::string> class_names){
 
     constexpr double alpha = 0.1;  // current importance of moving average for calculating FPS
     constexpr std::pair<float, float> output_range = {0.0, 1.0};  // range of the value in output images
