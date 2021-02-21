@@ -4,6 +4,7 @@
 #include <tuple>
 #include <vector>
 #include <random>
+#include <memory>
 // For External Library
 #include <torch/torch.h>
 #include <opencv2/opencv.hpp>
