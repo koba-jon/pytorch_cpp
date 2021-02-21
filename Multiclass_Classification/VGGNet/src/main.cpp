@@ -116,9 +116,9 @@ int main(int argc, const char *argv[]){
 
     // (4) Set Transforms
     std::vector<transforms_Compose> transform{
-        transforms_Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
-        transforms_ToTensor(),                                                                            // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
-        transforms_Normalize({0.485, 0.456, 0.406}, {0.229, 0.224, 0.225})                                // Pixel Value Normalization for ImageNet
+        transforms_Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),        // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
+        transforms_ToTensor(),                                                                                  // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
+        transforms_Normalize(std::vector<float>{0.485, 0.456, 0.406}, std::vector<float>{0.229, 0.224, 0.225})  // Pixel Value Normalization for ImageNet
     };
     if (vm["nc"].as<size_t>() == 1){
         transform.insert(transform.begin(), transforms_Grayscale(1));
