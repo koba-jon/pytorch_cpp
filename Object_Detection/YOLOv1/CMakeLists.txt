@@ -19,7 +19,7 @@ set(SRCS
     ${SRC_DIR}/loss.cpp
     ${SRC_DIR}/networks.cpp
     ${SRC_DIR}/detector.cpp
-    ${SRC_DIR}/preprocess.cpp
+    ${SRC_DIR}/augmentation.cpp
 )
 
 add_subdirectory(${SUB_DIR} build)

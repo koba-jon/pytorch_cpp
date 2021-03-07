@@ -11,7 +11,7 @@
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
 #include "networks.hpp"                // YOLOv1
-#include "preprocess.hpp"              // YOLOPreprocess
+#include "augmentation.hpp"            // YOLOAugmentation
 #include "transforms.hpp"              // transforms
 
 // Define Namespace
@@ -61,6 +61,16 @@ po::options_description parse_arguments(){
         ("batch_size", po::value<size_t>()->default_value(32), "training batch size")
         ("train_load_epoch", po::value<std::string>()->default_value(""), "epoch of model to resume learning")
         ("save_epoch", po::value<size_t>()->default_value(20), "frequency of epoch to save model and optimizer")
+        /*************************** Data Augmentation ***************************/
+        ("jitter", po::value<double>()->default_value(0.2), "the distortion of image shifting")
+        ("flip_rate", po::value<double>()->default_value(0.5), "frequency to flip")
+        ("scale_rate", po::value<double>()->default_value(0.5), "frequency to scale")
+        ("blur_rate", po::value<double>()->default_value(0.5), "frequency to blur")
+        ("brightness_rate", po::value<double>()->default_value(0.5), "frequency to change brightness")
+        ("hue_rate", po::value<double>()->default_value(0.5), "frequency to change hue")
+        ("saturation_rate", po::value<double>()->default_value(0.5), "frequency to change saturation")
+        ("shift_rate", po::value<double>()->default_value(0.5), "frequency to shift")
+        ("crop_rate", po::value<double>()->default_value(0.5), "frequency to crop")
 
         // (3) Define for Validation
         ("valid", po::value<bool>()->default_value(false), "validation mode on/off")
@@ -145,7 +155,17 @@ int main(int argc, const char *argv[]){
 
     // (4) Set Transforms
     std::vector<transforms_Compose> transformBB{
-        YOLOPreprocess()  // apply "flip", "scale", "blur", "brightness", "hue", "saturation", "shift", "crop"
+        YOLOAugmentation(  // apply "flip", "scale", "blur", "brightness", "hue", "saturation", "shift", "crop"
+            vm["jitter"].as<double>(),
+            vm["flip_rate"].as<double>(),
+            vm["scale_rate"].as<double>(),
+            vm["blur_rate"].as<double>(),
+            vm["brightness_rate"].as<double>(),
+            vm["hue_rate"].as<double>(),
+            vm["saturation_rate"].as<double>(),
+            vm["shift_rate"].as<double>(),
+            vm["crop_rate"].as<double>()
+        )
     };
     std::vector<transforms_Compose> transformI{
         transforms_Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
