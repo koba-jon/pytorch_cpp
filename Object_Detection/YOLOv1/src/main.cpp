@@ -177,6 +177,9 @@ int main(int argc, const char *argv[]){
     std::vector<transforms_Compose> transformD{
         transforms_ToTensor()  // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
     };
+    if (vm["nc"].as<size_t>() == 1){
+        transformD.insert(transformD.begin(), transforms_Grayscale(1));
+    }
     
     // (5) Define Network
     YOLOv1 model(vm);
