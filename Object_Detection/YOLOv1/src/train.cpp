@@ -27,7 +27,7 @@ namespace po = boost::program_options;
 
 // Function Prototype
 template <typename Optimizer, typename OptimizerOptions> void Update_LR(Optimizer &optimizer, const float lr_init, const float lr_base, const float lr_decay1, const float lr_decay2, const size_t epoch, const float burnin_base, const float burnin_exp=4.0);
-void valid(po::variables_map &vm, DataLoader::ImageFolderBBWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, YOLOv1 &model, const std::vector<std::string> class_names, const size_t epoch, visualizer::graph &writer);
+void valid(po::variables_map &vm, DataLoader::ImageFolderBBWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, YOLOv1 &model, const std::vector<std::string> class_names, const size_t epoch, std::vector<visualizer::graph> &writer);
 
 
 // -------------------
@@ -70,8 +70,8 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vec
     std::vector<transforms_Compose> null;
     datasets::ImageFolderBBWithPaths dataset, valid_dataset;
     DataLoader::ImageFolderBBWithPaths dataloader, valid_dataloader;
-    visualizer::graph train_loss;
-    visualizer::graph valid_loss;
+    std::vector<visualizer::graph> train_loss;
+    std::vector<visualizer::graph> valid_loss;
     progress::display *show_progress;
     progress::irregular irreg_progress;
 
@@ -117,9 +117,21 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vec
 
     // (7) Set Training Loss for Graph
     path = checkpoint_dir + "/graph";
-    train_loss = visualizer::graph(path, /*gname_=*/"train_loss", /*label_=*/{"Total", "Coordinate(center)", "Coordinate(range)", "Confidence(object)", "Confidence(no-object)", "Class"});
+    train_loss = std::vector<visualizer::graph>(6);
+    train_loss.at(0) = visualizer::graph(path, /*gname_=*/"train_loss_all", /*label_=*/{"Total"});
+    train_loss.at(1) = visualizer::graph(path, /*gname_=*/"train_loss_coord_center", /*label_=*/{"Coordinate(center)"});
+    train_loss.at(2) = visualizer::graph(path, /*gname_=*/"train_loss_coord_range", /*label_=*/{"Coordinate(range)"});
+    train_loss.at(3) = visualizer::graph(path, /*gname_=*/"train_loss_conf_obj", /*label_=*/{"Confidence(object)"});
+    train_loss.at(4) = visualizer::graph(path, /*gname_=*/"train_loss_conf_noobj", /*label_=*/{"Confidence(no-object)"});
+    train_loss.at(5) = visualizer::graph(path, /*gname_=*/"train_loss_class", /*label_=*/{"Class"});
     if (vm["valid"].as<bool>()){
-        valid_loss = visualizer::graph(path, /*gname_=*/"valid_loss", /*label_=*/{"Total", "Coordinate(center)", "Coordinate(range)", "Confidence(object)", "Confidence(no-object)", "Class"});
+        valid_loss = std::vector<visualizer::graph>(6);
+        valid_loss.at(0) = visualizer::graph(path, /*gname_=*/"valid_loss_all", /*label_=*/{"Total"});
+        valid_loss.at(1) = visualizer::graph(path, /*gname_=*/"valid_loss_coord_center", /*label_=*/{"Coordinate(center)"});
+        valid_loss.at(2) = visualizer::graph(path, /*gname_=*/"valid_loss_coord_range", /*label_=*/{"Coordinate(range)"});
+        valid_loss.at(3) = visualizer::graph(path, /*gname_=*/"valid_loss_conf_obj", /*label_=*/{"Confidence(object)"});
+        valid_loss.at(4) = visualizer::graph(path, /*gname_=*/"valid_loss_conf_noobj", /*label_=*/{"Confidence(no-object)"});
+        valid_loss.at(5) = visualizer::graph(path, /*gname_=*/"valid_loss_class", /*label_=*/{"Class"});
     }
     
     // (8) Get Weights and File Processing
@@ -228,7 +240,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vec
                 ss.str(""); ss.clear(std::stringstream::goodbit);
                 ss << save_images_dir << "/epoch_" << epoch << "-iter_" << iter << '.' << extension;
                 detect_result = detector(output[0]);
-                sample = visualizer::draw_detections(image[0].detach(), {std::get<0>(detect_result), std::get<1>(detect_result)}, class_names, label_palette, /*range=*/output_range);
+                sample = visualizer::draw_detections_prob(image[0].detach(), {std::get<0>(detect_result), std::get<1>(detect_result)}, std::get<2>(detect_result), class_names, label_palette, /*range=*/output_range);
                 cv::imwrite(ss.str(), sample);
             }
 
@@ -243,7 +255,12 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vec
         loss_obj_f = show_progress->get_ave(2);
         loss_noobj_f = show_progress->get_ave(3);
         loss_class_f = show_progress->get_ave(4);
-        train_loss.plot(/*base=*/epoch, /*value=*/{loss_f, loss_coord_xy_f, loss_coord_wh_f, loss_obj_f, loss_noobj_f, loss_class_f});
+        train_loss.at(0).plot(/*base=*/epoch, /*value=*/{loss_f});
+        train_loss.at(1).plot(/*base=*/epoch, /*value=*/{loss_coord_xy_f});
+        train_loss.at(2).plot(/*base=*/epoch, /*value=*/{loss_coord_wh_f});
+        train_loss.at(3).plot(/*base=*/epoch, /*value=*/{loss_obj_f});
+        train_loss.at(4).plot(/*base=*/epoch, /*value=*/{loss_noobj_f});
+        train_loss.at(5).plot(/*base=*/epoch, /*value=*/{loss_class_f});
 
         // -----------------------------------
         // b3. Save Sample Images
@@ -251,7 +268,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vec
         ss.str(""); ss.clear(std::stringstream::goodbit);
         ss << save_images_dir << "/epoch_" << epoch << "-iter_" << show_progress->get_iters() << '.' << extension;
         detect_result = detector(output[0]);
-        sample = visualizer::draw_detections(image[0].detach(), {std::get<0>(detect_result), std::get<1>(detect_result)}, class_names, label_palette, /*range=*/output_range);
+        sample = visualizer::draw_detections_prob(image[0].detach(), {std::get<0>(detect_result), std::get<1>(detect_result)}, std::get<2>(detect_result), class_names, label_palette, /*range=*/output_range);
         cv::imwrite(ss.str(), sample);
         delete show_progress;
         

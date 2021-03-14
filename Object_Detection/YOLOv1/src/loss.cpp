@@ -152,8 +152,8 @@ torch::Tensor Loss::compute_iou(torch::Tensor &BBs1, torch::Tensor &BBs2){
     // (6) Compute area of the bounding boxes
     area1 = (BBs1[2] - BBs1[0]) * (BBs1[3] - BBs1[1]);  // area1{BB1,object}
     area2 = (BBs2[2] - BBs2[0]) * (BBs2[3] - BBs2[1]);  // area2{BB2,object}
-    area1 =  area1.unsqueeze(/*dim=*/1).expand_as(inter);  // area1{BB1,object} ===> {BB1,BB2,object}
-    area2 =  area2.unsqueeze(/*dim=*/0).expand_as(inter);  // area2{BB2,object} ===> {BB1,BB2,object}
+    area1 = area1.unsqueeze(/*dim=*/1).expand_as(inter);  // area1{BB1,object} ===> {BB1,BB2,object}
+    area2 = area2.unsqueeze(/*dim=*/0).expand_as(inter);  // area2{BB2,object} ===> {BB1,BB2,object}
 
     // (7) Compute IoU from the areas
     unions = area1 + area2 - inter;  // area1{BB1,BB2,object}, area2{BB1,BB2,object}, inter{BB1,BB2,object} ===> unions{BB1,BB2,object}
@@ -240,7 +240,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
         target_response_cx = target_response_coord[0];  // target_response_coord{5,object} ===> target_response_cx{object}
         input_response_cy = input_response_coord[1];  // input_response_coord{5,object} ===> input_response_cy{object}
         target_response_cy = target_response_coord[1];  // target_response_coord{5,object} ===> target_response_cy{object}
-        loss_coord_xy = (criterion(input_response_cx, target_response_cx) + criterion(input_response_cy, target_response_cy)) / (float)mini_batch_size;
+        loss_coord_xy = (criterion(input_response_cx, target_response_cx) + criterion(input_response_cy, target_response_cy)) * 0.5 / (float)mini_batch_size;
     }
     else {
         loss_coord_xy = torch::full({}, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
@@ -254,7 +254,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
         target_response_w = target_response_coord[2];  // target_response_coord{5,object} ===> target_response_w{object}
         input_response_h = input_response_coord[3];  // input_response_coord{5,object} ===> input_response_h{object}
         target_response_h = target_response_coord[3];  // target_response_coord{5,object} ===> target_response_h{object}
-        loss_coord_wh = (criterion(input_response_w.sqrt(), target_response_w.sqrt()) + criterion(input_response_h.sqrt(), target_response_h.sqrt())) / (float)mini_batch_size;
+        loss_coord_wh = (criterion(input_response_w.sqrt(), target_response_w.sqrt()) + criterion(input_response_h.sqrt(), target_response_h.sqrt())) * 0.5 / (float)mini_batch_size;
     }
     else {
         loss_coord_wh = torch::full({}, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
@@ -265,7 +265,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
     /*************************************************************************/
     if (obj_flag){
         input_response_conf = input_response_coord[4];  // input_response_coord{5,object} ===> input_response_conf{object}
-        loss_obj = criterion(input_response_conf, max_IoU) / (float)mini_batch_size;
+        loss_obj = criterion(input_response_conf, max_IoU) * 0.5 / (float)mini_batch_size;
     }
     else {
         loss_obj = torch::full({}, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
@@ -281,7 +281,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
     target_noobj_conf = target_conf_conf.masked_select(/*mask=*/noobj_conf_mask);  // target_conf_conf{N,G,G,BB} ===> target_noobj_conf{no object confidence}
     noobj_flag = (input_noobj_conf.numel() > 0);
     if (noobj_flag){
-        loss_noobj = criterion(input_noobj_conf, target_noobj_conf) / (float)mini_batch_size;
+        loss_noobj = criterion(input_noobj_conf, target_noobj_conf) * 0.5 / (float)mini_batch_size;
     }
     else{
         loss_noobj = torch::full({}, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
@@ -295,7 +295,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
         obj_class_mask = (target_conf_class > 0.5);  // target_conf_class{N,G,G,CN} ===> obj_class_mask{N,G,G,CN}
         input_obj_class = input_class.masked_select(/*mask=*/obj_class_mask);  // input_class{N,G,G,CN} ===> input_noobj_conf{CN}
         target_obj_class = target_class.masked_select(/*mask=*/obj_class_mask);  // target_class{N,G,G,CN} ===> target_noobj_conf{object class}
-        loss_class = criterion(input_obj_class, target_obj_class) / (float)mini_batch_size;
+        loss_class = criterion(input_obj_class, target_obj_class) * 0.5 / (float)mini_batch_size;
     }
     else{
         loss_class = torch::full({}, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);

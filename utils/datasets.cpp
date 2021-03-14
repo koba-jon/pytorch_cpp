@@ -422,18 +422,17 @@ void datasets::ImageFolderBBWithPaths::deepcopy(cv::Mat &data_in1, std::tuple<to
 // -------------------------------------------------------------------------
 void datasets::ImageFolderBBWithPaths::get(const size_t idx, std::tuple<torch::Tensor, std::tuple<torch::Tensor, torch::Tensor>, std::string, std::string> &data){
 
-    cv::Mat image_Mat_in, image_Mat;
-    std::tuple<torch::Tensor, torch::Tensor> BBs_in, BBs;
+    cv::Mat image_Mat, image_Mat_mid;
+    std::tuple<torch::Tensor, torch::Tensor> BBs, BBs_mid;
     torch::Tensor image;
     std::string fname1, fname2;
 
-    image_Mat_in = datasets::RGB_Loader(this->paths1.at(idx));
-    BBs_in = datasets::BoundingBox_Loader(this->paths2.at(idx));
+    image_Mat = datasets::RGB_Loader(this->paths1.at(idx));
+    BBs = datasets::BoundingBox_Loader(this->paths2.at(idx));
 
-    this->deepcopy(image_Mat_in, BBs_in, image_Mat, BBs);
     for (size_t i = 0; i < this->transformBB.size(); i++){
-        this->transformBB.at(i)->forward(image_Mat_in, BBs_in, image_Mat, BBs);
-        this->deepcopy(image_Mat, BBs, image_Mat_in, BBs_in);
+        this->deepcopy(image_Mat, BBs, image_Mat_mid, BBs_mid);
+        this->transformBB.at(i)->forward(image_Mat_mid, BBs_mid, image_Mat, BBs);
     }
 
     image = transforms::apply(this->transformI, image_Mat);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image

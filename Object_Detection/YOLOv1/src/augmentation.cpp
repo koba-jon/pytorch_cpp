@@ -17,14 +17,14 @@
 // ------------------------------------------------------------------
 YOLOAugmentationImpl::YOLOAugmentationImpl(const double jitter_, const double flip_rate_, const double scale_rate_, const double blur_rate_, const double brightness_rate_, const double hue_rate_, const double saturation_rate_, const double shift_rate_, const double crop_rate_){
     this->jitter = jitter_;
-    this->flip_rate = flip_rate_;
-    this->scale_rate = scale_rate_;
-    this->blur_rate = blur_rate_;
-    this->brightness_rate = brightness_rate_;
-    this->hue_rate = hue_rate_;
-    this->saturation_rate = saturation_rate_;
-    this->shift_rate = shift_rate_;
-    this->crop_rate = crop_rate_;
+    this->flip_rate = (flip_rate_ > 0.0 ? flip_rate_ : -1.0);
+    this->scale_rate = (scale_rate_ > 0.0 ? scale_rate_ : -1.0);
+    this->blur_rate = (blur_rate_ > 0.0 ? blur_rate_ : -1.0);
+    this->brightness_rate = (brightness_rate_ > 0.0 ? brightness_rate_ : -1.0);
+    this->hue_rate = (hue_rate_ > 0.0 ? hue_rate_ : -1.0);
+    this->saturation_rate = (saturation_rate_ > 0.0 ? saturation_rate_ : -1.0);
+    this->shift_rate = (shift_rate_ > 0.0 ? shift_rate_ : -1.0);
+    this->crop_rate = (crop_rate_ > 0.0 ? crop_rate_ : -1.0);
     this->mt.push_back(std::mt19937(std::rand()));
 }
 

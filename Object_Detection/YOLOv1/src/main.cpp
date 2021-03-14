@@ -62,6 +62,7 @@ po::options_description parse_arguments(){
         ("train_load_epoch", po::value<std::string>()->default_value(""), "epoch of model to resume learning")
         ("save_epoch", po::value<size_t>()->default_value(20), "frequency of epoch to save model and optimizer")
         /*************************** Data Augmentation ***************************/
+        ("augmentation", po::value<bool>()->default_value(true), "data augmentation mode on/off")
         ("jitter", po::value<double>()->default_value(0.2), "the distortion of image shifting")
         ("flip_rate", po::value<double>()->default_value(0.5), "frequency to flip")
         ("scale_rate", po::value<double>()->default_value(0.5), "frequency to scale")
@@ -154,19 +155,22 @@ int main(int argc, const char *argv[]){
     }
 
     // (4) Set Transforms
-    std::vector<transforms_Compose> transformBB{
-        YOLOAugmentation(  // apply "flip", "scale", "blur", "brightness", "hue", "saturation", "shift", "crop"
-            vm["jitter"].as<double>(),
-            vm["flip_rate"].as<double>(),
-            vm["scale_rate"].as<double>(),
-            vm["blur_rate"].as<double>(),
-            vm["brightness_rate"].as<double>(),
-            vm["hue_rate"].as<double>(),
-            vm["saturation_rate"].as<double>(),
-            vm["shift_rate"].as<double>(),
-            vm["crop_rate"].as<double>()
-        )
-    };
+    std::vector<transforms_Compose> transformBB;
+    if (vm["augmentation"].as<bool>()){
+        transformBB.push_back(
+            YOLOAugmentation(  // apply "flip", "scale", "blur", "brightness", "hue", "saturation", "shift", "crop"
+                vm["jitter"].as<double>(),
+                vm["flip_rate"].as<double>(),
+                vm["scale_rate"].as<double>(),
+                vm["blur_rate"].as<double>(),
+                vm["brightness_rate"].as<double>(),
+                vm["hue_rate"].as<double>(),
+                vm["saturation_rate"].as<double>(),
+                vm["shift_rate"].as<double>(),
+                vm["crop_rate"].as<double>()
+            )
+        );
+    }
     std::vector<transforms_Compose> transformI{
         transforms_Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
         transforms_ToTensor()                                                                             // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]

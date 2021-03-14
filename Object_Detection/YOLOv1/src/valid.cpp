@@ -19,7 +19,7 @@ namespace po = boost::program_options;
 // -------------------
 // Validation Function
 // -------------------
-void valid(po::variables_map &vm, DataLoader::ImageFolderBBWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, YOLOv1 &model, const std::vector<std::string> class_names, const size_t epoch, visualizer::graph &writer){
+void valid(po::variables_map &vm, DataLoader::ImageFolderBBWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, YOLOv1 &model, const std::vector<std::string> class_names, const size_t epoch, std::vector<visualizer::graph> &writer){
 
     // (0) Initialization and Declaration
     size_t iteration;
@@ -83,7 +83,12 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderBBWithPaths &valid_data
     ofs.close();
 
     // (3.2) Record Loss (Graph)
-    writer.plot(/*base=*/epoch, /*value=*/{ave_loss_all, ave_loss_coord_xy, ave_loss_coord_wh, ave_loss_obj, ave_loss_noobj, ave_loss_class});
+    writer.at(0).plot(/*base=*/epoch, /*value=*/{ave_loss_all});
+    writer.at(1).plot(/*base=*/epoch, /*value=*/{ave_loss_coord_xy});
+    writer.at(2).plot(/*base=*/epoch, /*value=*/{ave_loss_coord_wh});
+    writer.at(3).plot(/*base=*/epoch, /*value=*/{ave_loss_obj});
+    writer.at(4).plot(/*base=*/epoch, /*value=*/{ave_loss_noobj});
+    writer.at(5).plot(/*base=*/epoch, /*value=*/{ave_loss_class});
 
     // End Processing
     return;

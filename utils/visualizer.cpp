@@ -297,6 +297,119 @@ cv::Mat visualizer::draw_detections(const torch::Tensor image, const std::tuple<
 
 
 // ----------------------------------------------------------
+// namespace{visualizer} -> function{draw_detections_prob}
+// ----------------------------------------------------------
+cv::Mat visualizer::draw_detections_prob(const torch::Tensor image, const std::tuple<torch::Tensor, torch::Tensor> label, const torch::Tensor prob, const std::vector<std::string> class_names, const std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette, const std::pair<float, float> range){
+
+    constexpr size_t bits = 8;
+    constexpr size_t line_thickness_max = 5;
+    constexpr size_t line_thickness_min = 1;
+    constexpr size_t text_thickness_max = 3;
+    constexpr size_t text_thickness_min = 1;
+    constexpr double font_size_max = 1.0;
+    constexpr double font_size_min = 0.5;
+    
+    // (0) Initialization and Declaration
+    size_t width, height, channels;
+    size_t BB_n;
+    size_t x_min, y_min, x_max, y_max;
+    size_t line_thickness, text_thickness;
+    double font_size;
+    double rate;
+    float x_min_f, y_min_f, x_max_f, y_max_f;
+    long int id;
+    int baseline;
+    std::tuple<unsigned char, unsigned char, unsigned char> pal;
+    unsigned char R, G, B;
+    float cx, cy, w, h;
+    cv::Size text_size;
+    std::string class_name;
+    cv::Mat mat, sample;
+    torch::Tensor tensor;
+    torch::Tensor ids, coords;
+    torch::Tensor ids_sorted, coords_sorted, probs_sorted, probs_idx;
+    std::tuple<torch::Tensor, torch::Tensor> probs_sorted_with_idx;
+    
+    // (1) Get Tensor Size
+    channels = image.size(0);
+    height = image.size(1);
+    width = image.size(2);
+
+    // (2) Judge the number of channels
+    if ((channels != 1) && (channels != 3)){
+        std::cerr << "Error : Channels of the image is inappropriate." << std::endl;
+        std::exit(1);
+    }
+    
+    // (3) Convert "torch::Tensor" into "cv::Mat"
+    tensor = image.clamp(/*min=*/range.first, /*max=*/range.second).to(torch::kCPU);  // GPU ===> CPU
+    tensor = tensor.expand({3, (long int)height, (long int)width});  // {C,H,W} ===> {3,H,W}
+    tensor = tensor.permute({1, 2, 0});  // {3,H,W} ===> {H,W,3}
+    tensor = tensor.contiguous();
+    mat = cv::Mat(cv::Size(width, height), CV_32FC3, tensor.data_ptr<float>());  // torch::Tensor ===> cv::Mat
+    mat = (mat - range.first) / (float)(range.second - range.first);  // [range.first, range.second] ===> [0,1]
+    mat = mat * (std::pow(2.0, bits) - 1.0);  // [0,1] ===> [0,255]
+    mat.convertTo(sample, CV_8UC3);  // {32F} ===> {8U}
+    cv::cvtColor(sample, sample, cv::COLOR_RGB2BGR);  // {R,G,B} ===> {B,G,R}
+
+    // (4) Draw Bounding Box with class names
+    ids = std::get<0>(label);
+    coords = std::get<1>(label);
+    BB_n = ids.numel();
+    if (BB_n > 0){
+
+        probs_sorted_with_idx = prob.sort(/*dim=*/0, /*descending=*/false);  // probs_sorted_with_idx(probs{object}, idx{object})
+        probs_sorted = std::get<0>(probs_sorted_with_idx);  // probs_sorted{object}
+        probs_idx = std::get<1>(probs_sorted_with_idx);  // probs_idx{object}
+        ids_sorted = ids.gather(/*dim=*/0, /*index=*/probs_idx);  // ids_sorted{object}
+        coords_sorted = coords.gather(/*dim=*/0, /*index=*/probs_idx.unsqueeze(/*dim=*/-1).expand({probs_idx.size(0), 4})).contiguous();  // coords_sorted{object,4}
+
+        for(size_t b = 0; b < BB_n; b++){
+
+            // (4.1) Get parameters
+            id = ids_sorted[b].item<long int>();  // id[0,CN)
+            cx = coords_sorted[b][0].item<float>();  // cx[0.0,1.0)
+            cy = coords_sorted[b][1].item<float>();  // cy[0.0,1.0)
+            w = coords_sorted[b][2].item<float>();  // w[0.0,1.0)
+            h = coords_sorted[b][3].item<float>();  // h[0.0,1.0)
+            x_min_f = (cx - 0.5 * w) * (float)width + 0.5;
+            y_min_f = (cy - 0.5 * h) * (float)height + 0.5;
+            x_max_f = (cx + 0.5 * w) * (float)width + 0.5;
+            y_max_f = (cy + 0.5 * h) * (float)height + 0.5;
+            x_min = (size_t)((x_min_f > 0.0) ? x_min_f : 0.0);
+            y_min = (size_t)((y_min_f > 0.0) ? y_min_f : 0.0);
+            x_max = (size_t)((x_max_f < (float)(width - 1)) ? x_max_f : (float)(width - 1));
+            y_max = (size_t)((y_max_f < (float)(height - 1)) ? y_max_f : (float)(height - 1));
+            pal = label_palette.at(id);
+            R = std::get<0>(pal);
+            G = std::get<1>(pal);
+            B = std::get<2>(pal);
+
+            // (4.2) Calculate size
+            rate = probs_sorted[b].item<float>();
+            line_thickness = line_thickness_min + (size_t)((double)(line_thickness_max - line_thickness_min) * rate + 0.5);
+            text_thickness = text_thickness_min + (size_t)((double)(text_thickness_max - text_thickness_min) * rate + 0.5);
+            font_size = font_size_min + (font_size_max - font_size_min) * rate;
+
+            // (4.3) Draw bounding box
+            cv::rectangle(sample, cv::Point(x_min, y_min), cv::Point(x_max, y_max), cv::Scalar(B, G, R), /*thickness=*/line_thickness);
+
+            // (4.4) Draw class names
+            class_name = class_names.at(id);
+            text_size = cv::getTextSize(class_name, cv::FONT_HERSHEY_SIMPLEX, /*fontScale=*/font_size, /*thickness=*/text_thickness, &baseline);
+            cv::rectangle(sample, cv::Point(x_min, y_min), cv::Point(x_min + text_size.width + line_thickness, y_min + text_size.height + line_thickness + baseline), cv::Scalar(B, G, R), /*thickness=*/-1);
+            cv::putText(sample, class_name, cv::Point(x_min + line_thickness, y_min + 2 * baseline + line_thickness), cv::FONT_HERSHEY_SIMPLEX, /*fontScale=*/font_size, cv::Scalar(0, 0, 0), /*thickness=*/text_thickness, /*lineType=*/cv::LINE_8);
+
+        }
+    }
+
+    // End Processing
+    return sample;
+
+}
+
+
+// ----------------------------------------------------------
 // namespace{visualizer} -> class{graph} -> constructor
 // ----------------------------------------------------------
 visualizer::graph::graph(const std::string dir_, const std::string gname_, const std::vector<std::string> label_){
