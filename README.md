@@ -175,6 +175,13 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="Object_Detection/YOLOv1">YOLOv1</a></td>
     <td><b>v1.8.0</b></td>
   </tr>
+  <tr>
+    <td>YOLOv2</td>
+    <td><a href="https://openaccess.thecvf.com/content_cvpr_2017/html/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.html">J. Redmon et al.</a></td>
+    <td>CVPR 2017</td>
+    <td><a href="Object_Detection/YOLOv2">YOLOv2</a></td>
+    <td><b>v1.8.0</b></td>
+  </tr>
 </table>
 
 ### Anomaly Detection
