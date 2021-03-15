@@ -158,6 +158,32 @@ In addition, I might adapt programs to the latest version. <br>
   </tr>
 </table>
 
+### Object Detection
+
+<table>
+  <tr>
+    <th>Model</th>
+    <th>Paper</th>
+    <th>Conference/Journal</th>
+    <th>Code</th>
+    <th>Release Version</th>
+  </tr>
+  <tr>
+    <td>YOLOv1</td>
+    <td><a href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/html/Redmon_You_Only_Look_CVPR_2016_paper.html">J. Redmon et al.</a></td>
+    <td>CVPR 2016</td>
+    <td><a href="Object_Detection/YOLOv1">YOLOv1</a></td>
+    <td><b>v1.8.0(Latest)</b></td>
+  </tr>
+  <tr>
+    <td>YOLOv2</td>
+    <td><a href="https://openaccess.thecvf.com/content_cvpr_2017/html/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.html">J. Redmon et al.</a></td>
+    <td>CVPR 2017</td>
+    <td><a href="Object_Detection/YOLOv2">YOLOv2</a></td>
+    <td><b>v1.8.0(Latest)</b></td>
+  </tr>
+</table>
+
 ### Anomaly Detection
 
 <table>
@@ -211,13 +237,13 @@ In addition, I might adapt programs to the latest version. <br>
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Stable (1.7.1) <br>
+PyTorch Build : Stable (1.8.0) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 CUDA : 10.2 <br>
 Run this Command : Download here (cxx11 ABI) <br>
-GPU : https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.7.1.zip <br>
-CPU : https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.7.1%2Bcpu.zip <br>
+GPU : https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.8.0.zip <br>
+CPU : https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.0%2Bcpu.zip <br>
 ***
 
 ### 2. OpenCV
@@ -241,10 +267,10 @@ This is used to display loss graph. <br>
 $ sudo apt install gnuplot
 ~~~
 
-### 6. libpng/png++
+### 6. libpng/png++/zlib
 This is used to load and save index-color image in semantic segmentation. <br>
 ~~~
-$ sudo apt install libpng-dev libpng++-dev
+$ sudo apt install libpng-dev libpng++-dev zlib1g-dev
 ~~~
 
 ## Preparation
@@ -372,8 +398,10 @@ License : https://www.boost.org/users/license.html <br>
 Official : http://www.gnuplot.info/ <br>
 License : https://sourceforge.net/p/gnuplot/gnuplot-main/ci/master/tree/Copyright <br>
 
-- libpng/png++ <br>
+- libpng/png++/zlib <br>
 Official (libpng) : http://www.libpng.org/pub/png/libpng.html <br>
 License (libpng) : http://www.libpng.org/pub/png/src/libpng-LICENSE.txt <br>
 Official (png++) : https://www.nongnu.org/pngpp/ <br>
 License (png++) : https://www.nongnu.org/pngpp/license.html <br>
+Official (zlib) : https://zlib.net/ <br>
+License (zlib) : https://zlib.net/zlib_license.html <br>

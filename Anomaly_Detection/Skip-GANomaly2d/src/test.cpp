@@ -10,7 +10,7 @@
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
 #include "networks.hpp"                // UNet_Generator, GAN_Discriminator
-#include "transforms.hpp"              // transforms::Compose
+#include "transforms.hpp"              // transforms_Compose
 #include "datasets.hpp"                // datasets::ImageFolderWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderWithPaths
 #include "visualizer.hpp"              // visualizer
@@ -26,7 +26,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> AnomalyScore(torch::Tens
 // ---------------
 // Test Function
 // ---------------
-void test(po::variables_map &vm, torch::Device &device, UNet_Generator &gen, GAN_Discriminator &dis, std::vector<transforms::Compose*> &transform){
+void test(po::variables_map &vm, torch::Device &device, UNet_Generator &gen, GAN_Discriminator &dis, std::vector<transforms_Compose> &transform){
 
     constexpr std::pair<float, float> output_range = {-1.0, 1.0};  // range of the value in output images
 

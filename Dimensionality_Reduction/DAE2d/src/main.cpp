@@ -18,8 +18,8 @@ namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
-void train(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncoder &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformO);
-void test(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncoder &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformO);
+void train(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncoder &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformO);
+void test(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncoder &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformO);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode);
@@ -117,40 +117,44 @@ int main(int argc, const char *argv[]){
         std::random_device rd;
         std::srand(rd());
         torch::manual_seed(std::rand());
+        torch::globalContext().setDeterministicCuDNN(false);
+        torch::globalContext().setBenchmarkCuDNN(true);
     }
     else{
         std::srand(vm["seed"].as<int>());
         torch::manual_seed(std::rand());
+        torch::globalContext().setDeterministicCuDNN(true);
+        torch::globalContext().setBenchmarkCuDNN(false);
     }
 
     // (4) Set Transforms
     // (4.1) for Original Dataset
-    std::vector<transforms::Compose*> transformO{
-        (transforms::Compose*)new transforms::Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
-        (transforms::Compose*)new transforms::ToTensor(),                                                                            // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
-        (transforms::Compose*)new transforms::Normalize(0.5, 0.5)                                                                    // [0,1] ===> [-1,1]
+    std::vector<transforms_Compose> transformO{
+        transforms_Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
+        transforms_ToTensor(),                                                                            // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
+        transforms_Normalize(0.5, 0.5)                                                                    // [0,1] ===> [-1,1]
     };
     if (vm["nc"].as<size_t>() == 1){
-        transformO.insert(transformO.begin(), (transforms::Compose*)new transforms::Grayscale(1));
+        transformO.insert(transformO.begin(), transforms_Grayscale(1));
     }
     // (4.2) for Noised Dataset
-    std::vector<transforms::Compose*> transformI{
-        (transforms::Compose*)new transforms::Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
-        (transforms::Compose*)new transforms::ToTensor()                                                                             // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
+    std::vector<transforms_Compose> transformI{
+        transforms_Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
+        transforms_ToTensor()                                                                             // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
     };
     if (vm["nc"].as<size_t>() == 1){
-        transformI.insert(transformI.begin(), (transforms::Compose*)new transforms::Grayscale(1));
+        transformI.insert(transformI.begin(), transforms_Grayscale(1));
     }
     if (vm["RVIN"].as<bool>()){
-        transformI.push_back((transforms::Compose*)new transforms::AddRVINoise(vm["RVIN_prob"].as<float>()));
+        transformI.push_back(transforms_AddRVINoise(vm["RVIN_prob"].as<float>()));
     }
     if (vm["SPN"].as<bool>()){
-        transformI.push_back((transforms::Compose*)new transforms::AddSPNoise(vm["SPN_prob"].as<float>(), vm["SPN_salt_rate"].as<float>()));
+        transformI.push_back(transforms_AddSPNoise(vm["SPN_prob"].as<float>(), vm["SPN_salt_rate"].as<float>()));
     }
     if (vm["GN"].as<bool>()){
-        transformI.push_back((transforms::Compose*)new transforms::AddGaussNoise(vm["GN_prob"].as<float>(), vm["GN_mean"].as<float>(), vm["GN_std"].as<float>()));
+        transformI.push_back(transforms_AddGaussNoise(vm["GN_prob"].as<float>(), vm["GN_mean"].as<float>(), vm["GN_std"].as<float>()));
     }
-    transformI.push_back((transforms::Compose*)new transforms::Normalize(0.5, 0.5));                                                  // [0,1] ===> [-1,1]
+    transformI.push_back(transforms_Normalize(0.5, 0.5));                                                  // [0,1] ===> [-1,1]
     
     // (5) Define Network
     ConvolutionalAutoEncoder CAE(vm);

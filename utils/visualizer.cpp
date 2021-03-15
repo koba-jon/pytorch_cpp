@@ -31,10 +31,10 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
     size_t width_out, height_out;
     size_t ncol, nrow;
     int mtype_in, mtype_out;
-    cv::Mat float_mat, normal_mat, bit_mat, RGB, BGR;
+    cv::Mat float_mat, normal_mat, bit_mat;
     cv::Mat sample, output;
     std::vector<cv::Mat> samples;
-    torch::Tensor tensor_sq, tensor_per;
+    torch::Tensor tensor_sq, tensor_per, tensor_con;
 
     // (1) Get Tensor Size
     mini_batch_size = image.size(0);
@@ -43,8 +43,8 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
     width = image.size(3);
 
     // (2) Judge the number of channels and bits
-    mtype_in = CV_32FC1;
     if (channels == 1){
+        mtype_in = CV_32FC1;
         if (bits == 8){
             mtype_out = CV_8UC1;
         }
@@ -57,6 +57,7 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
         }
     }
     else if (channels == 3){
+        mtype_in = CV_32FC3;
         if (bits == 8){
             mtype_out = CV_8UC3;
         }
@@ -76,28 +77,17 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
     // (3) Add images to the array
     i = 0;
     samples = std::vector<cv::Mat>(mini_batch_size);
-    auto mini_batch = image.clamp(/*min=*/range.first, /*max=*/range.second).contiguous().to(torch::kCPU).chunk(mini_batch_size, /*dim=*/0);  // {N,C,H,W} ===> {1,C,H,W} + {1,C,H,W} + ...
+    auto mini_batch = image.clamp(/*min=*/range.first, /*max=*/range.second).to(torch::kCPU).chunk(mini_batch_size, /*dim=*/0);  // {N,C,H,W} ===> {1,C,H,W} + {1,C,H,W} + ...
     for (auto &tensor : mini_batch){
         tensor_sq = torch::squeeze(tensor, /*dim=*/0);  // {1,C,H,W} ===> {C,H,W}
         tensor_per = tensor_sq.permute({1, 2, 0});  // {C,H,W} ===> {H,W,C}
-        if (channels == 3){
-            auto tensor_vec = tensor_per.chunk(channels, /*dim=*/2);  // {H,W,3} ===> {H,W,1} + {H,W,1} + {H,W,1}
-            std::vector<cv::Mat> mv;
-            for (auto &tensor_channel : tensor_vec){
-                mv.push_back(cv::Mat(cv::Size(width, height), mtype_in, tensor_channel.data_ptr<float>()));  // torch::Tensor ===> cv::Mat
-            }
-            cv::merge(mv, float_mat);  // {H,W,1} + {H,W,1} + {H,W,1} ===> {H,W,3}
-        }
-        else{
-            float_mat = cv::Mat(cv::Size(width, height), mtype_in, tensor_per.data_ptr<float>());  // torch::Tensor ===> cv::Mat
-        }
+        tensor_con = tensor_per.contiguous();
+        float_mat = cv::Mat(cv::Size(width, height), mtype_in, tensor_con.data_ptr<float>());  // torch::Tensor ===> cv::Mat
         normal_mat = (float_mat - range.first) / (float)(range.second - range.first);  // [range.first, range.second] ===> [0,1]
         bit_mat = normal_mat * (std::pow(2.0, bits) - 1.0);  // [0,1] ===> [0,255] or [0,65535]
         bit_mat.convertTo(sample, mtype_out);  // {32F} ===> {8U} or {16U}
         if (channels == 3){
-            RGB = sample;
-            cv::cvtColor(RGB, BGR, cv::COLOR_RGB2BGR);  // {R,G,B} ===> {B,G,R}
-            sample = BGR;
+            cv::cvtColor(sample, sample, cv::COLOR_RGB2BGR);  // {R,G,B} ===> {B,G,R}
         }
         sample.copyTo(samples.at(i));
         i++;
@@ -147,7 +137,7 @@ void visualizer::save_label(const torch::Tensor label, const std::string path, c
     unsigned char R, G, B;
     cv::Mat sample;
     std::vector<cv::Mat> samples;
-    torch::Tensor tensor_sq, tensor_per;
+    torch::Tensor tensor_sq, tensor_per, tensor_con;
     png::image<png::index_pixel> output;
     png::palette pal;
     std::tuple<unsigned char, unsigned char, unsigned char> pal_one;
@@ -160,11 +150,12 @@ void visualizer::save_label(const torch::Tensor label, const std::string path, c
     // (2) Add images to the array
     i = 0;
     samples = std::vector<cv::Mat>(mini_batch_size);
-    auto mini_batch = label.contiguous().to(torch::kCPU).chunk(mini_batch_size, /*dim=*/0);  // {N,1,H,W} ===> {1,1,H,W} + {1,1,H,W} + ...
+    auto mini_batch = label.to(torch::kCPU).chunk(mini_batch_size, /*dim=*/0);  // {N,1,H,W} ===> {1,1,H,W} + {1,1,H,W} + ...
     for (auto &tensor : mini_batch){
         tensor_sq = torch::squeeze(tensor, /*dim=*/0);  // {1,1,H,W} ===> {1,H,W}
         tensor_per = tensor_sq.permute({1, 2, 0});  // {1,H,W} ===> {H,W,1}
-        sample = cv::Mat(cv::Size(width, height), CV_32SC1, tensor_per.to(torch::kInt).data_ptr<int>());  // torch::Tensor ===> cv::Mat
+        tensor_con = tensor_per.to(torch::kInt).contiguous();
+        sample = cv::Mat(cv::Size(width, height), CV_32SC1, tensor_con.data_ptr<int>());  // torch::Tensor ===> cv::Mat
         sample.copyTo(samples.at(i));
         i++;
     }
@@ -209,6 +200,211 @@ void visualizer::save_label(const torch::Tensor label, const std::string path, c
 
     // End Processing
     return;
+
+}
+
+
+// ----------------------------------------------------------
+// namespace{visualizer} -> function{draw_detections}
+// ----------------------------------------------------------
+cv::Mat visualizer::draw_detections(const torch::Tensor image, const std::tuple<torch::Tensor, torch::Tensor> label, const std::vector<std::string> class_names, const std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette, const std::pair<float, float> range){
+
+    constexpr size_t bits = 8;
+    constexpr size_t line_thickness = 2;
+    constexpr size_t text_thickness = 2;
+    constexpr double font_size = 0.8;
+    
+    // (0) Initialization and Declaration
+    size_t width, height, channels;
+    size_t BB_n;
+    size_t x_min, y_min, x_max, y_max;
+    float x_min_f, y_min_f, x_max_f, y_max_f;
+    long int id;
+    int baseline;
+    std::tuple<unsigned char, unsigned char, unsigned char> pal;
+    unsigned char R, G, B;
+    float cx, cy, w, h;
+    cv::Size text_size;
+    std::string class_name;
+    cv::Mat mat, sample;
+    torch::Tensor tensor;
+    torch::Tensor ids, coords;
+    
+    // (1) Get Tensor Size
+    channels = image.size(0);
+    height = image.size(1);
+    width = image.size(2);
+
+    // (2) Judge the number of channels
+    if ((channels != 1) && (channels != 3)){
+        std::cerr << "Error : Channels of the image is inappropriate." << std::endl;
+        std::exit(1);
+    }
+    
+    // (3) Convert "torch::Tensor" into "cv::Mat"
+    tensor = image.clamp(/*min=*/range.first, /*max=*/range.second).to(torch::kCPU);  // GPU ===> CPU
+    tensor = tensor.expand({3, (long int)height, (long int)width});  // {C,H,W} ===> {3,H,W}
+    tensor = tensor.permute({1, 2, 0});  // {3,H,W} ===> {H,W,3}
+    tensor = tensor.contiguous();
+    mat = cv::Mat(cv::Size(width, height), CV_32FC3, tensor.data_ptr<float>());  // torch::Tensor ===> cv::Mat
+    mat = (mat - range.first) / (float)(range.second - range.first);  // [range.first, range.second] ===> [0,1]
+    mat = mat * (std::pow(2.0, bits) - 1.0);  // [0,1] ===> [0,255]
+    mat.convertTo(sample, CV_8UC3);  // {32F} ===> {8U}
+    cv::cvtColor(sample, sample, cv::COLOR_RGB2BGR);  // {R,G,B} ===> {B,G,R}
+
+    // (4) Draw Bounding Box with class names
+    ids = std::get<0>(label);
+    coords = std::get<1>(label);
+    BB_n = ids.numel();
+    if (BB_n > 0){
+        for(size_t b = 0; b < BB_n; b++){
+
+            // (4.1) Get parameters
+            id = ids[b].item<long int>();  // id[0,CN)
+            cx = coords[b][0].item<float>();  // cx[0.0,1.0)
+            cy = coords[b][1].item<float>();  // cy[0.0,1.0)
+            w = coords[b][2].item<float>();  // w[0.0,1.0)
+            h = coords[b][3].item<float>();  // h[0.0,1.0)
+            x_min_f = (cx - 0.5 * w) * (float)width + 0.5;
+            y_min_f = (cy - 0.5 * h) * (float)height + 0.5;
+            x_max_f = (cx + 0.5 * w) * (float)width + 0.5;
+            y_max_f = (cy + 0.5 * h) * (float)height + 0.5;
+            x_min = (size_t)((x_min_f > 0.0) ? x_min_f : 0.0);
+            y_min = (size_t)((y_min_f > 0.0) ? y_min_f : 0.0);
+            x_max = (size_t)((x_max_f < (float)(width - 1)) ? x_max_f : (float)(width - 1));
+            y_max = (size_t)((y_max_f < (float)(height - 1)) ? y_max_f : (float)(height - 1));
+            pal = label_palette.at(id);
+            R = std::get<0>(pal);
+            G = std::get<1>(pal);
+            B = std::get<2>(pal);
+
+            // (4.2) Draw bounding box
+            cv::rectangle(sample, cv::Point(x_min, y_min), cv::Point(x_max, y_max), cv::Scalar(B, G, R), /*thickness=*/line_thickness);
+
+            // (4.3) Draw class names
+            class_name = class_names.at(id);
+            text_size = cv::getTextSize(class_name, cv::FONT_HERSHEY_SIMPLEX, /*fontScale=*/font_size, /*thickness=*/text_thickness, &baseline);
+            cv::rectangle(sample, cv::Point(x_min, y_min), cv::Point(x_min + text_size.width + line_thickness, y_min + text_size.height + line_thickness + baseline), cv::Scalar(B, G, R), /*thickness=*/-1);
+            cv::putText(sample, class_name, cv::Point(x_min + line_thickness, y_min + 2 * baseline + line_thickness), cv::FONT_HERSHEY_SIMPLEX, /*fontScale=*/font_size, cv::Scalar(0, 0, 0), /*thickness=*/text_thickness, /*lineType=*/cv::LINE_8);
+
+        }
+    }
+
+    // End Processing
+    return sample;
+
+}
+
+
+// ----------------------------------------------------------
+// namespace{visualizer} -> function{draw_detections_des}
+// ----------------------------------------------------------
+cv::Mat visualizer::draw_detections_des(const torch::Tensor image, const std::tuple<torch::Tensor, torch::Tensor> label, const torch::Tensor prob, const std::vector<std::string> class_names, const std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette, const std::pair<float, float> range){
+
+    constexpr size_t bits = 8;
+    constexpr size_t line_thickness_max = 5;
+    constexpr size_t line_thickness_min = 1;
+    constexpr size_t text_thickness_max = 3;
+    constexpr size_t text_thickness_min = 1;
+    constexpr double font_size_max = 1.0;
+    constexpr double font_size_min = 0.5;
+    
+    // (0) Initialization and Declaration
+    size_t width, height, channels;
+    size_t BB_n;
+    size_t x_min, y_min, x_max, y_max;
+    size_t line_thickness, text_thickness;
+    double font_size;
+    double rate;
+    float x_min_f, y_min_f, x_max_f, y_max_f;
+    long int id;
+    int baseline;
+    std::tuple<unsigned char, unsigned char, unsigned char> pal;
+    unsigned char R, G, B;
+    float cx, cy, w, h;
+    cv::Size text_size;
+    std::string class_name;
+    cv::Mat mat, sample;
+    torch::Tensor tensor;
+    torch::Tensor ids, coords;
+    torch::Tensor ids_sorted, coords_sorted, probs_sorted, probs_idx;
+    std::tuple<torch::Tensor, torch::Tensor> probs_sorted_with_idx;
+    
+    // (1) Get Tensor Size
+    channels = image.size(0);
+    height = image.size(1);
+    width = image.size(2);
+
+    // (2) Judge the number of channels
+    if ((channels != 1) && (channels != 3)){
+        std::cerr << "Error : Channels of the image is inappropriate." << std::endl;
+        std::exit(1);
+    }
+    
+    // (3) Convert "torch::Tensor" into "cv::Mat"
+    tensor = image.clamp(/*min=*/range.first, /*max=*/range.second).to(torch::kCPU);  // GPU ===> CPU
+    tensor = tensor.expand({3, (long int)height, (long int)width});  // {C,H,W} ===> {3,H,W}
+    tensor = tensor.permute({1, 2, 0});  // {3,H,W} ===> {H,W,3}
+    tensor = tensor.contiguous();
+    mat = cv::Mat(cv::Size(width, height), CV_32FC3, tensor.data_ptr<float>());  // torch::Tensor ===> cv::Mat
+    mat = (mat - range.first) / (float)(range.second - range.first);  // [range.first, range.second] ===> [0,1]
+    mat = mat * (std::pow(2.0, bits) - 1.0);  // [0,1] ===> [0,255]
+    mat.convertTo(sample, CV_8UC3);  // {32F} ===> {8U}
+    cv::cvtColor(sample, sample, cv::COLOR_RGB2BGR);  // {R,G,B} ===> {B,G,R}
+
+    // (4) Draw Bounding Box with class names
+    ids = std::get<0>(label);
+    coords = std::get<1>(label);
+    BB_n = ids.numel();
+    if (BB_n > 0){
+
+        probs_sorted_with_idx = prob.sort(/*dim=*/0, /*descending=*/false);  // probs_sorted_with_idx(probs{object}, idx{object})
+        probs_sorted = std::get<0>(probs_sorted_with_idx);  // probs_sorted{object}
+        probs_idx = std::get<1>(probs_sorted_with_idx);  // probs_idx{object}
+        ids_sorted = ids.gather(/*dim=*/0, /*index=*/probs_idx);  // ids_sorted{object}
+        coords_sorted = coords.gather(/*dim=*/0, /*index=*/probs_idx.unsqueeze(/*dim=*/-1).expand({probs_idx.size(0), 4})).contiguous();  // coords_sorted{object,4}
+
+        for(size_t b = 0; b < BB_n; b++){
+
+            // (4.1) Get parameters
+            id = ids_sorted[b].item<long int>();  // id[0,CN)
+            cx = coords_sorted[b][0].item<float>();  // cx[0.0,1.0)
+            cy = coords_sorted[b][1].item<float>();  // cy[0.0,1.0)
+            w = coords_sorted[b][2].item<float>();  // w[0.0,1.0)
+            h = coords_sorted[b][3].item<float>();  // h[0.0,1.0)
+            x_min_f = (cx - 0.5 * w) * (float)width + 0.5;
+            y_min_f = (cy - 0.5 * h) * (float)height + 0.5;
+            x_max_f = (cx + 0.5 * w) * (float)width + 0.5;
+            y_max_f = (cy + 0.5 * h) * (float)height + 0.5;
+            x_min = (size_t)((x_min_f > 0.0) ? x_min_f : 0.0);
+            y_min = (size_t)((y_min_f > 0.0) ? y_min_f : 0.0);
+            x_max = (size_t)((x_max_f < (float)(width - 1)) ? x_max_f : (float)(width - 1));
+            y_max = (size_t)((y_max_f < (float)(height - 1)) ? y_max_f : (float)(height - 1));
+            pal = label_palette.at(id);
+            R = std::get<0>(pal);
+            G = std::get<1>(pal);
+            B = std::get<2>(pal);
+
+            // (4.2) Calculate size
+            rate = probs_sorted[b].item<float>();
+            line_thickness = line_thickness_min + (size_t)((double)(line_thickness_max - line_thickness_min) * rate + 0.5);
+            text_thickness = text_thickness_min + (size_t)((double)(text_thickness_max - text_thickness_min) * rate + 0.5);
+            font_size = font_size_min + (font_size_max - font_size_min) * rate;
+
+            // (4.3) Draw bounding box
+            cv::rectangle(sample, cv::Point(x_min, y_min), cv::Point(x_max, y_max), cv::Scalar(B, G, R), /*thickness=*/line_thickness);
+
+            // (4.4) Draw class names
+            class_name = class_names.at(id);
+            text_size = cv::getTextSize(class_name, cv::FONT_HERSHEY_SIMPLEX, /*fontScale=*/font_size, /*thickness=*/text_thickness, &baseline);
+            cv::rectangle(sample, cv::Point(x_min, y_min), cv::Point(x_min + text_size.width + line_thickness, y_min + text_size.height + line_thickness + baseline), cv::Scalar(B, G, R), /*thickness=*/-1);
+            cv::putText(sample, class_name, cv::Point(x_min + line_thickness, y_min + 2 * baseline + line_thickness), cv::FONT_HERSHEY_SIMPLEX, /*fontScale=*/font_size, cv::Scalar(0, 0, 0), /*thickness=*/text_thickness, /*lineType=*/cv::LINE_8);
+
+        }
+    }
+
+    // End Processing
+    return sample;
 
 }
 

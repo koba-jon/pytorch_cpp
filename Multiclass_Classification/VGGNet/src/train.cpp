@@ -13,7 +13,7 @@
 // For Original Header
 #include "loss.hpp"                    // Loss
 #include "networks.hpp"                // MC_VGGNet
-#include "transforms.hpp"              // transforms::Compose
+#include "transforms.hpp"              // transforms_Compose
 #include "datasets.hpp"                // datasets::ImageFolderClassesWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderClassesWithPaths
 #include "visualizer.hpp"              // visualizer
@@ -30,7 +30,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderClassesWithPaths &valid
 // -------------------
 // Training Function
 // -------------------
-void train(po::variables_map &vm, torch::Device &device, MC_VGGNet &model, std::vector<transforms::Compose*> &transform, const std::vector<std::string> class_names){
+void train(po::variables_map &vm, torch::Device &device, MC_VGGNet &model, std::vector<transforms_Compose> &transform, const std::vector<std::string> class_names){
 
     constexpr bool train_shuffle = true;  // whether to shuffle the training dataset
     constexpr size_t train_workers = 4;  // the number of workers to retrieve data from the training dataset

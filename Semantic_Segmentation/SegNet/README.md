@@ -61,6 +61,29 @@ $ ln -s <test_output_path> ./testO
 $ cd ../..
 ~~~
 
+#### Change Class Label
+You can change the class label as follows.<br>
+The following is an example for "VOC2012", and you can change the index value from 255 to 21.
+~~~
+$ vi src/main.cpp
+~~~
+
+Please comment out "transforms_ConvertIndex" of "transformO".
+~~~
+std::vector<transforms_Compose> transformO{
+    transforms_Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_NEAREST),
+    // transforms_ConvertIndex(255, 21),
+    transforms_ToTensorLabel()
+};
+~~~
+
+If you change the code, you need to build the code again.
+~~~
+$ cd build
+$ make -j4
+$ cd ..
+~~~
+
 ### 3. Training
 
 #### Setting
@@ -79,6 +102,7 @@ DATA='VOC2012'
     --train true \
     --epochs 300 \
     --dataset ${DATA} \
+    --class_num 22 \
     --size 256 \
     --batch_size 16 \
     --gpu_id 0 \
@@ -108,6 +132,7 @@ DATA='VOC2012'
 ./SegNet \
     --test true \
     --dataset ${DATA} \
+    --class_num 22 \
     --size 256 \
     --gpu_id 0 \
     --nc 3

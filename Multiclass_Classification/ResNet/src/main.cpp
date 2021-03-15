@@ -18,8 +18,8 @@ namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
-void train(po::variables_map &vm, torch::Device &device, MC_ResNet &model, std::vector<transforms::Compose*> &transform, const std::vector<std::string> class_names);
-void test(po::variables_map &vm, torch::Device &device, MC_ResNet &model, std::vector<transforms::Compose*> &transform, const std::vector<std::string> class_names);
+void train(po::variables_map &vm, torch::Device &device, MC_ResNet &model, std::vector<transforms_Compose> &transform, const std::vector<std::string> class_names);
+void test(po::variables_map &vm, torch::Device &device, MC_ResNet &model, std::vector<transforms_Compose> &transform, const std::vector<std::string> class_names);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 std::vector<std::string> Set_Class_Names(const std::string path, const size_t class_num);
@@ -104,20 +104,24 @@ int main(int argc, const char *argv[]){
         std::random_device rd;
         std::srand(rd());
         torch::manual_seed(std::rand());
+        torch::globalContext().setDeterministicCuDNN(false);
+        torch::globalContext().setBenchmarkCuDNN(true);
     }
     else{
         std::srand(vm["seed"].as<int>());
         torch::manual_seed(std::rand());
+        torch::globalContext().setDeterministicCuDNN(true);
+        torch::globalContext().setBenchmarkCuDNN(false);
     }
 
     // (4) Set Transforms
-    std::vector<transforms::Compose*> transform{
-        (transforms::Compose*)new transforms::Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
-        (transforms::Compose*)new transforms::ToTensor(),                                                                            // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
-        (transforms::Compose*)new transforms::Normalize({0.485, 0.456, 0.406}, {0.229, 0.224, 0.225})                                // Pixel Value Normalization for ImageNet
+    std::vector<transforms_Compose> transform{
+        transforms_Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),        // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
+        transforms_ToTensor(),                                                                                  // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
+        transforms_Normalize(std::vector<float>{0.485, 0.456, 0.406}, std::vector<float>{0.229, 0.224, 0.225})  // Pixel Value Normalization for ImageNet
     };
     if (vm["nc"].as<size_t>() == 1){
-        transform.insert(transform.begin(), (transforms::Compose*)new transforms::Grayscale(1));
+        transform.insert(transform.begin(), transforms_Grayscale(1));
     }
     
     // (5) Define Network

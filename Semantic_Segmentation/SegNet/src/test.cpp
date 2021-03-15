@@ -9,7 +9,7 @@
 // For Original Header
 #include "loss.hpp"                    // Loss
 #include "networks.hpp"                // SegNet
-#include "transforms.hpp"              // transforms::Compose
+#include "transforms.hpp"              // transforms_Compose
 #include "datasets.hpp"                // datasets::ImageFolderSegmentWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderSegmentWithPaths
 #include "visualizer.hpp"              // visualizer
@@ -22,7 +22,7 @@ namespace po = boost::program_options;
 // ---------------
 // Test Function
 // ---------------
-void test(po::variables_map &vm, torch::Device &device, SegNet &model, std::vector<transforms::Compose*> &transformI, std::vector<transforms::Compose*> &transformO){
+void test(po::variables_map &vm, torch::Device &device, SegNet &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformO){
 
     // (0) Initialization and Declaration
     size_t correct, correct_per_class, total_class_pixel, class_count;

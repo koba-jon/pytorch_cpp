@@ -13,7 +13,7 @@
 // For Original Header
 #include "loss.hpp"                    // Loss
 #include "networks.hpp"                // GAN_Encoder, GAN_Generator, GAN_Discriminator
-#include "transforms.hpp"              // transforms::Compose
+#include "transforms.hpp"              // transforms_Compose
 #include "datasets.hpp"                // datasets::ImageFolderWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderWithPaths
 #include "visualizer.hpp"              // visualizer
@@ -30,7 +30,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datalo
 // -------------------
 // Training Function
 // -------------------
-void train(po::variables_map &vm, torch::Device &device, GAN_Encoder &enc, GAN_Generator &gen, GAN_Discriminator &dis, std::vector<transforms::Compose*> &transform){
+void train(po::variables_map &vm, torch::Device &device, GAN_Encoder &enc, GAN_Generator &gen, GAN_Discriminator &dis, std::vector<transforms_Compose> &transform){
 
     constexpr bool train_shuffle = true;  // whether to shuffle the training dataset
     constexpr size_t train_workers = 4;  // the number of workers to retrieve data from the training dataset

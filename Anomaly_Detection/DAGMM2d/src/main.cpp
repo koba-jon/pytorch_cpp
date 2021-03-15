@@ -18,8 +18,8 @@ namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
-void train(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &dec, EstimationNetwork &est, std::vector<transforms::Compose*> &transform);
-void test(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &dec, EstimationNetwork &est, std::vector<transforms::Compose*> &transform);
+void train(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &dec, EstimationNetwork &est, std::vector<transforms_Compose> &transform);
+void test(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &dec, EstimationNetwork &est, std::vector<transforms_Compose> &transform);
 void anomaly_detection(po::variables_map &vm);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
@@ -122,20 +122,24 @@ int main(int argc, const char *argv[]){
         std::random_device rd;
         std::srand(rd());
         torch::manual_seed(std::rand());
+        torch::globalContext().setDeterministicCuDNN(false);
+        torch::globalContext().setBenchmarkCuDNN(true);
     }
     else{
         std::srand(vm["seed"].as<int>());
         torch::manual_seed(std::rand());
+        torch::globalContext().setDeterministicCuDNN(true);
+        torch::globalContext().setBenchmarkCuDNN(false);
     }
 
     // (4) Set Transforms
-    std::vector<transforms::Compose*> transform{
-        (transforms::Compose*)new transforms::Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
-        (transforms::Compose*)new transforms::ToTensor(),                                                                            // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
-        (transforms::Compose*)new transforms::Normalize(0.5, 0.5)                                                                    // [0,1] ===> [-1,1]
+    std::vector<transforms_Compose> transform{
+        transforms_Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
+        transforms_ToTensor(),                                                                            // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
+        transforms_Normalize(0.5, 0.5)                                                                    // [0,1] ===> [-1,1]
     };
     if (vm["nc"].as<size_t>() == 1){
-        transform.insert(transform.begin(), (transforms::Compose*)new transforms::Grayscale(1));
+        transform.insert(transform.begin(), transforms_Grayscale(1));
     }
     
     // (5) Define Network
