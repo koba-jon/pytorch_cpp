@@ -173,14 +173,14 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/html/Redmon_You_Only_Look_CVPR_2016_paper.html">J. Redmon et al.</a></td>
     <td>CVPR 2016</td>
     <td><a href="Object_Detection/YOLOv1">YOLOv1</a></td>
-    <td><b>v1.8.0(Latest)</b></td>
+    <td>v1.8.0</td>
   </tr>
   <tr>
     <td>YOLOv2</td>
     <td><a href="https://openaccess.thecvf.com/content_cvpr_2017/html/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.html">J. Redmon et al.</a></td>
     <td>CVPR 2017</td>
     <td><a href="Object_Detection/YOLOv2">YOLOv2</a></td>
-    <td><b>v1.8.0(Latest)</b></td>
+    <td>v1.8.0</td>
   </tr>
 </table>
 
@@ -237,13 +237,13 @@ In addition, I might adapt programs to the latest version. <br>
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Stable (1.8.0) <br>
+PyTorch Build : Preview (Nightly) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 CUDA : 10.2 <br>
 Run this Command : Download here (cxx11 ABI) <br>
-GPU : https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.8.0.zip <br>
-CPU : https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.0%2Bcpu.zip <br>
+GPU : https://download.pytorch.org/libtorch/nightly/cu102/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
+CPU : https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
 ***
 
 ### 2. OpenCV
@@ -277,7 +277,7 @@ $ sudo apt install libpng-dev libpng++-dev zlib1g-dev
 
 ### 1. Git Clone
 ~~~
-$ git clone https://github.com/koba-jon/pytorch_cpp.git
+$ git clone -b develop/v1.8.1 https://github.com/koba-jon/pytorch_cpp.git
 $ cd pytorch_cpp
 ~~~
 
