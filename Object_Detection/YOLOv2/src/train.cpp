@@ -268,7 +268,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv2 &model, std::vec
                 ss.str(""); ss.clear(std::stringstream::goodbit);
                 ss << save_images_dir << "/epoch_" << epoch << "-iter_" << iter << '.' << extension;
                 detect_result = detector(output[0]);
-                sample = visualizer::draw_detections_prob(image[0].detach(), {std::get<0>(detect_result), std::get<1>(detect_result)}, std::get<2>(detect_result), class_names, label_palette, /*range=*/output_range);
+                sample = visualizer::draw_detections_des(image[0].detach(), {std::get<0>(detect_result), std::get<1>(detect_result)}, std::get<2>(detect_result), class_names, label_palette, /*range=*/output_range);
                 cv::imwrite(ss.str(), sample);
             }
 
@@ -296,7 +296,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv2 &model, std::vec
         ss.str(""); ss.clear(std::stringstream::goodbit);
         ss << save_images_dir << "/epoch_" << epoch << "-iter_" << show_progress->get_iters() << '.' << extension;
         detect_result = detector(output[0]);
-        sample = visualizer::draw_detections_prob(image[0].detach(), {std::get<0>(detect_result), std::get<1>(detect_result)}, std::get<2>(detect_result), class_names, label_palette, /*range=*/output_range);
+        sample = visualizer::draw_detections_des(image[0].detach(), {std::get<0>(detect_result), std::get<1>(detect_result)}, std::get<2>(detect_result), class_names, label_palette, /*range=*/output_range);
         cv::imwrite(ss.str(), sample);
         delete show_progress;
         

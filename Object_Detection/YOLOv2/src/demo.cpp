@@ -100,7 +100,7 @@ void demo(po::variables_map &vm, torch::Device &device, YOLOv2 &model, std::vect
         // (5.3) Inference and Detection
         tensorO = model->forward(tensorI);  // {1,C,H,W} ===> {1,G,G,FF}
         detect_result = detector(tensorO[0]);  // tensorO[0]{G,G,FF} ===> detect_result{ (ids{BB_n}, coords{BB_n,4}, probs{BB_n}) }
-        imageO = visualizer::draw_detections_prob(tensorD.detach(), {std::get<0>(detect_result), std::get<1>(detect_result)}, std::get<2>(detect_result), class_names, label_palette, /*range=*/output_range);
+        imageO = visualizer::draw_detections_des(tensorD.detach(), {std::get<0>(detect_result), std::get<1>(detect_result)}, std::get<2>(detect_result), class_names, label_palette, /*range=*/output_range);
 
         // (5.4) Calculate FPS
         end = std::chrono::system_clock::now();

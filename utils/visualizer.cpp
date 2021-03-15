@@ -297,9 +297,9 @@ cv::Mat visualizer::draw_detections(const torch::Tensor image, const std::tuple<
 
 
 // ----------------------------------------------------------
-// namespace{visualizer} -> function{draw_detections_prob}
+// namespace{visualizer} -> function{draw_detections_des}
 // ----------------------------------------------------------
-cv::Mat visualizer::draw_detections_prob(const torch::Tensor image, const std::tuple<torch::Tensor, torch::Tensor> label, const torch::Tensor prob, const std::vector<std::string> class_names, const std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette, const std::pair<float, float> range){
+cv::Mat visualizer::draw_detections_des(const torch::Tensor image, const std::tuple<torch::Tensor, torch::Tensor> label, const torch::Tensor prob, const std::vector<std::string> class_names, const std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette, const std::pair<float, float> range){
 
     constexpr size_t bits = 8;
     constexpr size_t line_thickness_max = 5;

@@ -77,7 +77,7 @@ void detect(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::ve
         ids = std::get<0>(detect_result);  // ids{BB_n}
         coords = std::get<1>(detect_result);  // coords{BB_n,4}
         probs = std::get<2>(detect_result);  // probs{BB_n}
-        imageO = visualizer::draw_detections_prob(imageD[0].detach(), {ids, coords}, probs, class_names, label_palette, /*range=*/output_range);
+        imageO = visualizer::draw_detections_des(imageD[0].detach(), {ids, coords}, probs, class_names, label_palette, /*range=*/output_range);
 
         // (4.3) Save image
         fname = result_dir + '/' + std::get<2>(data).at(0);  // {1,C,H,W} ===> {1,G,G,FF}
