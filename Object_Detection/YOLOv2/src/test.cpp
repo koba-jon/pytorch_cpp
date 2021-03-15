@@ -96,11 +96,6 @@ void test(po::variables_map &vm, torch::Device &device, YOLOv2 &model, std::vect
         ofs << '<' << std::get<2>(data).at(0) << "> coord_xy:" << loss_coord_xy.item<float>() << " coord_wh:" << loss_coord_wh.item<float>() << " conf_o:" << loss_obj.item<float>() << " conf_x:" << loss_noobj.item<float>() << " class:" << loss_class.item<float>() << std::endl;
 
     }
-    ofs << "coord_xy:" << ave_loss_coord_xy << ' ' << std::flush;
-    ofs << "coord_wh:" << ave_loss_coord_wh << ' ' << std::flush;
-    ofs << "conf_o:" << ave_loss_obj << ' ' << std::flush;
-    ofs << "conf_x:" << ave_loss_noobj << ' ' << std::flush;
-    ofs << "class:" << ave_loss_class << std::endl;
 
     // (6) Calculate Average
     ave_loss_coord_xy = ave_loss_coord_xy / (float)dataset.size();
