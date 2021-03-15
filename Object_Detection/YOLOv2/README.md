@@ -291,3 +291,102 @@ $ sh scripts/demo.sh
 ## Acknowledgments
 This code is inspired by [darknet](https://github.com/pjreddie/darknet), [Yolo-v2-pytorch](https://github.com/uvipen/Yolo-v2-pytorch), [yolov2.pytorch](https://github.com/tztztztztz/yolov2.pytorch), [yolo2-pytorch](https://github.com/longcw/yolo2-pytorch), [furkanu/yolov2-pytorch](https://github.com/furkanu/yolov2-pytorch), [yxlijun/yolov2-pytorch](https://github.com/yxlijun/yolov2-pytorch) and [YOLOv2](https://github.com/leetenki/YOLOv2).
 
+
+---
+
+---
+
+---
+
+## Training Strategy
+
+---
+
+### Loss
+
+Loss function (default):
+![YOLOv2_loss](https://user-images.githubusercontent.com/56967584/111178592-ab71ba80-85ee-11eb-99e7-1abe2c414b60.png)
+
+If the loss of term `conf<noobj>` is strong, "Not Detected" will occur frequently. <br>
+In the case, it is recommended to add `--Lambda_noobject 0.1` to arguments, where the default value is `1.0`.<br>
+
+---
+
+### Learning Rate
+
+If the initial value of `learning rate` is high, gradient values will diverge. <br>
+In the case, it is recommended to add `--lr_init 1e-5`, `--lr_base 1e-4`, `--lr_decay1 1e-5` and `--lr_decay2 1e-6` to arguments. (i.e., slow updation and fluctuation)<br>
+
+---
+
+### Data Augmentation
+
+Transformation of 8 components:
+- Flipping : `--flip_rate 0.5`
+- Scaling (i.e., Resize) : `--scale_rate 0.5`
+- Blurring (i.e., Applying an averaging filter) : `--blur_rate 0.5`
+- Change Brightness (i.e., Value in HSV) : `--brightness_rate 0.5`
+- Change Hue : `--hue_rate 0.5`
+- Change Saturation : `--saturation_rate 0.5`
+- Shifting : `--shift_rate 0.5`
+- Cropping : `--crop_rate 0.5`
+
+Please write the occurrence probability in each argument `rate`.<br>
+Here, `1.0` means that it always occurs.<br>
+
+If the distributions of training and test samples are quite similar, data augmentation has undesirable effect.<br>
+In the case, it is recommended to add `--augmentation false` to arguments, where the default value is `true`.<br>
+
+---
+
+### Anchor
+
+Anchors are useful for stable detection.<br>
+Please refer to `cfg/anchor.txt` to change the config.<br>
+
+~~~
+0.57273 0.667385    # (1) Prior-width Prior-height
+1.87446 2.06253     # (2) Prior-width Prior-height
+3.33843 5.47434     # (3) Prior-width Prior-height
+7.88282 3.52778     # (4) Prior-width Prior-height
+9.77052 9.16828     # (5) Prior-width Prior-height
+~~~
+
+Please write the prior-size, where each grid size is `1.0`.<br>
+If you want to change types of anchor, please write `types` on `--na` to arguments.
+
+---
+
+### Resize
+
+Multi-Scale Training allows the predictor to detect objects at various resolutions.<br>
+Please refer to `cfg/resize.txt` to change the config.<br>
+
+~~~
+10          # types of image size to resize (i.e., it must match the number of lines for size in the text file.)
+10          # iterations to switch
+320 320     # (1) Width Height
+352 352     # (2) Width Height
+384 384     # (3) Width Height
+416 416     # (4) Width Height
+448 448     # (5) Width Height
+480 480     # (6) Width Height
+512 512     # (7) Width Height
+544 544     # (8) Width Height
+576 576     # (9) Width Height
+608 608     # (10) Width Height
+~~~
+
+---
+
+---
+
+## Detection Strategy
+
+Detection performance is determined by the prediction result and two threshold.
+
+Two threshold:
+- Simultaneous probability with confidence and class score : `--prob_thresh 0.1`
+- IoU between bounding boxes in Non-Maximum Suppression : `--nms_thresh 0.5`
+
+If you allow over-detection, please decrease `prob_thresh` and increase `nms_thresh`. (e.g., `--prob_thresh 0.05`, `--nms_thresh 0.75`)
