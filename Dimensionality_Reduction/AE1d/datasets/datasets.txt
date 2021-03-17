@@ -1,0 +1,41 @@
+1. What kind of dataset do you need?
+
+Please prepare files of 1-dimensional shape in which the data is written line-by-line.
+
+Example (7-dimensional data of 1-dimensional shape):
+---------------------------------------------------------
+0.125
+1.552
+2.452
+4.552
+2.563
+4.532
+2.413
+---------------------------------------------------------
+
+
+2. What kind of hierarchical relationship do you need?
+
+The following hierarchical relationships are recommended.
+
+---------------------------------------------------------
+datasets
+|--Dataset1
+|    |--train
+|    |    |--data1.dat
+|    |    |--data2.csv
+|    |    |--data3.txt
+|    |
+|    |--valid
+|    |    |--data4.dat
+|    |    |--data5.csv
+|    |    |--data6.txt
+|    |
+|    |--test
+|         |--data7.dat
+|         |--data8.csv
+|         |--data9.txt
+|
+|--Dataset2
+|--Dataset3
+---------------------------------------------------------

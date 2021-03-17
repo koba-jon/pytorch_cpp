@@ -54,9 +54,13 @@ In addition, I might adapt programs to the latest version. <br>
     <th>Release Version</th>
   </tr>
   <tr>
-    <td>Autoencoder</td>
-    <td><a href="https://science.sciencemag.org/content/313/5786/504.abstract">G. E. Hinton et al.</a></td>
-    <td>Science 2006</td>
+    <td rowspan="2">Autoencoder</td>
+    <td rowspan="2"><a href="https://science.sciencemag.org/content/313/5786/504.abstract">G. E. Hinton et al.</a></td>
+    <td rowspan="2">Science 2006</td>
+    <td><a href="Dimensionality_Reduction/AE1d">AE1d</a></td>
+    <td><b>v1.8.1(Latest)</b></td>
+  </tr>
+  <tr>
     <td><a href="Dimensionality_Reduction/AE2d">AE2d</a></td>
     <td>v1.5.0</td>
   </tr>

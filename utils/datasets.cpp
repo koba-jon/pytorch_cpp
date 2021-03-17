@@ -1,3 +1,4 @@
+#include <fstream>
 #include <string>
 #include <sstream>
 #include <tuple>
@@ -38,6 +39,33 @@ void datasets::collect(const std::string root, const std::string sub, std::vecto
         }
     }
     return;
+}
+
+
+// -----------------------------------------------
+// namespace{datasets} -> function{Data1d_Loader}
+// -----------------------------------------------
+torch::Tensor datasets::Data1d_Loader(std::string &path){
+
+    float data_one;
+    std::ifstream ifs;
+    std::vector<float> data_src;
+    torch::Tensor data;
+
+    // Get Data
+    ifs.open(path);
+    while (1){
+        ifs >> data_one;
+        if (ifs.eof()) break;
+        data_src.push_back(data_one);
+    }
+    ifs.close();
+
+    // Get Tensor
+    data = torch::from_blob(data_src.data(), {(long int)data_src.size()}, torch::kFloat).clone();
+
+    return data;
+
 }
 
 
@@ -132,6 +160,91 @@ std::tuple<torch::Tensor, torch::Tensor> datasets::BoundingBox_Loader(std::strin
     return BBs;
 
 }
+
+
+
+/*******************************************************************************/
+/*                                   Data 1d                                   */
+/*******************************************************************************/
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{Data1dFolderWithPaths} -> constructor
+// -------------------------------------------------------------------------
+datasets::Data1dFolderWithPaths::Data1dFolderWithPaths(const std::string root, std::vector<transforms_Compose> &transform_){
+    datasets::collect(root, "", this->paths, this->fnames);
+    std::sort(this->paths.begin(), this->paths.end());
+    std::sort(this->fnames.begin(), this->fnames.end());
+    this->transform = transform_;
+}
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{Data1dFolderWithPaths} -> function{get}
+// -------------------------------------------------------------------------
+void datasets::Data1dFolderWithPaths::get(const size_t idx, std::tuple<torch::Tensor, std::string> &data){
+    torch::Tensor tensor_in = datasets::Data1d_Loader(this->paths.at(idx));
+    torch::Tensor tensor_out = transforms::applyT(this->transform, tensor_in);  // Tensor Data ==={Normalize,etc.}===> Tensor Data
+    std::string fname = this->fnames.at(idx);
+    data = {tensor_out.detach().clone(), fname};
+    return;
+}
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{Data1dFolderWithPaths} -> function{size}
+// -------------------------------------------------------------------------
+size_t datasets::Data1dFolderWithPaths::size(){
+    return this->fnames.size();
+}
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{Data1dFolderPairWithPaths} -> constructor
+// -------------------------------------------------------------------------
+datasets::Data1dFolderPairWithPaths::Data1dFolderPairWithPaths(const std::string root1, const std::string root2, std::vector<transforms_Compose> &transformI_, std::vector<transforms_Compose> &transformO_){
+
+    datasets::collect(root1, "", this->paths1, this->fnames1);
+    std::sort(this->paths1.begin(), this->paths1.end());
+    std::sort(this->fnames1.begin(), this->fnames1.end());
+
+    datasets::collect(root2, "", this->paths2, this->fnames2);
+    std::sort(this->paths2.begin(), this->paths2.end());
+    std::sort(this->fnames2.begin(), this->fnames2.end());
+
+    this->transformI = transformI_;
+    this->transformO = transformO_;
+
+}
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{Data1dFolderPairWithPaths} -> function{get}
+// -------------------------------------------------------------------------
+void datasets::Data1dFolderPairWithPaths::get(const size_t idx, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> &data){
+    torch::Tensor tensor1_in = datasets::Data1d_Loader(this->paths1.at(idx));
+    torch::Tensor tensor2_in = datasets::Data1d_Loader(this->paths2.at(idx));
+    torch::Tensor tensor1_out = transforms::applyT(this->transformI, tensor1_in);  // Tensor Data ==={Normalize,etc.}===> Tensor Data
+    torch::Tensor tensor2_out = transforms::applyT(this->transformO, tensor2_in);  // Tensor Data ==={Normalize,etc.}===> Tensor Data
+    std::string fname1 = this->fnames1.at(idx);
+    std::string fname2 = this->fnames2.at(idx);
+    data = {tensor1_out.detach().clone(), tensor2_out.detach().clone(), fname1, fname2};
+    return;
+}
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{Data1dFolderPairWithPaths} -> function{size}
+// -------------------------------------------------------------------------
+size_t datasets::Data1dFolderPairWithPaths::size(){
+    return this->fnames1.size();
+}
+
+
+
+/*******************************************************************************/
+/*                                   Data 2d                                   */
+/*******************************************************************************/
 
 
 // -------------------------------------------------------------------------

@@ -19,6 +19,21 @@ torch::Tensor transforms::apply(std::vector<transforms_Compose> &transform, cv::
 
 
 // -------------------------------------------
+// namespace{transforms} -> function{applyT}
+// -------------------------------------------
+torch::Tensor transforms::applyT(std::vector<transforms_Compose> &transform, torch::Tensor &data_in){
+    torch::Tensor data_out;
+    if (transform.size() > 0){
+        transforms::forward<torch::Tensor, torch::Tensor>(transform, data_in, data_out, transform.size());
+    }
+    else{
+        data_out = data_in;
+    }
+    return data_out.contiguous().detach().clone();
+}
+
+
+// -------------------------------------------
 // namespace{transforms} -> function{forward}
 // -------------------------------------------
 template <typename T_in, typename T_out>
@@ -46,6 +61,66 @@ template void transforms::forward<cv::Mat, cv::Mat>(std::vector<transforms_Compo
 template void transforms::forward<cv::Mat, torch::Tensor>(std::vector<transforms_Compose> &transform_, cv::Mat &data_in, torch::Tensor &data_out, const int count);
 template void transforms::forward<torch::Tensor, cv::Mat>(std::vector<transforms_Compose> &transform_, torch::Tensor &data_in, cv::Mat &data_out, const int count);
 template void transforms::forward<torch::Tensor, torch::Tensor>(std::vector<transforms_Compose> &transform_, torch::Tensor &data_in, torch::Tensor &data_out, const int count);
+
+
+
+/*******************************************************************************/
+/*                                   Data 1d                                   */
+/*******************************************************************************/
+
+
+// ------------------------------------------------------------------------------
+// namespace{transforms} -> class{Normalize1dImpl}(ComposeImpl) -> constructor
+// ------------------------------------------------------------------------------
+transforms::Normalize1dImpl::Normalize1dImpl(const float mean_, const float std_){
+    this->mean = torch::from_blob((float *)&mean_, {1}, torch::kFloat).clone();  // mean{1}
+    this->std = torch::from_blob((float *)&std_, {1}, torch::kFloat).clone();  // std{1}
+}
+
+transforms::Normalize1dImpl::Normalize1dImpl(const float mean_, const std::vector<float> std_){
+    this->mean = torch::from_blob((float *)&mean_, {1}, torch::kFloat).clone();  // mean{1}
+    this->std = torch::from_blob((float *)std_.data(), {(long int)std_.size()}, torch::kFloat).clone();  // std{D}
+}
+
+transforms::Normalize1dImpl::Normalize1dImpl(const std::vector<float> mean_, const float std_){
+    this->mean = torch::from_blob((float *)mean_.data(), {(long int)mean_.size()}, torch::kFloat).clone();  // mean{D}
+    this->std = torch::from_blob((float *)&std_, {1}, torch::kFloat).clone();  // std{1}
+}
+
+transforms::Normalize1dImpl::Normalize1dImpl(const std::vector<float> mean_, const std::vector<float> std_){
+    this->mean = torch::from_blob((float *)mean_.data(), {(long int)mean_.size()}, torch::kFloat).clone();  // mean{D}
+    this->std = torch::from_blob((float *)std_.data(), {(long int)std_.size()}, torch::kFloat).clone();  // std{D}
+}
+
+
+// -----------------------------------------------------------------------------------
+// namespace{transforms} -> class{Normalize1dImpl}(ComposeImpl) -> function{forward}
+// -----------------------------------------------------------------------------------
+void transforms::Normalize1dImpl::forward(torch::Tensor &data_in, torch::Tensor &data_out){
+
+    long int dim = data_in.size(0);
+
+    torch::Tensor meanF = this->mean;
+    if (dim < meanF.size(0)){
+        meanF = meanF.split(/*split_size=*/dim, /*dim=*/0).at(0);  // meanF{*} ===> {D}
+    }
+
+    torch::Tensor stdF = this->std;
+    if (dim < stdF.size(0)){
+        stdF = stdF.split(/*split_size=*/dim, /*dim=*/0).at(0);  // stdF{*} ===> {D}
+    }
+    
+    torch::Tensor data_out_src = (data_in - meanF.to(data_in.device())) / stdF.to(data_in.device());  // data_in{D}, meanF{*}, stdF{*} ===> data_out_src{D}
+    data_out = data_out_src.contiguous().detach().clone();
+
+    return;
+}
+
+
+
+/*******************************************************************************/
+/*                                   Data 2d                                   */
+/*******************************************************************************/
 
 
 // --------------------------------------------------------------------------
