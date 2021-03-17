@@ -45,7 +45,6 @@ datasets
 |--Dataset3
 ~~~
 
-You should substitute the path of training data for "<training_path>", test data for "<test_path>", respectively.<br>
 The following is an example for "NormalDistribution".
 ~~~
 $ cd datasets
