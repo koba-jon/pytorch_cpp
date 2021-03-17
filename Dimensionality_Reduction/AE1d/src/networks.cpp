@@ -52,8 +52,8 @@ AutoEncoder1dImpl::AutoEncoder1dImpl(po::variables_map &vm){
 // struct{AutoEncoder1dImpl}(nn::Module) -> function{forward}
 // ----------------------------------------------------------------------
 torch::Tensor AutoEncoder1dImpl::forward(torch::Tensor x){
-    torch::Tensor z = this->encoder->forward(x);    // {C,256,256} ===> {Z,4,4}
-    torch::Tensor out = this->decoder->forward(z);  // {Z,4,4} ===> {C,256,256}
+    torch::Tensor z = this->encoder->forward(x);    // {D} ===> {Z}
+    torch::Tensor out = this->decoder->forward(z);  // {Z} ===> {D}
     return out;
 }
 
