@@ -42,7 +42,7 @@ AutoEncoder1dImpl::AutoEncoder1dImpl(po::variables_map &vm){
         LinearLayer(this->decoder, dim_list.at(dim_size - i - 1), dim_list.at(dim_size - i - 2), /*ReLU*/true);
     }
     LinearLayer(this->decoder, dim_list.at(1), dim_list.at(0), /*ReLU*/false);
-    // this->decoder.push_back(nn::Sigmoid());
+    // this->decoder->push_back(nn::Sigmoid());
     register_module("decoder", this->decoder);
 
 }
