@@ -41,6 +41,13 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="Multiclass_Classification/ResNet">ResNet</a></td>
     <td>v1.7.0</td>
   </tr>
+  <tr>
+    <td>Discriminator</td>
+    <td><a href="https://arxiv.org/abs/1511.06434">A. Radford et al.</a></td>
+    <td>ICLR 2016</td>
+    <td><a href="Multiclass_Classification/Discriminator">Discriminator</a></td>
+    <td><b>v1.8.1(Latest)</b></td>
+  </tr>
 </table>
 
 ### Dimensionality Reduction

@@ -15,6 +15,7 @@ Image-to-Image_Translation/pix2pix
 Multiclass_Classification/AlexNet
 Multiclass_Classification/ResNet
 Multiclass_Classification/VGGNet
+Multiclass_Classification/Discriminator
 Object_Detection/YOLOv1
 Object_Detection/YOLOv2
 Semantic_Segmentation/SegNet
