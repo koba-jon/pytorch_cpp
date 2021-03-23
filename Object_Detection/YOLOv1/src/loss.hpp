@@ -13,7 +13,7 @@
 class Loss{
 private:
     long int class_num, ng, nb;
-    std::tuple<torch::Tensor, torch::Tensor> make_target(std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target);
+    std::tuple<torch::Tensor, torch::Tensor> build_target(std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target);
     torch::Tensor rescale(torch::Tensor &BBs);
     torch::Tensor compute_iou(torch::Tensor &BBs1, torch::Tensor &BBs2);
 public:
