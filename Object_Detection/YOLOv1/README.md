@@ -116,7 +116,7 @@ $ vi ../../scripts/xml2txt.sh
 
 You should substitute the path of training XML data for "--input_dir", training text data for "--output_dir", class name list for "--class_list", respectively.
 ~~~
-!/bin/bash
+#!/bin/bash
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 
@@ -138,7 +138,7 @@ $ vi ../../scripts/xml2txt.sh
 
 You should substitute the path of test XML data for "--input_dir", test text data for "--output_dir", class name list for "--class_list", respectively.
 ~~~
-!/bin/bash
+#!/bin/bash
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 
