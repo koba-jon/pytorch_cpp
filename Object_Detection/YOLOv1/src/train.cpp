@@ -6,7 +6,7 @@
 #include <tuple>                       // std::tuple
 #include <vector>                      // std::vector
 #include <utility>                     // std::pair
-#include <cmath>                       // std::ceil, std::pow
+#include <cmath>                       // std::pow
 // For External Library
 #include <torch/torch.h>               // torch
 #include <opencv2/opencv.hpp>          // cv::Mat
@@ -179,7 +179,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vec
     
     // (1) Set Parameters
     start_epoch++;
-    total_iter = std::ceil((float)dataset.size() / (float)vm["batch_size"].as<size_t>());
+    total_iter = dataloader.get_count_max();
     total_epoch = vm["epochs"].as<size_t>();
     lr_init = vm["lr_init"].as<float>();
     lr_base = vm["lr_base"].as<float>();

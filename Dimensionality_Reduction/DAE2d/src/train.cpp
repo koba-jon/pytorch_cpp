@@ -6,7 +6,6 @@
 #include <tuple>                       // std::tuple
 #include <vector>                      // std::vector
 #include <utility>                     // std::pair
-#include <cmath>                       // std::ceil
 // For External Library
 #include <torch/torch.h>               // torch
 #include <boost/program_options.hpp>   // boost::program_options
@@ -147,7 +146,7 @@ void train(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncode
     
     // (1) Set Parameters
     start_epoch++;
-    total_iter = std::ceil((float)dataset.size() / (float)vm["batch_size"].as<size_t>());
+    total_iter = dataloader.get_count_max();
     total_epoch = vm["epochs"].as<size_t>();
 
     // (2) Training per Epoch

@@ -8,7 +8,7 @@
 #include <random>                      // std::mt19937, std::uniform_int_distribution
 #include <utility>                     // std::pair
 #include <cstdlib>                     // std::rand
-#include <cmath>                       // std::ceil, std::pow
+#include <cmath>                       // std::pow
 // For External Library
 #include <torch/torch.h>               // torch
 #include <opencv2/opencv.hpp>          // cv::Mat
@@ -187,7 +187,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv2 &model, std::vec
     
     // (1) Set Parameters
     start_epoch++;
-    total_iter = std::ceil((float)dataset.size() / (float)vm["batch_size"].as<size_t>());
+    total_iter = dataloader.get_count_max();
     mt.seed(std::rand());
     urand = std::uniform_int_distribution<size_t>(/*min=*/0, /*max=*/resizes.size() - 1);
     resize_step = 0;
