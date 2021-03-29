@@ -18,9 +18,9 @@ Loss::Loss(const long int class_num_, const long int ng_, const long int nb_){
 
 
 // -------------------------------------
-// class{Loss} -> function{make_target}
+// class{Loss} -> function{build_target}
 // -------------------------------------
-std::tuple<torch::Tensor, torch::Tensor> Loss::make_target(std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target){
+std::tuple<torch::Tensor, torch::Tensor> Loss::build_target(std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target){
 
     size_t i, j;
     size_t BB_n;
@@ -192,7 +192,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
     std::tuple<torch::Tensor, torch::Tensor> target_new;
     torch::Tensor target_class, target_coord, target_coord_new, target_coord_per, target_conf;
     /*************************************************************************/
-    target_new = this->make_target(target);  // target{N, ({BB_n}, {BB_n,4}) } ===> target_new({N,G,G,CN}, {N,G,G,5})
+    target_new = this->build_target(target);  // target{N, ({BB_n}, {BB_n,4}) } ===> target_new({N,G,G,CN}, {N,G,G,5})
     target_class = std::get<0>(target_new).to(device);  // target_class{N,G,G,CN}
     target_coord = std::get<1>(target_new).to(device);  // target_coord{N,G,G,5}
     target_coord_new = target_coord.unsqueeze(/*dim=*/3);  // target_coord{N,G,G,5} ===> target_coord_new{N,G,G,1,5}

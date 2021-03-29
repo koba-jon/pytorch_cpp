@@ -16,7 +16,7 @@
 // namespace{transforms}
 // -----------------------
 namespace transforms{
-
+    
 
     // --------------------------------------------
     // namespace{transforms} -> class{ComposeImpl}
@@ -36,8 +36,38 @@ namespace transforms{
 
     // Function Prototype
     torch::Tensor apply(std::vector<transforms_Compose> &transform, cv::Mat &data_in);
+    torch::Tensor applyT(std::vector<transforms_Compose> &transform, torch::Tensor &data_in);
     template <typename T_in, typename T_out> void forward(std::vector<transforms_Compose> &transform_, T_in &data_in, T_out &data_out, const int count);
 
+
+
+    /*******************************************************************************/
+    /*                                   Data 1d                                   */
+    /*******************************************************************************/
+
+    
+    // -----------------------------------------------------------
+    // namespace{transforms} -> class{Normalize1dImpl}(ComposeImpl)
+    // -----------------------------------------------------------
+    #define transforms_Normalize1d std::make_shared<transforms::Normalize1dImpl>
+    class Normalize1dImpl : public ComposeImpl{
+    private:
+        torch::Tensor mean, std;
+    public:
+        Normalize1dImpl(){}
+        Normalize1dImpl(const float mean_, const float std_);
+        Normalize1dImpl(const float mean_, const std::vector<float> std_);
+        Normalize1dImpl(const std::vector<float> mean_, const float std_);
+        Normalize1dImpl(const std::vector<float> mean_, const std::vector<float> std_);
+        bool type() override{return TORCH_TENSOR;}
+        void forward(torch::Tensor &data_in, torch::Tensor &data_out) override;
+    };
+
+
+
+    /*******************************************************************************/
+    /*                                   Data 2d                                   */
+    /*******************************************************************************/
 
     // -----------------------------------------------------------
     // namespace{transforms} -> class{GrayscaleImpl}(ComposeImpl)

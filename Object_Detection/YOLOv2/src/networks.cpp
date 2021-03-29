@@ -1,3 +1,4 @@
+#include <iostream>
 #include <vector>
 #include <typeinfo>
 // For External Library
@@ -130,6 +131,15 @@ torch::Tensor FloorAvgPool2dImpl::forward(torch::Tensor x){
 }
 
 
+// -----------------------------------------------------------------
+// struct{FloorAvgPool2dImpl}(nn::Module) -> function{pretty_print}
+// -----------------------------------------------------------------
+void FloorAvgPool2dImpl::pretty_print(std::ostream& stream) const{
+    stream << "FloorAvgPool2d(multiple=[" << this->multiple.at(0) << ", " << this->multiple.at(1) << "])";
+    return;
+}
+
+
 // ---------------------------------------------------------
 // struct{ReorganizeImpl}(nn::Module) -> constructor
 // ---------------------------------------------------------
@@ -154,6 +164,15 @@ torch::Tensor ReorganizeImpl::forward(torch::Tensor x){
     out = out.view({N, C, (hs * ws), (H / hs), (W / ws)}).transpose(1, 2).contiguous();  // {N,C,4,H*W/4} ===> {N,C,4,H/2,W/2} ===> {N,4,C,H/2,W/2}
     out = out.view({N, (hs * ws * C), (H / hs), (W / ws)}).contiguous();                 // {N,4,C,H/2,W/2} ===> {N,4C,H/2,W/2}
     return out;
+}
+
+
+// -----------------------------------------------------------------
+// struct{ReorganizeImpl}(nn::Module) -> function{pretty_print}
+// -----------------------------------------------------------------
+void ReorganizeImpl::pretty_print(std::ostream& stream) const{
+    stream << "Reorganize(stride=" << this->stride << ")";
+    return;
 }
 
 

@@ -116,7 +116,7 @@ $ vi ../../scripts/xml2txt.sh
 
 You should substitute the path of training XML data for "--input_dir", training text data for "--output_dir", class name list for "--class_list", respectively.
 ~~~
-!/bin/bash
+#!/bin/bash
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 
@@ -138,7 +138,7 @@ $ vi ../../scripts/xml2txt.sh
 
 You should substitute the path of test XML data for "--input_dir", test text data for "--output_dir", class name list for "--class_list", respectively.
 ~~~
-!/bin/bash
+#!/bin/bash
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 
@@ -305,7 +305,7 @@ This code is inspired by [darknet](https://github.com/pjreddie/darknet), [Yolo-v
 ### Loss
 
 Loss function (default):
-![YOLOv2_loss](https://user-images.githubusercontent.com/56967584/111178592-ab71ba80-85ee-11eb-99e7-1abe2c414b60.png)
+![YOLOv2_loss](https://user-images.githubusercontent.com/56967584/111260481-3ccf4400-8664-11eb-8980-909300702b1e.png)
 
 If the loss of term `conf<noobj>` is strong, "Not Detected" will occur frequently. <br>
 In the case, it is recommended to add `--Lambda_noobject 0.1` to arguments, where the default value is `1.0`.<br>

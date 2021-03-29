@@ -1,6 +1,7 @@
 #ifndef NETWORKS_HPP
 #define NETWORKS_HPP
 
+#include <iostream>
 #include <vector>
 // For External Library
 #include <torch/torch.h>
@@ -62,6 +63,7 @@ public:
     ViewImpl(){}
     ViewImpl(std::vector<long int> shape_);
     torch::Tensor forward(torch::Tensor x);
+    void pretty_print(std::ostream& stream) const override;
 };
 
 TORCH_MODULE(WAE_Encoder);

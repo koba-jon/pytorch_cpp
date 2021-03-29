@@ -1,0 +1,64 @@
+1. What kind of dataset do you need?
+
+Please prepare images that can be read by OpenCV.
+Also, all data must have one class of information for each image.
+
+
+2. What kind of hierarchical relationship do you need?
+
+The following hierarchical relationships are recommended.
+
+---------------------------------------------------------
+datasets
+|--Dataset1
+|    |--train
+|    |    |--class1
+|    |    |    |--image1.png
+|    |    |    |--image2.bmp
+|    |    |    |--image3.jpg
+|    |    |
+|    |    |--class2
+|    |    |    |--image4.png
+|    |    |    |--image5.bmp
+|    |    |    |--image6.jpg
+|    |    |
+|    |    |--class3
+|    |         |--image7.png
+|    |         |--image8.bmp
+|    |         |--image9.jpg
+|    |
+|    |--valid
+|    |    |--class1
+|    |    |    |--image10.png
+|    |    |    |--image11.bmp
+|    |    |    |--image12.jpg
+|    |    |
+|    |    |--class2
+|    |    |    |--image13.png
+|    |    |    |--image14.bmp
+|    |    |    |--image15.jpg
+|    |    |
+|    |    |--class3
+|    |         |--image16.png
+|    |         |--image17.bmp
+|    |         |--image18.jpg
+|    |
+|    |--test
+|         |--class1
+|         |    |--image19.png
+|         |    |--image20.bmp
+|         |    |--image21.jpg
+|         |
+|         |--class2
+|         |    |--image22.png
+|         |    |--image23.bmp
+|         |    |--image24.jpg
+|         |
+|         |--class3
+|              |--image25.png
+|              |--image26.bmp
+|              |--image27.jpg
+|
+|--Dataset2
+|--Dataset3
+---------------------------------------------------------

@@ -13,15 +13,22 @@
 #include "dataloader.hpp"
 
 
+
+/*******************************************************************************/
+/*                                   Data 1d                                   */
+/*******************************************************************************/
+
+
 // --------------------------------------------------------------------
-// namespace{DataLoader} -> class{ImageFolderWithPaths} -> constructor
+// namespace{DataLoader} -> class{Data1dFolderWithPaths} -> constructor
 // --------------------------------------------------------------------
-DataLoader::ImageFolderWithPaths::ImageFolderWithPaths(datasets::ImageFolderWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_){
+DataLoader::Data1dFolderWithPaths::Data1dFolderWithPaths(datasets::Data1dFolderWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool drop_last_){
 
     this->dataset = dataset_;
     this->batch_size = batch_size_;
     this->shuffle = shuffle_;
     this->num_workers = num_workers_;
+    this->drop_last = drop_last_;
 
     this->size = this->dataset.size();
     this->idx = std::vector<size_t>(this->size);
@@ -30,7 +37,256 @@ DataLoader::ImageFolderWithPaths::ImageFolderWithPaths(datasets::ImageFolderWith
     }
 
     this->count = 0;
-    this->count_max = std::ceil((float)this->size / (float)this->batch_size);
+    if (this->drop_last){
+        this->count_max = std::floor((float)this->size / (float)this->batch_size);
+        if ((this->count_max == 0) && (this->size > 0)){
+            this->count_max = 1;
+        }
+    }
+    else{
+        this->count_max = std::ceil((float)this->size / (float)this->batch_size);
+    }
+
+    this->mt.seed(std::rand());
+
+}
+
+
+// --------------------------------------------------------------------
+// namespace{DataLoader} -> class{Data1dFolderWithPaths} -> operator
+// --------------------------------------------------------------------
+bool DataLoader::Data1dFolderWithPaths::operator()(std::tuple<torch::Tensor, std::vector<std::string>> &data){
+
+    // (0) Initialization and Declaration
+    size_t i;
+    size_t idx_start = this->batch_size * this->count;
+    size_t idx_end = std::min(this->size, (idx_start + this->batch_size));
+    size_t mini_batch_size = idx_end - idx_start;
+    torch::Tensor data1, tensor;
+    std::vector<std::string> data2;
+    std::tuple<torch::Tensor, std::string> group;
+    std::tuple<torch::Tensor, std::string> *data_before;
+
+    // (1) Special Handling on Certain Count
+    if ((this->count == 0) && this->shuffle){
+        std::shuffle(this->idx.begin(), this->idx.end(), this->mt);
+    }
+    else if(this->count == this->count_max){
+        this->count = 0;
+        return false;
+    }
+
+    // (2) Get Mini Batch Data
+    data_before = new std::tuple<torch::Tensor, std::string>[mini_batch_size];
+    // (2.1) Get Mini Batch Data using Single Thread
+    if (this->num_workers == 0){
+        for (i = 0; i < mini_batch_size; i++){
+            this->dataset.get(this->idx.at(idx_start + i), data_before[i]);
+        }
+    }
+    // (2.2) Get Mini Batch Data using Multi Thread
+    else{
+        omp_set_num_threads(this->num_workers);
+        #pragma omp parallel for
+        for (i = 0; i < mini_batch_size; i++){
+            this->dataset.get(this->idx.at(idx_start + i), data_before[i]);
+        }
+    }
+
+    // (3) Organize Data
+    data1 = std::get<0>(data_before[0]);
+    data1 = torch::unsqueeze(data1, /*dim=*/0);
+    data2.push_back(std::get<1>(data_before[0]));
+    for (i = 1; i < mini_batch_size; i++){
+        group = data_before[i];
+        tensor = std::get<0>(group);
+        tensor = torch::unsqueeze(tensor, /*dim=*/0);  // {D} ===> {1,D}
+        data1 = torch::cat({data1, tensor}, /*dim=*/0);  // {i,D} + {1,D} ===> {i+1,D}
+        data2.push_back(std::get<1>(group));
+    }
+
+    // Post Processing
+    this->count++;
+    data = {data1.contiguous().detach().clone(), data2};  // {N,D} (data), {N} (fnames)
+    delete[] data_before;
+
+    // End Processing
+    return true;
+    
+}
+
+
+// --------------------------------------------------------------------------
+// namespace{DataLoader} -> class{Data1dFolderWithPaths} -> function{reset}
+// --------------------------------------------------------------------------
+void DataLoader::Data1dFolderWithPaths::reset(){
+    this->count = 0;
+    return;
+}
+
+
+// ---------------------------------------------------------------------------------
+// namespace{DataLoader} -> class{Data1dFolderWithPaths} -> function{get_count_max}
+// ---------------------------------------------------------------------------------
+size_t DataLoader::Data1dFolderWithPaths::get_count_max(){
+    return this->count_max;
+}
+
+
+// -------------------------------------------------------------------------
+// namespace{DataLoader} -> class{Data1dFolderPairWithPaths} -> constructor
+// -------------------------------------------------------------------------
+DataLoader::Data1dFolderPairWithPaths::Data1dFolderPairWithPaths(datasets::Data1dFolderPairWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool drop_last_){
+
+    this->dataset = dataset_;
+    this->batch_size = batch_size_;
+    this->shuffle = shuffle_;
+    this->num_workers = num_workers_;
+    this->drop_last = drop_last_;
+
+    this->size = this->dataset.size();
+    this->idx = std::vector<size_t>(this->size);
+    for (size_t i = 0; i < this->size; i++){
+        this->idx.at(i) = i;
+    }
+
+    this->count = 0;
+    if (this->drop_last){
+        this->count_max = std::floor((float)this->size / (float)this->batch_size);
+        if ((this->count_max == 0) && (this->size > 0)){
+            this->count_max = 1;
+        }
+    }
+    else{
+        this->count_max = std::ceil((float)this->size / (float)this->batch_size);
+    }
+
+    this->mt.seed(std::rand());
+
+}
+
+
+// -----------------------------------------------------------------------
+// namespace{DataLoader} -> class{Data1dFolderPairWithPaths} -> operator
+// -----------------------------------------------------------------------
+bool DataLoader::Data1dFolderPairWithPaths::operator()(std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>> &data){
+
+    // (0) Initialization and Declaration
+    size_t i;
+    size_t idx_start = this->batch_size * this->count;
+    size_t idx_end = std::min(this->size, (idx_start + this->batch_size));
+    size_t mini_batch_size = idx_end - idx_start;
+    torch::Tensor data1, data2, tensor1, tensor2;
+    std::vector<std::string> data3, data4;
+    std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> group;
+    std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> *data_before;
+
+    // (1) Special Handling on Certain Count
+    if ((this->count == 0) && this->shuffle){
+        std::shuffle(this->idx.begin(), this->idx.end(), this->mt);
+    }
+    else if(this->count == this->count_max){
+        this->count = 0;
+        return false;
+    }
+
+    // (2) Get Mini Batch Data
+    data_before = new std::tuple<torch::Tensor, torch::Tensor, std::string, std::string>[mini_batch_size];
+    // (2.1) Get Mini Batch Data using Single Thread
+    if (this->num_workers == 0){
+        for (i = 0; i < mini_batch_size; i++){
+            this->dataset.get(this->idx.at(idx_start + i), data_before[i]);
+        }
+    }
+    // (2.2) Get Mini Batch Data using Multi Thread
+    else{
+        omp_set_num_threads(this->num_workers);
+        #pragma omp parallel for
+        for (i = 0; i < mini_batch_size; i++){
+            this->dataset.get(this->idx.at(idx_start + i), data_before[i]);
+        }
+    }
+
+    // (3) Organize Data
+    data1 = std::get<0>(data_before[0]);
+    data1 = torch::unsqueeze(data1, /*dim=*/0);
+    data2 = std::get<1>(data_before[0]);
+    data2 = torch::unsqueeze(data2, /*dim=*/0);
+    data3.push_back(std::get<2>(data_before[0]));
+    data4.push_back(std::get<3>(data_before[0]));
+    for (i = 1; i < mini_batch_size; i++){
+        group = data_before[i];
+        tensor1 = std::get<0>(group);
+        tensor1 = torch::unsqueeze(tensor1, /*dim=*/0);  // {D} ===> {1,D}
+        data1 = torch::cat({data1, tensor1}, /*dim=*/0);  // {i,D} + {1,D} ===> {i+1,D}
+        tensor2 = std::get<1>(group);
+        tensor2 = torch::unsqueeze(tensor2, /*dim=*/0);  // {D} ===> {1,D}
+        data2 = torch::cat({data2, tensor2}, /*dim=*/0);  // {i,D} + {1,D} ===> {i+1,D}
+        data3.push_back(std::get<2>(group));
+        data4.push_back(std::get<3>(group));
+    }
+
+    // Post Processing
+    this->count++;
+    data = {data1.contiguous().detach().clone(), data2.contiguous().detach().clone(), data3, data4};  // {N,D} (data1), {N,D} (data2), {N} (fnames1), {N} (fnames2)
+    delete[] data_before;
+
+    // End Processing
+    return true;
+    
+}
+
+
+// -----------------------------------------------------------------------------
+// namespace{DataLoader} -> class{Data1dFolderPairWithPaths} -> function{reset}
+// -----------------------------------------------------------------------------
+void DataLoader::Data1dFolderPairWithPaths::reset(){
+    this->count = 0;
+    return;
+}
+
+
+// -------------------------------------------------------------------------------------
+// namespace{DataLoader} -> class{Data1dFolderPairWithPaths} -> function{get_count_max}
+// -------------------------------------------------------------------------------------
+size_t DataLoader::Data1dFolderPairWithPaths::get_count_max(){
+    return this->count_max;
+}
+
+
+
+/*******************************************************************************/
+/*                                   Data 2d                                   */
+/*******************************************************************************/
+
+
+// --------------------------------------------------------------------
+// namespace{DataLoader} -> class{ImageFolderWithPaths} -> constructor
+// --------------------------------------------------------------------
+DataLoader::ImageFolderWithPaths::ImageFolderWithPaths(datasets::ImageFolderWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool drop_last_){
+
+    this->dataset = dataset_;
+    this->batch_size = batch_size_;
+    this->shuffle = shuffle_;
+    this->num_workers = num_workers_;
+    this->drop_last = drop_last_;
+
+    this->size = this->dataset.size();
+    this->idx = std::vector<size_t>(this->size);
+    for (size_t i = 0; i < this->size; i++){
+        this->idx.at(i) = i;
+    }
+
+    this->count = 0;
+    if (this->drop_last){
+        this->count_max = std::floor((float)this->size / (float)this->batch_size);
+        if ((this->count_max == 0) && (this->size > 0)){
+            this->count_max = 1;
+        }
+    }
+    else{
+        this->count_max = std::ceil((float)this->size / (float)this->batch_size);
+    }
 
     this->mt.seed(std::rand());
 
@@ -101,15 +357,33 @@ bool DataLoader::ImageFolderWithPaths::operator()(std::tuple<torch::Tensor, std:
 }
 
 
+// -------------------------------------------------------------------------
+// namespace{DataLoader} -> class{ImageFolderWithPaths} -> function{reset}
+// -------------------------------------------------------------------------
+void DataLoader::ImageFolderWithPaths::reset(){
+    this->count = 0;
+    return;
+}
+
+
+// ---------------------------------------------------------------------------------
+// namespace{DataLoader} -> class{ImageFolderWithPaths} -> function{get_count_max}
+// ---------------------------------------------------------------------------------
+size_t DataLoader::ImageFolderWithPaths::get_count_max(){
+    return this->count_max;
+}
+
+
 // --------------------------------------------------------------------
 // namespace{DataLoader} -> class{ImageFolderPairWithPaths} -> constructor
 // --------------------------------------------------------------------
-DataLoader::ImageFolderPairWithPaths::ImageFolderPairWithPaths(datasets::ImageFolderPairWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_){
+DataLoader::ImageFolderPairWithPaths::ImageFolderPairWithPaths(datasets::ImageFolderPairWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool drop_last_){
 
     this->dataset = dataset_;
     this->batch_size = batch_size_;
     this->shuffle = shuffle_;
     this->num_workers = num_workers_;
+    this->drop_last = drop_last_;
 
     this->size = this->dataset.size();
     this->idx = std::vector<size_t>(this->size);
@@ -118,7 +392,15 @@ DataLoader::ImageFolderPairWithPaths::ImageFolderPairWithPaths(datasets::ImageFo
     }
 
     this->count = 0;
-    this->count_max = std::ceil((float)this->size / (float)this->batch_size);
+    if (this->drop_last){
+        this->count_max = std::floor((float)this->size / (float)this->batch_size);
+        if ((this->count_max == 0) && (this->size > 0)){
+            this->count_max = 1;
+        }
+    }
+    else{
+        this->count_max = std::ceil((float)this->size / (float)this->batch_size);
+    }
 
     this->mt.seed(std::rand());
 
@@ -196,15 +478,33 @@ bool DataLoader::ImageFolderPairWithPaths::operator()(std::tuple<torch::Tensor, 
 }
 
 
+// ----------------------------------------------------------------------------
+// namespace{DataLoader} -> class{ImageFolderPairWithPaths} -> function{reset}
+// ----------------------------------------------------------------------------
+void DataLoader::ImageFolderPairWithPaths::reset(){
+    this->count = 0;
+    return;
+}
+
+
+// ------------------------------------------------------------------------------------
+// namespace{DataLoader} -> class{ImageFolderPairWithPaths} -> function{get_count_max}
+// ------------------------------------------------------------------------------------
+size_t DataLoader::ImageFolderPairWithPaths::get_count_max(){
+    return this->count_max;
+}
+
+
 // ------------------------------------------------------------------------------------------
 // namespace{DataLoader} -> class{ImageFolderPairAndRandomSamplingWithPaths} -> constructor
 // ------------------------------------------------------------------------------------------
-DataLoader::ImageFolderPairAndRandomSamplingWithPaths::ImageFolderPairAndRandomSamplingWithPaths(datasets::ImageFolderPairAndRandomSamplingWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_){
+DataLoader::ImageFolderPairAndRandomSamplingWithPaths::ImageFolderPairAndRandomSamplingWithPaths(datasets::ImageFolderPairAndRandomSamplingWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool drop_last_){
 
     this->dataset = dataset_;
     this->batch_size = batch_size_;
     this->shuffle = shuffle_;
     this->num_workers = num_workers_;
+    this->drop_last = drop_last_;
 
     this->size = this->dataset.size();
     this->idx = std::vector<size_t>(this->size);
@@ -213,7 +513,15 @@ DataLoader::ImageFolderPairAndRandomSamplingWithPaths::ImageFolderPairAndRandomS
     }
 
     this->count = 0;
-    this->count_max = std::ceil((float)this->size / (float)this->batch_size);
+    if (this->drop_last){
+        this->count_max = std::floor((float)this->size / (float)this->batch_size);
+        if ((this->count_max == 0) && (this->size > 0)){
+            this->count_max = 1;
+        }
+    }
+    else{
+        this->count_max = std::ceil((float)this->size / (float)this->batch_size);
+    }
 
     this->mt.seed(std::rand());
     this->int_rand = std::uniform_int_distribution<int>(/*min=*/0, /*max=*/this->dataset.size_rand() - 1);
@@ -306,15 +614,33 @@ bool DataLoader::ImageFolderPairAndRandomSamplingWithPaths::operator()(std::tupl
 }
 
 
+// ----------------------------------------------------------------------------------------------
+// namespace{DataLoader} -> class{ImageFolderPairAndRandomSamplingWithPaths} -> function{reset}
+// ----------------------------------------------------------------------------------------------
+void DataLoader::ImageFolderPairAndRandomSamplingWithPaths::reset(){
+    this->count = 0;
+    return;
+}
+
+
+// ------------------------------------------------------------------------------------------------------
+// namespace{DataLoader} -> class{ImageFolderPairAndRandomSamplingWithPaths} -> function{get_count_max}
+// ------------------------------------------------------------------------------------------------------
+size_t DataLoader::ImageFolderPairAndRandomSamplingWithPaths::get_count_max(){
+    return this->count_max;
+}
+
+
 // --------------------------------------------------------------------
 // namespace{DataLoader} -> class{ImageFolderSegmentWithPaths} -> constructor
 // --------------------------------------------------------------------
-DataLoader::ImageFolderSegmentWithPaths::ImageFolderSegmentWithPaths(datasets::ImageFolderSegmentWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_){
+DataLoader::ImageFolderSegmentWithPaths::ImageFolderSegmentWithPaths(datasets::ImageFolderSegmentWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool drop_last_){
 
     this->dataset = dataset_;
     this->batch_size = batch_size_;
     this->shuffle = shuffle_;
     this->num_workers = num_workers_;
+    this->drop_last = drop_last_;
 
     this->size = this->dataset.size();
     this->idx = std::vector<size_t>(this->size);
@@ -323,7 +649,15 @@ DataLoader::ImageFolderSegmentWithPaths::ImageFolderSegmentWithPaths(datasets::I
     }
 
     this->count = 0;
-    this->count_max = std::ceil((float)this->size / (float)this->batch_size);
+    if (this->drop_last){
+        this->count_max = std::floor((float)this->size / (float)this->batch_size);
+        if ((this->count_max == 0) && (this->size > 0)){
+            this->count_max = 1;
+        }
+    }
+    else{
+        this->count_max = std::ceil((float)this->size / (float)this->batch_size);
+    }
 
     this->mt.seed(std::rand());
 
@@ -403,15 +737,33 @@ bool DataLoader::ImageFolderSegmentWithPaths::operator()(std::tuple<torch::Tenso
 }
 
 
+// -------------------------------------------------------------------------------
+// namespace{DataLoader} -> class{ImageFolderSegmentWithPaths} -> function{reset}
+// -------------------------------------------------------------------------------
+void DataLoader::ImageFolderSegmentWithPaths::reset(){
+    this->count = 0;
+    return;
+}
+
+
+// ---------------------------------------------------------------------------------------
+// namespace{DataLoader} -> class{ImageFolderSegmentWithPaths} -> function{get_count_max}
+// ---------------------------------------------------------------------------------------
+size_t DataLoader::ImageFolderSegmentWithPaths::get_count_max(){
+    return this->count_max;
+}
+
+
 // --------------------------------------------------------------------
 // namespace{DataLoader} -> class{ImageFolderClassesWithPaths} -> constructor
 // --------------------------------------------------------------------
-DataLoader::ImageFolderClassesWithPaths::ImageFolderClassesWithPaths(datasets::ImageFolderClassesWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_){
+DataLoader::ImageFolderClassesWithPaths::ImageFolderClassesWithPaths(datasets::ImageFolderClassesWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool drop_last_){
 
     this->dataset = dataset_;
     this->batch_size = batch_size_;
     this->shuffle = shuffle_;
     this->num_workers = num_workers_;
+    this->drop_last = drop_last_;
 
     this->size = this->dataset.size();
     this->idx = std::vector<size_t>(this->size);
@@ -420,7 +772,15 @@ DataLoader::ImageFolderClassesWithPaths::ImageFolderClassesWithPaths(datasets::I
     }
 
     this->count = 0;
-    this->count_max = std::ceil((float)this->size / (float)this->batch_size);
+    if (this->drop_last){
+        this->count_max = std::floor((float)this->size / (float)this->batch_size);
+        if ((this->count_max == 0) && (this->size > 0)){
+            this->count_max = 1;
+        }
+    }
+    else{
+        this->count_max = std::ceil((float)this->size / (float)this->batch_size);
+    }
 
     this->mt.seed(std::rand());
 
@@ -496,15 +856,33 @@ bool DataLoader::ImageFolderClassesWithPaths::operator()(std::tuple<torch::Tenso
 }
 
 
+// -------------------------------------------------------------------------------
+// namespace{DataLoader} -> class{ImageFolderClassesWithPaths} -> function{reset}
+// -------------------------------------------------------------------------------
+void DataLoader::ImageFolderClassesWithPaths::reset(){
+    this->count = 0;
+    return;
+}
+
+
+// ---------------------------------------------------------------------------------------
+// namespace{DataLoader} -> class{ImageFolderClassesWithPaths} -> function{get_count_max}
+// ---------------------------------------------------------------------------------------
+size_t DataLoader::ImageFolderClassesWithPaths::get_count_max(){
+    return this->count_max;
+}
+
+
 // --------------------------------------------------------------------
 // namespace{DataLoader} -> class{ImageFolderBBWithPaths} -> constructor
 // --------------------------------------------------------------------
-DataLoader::ImageFolderBBWithPaths::ImageFolderBBWithPaths(datasets::ImageFolderBBWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_){
+DataLoader::ImageFolderBBWithPaths::ImageFolderBBWithPaths(datasets::ImageFolderBBWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool drop_last_){
 
     this->dataset = dataset_;
     this->batch_size = batch_size_;
     this->shuffle = shuffle_;
     this->num_workers = num_workers_;
+    this->drop_last = drop_last_;
 
     this->size = this->dataset.size();
     this->idx = std::vector<size_t>(this->size);
@@ -513,7 +891,15 @@ DataLoader::ImageFolderBBWithPaths::ImageFolderBBWithPaths(datasets::ImageFolder
     }
 
     this->count = 0;
-    this->count_max = std::ceil((float)this->size / (float)this->batch_size);
+    if (this->drop_last){
+        this->count_max = std::floor((float)this->size / (float)this->batch_size);
+        if ((this->count_max == 0) && (this->size > 0)){
+            this->count_max = 1;
+        }
+    }
+    else{
+        this->count_max = std::ceil((float)this->size / (float)this->batch_size);
+    }
 
     this->mt.seed(std::rand());
 
@@ -586,4 +972,21 @@ bool DataLoader::ImageFolderBBWithPaths::operator()(std::tuple<torch::Tensor, st
     // End Processing
     return true;
     
+}
+
+
+// ---------------------------------------------------------------------------
+// namespace{DataLoader} -> class{ImageFolderBBWithPaths} -> function{reset}
+// ---------------------------------------------------------------------------
+void DataLoader::ImageFolderBBWithPaths::reset(){
+    this->count = 0;
+    return;
+}
+
+
+// -----------------------------------------------------------------------------------
+// namespace{DataLoader} -> class{ImageFolderBBWithPaths} -> function{get_count_max}
+// -----------------------------------------------------------------------------------
+size_t DataLoader::ImageFolderBBWithPaths::get_count_max(){
+    return this->count_max;
 }

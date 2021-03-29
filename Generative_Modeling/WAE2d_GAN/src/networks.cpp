@@ -1,3 +1,4 @@
+#include <iostream>
 #include <vector>
 #include <typeinfo>
 #include <cmath>
@@ -114,6 +115,20 @@ ViewImpl::ViewImpl(std::vector<long int> shape_){
 // --------------------------------------------------
 torch::Tensor ViewImpl::forward(torch::Tensor x){
     return x.view(this->shape);
+}
+
+
+// --------------------------------------------------------
+// struct{ViewImpl}(nn::Module) -> function{pretty_print}
+// --------------------------------------------------------
+void ViewImpl::pretty_print(std::ostream& stream) const{
+    size_t shape_size = this->shape.size();
+    stream << "View(shape=[";
+    for (size_t i = 0; i < shape_size - 1; i++){
+        stream << this->shape.at(i) << ", ";
+    }
+    stream << this->shape.at(shape_size - 1) << "])";
+    return;
 }
 
 

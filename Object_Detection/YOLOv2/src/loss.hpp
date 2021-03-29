@@ -15,7 +15,7 @@ private:
     long int class_num, na;
     float thresh;
     torch::Tensor anchors_wh;
-    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> make_target(std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target, const long int ng);
+    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> build_target(std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target, const long int ng);
     torch::Tensor rescale(torch::Tensor &BBs);
     torch::Tensor compute_iou(torch::Tensor &BBs1, torch::Tensor &BBs2);
 public:

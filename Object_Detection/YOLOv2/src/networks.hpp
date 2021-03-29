@@ -1,6 +1,7 @@
 #ifndef NETWORKS_HPP
 #define NETWORKS_HPP
 
+#include <iostream>
 #include <vector>
 // For External Library
 #include <torch/torch.h>
@@ -37,6 +38,7 @@ public:
     FloorAvgPool2dImpl(){}
     FloorAvgPool2dImpl(std::vector<long int> multiple_);
     torch::Tensor forward(torch::Tensor x);
+    void pretty_print(std::ostream& stream) const override;
 };
 
 // -------------------------------------------------
@@ -49,6 +51,7 @@ public:
     ReorganizeImpl(){}
     ReorganizeImpl(long int stride_);
     torch::Tensor forward(torch::Tensor x);
+    void pretty_print(std::ostream& stream) const override;
 };
 
 TORCH_MODULE(YOLOv2);
