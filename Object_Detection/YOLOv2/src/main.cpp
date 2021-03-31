@@ -2,6 +2,7 @@
 #include <fstream>                     // std::ifstream, std::ofstream
 #include <filesystem>                  // std::filesystem
 #include <string>                      // std::string
+#include <sstream>                     // std::istringstream
 #include <tuple>                       // std::tuple
 #include <vector>                      // std::vector
 #include <random>                      // std::random_device
@@ -323,10 +324,16 @@ std::vector<std::tuple<float, float>> Set_Anchors(const std::string path, const 
 
     // (2) Get Anchors
     float pw, ph;
+    std::string line;
     std::ifstream ifs(path, std::ios::in);
     for (size_t i = 0; i < na; i++){
-        ifs >> pw;
-        ifs >> ph;
+        if (!getline(ifs, line)){
+            std::cerr << "Error : The number of anchors does not match the number of lines in the anchor file." << std::endl;
+            std::exit(1);
+        }
+        std::istringstream iss(line);
+        iss >> pw;
+        iss >> ph;
         anchors.at(i) = {pw, ph};
     }
     ifs.close();
@@ -348,13 +355,32 @@ std::vector<std::tuple<long int, long int>> Set_Resizes(const std::string path, 
     // (2) Get Anchors
     size_t num;
     long int width, height;
+    std::string line;
     std::ifstream ifs(path, std::ios::in);
-    ifs >> num;
-    ifs >> resize_step_max;
+    /**********************************************************************/
+    for (size_t i = 0; i < 2; i++){
+        if (!getline(ifs, line)){
+            std::cerr << "Error : The number of configs and resizes does not match the number of lines in the resize file." << std::endl;
+            std::exit(1);
+        }
+        std::istringstream iss(line);
+        if (i == 0){
+            iss >> num;
+        }
+        else{
+            iss >> resize_step_max;
+        }
+    }
+    /**********************************************************************/
     resizes = std::vector<std::tuple<long int, long int>>(num);
     for (size_t i = 0; i < num; i++){
-        ifs >> width;
-        ifs >> height;
+        if (!getline(ifs, line)){
+            std::cerr << "Error : The number of configs and resizes does not match the number of lines in the resize file." << std::endl;
+            std::exit(1);
+        }
+        std::istringstream iss(line);
+        iss >> width;
+        iss >> height;
         resizes.at(i) = {width, height};
     }
     ifs.close();
