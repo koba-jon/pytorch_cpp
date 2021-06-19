@@ -1,4 +1,5 @@
 #include <fstream>
+#include <filesystem>
 #include <string>
 #include <sstream>
 #include <tuple>
@@ -9,22 +10,20 @@
 // For External Library
 #include <torch/torch.h>
 #include <opencv2/opencv.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/range/iterator_range.hpp>
 #include <png++/png.hpp>
 // For Original Header
 #include "transforms.hpp"
 #include "datasets.hpp"
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 
 // -----------------------------------------------
 // namespace{datasets} -> function{collect}
 // -----------------------------------------------
 void datasets::collect(const std::string root, const std::string sub, std::vector<std::string> &paths, std::vector<std::string> &fnames){
-    fs::path ROOT = fs::path(root);
-    for (auto &p : boost::make_iterator_range(fs::directory_iterator(ROOT), {})){
+    fs::path ROOT(root);
+    for (auto &p : fs::directory_iterator(ROOT)){
         if (!fs::is_directory(p)){
             std::stringstream rpath, fname;
             rpath << p.path().string();
@@ -34,7 +33,7 @@ void datasets::collect(const std::string root, const std::string sub, std::vecto
         }
         else{
             std::stringstream subsub;
-            subsub << p.path().leaf().string();
+            subsub << p.path().filename().string();
             datasets::collect(root + '/' + subsub.str(), sub + subsub.str() + '/', paths, fnames);
         }
     }

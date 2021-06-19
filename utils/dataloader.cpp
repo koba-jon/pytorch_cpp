@@ -22,12 +22,13 @@
 // --------------------------------------------------------------------
 // namespace{DataLoader} -> class{Data1dFolderWithPaths} -> constructor
 // --------------------------------------------------------------------
-DataLoader::Data1dFolderWithPaths::Data1dFolderWithPaths(datasets::Data1dFolderWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool drop_last_){
+DataLoader::Data1dFolderWithPaths::Data1dFolderWithPaths(datasets::Data1dFolderWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool pin_memory_, const bool drop_last_){
 
     this->dataset = dataset_;
     this->batch_size = batch_size_;
     this->shuffle = shuffle_;
     this->num_workers = num_workers_;
+    this->pin_memory = pin_memory_;
     this->drop_last = drop_last_;
 
     this->size = this->dataset.size();
@@ -104,10 +105,16 @@ bool DataLoader::Data1dFolderWithPaths::operator()(std::tuple<torch::Tensor, std
         data1 = torch::cat({data1, tensor}, /*dim=*/0);  // {i,D} + {1,D} ===> {i+1,D}
         data2.push_back(std::get<1>(group));
     }
+    data1 = data1.contiguous().detach().clone();
+    
+    // (4) Pin
+    if (this->pin_memory){
+        data1 = data1.pin_memory();
+    }
 
     // Post Processing
     this->count++;
-    data = {data1.contiguous().detach().clone(), data2};  // {N,D} (data), {N} (fnames)
+    data = {data1, data2};  // {N,D} (data), {N} (fnames)
     delete[] data_before;
 
     // End Processing
@@ -136,12 +143,13 @@ size_t DataLoader::Data1dFolderWithPaths::get_count_max(){
 // -------------------------------------------------------------------------
 // namespace{DataLoader} -> class{Data1dFolderPairWithPaths} -> constructor
 // -------------------------------------------------------------------------
-DataLoader::Data1dFolderPairWithPaths::Data1dFolderPairWithPaths(datasets::Data1dFolderPairWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool drop_last_){
+DataLoader::Data1dFolderPairWithPaths::Data1dFolderPairWithPaths(datasets::Data1dFolderPairWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool pin_memory_, const bool drop_last_){
 
     this->dataset = dataset_;
     this->batch_size = batch_size_;
     this->shuffle = shuffle_;
     this->num_workers = num_workers_;
+    this->pin_memory = pin_memory_;
     this->drop_last = drop_last_;
 
     this->size = this->dataset.size();
@@ -225,10 +233,18 @@ bool DataLoader::Data1dFolderPairWithPaths::operator()(std::tuple<torch::Tensor,
         data3.push_back(std::get<2>(group));
         data4.push_back(std::get<3>(group));
     }
+    data1 = data1.contiguous().detach().clone();
+    data2 = data2.contiguous().detach().clone();
+
+    // (4) Pin
+    if (this->pin_memory){
+        data1 = data1.pin_memory();
+        data2 = data2.pin_memory();
+    }
 
     // Post Processing
     this->count++;
-    data = {data1.contiguous().detach().clone(), data2.contiguous().detach().clone(), data3, data4};  // {N,D} (data1), {N,D} (data2), {N} (fnames1), {N} (fnames2)
+    data = {data1, data2, data3, data4};  // {N,D} (data1), {N,D} (data2), {N} (fnames1), {N} (fnames2)
     delete[] data_before;
 
     // End Processing
@@ -263,12 +279,13 @@ size_t DataLoader::Data1dFolderPairWithPaths::get_count_max(){
 // --------------------------------------------------------------------
 // namespace{DataLoader} -> class{ImageFolderWithPaths} -> constructor
 // --------------------------------------------------------------------
-DataLoader::ImageFolderWithPaths::ImageFolderWithPaths(datasets::ImageFolderWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool drop_last_){
+DataLoader::ImageFolderWithPaths::ImageFolderWithPaths(datasets::ImageFolderWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool pin_memory_, const bool drop_last_){
 
     this->dataset = dataset_;
     this->batch_size = batch_size_;
     this->shuffle = shuffle_;
     this->num_workers = num_workers_;
+    this->pin_memory = pin_memory_;
     this->drop_last = drop_last_;
 
     this->size = this->dataset.size();
@@ -345,10 +362,16 @@ bool DataLoader::ImageFolderWithPaths::operator()(std::tuple<torch::Tensor, std:
         data1 = torch::cat({data1, tensor}, /*dim=*/0);  // {i,C,H,W} + {1,C,H,W} ===> {i+1,C,H,W}
         data2.push_back(std::get<1>(group));
     }
+    data1 = data1.contiguous().detach().clone();
+
+    // (4) Pin
+    if (this->pin_memory){
+        data1 = data1.pin_memory();
+    }
 
     // Post Processing
     this->count++;
-    data = {data1.contiguous().detach().clone(), data2};  // {N,C,H,W} (images), {N} (fnames)
+    data = {data1, data2};  // {N,C,H,W} (images), {N} (fnames)
     delete[] data_before;
 
     // End Processing
@@ -377,12 +400,13 @@ size_t DataLoader::ImageFolderWithPaths::get_count_max(){
 // --------------------------------------------------------------------
 // namespace{DataLoader} -> class{ImageFolderPairWithPaths} -> constructor
 // --------------------------------------------------------------------
-DataLoader::ImageFolderPairWithPaths::ImageFolderPairWithPaths(datasets::ImageFolderPairWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool drop_last_){
+DataLoader::ImageFolderPairWithPaths::ImageFolderPairWithPaths(datasets::ImageFolderPairWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool pin_memory_, const bool drop_last_){
 
     this->dataset = dataset_;
     this->batch_size = batch_size_;
     this->shuffle = shuffle_;
     this->num_workers = num_workers_;
+    this->pin_memory = pin_memory_;
     this->drop_last = drop_last_;
 
     this->size = this->dataset.size();
@@ -466,10 +490,18 @@ bool DataLoader::ImageFolderPairWithPaths::operator()(std::tuple<torch::Tensor, 
         data3.push_back(std::get<2>(group));
         data4.push_back(std::get<3>(group));
     }
+    data1 = data1.contiguous().detach().clone();
+    data2 = data2.contiguous().detach().clone();
+
+    // (4) Pin
+    if (this->pin_memory){
+        data1 = data1.pin_memory();
+        data2 = data2.pin_memory();
+    }
 
     // Post Processing
     this->count++;
-    data = {data1.contiguous().detach().clone(), data2.contiguous().detach().clone(), data3, data4};  // {N,C,H,W} (images1), {N,C,H,W} (images2), {N} (fnames1), {N} (fnames2)
+    data = {data1, data2, data3, data4};  // {N,C,H,W} (images1), {N,C,H,W} (images2), {N} (fnames1), {N} (fnames2)
     delete[] data_before;
 
     // End Processing
@@ -498,12 +530,13 @@ size_t DataLoader::ImageFolderPairWithPaths::get_count_max(){
 // ------------------------------------------------------------------------------------------
 // namespace{DataLoader} -> class{ImageFolderPairAndRandomSamplingWithPaths} -> constructor
 // ------------------------------------------------------------------------------------------
-DataLoader::ImageFolderPairAndRandomSamplingWithPaths::ImageFolderPairAndRandomSamplingWithPaths(datasets::ImageFolderPairAndRandomSamplingWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool drop_last_){
+DataLoader::ImageFolderPairAndRandomSamplingWithPaths::ImageFolderPairAndRandomSamplingWithPaths(datasets::ImageFolderPairAndRandomSamplingWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool pin_memory_, const bool drop_last_){
 
     this->dataset = dataset_;
     this->batch_size = batch_size_;
     this->shuffle = shuffle_;
     this->num_workers = num_workers_;
+    this->pin_memory = pin_memory_;
     this->drop_last = drop_last_;
 
     this->size = this->dataset.size();
@@ -602,10 +635,20 @@ bool DataLoader::ImageFolderPairAndRandomSamplingWithPaths::operator()(std::tupl
         data5.push_back(std::get<4>(group));
         data6.push_back(std::get<5>(group));
     }
+    data1 = data1.contiguous().detach().clone();
+    data2 = data2.contiguous().detach().clone();
+    data3 = data3.contiguous().detach().clone();
+
+    // (4) Pin
+    if (this->pin_memory){
+        data1 = data1.pin_memory();
+        data2 = data2.pin_memory();
+        data3 = data3.pin_memory();
+    }
 
     // Post Processing
     this->count++;
-    data = {data1.contiguous().detach().clone(), data2.contiguous().detach().clone(), data3.contiguous().detach().clone(), data4, data5, data6};  // {N,C,H,W} (images1), {N,C,H,W} (images2), {N,C,H,W} (images_rand), {N} (fnames1), {N} (fnames2), {N} (fnames_rand)
+    data = {data1, data2, data3, data4, data5, data6};  // {N,C,H,W} (images1), {N,C,H,W} (images2), {N,C,H,W} (images_rand), {N} (fnames1), {N} (fnames2), {N} (fnames_rand)
     delete[] data_before;
 
     // End Processing
@@ -634,12 +677,13 @@ size_t DataLoader::ImageFolderPairAndRandomSamplingWithPaths::get_count_max(){
 // --------------------------------------------------------------------
 // namespace{DataLoader} -> class{ImageFolderSegmentWithPaths} -> constructor
 // --------------------------------------------------------------------
-DataLoader::ImageFolderSegmentWithPaths::ImageFolderSegmentWithPaths(datasets::ImageFolderSegmentWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool drop_last_){
+DataLoader::ImageFolderSegmentWithPaths::ImageFolderSegmentWithPaths(datasets::ImageFolderSegmentWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool pin_memory_, const bool drop_last_){
 
     this->dataset = dataset_;
     this->batch_size = batch_size_;
     this->shuffle = shuffle_;
     this->num_workers = num_workers_;
+    this->pin_memory = pin_memory_;
     this->drop_last = drop_last_;
 
     this->size = this->dataset.size();
@@ -725,10 +769,18 @@ bool DataLoader::ImageFolderSegmentWithPaths::operator()(std::tuple<torch::Tenso
         data3.push_back(std::get<2>(group));
         data4.push_back(std::get<3>(group));
     }
+    data1 = data1.contiguous().detach().clone();
+    data2 = data2.contiguous().detach().clone();
+
+    // (4) Pin
+    if (this->pin_memory){
+        data1 = data1.pin_memory();
+        data2 = data2.pin_memory();
+    }
 
     // Post Processing
     this->count++;
-    data = {data1.contiguous().detach().clone(), data2.contiguous().detach().clone(), data3, data4, data5};  // {N,C,H,W} (images1), {N,H,W} (images2), {N} (fnames1), {N} (fnames2), {L} (label_palette)
+    data = {data1, data2, data3, data4, data5};  // {N,C,H,W} (images1), {N,H,W} (images2), {N} (fnames1), {N} (fnames2), {L} (label_palette)
     delete[] data_before;
 
     // End Processings
@@ -757,12 +809,13 @@ size_t DataLoader::ImageFolderSegmentWithPaths::get_count_max(){
 // --------------------------------------------------------------------
 // namespace{DataLoader} -> class{ImageFolderClassesWithPaths} -> constructor
 // --------------------------------------------------------------------
-DataLoader::ImageFolderClassesWithPaths::ImageFolderClassesWithPaths(datasets::ImageFolderClassesWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool drop_last_){
+DataLoader::ImageFolderClassesWithPaths::ImageFolderClassesWithPaths(datasets::ImageFolderClassesWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool pin_memory_, const bool drop_last_){
 
     this->dataset = dataset_;
     this->batch_size = batch_size_;
     this->shuffle = shuffle_;
     this->num_workers = num_workers_;
+    this->pin_memory = pin_memory_;
     this->drop_last = drop_last_;
 
     this->size = this->dataset.size();
@@ -844,10 +897,18 @@ bool DataLoader::ImageFolderClassesWithPaths::operator()(std::tuple<torch::Tenso
         data2 = torch::cat({data2, tensor2}, /*dim=*/0);  // {i} + {1} ===> {i+1}
         data3.push_back(std::get<2>(group));
     }
+    data1 = data1.contiguous().detach().clone();
+    data2 = data2.contiguous().detach().clone();
+
+    // (4) Pin
+    if (this->pin_memory){
+        data1 = data1.pin_memory();
+        data2 = data2.pin_memory();
+    }
 
     // Post Processing
     this->count++;
-    data = {data1.contiguous().detach().clone(), data2.contiguous().detach().clone(), data3};  // {N,C,H,W} (images), {N} (class ids), {N} (fnames)
+    data = {data1, data2, data3};  // {N,C,H,W} (images), {N} (class ids), {N} (fnames)
     delete[] data_before;
 
     // End Processing
@@ -876,12 +937,13 @@ size_t DataLoader::ImageFolderClassesWithPaths::get_count_max(){
 // --------------------------------------------------------------------
 // namespace{DataLoader} -> class{ImageFolderBBWithPaths} -> constructor
 // --------------------------------------------------------------------
-DataLoader::ImageFolderBBWithPaths::ImageFolderBBWithPaths(datasets::ImageFolderBBWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool drop_last_){
+DataLoader::ImageFolderBBWithPaths::ImageFolderBBWithPaths(datasets::ImageFolderBBWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool pin_memory_, const bool drop_last_){
 
     this->dataset = dataset_;
     this->batch_size = batch_size_;
     this->shuffle = shuffle_;
     this->num_workers = num_workers_;
+    this->pin_memory = pin_memory_;
     this->drop_last = drop_last_;
 
     this->size = this->dataset.size();
@@ -963,10 +1025,16 @@ bool DataLoader::ImageFolderBBWithPaths::operator()(std::tuple<torch::Tensor, st
         data3.push_back(std::get<2>(group));
         data4.push_back(std::get<3>(group));
     }
+    data1 = data1.contiguous().detach().clone();
+
+    // (4) Pin
+    if (this->pin_memory){
+        data1 = data1.pin_memory();
+    }
 
     // Post Processing
     this->count++;
-    data = {data1.contiguous().detach().clone(), data2, data3, data4};  // {N,C,H,W} (images), {N, ({BB_n}, {BB_n,4}) } (annotations), {N} (fnames1), {N} (fnames2)
+    data = {data1, data2, data3, data4};  // {N,C,H,W} (images), {N, ({BB_n}, {BB_n,4}) } (annotations), {N} (fnames1), {N} (fnames2)
     delete[] data_before;
 
     // End Processing

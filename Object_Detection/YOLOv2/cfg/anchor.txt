@@ -1,5 +1,5 @@
-0.57273 0.667385
-1.87446 2.06253
-3.33843 5.47434
-7.88282 3.52778
-9.77052 9.16828
+0.57273 0.667385    # (1) Prior-width Prior-height
+1.87446 2.06253     # (2) Prior-width Prior-height
+3.33843 5.47434     # (3) Prior-width Prior-height
+7.88282 3.52778     # (4) Prior-width Prior-height
+9.77052 9.16828     # (5) Prior-width Prior-height

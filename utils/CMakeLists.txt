@@ -18,7 +18,7 @@ set(UTILS_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 find_package(Torch REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(OpenMP REQUIRED)
-find_package(Boost REQUIRED COMPONENTS program_options filesystem)
+find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(PNG REQUIRED)
 
 # For OpenMP
