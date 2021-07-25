@@ -305,7 +305,7 @@ This code is inspired by [darknet](https://github.com/pjreddie/darknet), [Yolo-v
 ### Loss
 
 Loss function (default):
-![YOLOv2_loss](https://user-images.githubusercontent.com/56967584/126892683-00c9349b-2aee-4d25-a6fe-144a66d8b275.png)
+![YOLOv2_loss](https://user-images.githubusercontent.com/56967584/126892883-ca7326cc-2373-4b25-81d7-f57ee45e07c9.png)
 
 If the loss of term `conf<noobj>` is strong, "Not Detected" will occur frequently. <br>
 In the case, it is recommended to add `--Lambda_noobject 0.1` to arguments, where the default value is `1.0`.<br>
