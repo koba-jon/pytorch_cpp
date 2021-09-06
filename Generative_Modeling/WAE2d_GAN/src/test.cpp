@@ -69,11 +69,13 @@ void test(po::variables_map &vm, torch::Device &device, WAE_Encoder &enc, WAE_De
         imageI = std::get<0>(data).to(device);
         imageO = std::get<1>(data).to(device);
         
+        torch::cuda::synchronize();
         start = std::chrono::system_clock::now();
         
         z = enc->forward(imageI);
         output = dec->forward(z);
 
+        torch::cuda::synchronize();
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         
