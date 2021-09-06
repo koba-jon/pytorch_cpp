@@ -78,6 +78,7 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &d
         
         image = std::get<0>(data).to(device);
         
+        torch::cuda::synchronize();
         start = std::chrono::system_clock::now();
         
         // (5.1) Encoder-Decoder Forward
@@ -99,6 +100,7 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &d
         // (5.3) Calculation of Anomaly Score
         anomaly_score = est->anomaly_score(z, mu, sigma, phi);
 
+        torch::cuda::synchronize();
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         
