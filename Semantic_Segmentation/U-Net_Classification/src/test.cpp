@@ -69,10 +69,12 @@ void test(po::variables_map &vm, torch::Device &device, UNet &model, std::vector
         image = std::get<0>(data).to(device);
         label = std::get<1>(data).to(device);
         
+        torch::cuda::synchronize();
         start = std::chrono::system_clock::now();
         
         output = model->forward(image);
 
+        torch::cuda::synchronize();
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
 
