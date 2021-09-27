@@ -145,8 +145,8 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vec
         start_epoch = 0;
     }
     else{
-        path = checkpoint_dir + "/models/epoch_" + vm["train_load_epoch"].as<std::string>() + ".pth";  torch::load(model, path);
-        path = checkpoint_dir + "/optims/epoch_" + vm["train_load_epoch"].as<std::string>() + ".pth";  torch::load(optimizer, path);
+        path = checkpoint_dir + "/models/epoch_" + vm["train_load_epoch"].as<std::string>() + ".pth";  torch::load(model, path, device);
+        path = checkpoint_dir + "/optims/epoch_" + vm["train_load_epoch"].as<std::string>() + ".pth";  torch::load(optimizer, path, device);
         ofs.open(checkpoint_dir + "/log/train.txt", std::ios::app);
         ofs << std::endl << std::endl;
         if (vm["train_load_epoch"].as<std::string>() == "latest"){

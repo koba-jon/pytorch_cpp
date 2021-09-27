@@ -44,7 +44,7 @@ void demo(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vect
 
     // (1) Get Model
     path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["demo_load_epoch"].as<std::string>() + ".pth";
-    torch::load(model, path);
+    torch::load(model, path, device);
 
     // (2) Set Detector
     auto detector = YOLODetector((long int)vm["class_num"].as<size_t>(), (long int)vm["ng"].as<size_t>(), (long int)vm["nb"].as<size_t>(), vm["prob_thresh"].as<float>(), vm["nms_thresh"].as<float>());
