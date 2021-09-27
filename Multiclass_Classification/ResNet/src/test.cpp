@@ -49,7 +49,7 @@ void test(po::variables_map &vm, torch::Device &device, MC_ResNet &model, std::v
 
     // (2) Get Model
     path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + ".pth";
-    torch::load(model, path);
+    torch::load(model, path, device);
 
     // (3) Set Loss Function
     auto criterion = Loss();
