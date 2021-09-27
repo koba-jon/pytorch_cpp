@@ -33,7 +33,7 @@ void sample(po::variables_map &vm, torch::Device &device, GAN_Generator &gen){
 
     // (1) Get Model
     path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["sample_load_epoch"].as<std::string>() + "_gen.pth";
-    torch::load(gen, path);
+    torch::load(gen, path, device);
 
     // (2) Image Generation
     gen->eval();

@@ -33,7 +33,7 @@ void synth(po::variables_map &vm, torch::Device &device, VariationalAutoEncoder 
 
     // (1) Get Model
     path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["synth_load_epoch"].as<std::string>() + ".pth";
-    torch::load(model, path);
+    torch::load(model, path, device);
 
     // (2) Image Generation
     model->eval();

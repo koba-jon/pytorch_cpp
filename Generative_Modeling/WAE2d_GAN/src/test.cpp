@@ -48,8 +48,8 @@ void test(po::variables_map &vm, torch::Device &device, WAE_Encoder &enc, WAE_De
     std::cout << "total test images : " << dataset.size() << std::endl << std::endl;
 
     // (2) Get Model
-    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_enc.pth"; torch::load(enc, path);
-    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_dec.pth"; torch::load(dec, path);
+    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_enc.pth"; torch::load(enc, path, device);
+    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_dec.pth"; torch::load(dec, path, device);
 
     // (3) Set Loss Function
     auto criterion = Loss(vm["loss"].as<std::string>());
