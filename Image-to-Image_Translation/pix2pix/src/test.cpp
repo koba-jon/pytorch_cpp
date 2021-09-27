@@ -49,7 +49,7 @@ void test(po::variables_map &vm, torch::Device &device, UNet_Generator &gen, std
 
     // (2) Get Model
     path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_gen.pth";
-    torch::load(gen, path);
+    torch::load(gen, path, device);
 
     // (3) Set Loss Function
     auto criterion_L1 = torch::nn::L1Loss(torch::nn::L1LossOptions().reduction(torch::kMean));
