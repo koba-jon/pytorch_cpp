@@ -47,9 +47,9 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc1, Encoder &
     std::cout << "total test images : " << dataset.size() << std::endl << std::endl;
 
     // (2) Get Model
-    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_enc1.pth"; torch::load(enc1, path);
-    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_enc2.pth"; torch::load(enc2, path);
-    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_dec.pth"; torch::load(dec, path);
+    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_enc1.pth"; torch::load(enc1, path, device);
+    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_enc2.pth"; torch::load(enc2, path, device);
+    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_dec.pth"; torch::load(dec, path, device);
 
     // (3) Set Loss Function
     auto criterion_con = Loss(vm["loss_con"].as<std::string>());

@@ -54,8 +54,8 @@ void test(po::variables_map &vm, torch::Device &device, GAN_Generator &gen, GAN_
     std::cout << "total test images : " << dataset.size() << std::endl << std::endl;
 
     // (2) Get Model
-    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_gen.pth"; torch::load(gen, path);
-    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_dis.pth"; torch::load(dis, path);
+    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_gen.pth"; torch::load(gen, path, device);
+    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_dis.pth"; torch::load(dis, path, device);
 
     // (3) Initialization of Value
     ave_anomaly_score = 0.0;
