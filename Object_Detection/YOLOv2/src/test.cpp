@@ -49,7 +49,7 @@ void test(po::variables_map &vm, torch::Device &device, YOLOv2 &model, std::vect
 
     // (2) Get Model
     path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + ".pth";
-    torch::load(model, path);
+    torch::load(model, path, device);
 
     // (3) Set Loss Function
     auto criterion = Loss(anchors, (long int)vm["class_num"].as<size_t>(), vm["noobj_thresh"].as<float>());
@@ -71,10 +71,12 @@ void test(po::variables_map &vm, torch::Device &device, YOLOv2 &model, std::vect
         image = std::get<0>(data).to(device);
         label = std::get<1>(data);
         
+        torch::cuda::synchronize();
         start = std::chrono::system_clock::now();
         
         output = model->forward(image);
 
+        torch::cuda::synchronize();
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         

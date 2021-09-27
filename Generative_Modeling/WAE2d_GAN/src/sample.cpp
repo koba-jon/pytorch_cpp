@@ -33,7 +33,7 @@ void sample(po::variables_map &vm, torch::Device &device, WAE_Decoder &dec){
 
     // (1) Get Model
     path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["sample_load_epoch"].as<std::string>() + "_dec.pth";
-    torch::load(dec, path);
+    torch::load(dec, path, device);
 
     // (2) Image Generation
     dec->eval();

@@ -51,9 +51,9 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &d
 
     // (2) Get Model
     path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_gmp.dat"; load_params(path, mu, sigma, phi);
-    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_enc.pth"; torch::load(enc, path);
-    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_dec.pth"; torch::load(dec, path);
-    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_est.pth"; torch::load(est, path);
+    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_enc.pth"; torch::load(enc, path, device);
+    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_dec.pth"; torch::load(dec, path, device);
+    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_est.pth"; torch::load(est, path, device);
     mu = mu.to(device);
     sigma = sigma.to(device);
     phi = phi.to(device);
@@ -78,6 +78,7 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &d
         
         image = std::get<0>(data).to(device);
         
+        torch::cuda::synchronize();
         start = std::chrono::system_clock::now();
         
         // (5.1) Encoder-Decoder Forward
@@ -99,6 +100,7 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &d
         // (5.3) Calculation of Anomaly Score
         anomaly_score = est->anomaly_score(z, mu, sigma, phi);
 
+        torch::cuda::synchronize();
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         

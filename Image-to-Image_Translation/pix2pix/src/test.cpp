@@ -49,7 +49,7 @@ void test(po::variables_map &vm, torch::Device &device, UNet_Generator &gen, std
 
     // (2) Get Model
     path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_gen.pth";
-    torch::load(gen, path);
+    torch::load(gen, path, device);
 
     // (3) Set Loss Function
     auto criterion_L1 = torch::nn::L1Loss(torch::nn::L1LossOptions().reduction(torch::kMean));
@@ -69,10 +69,12 @@ void test(po::variables_map &vm, torch::Device &device, UNet_Generator &gen, std
         realI = std::get<0>(data).to(device);
         realO = std::get<1>(data).to(device);
         
+        torch::cuda::synchronize();
         start = std::chrono::system_clock::now();
         
         fakeO = gen->forward(realI);
 
+        torch::cuda::synchronize();
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         

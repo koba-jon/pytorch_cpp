@@ -116,10 +116,10 @@ void train(po::variables_map &vm, torch::Device &device, WAE_Encoder &enc, WAE_D
         start_epoch = 0;
     }
     else{
-        path = checkpoint_dir + "/models/epoch_" + vm["train_load_epoch"].as<std::string>() + "_enc.pth";  torch::load(enc, path);
-        path = checkpoint_dir + "/models/epoch_" + vm["train_load_epoch"].as<std::string>() + "_dec.pth";  torch::load(dec, path);
-        path = checkpoint_dir + "/optims/epoch_" + vm["train_load_epoch"].as<std::string>() + "_enc.pth";  torch::load(enc_optimizer, path);
-        path = checkpoint_dir + "/optims/epoch_" + vm["train_load_epoch"].as<std::string>() + "_dec.pth";  torch::load(dec_optimizer, path);
+        path = checkpoint_dir + "/models/epoch_" + vm["train_load_epoch"].as<std::string>() + "_enc.pth";  torch::load(enc, path, device);
+        path = checkpoint_dir + "/models/epoch_" + vm["train_load_epoch"].as<std::string>() + "_dec.pth";  torch::load(dec, path, device);
+        path = checkpoint_dir + "/optims/epoch_" + vm["train_load_epoch"].as<std::string>() + "_enc.pth";  torch::load(enc_optimizer, path, device);
+        path = checkpoint_dir + "/optims/epoch_" + vm["train_load_epoch"].as<std::string>() + "_dec.pth";  torch::load(dec_optimizer, path, device);
         ofs.open(checkpoint_dir + "/log/train.txt", std::ios::app);
         ofs << std::endl << std::endl;
         if (vm["train_load_epoch"].as<std::string>() == "latest"){

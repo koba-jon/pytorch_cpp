@@ -47,9 +47,9 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc1, Encoder &
     std::cout << "total test images : " << dataset.size() << std::endl << std::endl;
 
     // (2) Get Model
-    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_enc1.pth"; torch::load(enc1, path);
-    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_enc2.pth"; torch::load(enc2, path);
-    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_dec.pth"; torch::load(dec, path);
+    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_enc1.pth"; torch::load(enc1, path, device);
+    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_enc2.pth"; torch::load(enc2, path, device);
+    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + "_dec.pth"; torch::load(dec, path, device);
 
     // (3) Set Loss Function
     auto criterion_con = Loss(vm["loss_con"].as<std::string>());
@@ -72,6 +72,7 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc1, Encoder &
         
         image = std::get<0>(data).to(device);
         
+        torch::cuda::synchronize();
         start = std::chrono::system_clock::now();
         
         z = enc1->forward(image);
@@ -81,6 +82,7 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc1, Encoder &
         enc_loss = criterion_enc(z_rec, z) * vm["Lambda_enc"].as<float>();
         anomaly_score = torch::abs(z - z_rec).sum();
 
+        torch::cuda::synchronize();
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         

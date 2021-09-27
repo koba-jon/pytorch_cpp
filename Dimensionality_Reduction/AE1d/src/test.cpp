@@ -46,7 +46,7 @@ void test(po::variables_map &vm, torch::Device &device, AutoEncoder1d &model, st
 
     // (2) Get Model
     path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test_load_epoch"].as<std::string>() + ".pth";
-    torch::load(model, path);
+    torch::load(model, path, device);
 
     // (3) Set Loss Function
     auto criterion = Loss(vm["loss"].as<std::string>());
@@ -65,10 +65,12 @@ void test(po::variables_map &vm, torch::Device &device, AutoEncoder1d &model, st
         dataI = std::get<0>(data).to(device);
         dataO = std::get<1>(data).to(device);
         
+        torch::cuda::synchronize();
         start = std::chrono::system_clock::now();
         
         output = model->forward(dataI);  // {1,D} ===> {1,D}
 
+        torch::cuda::synchronize();
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         
