@@ -8,10 +8,18 @@ However, there is very little source code written in C++ of compiler language.<b
 Therefore, I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
 In addition, I might adapt programs to the latest version. <br>
 
+## Updates
+
+2021/09/27: Support for using different devices between training and test
+2021/09/06: Improved accuracy of time measurement using GPU
+
 ## Implementation
 
+<details>
+<summary>Details</summary>
+  
 ### Multiclass Classification
-
+  
 <table>
   <tr>
     <th>Model</th>
@@ -49,7 +57,7 @@ In addition, I might adapt programs to the latest version. <br>
     <td>v1.8.1</td>
   </tr>
 </table>
-
+  
 ### Dimensionality Reduction
 
 <table>
@@ -242,7 +250,12 @@ In addition, I might adapt programs to the latest version. <br>
   </tr>
 </table>
 
+</details>
+  
 ## Requirement
+
+<details>
+<summary>Details</summary>
 
 ### 1. PyTorch C++
 Please select the environment to use as follows on PyTorch official. <br>
@@ -285,7 +298,12 @@ This is used to load and save index-color image in semantic segmentation. <br>
 $ sudo apt install libpng-dev libpng++-dev zlib1g-dev
 ~~~
 
+</details>
+
 ## Preparation
+
+<details>
+<summary>Details</summary>
 
 ### 1. Git Clone
 ~~~
@@ -314,7 +332,12 @@ $ sudo apt install g++-8
 ### 4. Execution
 Please move to the directory of each model and refer to "README.md".
 
+</details>
+  
 ## Utility
+
+<details>
+<summary>Details</summary>
 
 ### 1. Making Original Dataset
 Please create a link for the original dataset.<br>
@@ -376,13 +399,13 @@ It corresponds to the following source code in the directory.
 - visualizer.cpp
 - visualizer.hpp
 
-## Conclusion
-I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
-If you have any problems with the source code of this repository, please feel free to "issue".<br>
-Let's have a good development and research life!
-
+</details>
 
 ## License
+  
+<details>
+<summary>Details</summary>
+  
 You can feel free to use all source code in this repository.<br>
 (Click [here](LICENSE) for details.)<br>
 
@@ -417,3 +440,10 @@ Official (png++) : https://www.nongnu.org/pngpp/ <br>
 License (png++) : https://www.nongnu.org/pngpp/license.html <br>
 Official (zlib) : https://zlib.net/ <br>
 License (zlib) : https://zlib.net/zlib_license.html <br>
+
+</details>
+  
+## Conclusion
+I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
+If you have any problems with the source code of this repository, please feel free to "issue".<br>
+Let's have a good development and research life!
