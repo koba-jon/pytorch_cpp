@@ -10,8 +10,39 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Updates
 
-2021/09/27: Support for using different devices between training and test
-2021/09/06: Improved accuracy of time measurement using GPU
+2021/09/27: Release of `v1.9.1` <br>
+2021/09/27: Support for using different devices between training and test <br>
+2021/09/06: Improved accuracy of time measurement using GPU <br>
+2021/06/19: Release of `v1.9.0` <br>
+2021/03/29: Release of `v1.8.1` <br>
+2021/03/18: Implementation of `Discriminator` from DCGAN <br>
+2021/03/17: Implementation of `AE1d` <br>
+2021/03/16: Release of `v1.8.0` <br>
+2021/03/15: Implementation of `YOLOv2` <br>
+2021/02/11: Implementation of `YOLOv1` <br>
+2021/01/21: Release of `v1.7.1` <br>
+2020/10/30: Release of `v1.7.0` <br>
+2020/10/04: Implementation of `Skip-GANomaly2d` <br>
+2020/10/03: Implementation of `GANomaly2d` <br>
+2020/09/29: Implementation of `EGBAD2d` <br>
+2020/09/28: Implementation of `AnoGAN2d` <br>
+2020/09/27: Implementation of `SegNet` <br>
+2020/09/26: Implementation of `DAE2d` <br>
+2020/09/13: Implementation of `ResNet` <br>
+2020/09/07: Implementation of `VGGNet` <br>
+2020/09/05: Implementation of `AlexNet` <br>
+2020/09/02: Implementation of `WAE2d GAN` and `WAE2d MMD` <br>
+2020/08/30: Release of `v1.6.0` <br>
+2020/06/26: Implementation of `DAGMM2d` <br>
+2020/06/26: Release of `v1.5.1` <br>
+2020/06/26: Implementation of `VAE2d` and `DCGAN` <br>
+2020/06/01: Implementation of `pix2pix` <br>
+2020/05/29: Implementation of `U-Net Classification` <br>
+2020/05/26: Implementation of `U-Net Regression` <br>
+2020/04/24: Release of `v1.5.0` <br>
+2020/03/23: Implementation of `AE2d` <br>
+
+
 
 ## Implementation
 
