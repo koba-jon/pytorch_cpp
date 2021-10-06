@@ -20,6 +20,9 @@ In addition, I might adapt programs to the latest version. <br>
 2021/03/16: Release of `v1.8.0` <br>
 2021/03/15: Implementation of `YOLOv2` <br>
 2021/02/11: Implementation of `YOLOv1` <br>
+
+<details>
+<summary>Old...</summary>
 2021/01/21: Release of `v1.7.1` <br>
 2020/10/30: Release of `v1.7.0` <br>
 2020/10/04: Implementation of `Skip-GANomaly2d` <br>
@@ -41,7 +44,7 @@ In addition, I might adapt programs to the latest version. <br>
 2020/05/26: Implementation of `U-Net Regression` <br>
 2020/04/24: Release of `v1.5.0` <br>
 2020/03/23: Implementation of `AE2d` <br>
-
+</details>
 
 
 ## Implementation
