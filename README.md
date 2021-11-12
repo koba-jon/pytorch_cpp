@@ -8,10 +8,55 @@ However, there is very little source code written in C++ of compiler language.<b
 Therefore, I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
 In addition, I might adapt programs to the latest version. <br>
 
+## Updates
+
+2021/11/12: Release of `v1.10.0` <br>
+2021/09/27: Release of `v1.9.1` <br>
+2021/09/27: Support for using different devices between training and test <br>
+2021/09/06: Improved accuracy of time measurement using GPU <br>
+2021/06/19: Release of `v1.9.0` <br>
+2021/03/29: Release of `v1.8.1` <br>
+2021/03/18: Implementation of `Discriminator` from DCGAN <br>
+2021/03/17: Implementation of `AE1d` <br>
+2021/03/16: Release of `v1.8.0` <br>
+2021/03/15: Implementation of `YOLOv2` <br>
+
+<details>
+<summary>See more...</summary>
+  
+2021/02/11: Implementation of `YOLOv1` <br>
+2021/01/21: Release of `v1.7.1` <br>
+2020/10/30: Release of `v1.7.0` <br>
+2020/10/04: Implementation of `Skip-GANomaly2d` <br>
+2020/10/03: Implementation of `GANomaly2d` <br>
+2020/09/29: Implementation of `EGBAD2d` <br>
+2020/09/28: Implementation of `AnoGAN2d` <br>
+2020/09/27: Implementation of `SegNet` <br>
+2020/09/26: Implementation of `DAE2d` <br>
+2020/09/13: Implementation of `ResNet` <br>
+2020/09/07: Implementation of `VGGNet` <br>
+2020/09/05: Implementation of `AlexNet` <br>
+2020/09/02: Implementation of `WAE2d GAN` and `WAE2d MMD` <br>
+2020/08/30: Release of `v1.6.0` <br>
+2020/06/26: Implementation of `DAGMM2d` <br>
+2020/06/26: Release of `v1.5.1` <br>
+2020/06/26: Implementation of `VAE2d` and `DCGAN` <br>
+2020/06/01: Implementation of `pix2pix` <br>
+2020/05/29: Implementation of `U-Net Classification` <br>
+2020/05/26: Implementation of `U-Net Regression` <br>
+2020/04/24: Release of `v1.5.0` <br>
+2020/03/23: Implementation of `AE2d` <br>
+  
+</details>
+
+
 ## Implementation
 
+<details>
+<summary>Details</summary>
+  
 ### Multiclass Classification
-
+  
 <table>
   <tr>
     <th>Model</th>
@@ -49,7 +94,7 @@ In addition, I might adapt programs to the latest version. <br>
     <td>v1.8.1</td>
   </tr>
 </table>
-
+  
 ### Dimensionality Reduction
 
 <table>
@@ -242,20 +287,25 @@ In addition, I might adapt programs to the latest version. <br>
   </tr>
 </table>
 
+</details>
+  
 ## Requirement
+
+<details>
+<summary>Details</summary>
 
 ### 1. PyTorch C++
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Stable (1.9.1) <br>
+PyTorch Build : Stable (1.10) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 Language : C++ / Java <br>
 CUDA : 10.2 <br>
 Run this Command : Download here (cxx11 ABI) <br>
-GPU : https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.9.1%2Bcu102.zip <br>
-CPU : https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.9.1%2Bcpu.zip <br>
+GPU : https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.10.0%2Bcu102.zip <br>
+CPU : https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.10.0%2Bcpu.zip <br>
 ***
 
 ### 2. OpenCV
@@ -285,7 +335,12 @@ This is used to load and save index-color image in semantic segmentation. <br>
 $ sudo apt install libpng-dev libpng++-dev zlib1g-dev
 ~~~
 
+</details>
+
 ## Preparation
+
+<details>
+<summary>Details</summary>
 
 ### 1. Git Clone
 ~~~
@@ -314,7 +369,12 @@ $ sudo apt install g++-8
 ### 4. Execution
 Please move to the directory of each model and refer to "README.md".
 
+</details>
+  
 ## Utility
+
+<details>
+<summary>Details</summary>
 
 ### 1. Making Original Dataset
 Please create a link for the original dataset.<br>
@@ -376,13 +436,13 @@ It corresponds to the following source code in the directory.
 - visualizer.cpp
 - visualizer.hpp
 
-## Conclusion
-I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
-If you have any problems with the source code of this repository, please feel free to "issue".<br>
-Let's have a good development and research life!
-
+</details>
 
 ## License
+  
+<details>
+<summary>Details</summary>
+  
 You can feel free to use all source code in this repository.<br>
 (Click [here](LICENSE) for details.)<br>
 
@@ -417,3 +477,10 @@ Official (png++) : https://www.nongnu.org/pngpp/ <br>
 License (png++) : https://www.nongnu.org/pngpp/license.html <br>
 Official (zlib) : https://zlib.net/ <br>
 License (zlib) : https://zlib.net/zlib_license.html <br>
+
+</details>
+  
+## Conclusion
+I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
+If you have any problems with the source code of this repository, please feel free to "issue".<br>
+Let's have a good development and research life!
