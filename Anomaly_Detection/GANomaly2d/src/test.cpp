@@ -72,7 +72,7 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc1, Encoder &
         
         image = std::get<0>(data).to(device);
         
-        if (!device.is_cpu()) torch::cuda::synchronize();;
+        if (!device.is_cpu()) torch::cuda::synchronize();
         start = std::chrono::system_clock::now();
         
         z = enc1->forward(image);
@@ -82,7 +82,7 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc1, Encoder &
         enc_loss = criterion_enc(z_rec, z) * vm["Lambda_enc"].as<float>();
         anomaly_score = torch::abs(z - z_rec).sum();
 
-        if (!device.is_cpu()) torch::cuda::synchronize();;
+        if (!device.is_cpu()) torch::cuda::synchronize();
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         
