@@ -72,7 +72,7 @@ void test(po::variables_map &vm, torch::Device &device, GAN_Encoder &enc, GAN_Ge
         
         image = std::get<0>(data).to(device);
         
-        torch::cuda::synchronize();
+        if (!device.is_cpu()) torch::cuda::synchronize();;
         start = std::chrono::system_clock::now();
         
         z = enc->forward(image);
@@ -82,7 +82,7 @@ void test(po::variables_map &vm, torch::Device &device, GAN_Encoder &enc, GAN_Ge
         res_loss = std::get<1>(anomaly_score_with_alpha);
         dis_loss = std::get<2>(anomaly_score_with_alpha);
 
-        torch::cuda::synchronize();
+        if (!device.is_cpu()) torch::cuda::synchronize();;
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         
