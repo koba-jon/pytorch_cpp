@@ -10,6 +10,7 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Updates
 
+2022/02/09: Implementation of `YOLOv3` <br>
 2022/01/09: Release of `v1.10.1` <br>
 2022/01/09: Fixed execution error in test on CPU package <br>
 2021/11/12: Release of `v1.10.0` <br>
@@ -19,11 +20,11 @@ In addition, I might adapt programs to the latest version. <br>
 2021/06/19: Release of `v1.9.0` <br>
 2021/03/29: Release of `v1.8.1` <br>
 2021/03/18: Implementation of `Discriminator` from DCGAN <br>
-2021/03/17: Implementation of `AE1d` <br>
 
 <details>
 <summary>See more...</summary>
   
+2021/03/17: Implementation of `AE1d` <br>
 2021/03/16: Release of `v1.8.0` <br>
 2021/03/15: Implementation of `YOLOv2` <br>
 2021/02/11: Implementation of `YOLOv1` <br>
@@ -239,6 +240,13 @@ In addition, I might adapt programs to the latest version. <br>
     <td>CVPR 2017</td>
     <td><a href="Object_Detection/YOLOv2">YOLOv2</a></td>
     <td>v1.8.0</td>
+  </tr>
+  <tr>
+    <td>YOLOv3</td>
+    <td><a href="https://arxiv.org/abs/1804.02767">J. Redmon et al.</a></td>
+    <td>arXiv 2018</td>
+    <td><a href="Object_Detection/YOLOv3">YOLOv3</a></td>
+    <td>v1.10.2</td>
   </tr>
 </table>
 
