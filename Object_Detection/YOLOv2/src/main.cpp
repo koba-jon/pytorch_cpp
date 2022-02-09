@@ -352,7 +352,7 @@ std::vector<std::tuple<long int, long int>> Set_Resizes(const std::string path, 
     // (1) Memory Allocation
     std::vector<std::tuple<long int, long int>> resizes;
 
-    // (2) Get Anchors
+    // (2) Get Resizes
     size_t num;
     long int width, height;
     std::string line;
