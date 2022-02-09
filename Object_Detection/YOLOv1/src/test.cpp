@@ -3,6 +3,7 @@
 #include <filesystem>                  // std::filesystem
 #include <string>                      // std::string
 #include <tuple>                       // std::tuple
+#include <vector>                      // std::vector
 #include <chrono>                      // std::chrono
 // For External Library
 #include <torch/torch.h>               // torch
