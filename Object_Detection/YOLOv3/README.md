@@ -353,7 +353,7 @@ Please refer to `cfg/anchor.txt` to change the config.<br>
 33.0 23.0     # (scale3.anchor3) Prior-width Prior-height
 ~~~
 
-Please write the prior-size, where each grid size is `1.0`.<br>
+Please write the prior-size, where each pixel size is `1.0` on image.<br>
 If you want to change types of anchor, please write `types` on `--na` to arguments.
 
 ---
