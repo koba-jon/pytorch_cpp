@@ -264,7 +264,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
     IoU_image = this->compute_iou(input_coord_image, target_coord_image).detach().clone();  // input_coord_image{4,G*G*A,N}, target_coord_image{4,G*G,N} ===> IoU_image{G*G*A,G*G,N}
     max_IoU_image_with_idx = IoU_image.max(/*dim=*/1, /*keepdim=*/false);  // IoU_image{G*G*A,G*G,N} ===> max_IoU_image_with_idx(IoU{G*G*A,N}, idx{G*G*A,N})
     image_max_IoU = std::get<0>(max_IoU_image_with_idx).view({ng, ng, this->na, mini_batch_size}).permute({3, 0, 1, 2}).contiguous();  // max_IoU_image_with_idx(IoU{G*G*A,N}, idx{G*G*A,N}) ===> {G,G,A,N} ===> image_max_IoU{N,G,G,A}
-    image_mask = image_max_IoU < this->thresh;  // image_max_IoU{N,G,G,A} ===> image_mask{N,G,G,A}
+    image_mask = (image_max_IoU < this->thresh);  // image_max_IoU{N,G,G,A} ===> image_mask{N,G,G,A}
     /*************************************************************************/
     response_mask = obj_mask * grid_mask;  // obj_mask{N,G,G,1}, grid_mask{N,G,G,A} ===> response_mask{N,G,G,A}
     no_response_mask = (response_mask == false);  // response_mask{N,G,G,A} ===> no_response_mask{N,G,G,A}

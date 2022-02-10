@@ -10,7 +10,7 @@
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
 #include "loss.hpp"                    // Loss
-#include "networks.hpp"                // YOLOv1
+#include "networks.hpp"                // YOLOv3
 #include "transforms.hpp"              // transforms_Compose
 #include "datasets.hpp"                // datasets::ImageFolderBBWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderBBWithPaths
@@ -23,7 +23,7 @@ namespace po = boost::program_options;
 // ---------------
 // Test Function
 // ---------------
-void test(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vector<transforms_Compose> &transform, const std::vector<std::string> class_names){
+void test(po::variables_map &vm, torch::Device &device, YOLOv3 &model, std::vector<transforms_Compose> &transform, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors){
 
     // (0) Initialization and Declaration
     float ave_loss_coord_xy, ave_loss_coord_wh, ave_loss_obj, ave_loss_noobj, ave_loss_class;
@@ -33,8 +33,9 @@ void test(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vect
     std::ofstream ofs;
     std::chrono::system_clock::time_point start, end;
     std::tuple<torch::Tensor, std::vector<std::tuple<torch::Tensor, torch::Tensor>>, std::vector<std::string>, std::vector<std::string>> data;
-    torch::Tensor image, output;
+    torch::Tensor image;
     torch::Tensor loss_coord_xy, loss_coord_wh, loss_obj, loss_noobj, loss_class;
+    std::vector<torch::Tensor> output;
     std::vector<std::tuple<torch::Tensor, torch::Tensor>> label;
     std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> losses;
     datasets::ImageFolderBBWithPaths dataset;
@@ -53,7 +54,7 @@ void test(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vect
     torch::load(model, path, device);
 
     // (3) Set Loss Function
-    auto criterion = Loss((long int)vm["class_num"].as<size_t>(), (long int)vm["ng"].as<size_t>(), (long int)vm["nb"].as<size_t>());
+    auto criterion = Loss(anchors, (long int)vm["class_num"].as<size_t>(), vm["ignore_thresh"].as<float>());
 
     // (4) Initialization of Value
     ave_loss_coord_xy = 0.0;
@@ -81,7 +82,7 @@ void test(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::vect
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         
-        losses = criterion(output, label);
+        losses = criterion(output, label, {(float)image.size(3), (float)image.size(2)});
         loss_coord_xy = std::get<0>(losses) * vm["Lambda_coord"].as<float>();
         loss_coord_wh = std::get<1>(losses) * vm["Lambda_coord"].as<float>();
         loss_obj = std::get<2>(losses) * vm["Lambda_object"].as<float>();

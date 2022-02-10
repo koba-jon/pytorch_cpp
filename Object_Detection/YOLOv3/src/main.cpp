@@ -12,7 +12,7 @@
 #include <opencv2/opencv.hpp>          // cv::Mat
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
-#include "networks.hpp"                // YOLOv2
+#include "networks.hpp"                // YOLOv3
 #include "augmentation.hpp"            // YOLOAugmentation
 #include "transforms.hpp"              // transforms
 
@@ -21,14 +21,14 @@ namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
-void train(po::variables_map &vm, torch::Device &device, YOLOv2 &model, std::vector<transforms_Compose> &transformBB, std::vector<transforms_Compose> &transformI, const std::vector<std::string> class_names, const std::vector<std::tuple<float, float>> anchors, const std::vector<std::tuple<long int, long int>> resizes, const size_t resize_step_max);
-void test(po::variables_map &vm, torch::Device &device, YOLOv2 &model, std::vector<transforms_Compose> &transform, const std::vector<std::string> class_names, const std::vector<std::tuple<float, float>> anchors);
-void detect(po::variables_map &vm, torch::Device &device, YOLOv2 &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformD, const std::vector<std::string> class_names, const std::vector<std::tuple<float, float>> anchors);
-void demo(po::variables_map &vm, torch::Device &device, YOLOv2 &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformD, const std::vector<std::string> class_names, const std::vector<std::tuple<float, float>> anchors);
+void train(po::variables_map &vm, torch::Device &device, YOLOv3 &model, std::vector<transforms_Compose> &transformBB, std::vector<transforms_Compose> &transformI, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors, const std::vector<std::tuple<long int, long int>> resizes, const size_t resize_step_max);
+void test(po::variables_map &vm, torch::Device &device, YOLOv3 &model, std::vector<transforms_Compose> &transform, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors);
+void detect(po::variables_map &vm, torch::Device &device, YOLOv3 &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformD, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors);
+void demo(po::variables_map &vm, torch::Device &device, YOLOv3 &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformD, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 std::vector<std::string> Set_Class_Names(const std::string path, const size_t class_num);
-std::vector<std::tuple<float, float>> Set_Anchors(const std::string path, const size_t na);
+std::vector<std::vector<std::tuple<float, float>>> Set_Anchors(const std::string path, const size_t scales, const size_t na);
 std::vector<std::tuple<long int, long int>> Set_Resizes(const std::string path, size_t &resize_step_max);
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode);
 
@@ -51,10 +51,11 @@ po::options_description parse_arguments(){
         ("class_num", po::value<size_t>()->default_value(20), "total classes")
         ("size", po::value<size_t>()->default_value(608), "image width and height")
         ("prob_thresh", po::value<float>()->default_value(0.1), "threshold of simultaneous probability with confidence and class score")
-        ("noobj_thresh", po::value<float>()->default_value(0.6), "threshold of IoU between no object anchor and ground truth for excluding loss of 'no object confidence term'")
+        ("ignore_thresh", po::value<float>()->default_value(0.7), "threshold of IoU between no object anchor and ground truth for excluding loss of 'no object confidence term'")
         ("nms_thresh", po::value<float>()->default_value(0.5), "threshold of IoU between bounding boxes in Non-Maximum Suppression")
         ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
-        ("na", po::value<size_t>()->default_value(5), "the number of anchor in each grid")
+        ("na", po::value<size_t>()->default_value(3), "the number of anchor in each grid")
+        ("scales", po::value<size_t>()->default_value(3), "the number of predicted map scales")
         ("gpu_id", po::value<int>()->default_value(0), "cuda device : 'x=-1' is cpu device")
         ("seed_random", po::value<bool>()->default_value(false), "whether to make the seed of random number in a random")
         ("seed", po::value<int>()->default_value(0), "seed of random number")
@@ -115,7 +116,7 @@ po::options_description parse_arguments(){
         ("momentum", po::value<float>()->default_value(0.9), "momentum in SGD of optimizer method")
         ("weight_decay", po::value<float>()->default_value(5e-4), "weight decay in SGD of optimizer method")
         ("Lambda_coord", po::value<float>()->default_value(1.0), "the multiple of coordinate term")
-        ("Lambda_object", po::value<float>()->default_value(5.0), "the multiple of object confidence term")
+        ("Lambda_object", po::value<float>()->default_value(1.0), "the multiple of object confidence term")
         ("Lambda_noobject", po::value<float>()->default_value(1.0), "the multiple of no object confidence term")
         ("Lambda_class", po::value<float>()->default_value(1.0), "the multiple of class term")
 
@@ -177,6 +178,7 @@ int main(int argc, const char *argv[]){
             )
         );
     }
+    /*************************************************************************/
     std::vector<transforms_Compose> transformI{
         transforms_Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
         transforms_ToTensor()                                                                             // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
@@ -184,6 +186,7 @@ int main(int argc, const char *argv[]){
     if (vm["nc"].as<size_t>() == 1){
         transformI.insert(transformI.begin(), transforms_Grayscale(1));
     }
+    /*************************************************************************/
     std::vector<transforms_Compose> transformD{
         transforms_ToTensor()  // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
     };
@@ -192,7 +195,7 @@ int main(int argc, const char *argv[]){
     }
     
     // (5) Define Network
-    YOLOv2 model(vm);
+    YOLOv3 model(vm);
     model->to(device);
     
     // (6) Make Directories
@@ -200,11 +203,11 @@ int main(int argc, const char *argv[]){
     fs::create_directories(dir);
 
     // (7) Save Model Parameters
-    Set_Model_Params(vm, model, "YOLOv2");
+    Set_Model_Params(vm, model, "YOLOv3");
 
     // (8) Set Class Names and Configs
     std::vector<std::string> class_names = Set_Class_Names(vm["class_list"].as<std::string>(), vm["class_num"].as<size_t>());
-    std::vector<std::tuple<float, float>> anchors = Set_Anchors(vm["anchor_list"].as<std::string>(), vm["na"].as<size_t>());
+    std::vector<std::vector<std::tuple<float, float>>> anchors = Set_Anchors(vm["anchor_list"].as<std::string>(), vm["scales"].as<size_t>(), vm["na"].as<size_t>());
     size_t resize_step_max;
     std::vector<std::tuple<long int, long int>> resizes = Set_Resizes(vm["resize_list"].as<std::string>(), resize_step_max);
 
@@ -317,24 +320,29 @@ std::vector<std::string> Set_Class_Names(const std::string path, const size_t cl
 // -----------------------------------
 // 5. Anchors Setting Function
 // -----------------------------------
-std::vector<std::tuple<float, float>> Set_Anchors(const std::string path, const size_t na){
+std::vector<std::vector<std::tuple<float, float>>> Set_Anchors(const std::string path, const size_t scales, const size_t na){
 
     // (1) Memory Allocation
-    std::vector<std::tuple<float, float>> anchors = std::vector<std::tuple<float, float>>(na);
+    std::vector<std::vector<std::tuple<float, float>>> anchors = std::vector<std::vector<std::tuple<float, float>>>(scales);
+    for (size_t i = 0; i < scales; i++){
+        anchors.at(i) = std::vector<std::tuple<float, float>>(na);
+    }
 
     // (2) Get Anchors
     float pw, ph;
     std::string line;
     std::ifstream ifs(path, std::ios::in);
-    for (size_t i = 0; i < na; i++){
-        if (!getline(ifs, line)){
-            std::cerr << "Error : The number of anchors does not match the number of lines in the anchor file." << std::endl;
-            std::exit(1);
+    for (size_t i = 0; i < scales; i++){
+        for (size_t j = 0; j < na; j++){
+            if (!getline(ifs, line)){
+                std::cerr << "Error : The number of anchors does not match the number of lines in the anchor file." << std::endl;
+                std::exit(1);
+            }
+            std::istringstream iss(line);
+            iss >> pw;
+            iss >> ph;
+            anchors.at(i).at(j) = {pw, ph};
         }
-        std::istringstream iss(line);
-        iss >> pw;
-        iss >> ph;
-        anchors.at(i) = {pw, ph};
     }
     ifs.close();
 
