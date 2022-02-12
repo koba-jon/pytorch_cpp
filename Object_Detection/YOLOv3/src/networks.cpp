@@ -25,19 +25,19 @@ YOLOv3Impl::YOLOv3Impl(po::variables_map &vm){
     // -----------------------------------
 
     // 1st Layers  {C,608,608} ===> {64,304,304}
-    this->stage1->push_back(ConvBlockImpl(/*in_nc=*/nc, /*out_nc=*/32, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));                  // {C,608,608} ===> {32,608,608}
-    this->stage1->push_back(ConvBlockImpl(/*in_nc=*/32, /*out_nc=*/64, /*ksize=*/3, /*stride=*/2, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));                  // {32,608,608} ===> {64,304,304}
+    this->stage1->push_back(ConvBlockImpl(/*in_nc=*/nc, /*out_nc=*/32, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));        // {C,608,608} ===> {32,608,608}
+    this->stage1->push_back(ConvBlockImpl(/*in_nc=*/32, /*out_nc=*/64, /*ksize=*/3, /*stride=*/2, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));        // {32,608,608} ===> {64,304,304}
 
     // 2nd Layers  {64,304,304} ===> {128,152,152}
-    this->stage1->push_back(ResBlockImpl(64, 32));                                                                                                           // {64,304,304} ===> {32,304,304} ===> {64,304,304}
-    this->stage1->push_back(ConvBlockImpl(/*in_nc=*/64, /*out_nc=*/128, /*ksize=*/3, /*stride=*/2, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));                 // {64,304,304} ===> {128,152,152}
+    this->stage1->push_back(ResBlockImpl(64, 32));                                                                                                 // {64,304,304} ===> {32,304,304} ===> {64,304,304}
+    this->stage1->push_back(ConvBlockImpl(/*in_nc=*/64, /*out_nc=*/128, /*ksize=*/3, /*stride=*/2, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));       // {64,304,304} ===> {128,152,152}
 
     // 3rd Layers  {128,152,152} ===> {256,76,76}
-    this->stage1->push_back(ResBlockImpl(128, 64));                                                                                                          // {128,152,152} ===> {64,152,152} ===> {128,152,152}
-    this->stage1->push_back(ResBlockImpl(128, 64));                                                                                                          // {128,152,152} ===> {64,152,152} ===> {128,152,152}
-    this->stage1->push_back(ConvBlockImpl(/*in_nc=*/128, /*out_nc=*/256, /*ksize=*/3, /*stride=*/2, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));                // {128,152,152} ===> {256,76,76}
+    this->stage1->push_back(ResBlockImpl(128, 64));                                                                                                // {128,152,152} ===> {64,152,152} ===> {128,152,152}
+    this->stage1->push_back(ResBlockImpl(128, 64));                                                                                                // {128,152,152} ===> {64,152,152} ===> {128,152,152}
+    this->stage1->push_back(ConvBlockImpl(/*in_nc=*/128, /*out_nc=*/256, /*ksize=*/3, /*stride=*/2, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));      // {128,152,152} ===> {256,76,76}
     for (size_t i = 0; i < 8; i++){
-        this->stage1->push_back(ResBlockImpl(256, 128));                                                                                                     // {256,76,76} ===> {128,76,76} ===> {256,76,76}
+        this->stage1->push_back(ResBlockImpl(256, 128));                                                                                           // {256,76,76} ===> {128,76,76} ===> {256,76,76}
     }
     register_module("stage1", this->stage1);
 
@@ -45,9 +45,9 @@ YOLOv3Impl::YOLOv3Impl(po::variables_map &vm){
     // 2. Convolutional Layers: Stage 2
     // -----------------------------------
     // Layers  {256,76,76} ===> {512,38,38}
-    this->stage2->push_back(ConvBlockImpl(/*in_nc=*/256, /*out_nc=*/512, /*ksize=*/3, /*stride=*/2, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));                // {256,76,76} ===> {512,38,38}
+    this->stage2->push_back(ConvBlockImpl(/*in_nc=*/256, /*out_nc=*/512, /*ksize=*/3, /*stride=*/2, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));      // {256,76,76} ===> {512,38,38}
     for (size_t i = 0; i < 8; i++){
-        this->stage2->push_back(ResBlockImpl(512, 256));                                                                                                     // {512,38,38} ===> {256,38,38} ===> {512,38,38}
+        this->stage2->push_back(ResBlockImpl(512, 256));                                                                                           // {512,38,38} ===> {256,38,38} ===> {512,38,38}
     }
     register_module("stage2", this->stage2);
 
@@ -55,69 +55,69 @@ YOLOv3Impl::YOLOv3Impl(po::variables_map &vm){
     // 3. Convolutional Layers: Stage 3
     // -----------------------------------
     // Layers  {512,38,38} ===> {512,19,19}
-    this->stage3->push_back(ConvBlockImpl(/*in_nc=*/512, /*out_nc=*/1024, /*ksize=*/3, /*stride=*/2, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));               // {512,38,38} ===> {1024,19,19}
+    this->stage3->push_back(ConvBlockImpl(/*in_nc=*/512, /*out_nc=*/1024, /*ksize=*/3, /*stride=*/2, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));     // {512,38,38} ===> {1024,19,19}
     for (size_t i = 0; i < 4; i++){
-        this->stage3->push_back(ResBlockImpl(1024, 512));                                                                                                    // {1024,19,19} ===> {512,19,19} ===> {1024,19,19}
+        this->stage3->push_back(ResBlockImpl(1024, 512));                                                                                          // {1024,19,19} ===> {512,19,19} ===> {1024,19,19}
     }
-    this->stage3->push_back(ConvBlockImpl(/*in_nc=*/1024, /*out_nc=*/512, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));               // {1024,19,19} ===> {512,19,19}
-    this->stage3->push_back(ConvBlockImpl(/*in_nc=*/512, /*out_nc=*/1024, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));               // {512,19,19} ===> {1024,19,19}
-    this->stage3->push_back(ConvBlockImpl(/*in_nc=*/1024, /*out_nc=*/512, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));               // {1024,19,19} ===> {512,19,19}
-    this->stage3->push_back(ConvBlockImpl(/*in_nc=*/512, /*out_nc=*/1024, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));               // {512,19,19} ===> {1024,19,19}
-    this->stage3->push_back(ConvBlockImpl(/*in_nc=*/1024, /*out_nc=*/512, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));               // {1024,19,19} ===> {512,19,19}
+    this->stage3->push_back(ConvBlockImpl(/*in_nc=*/1024, /*out_nc=*/512, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));     // {1024,19,19} ===> {512,19,19}
+    this->stage3->push_back(ConvBlockImpl(/*in_nc=*/512, /*out_nc=*/1024, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));     // {512,19,19} ===> {1024,19,19}
+    this->stage3->push_back(ConvBlockImpl(/*in_nc=*/1024, /*out_nc=*/512, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));     // {1024,19,19} ===> {512,19,19}
+    this->stage3->push_back(ConvBlockImpl(/*in_nc=*/512, /*out_nc=*/1024, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));     // {512,19,19} ===> {1024,19,19}
+    this->stage3->push_back(ConvBlockImpl(/*in_nc=*/1024, /*out_nc=*/512, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));     // {1024,19,19} ===> {512,19,19}
     register_module("stage3", this->stage3);
 
     // -----------------------------------
     // 4. Convolutional Layers: Stage 4
     // -----------------------------------
     // Layers  {512,19,19} ===> {256,19,19}
-    this->stage4->push_back(ConvBlockImpl(/*in_nc=*/512, /*out_nc=*/256, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));                // {512,19,19} ===> {256,19,19}
+    this->stage4->push_back(ConvBlockImpl(/*in_nc=*/512, /*out_nc=*/256, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));      // {512,19,19} ===> {256,19,19}
     register_module("stage4", this->stage4);
 
     // -----------------------------------
     // 5. Convolutional Layers: Stage 5
     // -----------------------------------
     // Layers  {512+256,38,38} ===> {256,38,38}
-    this->stage5->push_back(ConvBlockImpl(/*in_nc=*/512+256, /*out_nc=*/256, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));            // {512+256,38,38} ===> {256,38,38}
-    this->stage5->push_back(ConvBlockImpl(/*in_nc=*/256, /*out_nc=*/512, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));                // {256,38,38} ===> {512,38,38}
-    this->stage5->push_back(ConvBlockImpl(/*in_nc=*/512, /*out_nc=*/256, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));                // {512,38,38} ===> {256,38,38}
-    this->stage5->push_back(ConvBlockImpl(/*in_nc=*/256, /*out_nc=*/512, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));                // {256,38,38} ===> {512,38,38}
-    this->stage5->push_back(ConvBlockImpl(/*in_nc=*/512, /*out_nc=*/256, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));                // {512,38,38} ===> {256,38,38}
+    this->stage5->push_back(ConvBlockImpl(/*in_nc=*/512+256, /*out_nc=*/256, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));  // {512+256,38,38} ===> {256,38,38}
+    this->stage5->push_back(ConvBlockImpl(/*in_nc=*/256, /*out_nc=*/512, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));      // {256,38,38} ===> {512,38,38}
+    this->stage5->push_back(ConvBlockImpl(/*in_nc=*/512, /*out_nc=*/256, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));      // {512,38,38} ===> {256,38,38}
+    this->stage5->push_back(ConvBlockImpl(/*in_nc=*/256, /*out_nc=*/512, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));      // {256,38,38} ===> {512,38,38}
+    this->stage5->push_back(ConvBlockImpl(/*in_nc=*/512, /*out_nc=*/256, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));      // {512,38,38} ===> {256,38,38}
     register_module("stage5", this->stage5);
 
     // -----------------------------------
     // 6. Convolutional Layers: Stage 6
     // -----------------------------------
     // Layers  {256,38,38} ===> {128,38,38}
-    this->stage6->push_back(ConvBlockImpl(/*in_nc=*/256, /*out_nc=*/128, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));                // {256,38,38} ===> {128,38,38}
+    this->stage6->push_back(ConvBlockImpl(/*in_nc=*/256, /*out_nc=*/128, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));      // {256,38,38} ===> {128,38,38}
     register_module("stage6", this->stage6);
 
     // -----------------------------------
     // A. Convolutional Layers: Stage A
     // -----------------------------------
     // Layers  {512,19,19} ===> {A*(CN+5),19,19}
-    this->stageA->push_back(ConvBlockImpl(/*in_nc=*/512, /*out_nc=*/1024, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));               // {512,19,19} ===> {1024,19,19}
-    this->stageA->push_back(ConvBlockImpl(/*in_nc=*/1024, /*out_nc=*/final_features, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/false, /*LReLU=*/false));  // {1024,19,19} ===> {A*(CN+5),19,19}
+    this->stageA->push_back(ConvBlockImpl(/*in_nc=*/512, /*out_nc=*/1024, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));                              // {512,19,19} ===> {1024,19,19}
+    this->stageA->push_back(ConvBlockImpl(/*in_nc=*/1024, /*out_nc=*/final_features, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/false, /*LReLU=*/false, /*bias=*/true));  // {1024,19,19} ===> {A*(CN+5),19,19}
     register_module("stageA", this->stageA);
 
     // -----------------------------------
     // B. Convolutional Layers: Stage B
     // -----------------------------------
     // Layers  {256,38,38} ===> {A*(CN+5),38,38}
-    this->stageB->push_back(ConvBlockImpl(/*in_nc=*/256, /*out_nc=*/512, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));                // {256,38,38} ===> {512,38,38}
-    this->stageB->push_back(ConvBlockImpl(/*in_nc=*/512, /*out_nc=*/final_features, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/false, /*LReLU=*/false));   // {512,38,38} ===> {A*(CN+5),38,38}
+    this->stageB->push_back(ConvBlockImpl(/*in_nc=*/256, /*out_nc=*/512, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));                               // {256,38,38} ===> {512,38,38}
+    this->stageB->push_back(ConvBlockImpl(/*in_nc=*/512, /*out_nc=*/final_features, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/false, /*LReLU=*/false, /*bias=*/true));   // {512,38,38} ===> {A*(CN+5),38,38}
     register_module("stageB", this->stageB);
 
     // -----------------------------------
     // C. Convolutional Layers: Stage C
     // -----------------------------------
     // Layers  {256+128,76,76} ===> {A*(CN+5),76,76}
-    this->stageC->push_back(ConvBlockImpl(/*in_nc=*/256+128, /*out_nc=*/128, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));            // {256+128,76,76} ===> {128,76,76}
-    this->stageC->push_back(ConvBlockImpl(/*in_nc=*/128, /*out_nc=*/256, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));                // {128,76,76} ===> {256,76,76}
-    this->stageC->push_back(ConvBlockImpl(/*in_nc=*/256, /*out_nc=*/128, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));                // {256,76,76} ===> {128,76,76}
-    this->stageC->push_back(ConvBlockImpl(/*in_nc=*/128, /*out_nc=*/256, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));                // {128,76,76} ===> {256,76,76}
-    this->stageC->push_back(ConvBlockImpl(/*in_nc=*/256, /*out_nc=*/128, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));                // {256,76,76} ===> {128,76,76}
-    this->stageC->push_back(ConvBlockImpl(/*in_nc=*/128, /*out_nc=*/256, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));                // {128,76,76} ===> {256,76,76}
-    this->stageC->push_back(ConvBlockImpl(/*in_nc=*/256, /*out_nc=*/final_features, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/false, /*LReLU=*/false));   // {256,76,76} ===> {A*(CN+5),76,76}
+    this->stageC->push_back(ConvBlockImpl(/*in_nc=*/256+128, /*out_nc=*/128, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));                           // {256+128,76,76} ===> {128,76,76}
+    this->stageC->push_back(ConvBlockImpl(/*in_nc=*/128, /*out_nc=*/256, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));                               // {128,76,76} ===> {256,76,76}
+    this->stageC->push_back(ConvBlockImpl(/*in_nc=*/256, /*out_nc=*/128, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));                               // {256,76,76} ===> {128,76,76}
+    this->stageC->push_back(ConvBlockImpl(/*in_nc=*/128, /*out_nc=*/256, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));                               // {128,76,76} ===> {256,76,76}
+    this->stageC->push_back(ConvBlockImpl(/*in_nc=*/256, /*out_nc=*/128, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/true, /*LReLU=*/true));                               // {256,76,76} ===> {128,76,76}
+    this->stageC->push_back(ConvBlockImpl(/*in_nc=*/128, /*out_nc=*/256, /*ksize=*/3, /*stride=*/1, /*pad=*/1, /*BN=*/true, /*LReLU=*/true));                               // {128,76,76} ===> {256,76,76}
+    this->stageC->push_back(ConvBlockImpl(/*in_nc=*/256, /*out_nc=*/final_features, /*ksize=*/1, /*stride=*/1, /*pad=*/0, /*BN=*/false, /*LReLU=*/false, /*bias=*/true));   // {256,76,76} ===> {A*(CN+5),76,76}
     register_module("stageC", this->stageC);
 
 }
