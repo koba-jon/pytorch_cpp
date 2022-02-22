@@ -244,6 +244,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
     }
     else {
         loss_coord_xy = torch::full({}, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
+        loss_coord_xy.requires_grad_(true);
     }
 
     // (2) "range coordinate term"
@@ -258,6 +259,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
     }
     else {
         loss_coord_wh = torch::full({}, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
+        loss_coord_wh.requires_grad_(true);
     }
 
     // (3) "object confidence term"
@@ -269,6 +271,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
     }
     else {
         loss_obj = torch::full({}, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
+        loss_obj.requires_grad_(true);
     }
     
     // (4) "no object confidence term"
@@ -285,6 +288,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
     }
     else{
         loss_noobj = torch::full({}, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
+        loss_noobj.requires_grad_(true);
     }
     
     // (5) "class term"
@@ -299,6 +303,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
     }
     else{
         loss_class = torch::full({}, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
+        loss_class.requires_grad_(true);
     }
 
     return {loss_coord_xy, loss_coord_wh, loss_obj, loss_noobj, loss_class};
