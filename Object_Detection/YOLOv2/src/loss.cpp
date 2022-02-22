@@ -374,7 +374,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
         response_class_mask = response_mask.unsqueeze(/*dim=*/-1).expand_as(input_class);  // response_mask{N,G,G,A} ===> response_class_mask{N,G,G,A,CN}
         input_response_class = input_class.masked_select(/*mask=*/response_class_mask);  // input_class{N,G,G,A,CN} ===> input_response_class{response*CN}
         target_response_class = target_class.masked_select(/*mask=*/response_class_mask);  // target_class{N,G,G,A,CN} ===> target_response_class{response*CN}
-        loss_class = criterion(input_response_class, target_response_class) * 0.5 / (float)mini_batch_size;
+        loss_class = criterion(input_response_class, target_response_class) * 0.5 / (float)this->class_num / (float)mini_batch_size;
     }
     else{
         loss_class = torch::full({}, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);

@@ -295,7 +295,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
         obj_class_mask = (target_conf_class > 0.5);  // target_conf_class{N,G,G,CN} ===> obj_class_mask{N,G,G,CN}
         input_obj_class = input_class.masked_select(/*mask=*/obj_class_mask);  // input_class{N,G,G,CN} ===> input_noobj_conf{CN}
         target_obj_class = target_class.masked_select(/*mask=*/obj_class_mask);  // target_class{N,G,G,CN} ===> target_noobj_conf{object class}
-        loss_class = criterion(input_obj_class, target_obj_class) * 0.5 / (float)mini_batch_size;
+        loss_class = criterion(input_obj_class, target_obj_class) * 0.5 / (float)this->class_num / (float)mini_batch_size;
     }
     else{
         loss_class = torch::full({}, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
