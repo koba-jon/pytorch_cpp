@@ -18,5 +18,6 @@ Multiclass_Classification/VGGNet
 Multiclass_Classification/Discriminator
 Object_Detection/YOLOv1
 Object_Detection/YOLOv2
+Object_Detection/YOLOv3
 Semantic_Segmentation/SegNet
 Semantic_Segmentation/U-Net_Classification
