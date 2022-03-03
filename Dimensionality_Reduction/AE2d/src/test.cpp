@@ -60,6 +60,7 @@ void test(po::variables_map &vm, torch::Device &device, ConvolutionalAutoEncoder
     ave_time = 0.0;
 
     // (5) Tensor Forward
+    torch::NoGradGuard no_grad;
     model->eval();
     result_dir = vm["test_result_dir"].as<std::string>();  fs::create_directories(result_dir);
     ofs.open(result_dir + "/loss.txt", std::ios::out);

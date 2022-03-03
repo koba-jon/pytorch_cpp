@@ -36,6 +36,7 @@ void sample(po::variables_map &vm, torch::Device &device, WAE_Decoder &dec){
     torch::load(dec, path, device);
 
     // (2) Image Generation
+    torch::NoGradGuard no_grad;
     dec->eval();
     result_dir = vm["sample_result_dir"].as<std::string>();  fs::create_directories(result_dir);
     total = vm["sample_total"].as<size_t>();

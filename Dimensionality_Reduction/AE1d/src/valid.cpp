@@ -29,6 +29,7 @@ void valid(po::variables_map &vm, DataLoader::Data1dFolderWithPaths &valid_datal
     torch::Tensor loss, data, output;
 
     // (1) Tensor Forward per Mini Batch
+    torch::NoGradGuard no_grad;
     model->eval();
     iteration = 0;
     total_loss = 0.0;

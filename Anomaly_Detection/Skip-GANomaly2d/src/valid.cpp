@@ -38,6 +38,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datalo
     torch::Tensor label_real, label_fake;
 
     // (1) Tensor Forward per Mini Batch
+    torch::NoGradGuard no_grad;
     gen->eval();
     dis->eval();
     iteration = 0;

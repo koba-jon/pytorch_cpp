@@ -44,6 +44,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderClassesWithPaths &valid
     class_accuracy = std::vector<float>(class_num, 0.0);
 
     // (2) Tensor Forward per Mini Batch
+    torch::NoGradGuard no_grad;
     model->eval();
     iteration = 0;
     total_loss = 0.0;

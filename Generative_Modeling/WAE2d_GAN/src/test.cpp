@@ -60,6 +60,7 @@ void test(po::variables_map &vm, torch::Device &device, WAE_Encoder &enc, WAE_De
     ave_time = 0.0;
 
     // (5) Tensor Forward
+    torch::NoGradGuard no_grad;
     enc->eval();
     dec->eval();
     result_dir = vm["test_result_dir"].as<std::string>();  fs::create_directories(result_dir);

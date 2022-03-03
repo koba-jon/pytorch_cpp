@@ -61,6 +61,7 @@ void test(po::variables_map &vm, torch::Device &device, UNet_Generator &gen, GAN
     ave_time = 0.0;
 
     // (4) Tensor Forward
+    torch::NoGradGuard no_grad;
     gen->eval();
     dis->eval();
     result_dir = vm["test_result_dir"].as<std::string>();  fs::create_directories(result_dir);

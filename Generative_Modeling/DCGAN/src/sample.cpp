@@ -36,6 +36,7 @@ void sample(po::variables_map &vm, torch::Device &device, GAN_Generator &gen){
     torch::load(gen, path, device);
 
     // (2) Image Generation
+    torch::NoGradGuard no_grad;
     gen->eval();
     result_dir = vm["sample_result_dir"].as<std::string>();  fs::create_directories(result_dir);
     total = vm["sample_total"].as<size_t>();

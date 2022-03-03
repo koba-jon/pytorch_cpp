@@ -34,6 +34,7 @@ void synth(po::variables_map &vm, torch::Device &device, WAE_Decoder &dec){
     torch::load(dec, path, device);
 
     // (2) Image Generation
+    torch::NoGradGuard no_grad;
     dec->eval();
     max_counter = (int)(vm["synth_sigma_max"].as<float>() / vm["synth_sigma_inter"].as<float>() * 2) + 1;
     z = torch::full({1, (long int)vm["nz"].as<size_t>()}, /*value=*/-vm["synth_sigma_max"].as<float>(), torch::TensorOptions().dtype(torch::kFloat)).to(device);

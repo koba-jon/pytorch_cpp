@@ -36,6 +36,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderPairWithPaths &valid_da
     torch::Tensor label_real, label_fake;
 
     // (1) Tensor Forward per Mini Batch
+    torch::NoGradGuard no_grad;
     gen->train();  // Dropout is required to make the generated images diverse
     dis->train();  // Dropout is required to make the generated images diverse
     iteration = 0;
