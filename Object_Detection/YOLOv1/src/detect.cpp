@@ -62,6 +62,7 @@ void detect(po::variables_map &vm, torch::Device &device, YOLOv1 &model, std::ve
     std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette = detector.get_label_palette();
 
     // (4) Tensor Forward
+    torch::NoGradGuard no_grad;
     model->eval();
     result_dir = vm["detect_result_dir"].as<std::string>();  fs::create_directories(result_dir);
     ofs.open(result_dir + "/detect.txt", std::ios::out);
