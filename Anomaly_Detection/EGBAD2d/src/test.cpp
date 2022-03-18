@@ -62,6 +62,7 @@ void test(po::variables_map &vm, torch::Device &device, GAN_Encoder &enc, GAN_Ge
     ave_time = 0.0;
 
     // (4) Tensor Forward
+    torch::NoGradGuard no_grad;
     enc->eval();
     gen->eval();
     dis->eval();

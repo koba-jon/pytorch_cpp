@@ -45,6 +45,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datalo
     torch::Tensor output, outputs;
 
     // (1) Tensor Forward per Mini Batch
+    torch::NoGradGuard no_grad;
     enc->eval();
     gen->eval();
     dis->eval();

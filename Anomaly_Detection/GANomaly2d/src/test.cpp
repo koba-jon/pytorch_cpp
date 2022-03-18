@@ -62,6 +62,7 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc1, Encoder &
     ave_time = 0.0;
 
     // (5) Tensor Forward
+    torch::NoGradGuard no_grad;
     enc1->eval();
     enc2->eval();
     dec->eval();

@@ -37,6 +37,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderBBWithPaths &valid_data
     std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> losses;
 
     // (1) Tensor Forward per Mini Batch
+    torch::NoGradGuard no_grad;
     model->eval();
     iteration = 0;
     total_loss_coord_xy = 0.0; total_loss_coord_wh = 0.0; total_loss_obj = 0.0; total_loss_noobj = 0.0; total_loss_class = 0.0;

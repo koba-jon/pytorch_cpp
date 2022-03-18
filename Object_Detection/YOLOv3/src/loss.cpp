@@ -208,6 +208,12 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
     loss_obj = torch::full({}, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
     loss_noobj = torch::full({}, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
     loss_class = torch::full({}, /*value=*/0.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
+    /*************************************************************************/
+    loss_coord_xy.requires_grad_(true);
+    loss_coord_wh.requires_grad_(true);
+    loss_obj.requires_grad_(true);
+    loss_noobj.requires_grad_(true);
+    loss_class.requires_grad_(true);
 
     for (size_t i = 0; i < scales; i++){
 

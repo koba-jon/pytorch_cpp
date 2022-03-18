@@ -36,6 +36,7 @@ void synth(po::variables_map &vm, torch::Device &device, VariationalAutoEncoder 
     torch::load(model, path, device);
 
     // (2) Image Generation
+    torch::NoGradGuard no_grad;
     model->eval();
     max_counter = (int)(vm["synth_sigma_max"].as<float>() / vm["synth_sigma_inter"].as<float>() * 2) + 1;
     z_shape = model->get_z_shape({1, (long int)vm["nc"].as<size_t>(), (long int)vm["size"].as<size_t>(), (long int)vm["size"].as<size_t>()}, device);

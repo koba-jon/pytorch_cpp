@@ -82,6 +82,7 @@ void demo(po::variables_map &vm, torch::Device &device, YOLOv3 &model, std::vect
     std::cout << std::endl;
 
     // (5) Demo
+    torch::NoGradGuard no_grad;
     model->eval();
     flag = true;
     fps = 0.0;

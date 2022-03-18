@@ -73,6 +73,7 @@ void test(po::variables_map &vm, torch::Device &device, MC_VGGNet &model, std::v
     ofs2 << std::endl;
 
     // (6) Tensor Forward
+    torch::NoGradGuard no_grad;
     model->eval();
     while (dataloader(data)){
         
