@@ -10,6 +10,7 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Updates
 
+2022/09/12: Release of `v1.12.1` <br>
 2022/08/04: Release of `v1.12.0` <br>
 2022/03/18: Release of `v1.11.0` <br>
 2022/02/10: Release of `v1.10.2` <br>
@@ -19,11 +20,11 @@ In addition, I might adapt programs to the latest version. <br>
 2021/11/12: Release of `v1.10.0` <br>
 2021/09/27: Release of `v1.9.1` <br>
 2021/09/27: Support for using different devices between training and test <br>
-2021/09/06: Improved accuracy of time measurement using GPU <br>
 
 <details>
 <summary>See more...</summary>
   
+2021/09/06: Improved accuracy of time measurement using GPU <br>
 2021/06/19: Release of `v1.9.0` <br>
 2021/03/29: Release of `v1.8.1` <br>
 2021/03/18: Implementation of `Discriminator` from DCGAN <br>
@@ -311,14 +312,14 @@ In addition, I might adapt programs to the latest version. <br>
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Preview (Nightly) <br>
+PyTorch Build : Stable (1.12.1) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 Language : C++ / Java <br>
 CUDA : 10.2 <br>
 Run this Command : Download here (cxx11 ABI) <br>
-GPU : https://download.pytorch.org/libtorch/nightly/cu102/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
-CPU : https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
+GPU : https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu102.zip <br>
+CPU : https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcpu.zip <br>
 ***
 
 ### 2. OpenCV
@@ -357,7 +358,7 @@ $ sudo apt install libpng-dev libpng++-dev zlib1g-dev
 
 ### 1. Git Clone
 ~~~
-$ git clone -b develop/v1.12.1 https://github.com/koba-jon/pytorch_cpp.git
+$ git clone https://github.com/koba-jon/pytorch_cpp.git
 $ cd pytorch_cpp
 ~~~
 
