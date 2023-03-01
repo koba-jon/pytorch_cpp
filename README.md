@@ -313,14 +313,14 @@ In addition, I might adapt programs to the latest version. <br>
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Stable (1.13.1) <br>
+PyTorch Build : Preview (Nightly) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 Language : C++ / Java <br>
-CUDA : 11.6 <br>
+CUDA : 11.7 <br>
 Run this Command : Download here (cxx11 ABI) <br>
-GPU : https://download.pytorch.org/libtorch/cu116/libtorch-cxx11-abi-shared-with-deps-1.13.1%2Bcu116.zip <br>
-CPU : https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.13.1%2Bcpu.zip <br>
+GPU : https://download.pytorch.org/libtorch/nightly/cu117/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
+CPU : https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
 ***
 
 ### 2. OpenCV
@@ -359,7 +359,7 @@ $ sudo apt install libpng-dev libpng++-dev zlib1g-dev
 
 ### 1. Git Clone
 ~~~
-$ git clone https://github.com/koba-jon/pytorch_cpp.git
+$ git clone -b develop/v1.13.2 https://github.com/koba-jon/pytorch_cpp.git
 $ cd pytorch_cpp
 ~~~
 
