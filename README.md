@@ -1,5 +1,10 @@
 # PyTorch C++ Samples
+[![Language](https://img.shields.io/badge/Language-C++-blue)]()
+[![LibTorch](https://img.shields.io/badge/LibTorch-2.0.0-blue)]()
+
 These are Deep Learning sample programs of PyTorch written in C++.
+
+
 
 ## Description
 PyTorch is famous as a kind of Deep Learning Frameworks.<br>
@@ -10,6 +15,7 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Updates
 
+2023/05/07: Release of `v2.0.0` <br>
 2023/03/01: Release of `v1.13.1` <br>
 2022/09/12: Release of `v1.12.1` <br>
 2022/08/04: Release of `v1.12.0` <br>
@@ -19,11 +25,11 @@ In addition, I might adapt programs to the latest version. <br>
 2022/01/09: Release of `v1.10.1` <br>
 2022/01/09: Fixed execution error in test on CPU package <br>
 2021/11/12: Release of `v1.10.0` <br>
-2021/09/27: Release of `v1.9.1` <br>
 
 <details>
 <summary>See more...</summary>
   
+2021/09/27: Release of `v1.9.1` <br>
 2021/09/27: Support for using different devices between training and test <br>
 2021/09/06: Improved accuracy of time measurement using GPU <br>
 2021/06/19: Release of `v1.9.0` <br>
@@ -313,14 +319,14 @@ In addition, I might adapt programs to the latest version. <br>
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Stable (1.13.1) <br>
+PyTorch Build : Stable (2.0.0) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 Language : C++ / Java <br>
-CUDA : 11.6 <br>
 Run this Command : Download here (cxx11 ABI) <br>
-GPU : https://download.pytorch.org/libtorch/cu116/libtorch-cxx11-abi-shared-with-deps-1.13.1%2Bcu116.zip <br>
-CPU : https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.13.1%2Bcpu.zip <br>
+CUDA 11.7 : https://download.pytorch.org/libtorch/cu117/libtorch-cxx11-abi-shared-with-deps-2.0.0%2Bcu117.zip <br>
+CUDA 11.8 : https://download.pytorch.org/libtorch/cu118/libtorch-cxx11-abi-shared-with-deps-2.0.0%2Bcu118.zip <br>
+CPU : https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.0.0%2Bcpu.zip <br>
 ***
 
 ### 2. OpenCV
