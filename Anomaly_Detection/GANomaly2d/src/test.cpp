@@ -30,12 +30,12 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc1, Encoder &
     // (0) Initialization and Declaration
     float ave_con_loss, ave_enc_loss, ave_anomaly_score;
     double seconds, ave_time;
-    std::string path, result_dir, fname;
+    std::string path, result_dir, output_dir, heatmap_dir, fname;
     std::string dataroot;
     std::ofstream ofs, ofs_score;
     std::chrono::system_clock::time_point start, end;
     std::tuple<torch::Tensor, std::vector<std::string>> data;
-    torch::Tensor image, z, output, z_rec;
+    torch::Tensor image, z, output, z_rec, heatmap;
     torch::Tensor con_loss, enc_loss, anomaly_score;
     datasets::ImageFolderWithPaths dataset;
     DataLoader::ImageFolderWithPaths dataloader;
@@ -67,6 +67,8 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc1, Encoder &
     enc2->eval();
     dec->eval();
     result_dir = vm["test_result_dir"].as<std::string>();  fs::create_directories(result_dir);
+    output_dir = result_dir + "/output";  fs::create_directories(output_dir);
+    heatmap_dir = result_dir + "/heatmap";  fs::create_directories(heatmap_dir);
     ofs.open(result_dir + "/loss.txt", std::ios::out);
     ofs_score.open(result_dir + "/anomaly_score.txt", std::ios::out);
     while (dataloader(data)){
@@ -96,8 +98,12 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc1, Encoder &
         ofs << '<' << std::get<1>(data).at(0) << "> con_" << vm["loss_con"].as<std::string>() << ':' << con_loss.item<float>() << " enc_" << vm["loss_enc"].as<std::string>() << ':' << enc_loss.item<float>() << " anomaly_score:" << anomaly_score.item<float>() << std::endl;
         ofs_score << anomaly_score.item<float>() << std::endl;
 
-        fname = result_dir + '/' + std::get<1>(data).at(0);
+        fname = output_dir + '/' + std::get<1>(data).at(0);
         visualizer::save_image(output.detach(), fname, /*range=*/output_range, /*cols=*/1, /*padding=*/0);
+
+        fname = heatmap_dir + '/' + std::get<1>(data).at(0);
+        heatmap = visualizer::create_heatmap(torch::abs(image - output).mean(/*dim=*/1, /*keepdim=*/true), /*range=*/{0, (output_range.second - output_range.first) * vm["heatmap_max"].as<float>()});
+        visualizer::save_image(heatmap.detach(), fname, /*range=*/{0.0, 1.0}, /*cols=*/1, /*padding=*/0);
 
     }
 

@@ -69,6 +69,7 @@ po::options_description parse_arguments(){
         ("test_result_dir", po::value<std::string>()->default_value("test_result"), "test result directory : ./<test_result_dir>")
         ("test_search_epoch", po::value<size_t>()->default_value(100), "epoch to search latent variable in test")
         ("test_Lambda", po::value<float>()->default_value(0.1), "anomaly score rate between reconstruction and feature matching in test")
+        ("heatmap_max", po::value<float>()->default_value(1.0), "heatmap maximum-value in test")
 
         // (5) Define for Anomaly Detection
         ("AD", po::value<bool>()->default_value(false), "anomaly detection mode on/off")
