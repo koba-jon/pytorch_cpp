@@ -67,6 +67,7 @@ po::options_description parse_arguments(){
         ("test_dir", po::value<std::string>()->default_value("test"), "test image directory : ./datasets/<dataset>/<test_dir>/<image files>")
         ("test_load_epoch", po::value<std::string>()->default_value("latest"), "training epoch used for testing")
         ("test_result_dir", po::value<std::string>()->default_value("test_result"), "test result directory : ./<test_result_dir>")
+        ("heatmap_max", po::value<float>()->default_value(1.0), "heatmap maximum-value in test")
 
         // (5) Define for Anomaly Detection
         ("AD", po::value<bool>()->default_value(false), "anomaly detection mode on/off")

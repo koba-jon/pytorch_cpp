@@ -205,6 +205,24 @@ void visualizer::save_label(const torch::Tensor label, const std::string path, c
 
 
 // ----------------------------------------------------------
+// namespace{visualizer} -> function{create_heatmap}
+// ----------------------------------------------------------
+torch::Tensor visualizer::create_heatmap(const torch::Tensor image, const std::pair<float, float> range){
+
+    torch::Tensor gray, R, G, B, heatmap;
+
+    gray = (image.clamp(/*min=*/range.first, /*max=*/range.second) - range.first) / (float)(range.second - range.first);  // image[range.first, range.second] ===> gray[0,1]
+    R = (gray < 0.5) * 0.0 + (0.5 <= gray) * (gray < 0.75) * (4.0 * gray - 2.0) + (0.75 <= gray) * 1.0;  // 0 (0 <= x < 0.5), 4x-2 (0.5 <= x < 0.75), 1 (0.75 <= x <= 1)
+    G = (gray < 0.25) * (4.0 * gray) + (0.25 <= gray) * (gray < 0.75) * 1.0 + (0.75 <= gray) * (-4.0 * gray + 4.0); // 4x (0 <= x < 0.25), 1 (0.25 <= x < 0.75), -4x+4 (0.75 <= x <= 1)
+    B = (gray < 0.25) * 1.0 + (0.25 <= gray) * (gray < 0.5) * (-4.0 * gray + 2.0) + (0.5 <= gray) * 0.0; // 1 (0 <= x < 0.25), -4x+2 (0.25 <= x < 0.5), 0 (0.5 <= x <= 1)
+    heatmap = torch::cat({R, G, B}, /*dim=*/1);  // R{N,1,H,W} + G{N,1,H,W} + B{N,1,H,W} ===> heatmap{N,C,H,W}
+
+    return heatmap;
+
+}
+
+
+// ----------------------------------------------------------
 // namespace{visualizer} -> function{draw_detections}
 // ----------------------------------------------------------
 cv::Mat visualizer::draw_detections(const torch::Tensor image, const std::tuple<torch::Tensor, torch::Tensor> label, const std::vector<std::string> class_names, const std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette, const std::pair<float, float> range){

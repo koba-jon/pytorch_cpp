@@ -31,12 +31,12 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &d
     // (0) Initialization and Declaration
     float ave_loss, ave_anomaly_score, score;
     double seconds, ave_time;
-    std::string path, result_dir, fname;
+    std::string path, result_dir, output_dir, heatmap_dir, fname;
     std::string dataroot;
     std::ofstream ofs, ofs_loss, ofs_score;
     std::chrono::system_clock::time_point start, end;
     std::tuple<torch::Tensor, std::vector<std::string>> data;
-    torch::Tensor image, output;
+    torch::Tensor image, output, heatmap;
     torch::Tensor z, z_c, z_r, z_r1, z_r2;
     torch::Tensor mu, sigma, phi;
     torch::Tensor loss, anomaly_score;
@@ -72,6 +72,8 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &d
     dec->eval();
     est->eval();
     result_dir = vm["test_result_dir"].as<std::string>();  fs::create_directories(result_dir);
+    output_dir = result_dir + "/output";  fs::create_directories(output_dir);
+    heatmap_dir = result_dir + "/heatmap";  fs::create_directories(heatmap_dir);
     ofs.open(result_dir + "/loss.txt", std::ios::out);
     ofs_loss.open(result_dir + "/reconstruction_error.txt", std::ios::out);
     ofs_score.open(result_dir + "/anomaly_score.txt", std::ios::out);
@@ -118,8 +120,12 @@ void test(po::variables_map &vm, torch::Device &device, Encoder &enc, Decoder &d
         ofs_loss << loss.item<float>() << std::endl;
         ofs_score << score << std::endl;
 
-        fname = result_dir + '/' + std::get<1>(data).at(0);
+        fname = output_dir + '/' + std::get<1>(data).at(0);
         visualizer::save_image(output.detach(), fname, /*range=*/output_range, /*cols=*/1, /*padding=*/0);
+
+        fname = heatmap_dir + '/' + std::get<1>(data).at(0);
+        heatmap = visualizer::create_heatmap(torch::abs(image - output).mean(/*dim=*/1, /*keepdim=*/true), /*range=*/{0, (output_range.second - output_range.first) * vm["heatmap_max"].as<float>()});
+        visualizer::save_image(heatmap.detach(), fname, /*range=*/{0.0, 1.0}, /*cols=*/1, /*padding=*/0);
 
     }
 
