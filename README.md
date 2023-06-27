@@ -1,6 +1,6 @@
 # PyTorch C++ Samples
 [![Language](https://img.shields.io/badge/Language-C++-blue)]()
-[![LibTorch](https://img.shields.io/badge/LibTorch-2.0.0-blue)]()
+[![LibTorch](https://img.shields.io/badge/LibTorch-2.0.1-blue)]()
 
 These are Deep Learning sample programs of PyTorch written in C++.
 
@@ -15,51 +15,53 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Updates
 
-2023/05/07: Release of `v2.0.0` <br>
-2023/03/01: Release of `v1.13.1` <br>
-2022/09/12: Release of `v1.12.1` <br>
-2022/08/04: Release of `v1.12.0` <br>
-2022/03/18: Release of `v1.11.0` <br>
-2022/02/10: Release of `v1.10.2` <br>
-2022/02/09: Implementation of `YOLOv3` <br>
-2022/01/09: Release of `v1.10.1` <br>
-2022/01/09: Fixed execution error in test on CPU package <br>
-2021/11/12: Release of `v1.10.0` <br>
+06/27,2023: Release of `v2.0.1` <br>
+06/27,2023: Create the heatmap for Anomaly Detection <br>
+05/07,2023: Release of `v2.0.0` <br>
+03/01,2023: Release of `v1.13.1` <br>
+09/12,2022: Release of `v1.12.1` <br>
+08/04,2022: Release of `v1.12.0` <br>
+03/18,2022: Release of `v1.11.0` <br>
+02/10,2022: Release of `v1.10.2` <br>
+02/09,2022: Implementation of `YOLOv3` <br>
+01/09,2022: Release of `v1.10.1` <br>
 
 <details>
 <summary>See more...</summary>
   
-2021/09/27: Release of `v1.9.1` <br>
-2021/09/27: Support for using different devices between training and test <br>
-2021/09/06: Improved accuracy of time measurement using GPU <br>
-2021/06/19: Release of `v1.9.0` <br>
-2021/03/29: Release of `v1.8.1` <br>
-2021/03/18: Implementation of `Discriminator` from DCGAN <br>
-2021/03/17: Implementation of `AE1d` <br>
-2021/03/16: Release of `v1.8.0` <br>
-2021/03/15: Implementation of `YOLOv2` <br>
-2021/02/11: Implementation of `YOLOv1` <br>
-2021/01/21: Release of `v1.7.1` <br>
-2020/10/30: Release of `v1.7.0` <br>
-2020/10/04: Implementation of `Skip-GANomaly2d` <br>
-2020/10/03: Implementation of `GANomaly2d` <br>
-2020/09/29: Implementation of `EGBAD2d` <br>
-2020/09/28: Implementation of `AnoGAN2d` <br>
-2020/09/27: Implementation of `SegNet` <br>
-2020/09/26: Implementation of `DAE2d` <br>
-2020/09/13: Implementation of `ResNet` <br>
-2020/09/07: Implementation of `VGGNet` <br>
-2020/09/05: Implementation of `AlexNet` <br>
-2020/09/02: Implementation of `WAE2d GAN` and `WAE2d MMD` <br>
-2020/08/30: Release of `v1.6.0` <br>
-2020/06/26: Implementation of `DAGMM2d` <br>
-2020/06/26: Release of `v1.5.1` <br>
-2020/06/26: Implementation of `VAE2d` and `DCGAN` <br>
-2020/06/01: Implementation of `pix2pix` <br>
-2020/05/29: Implementation of `U-Net Classification` <br>
-2020/05/26: Implementation of `U-Net Regression` <br>
-2020/04/24: Release of `v1.5.0` <br>
-2020/03/23: Implementation of `AE2d` <br>
+01/09,2022: Fixed execution error in test on CPU package <br>
+11/12,2021: Release of `v1.10.0` <br>
+09/27,2021: Release of `v1.9.1` <br>
+09/27,2021: Support for using different devices between training and test <br>
+09/06,2021: Improved accuracy of time measurement using GPU <br>
+06/19,2021: Release of `v1.9.0` <br>
+03/29,2021: Release of `v1.8.1` <br>
+03/18,2021: Implementation of `Discriminator` from DCGAN <br>
+03/17,2021: Implementation of `AE1d` <br>
+03/16,2021: Release of `v1.8.0` <br>
+03/15,2021: Implementation of `YOLOv2` <br>
+02/11,2021: Implementation of `YOLOv1` <br>
+01/21,2021: Release of `v1.7.1` <br>
+10/30,2020: Release of `v1.7.0` <br>
+10/04,2020: Implementation of `Skip-GANomaly2d` <br>
+10/03,2020: Implementation of `GANomaly2d` <br>
+09/29,2020: Implementation of `EGBAD2d` <br>
+09/28,2020: Implementation of `AnoGAN2d` <br>
+09/27,2020: Implementation of `SegNet` <br>
+09/26,2020: Implementation of `DAE2d` <br>
+09/13,2020: Implementation of `ResNet` <br>
+09/07,2020: Implementation of `VGGNet` <br>
+09/05,2020: Implementation of `AlexNet` <br>
+09/02,2020: Implementation of `WAE2d GAN` and `WAE2d MMD` <br>
+08/30,2020: Release of `v1.6.0` <br>
+06/26,2020: Implementation of `DAGMM2d` <br>
+06/26,2020: Release of `v1.5.1` <br>
+06/26,2020: Implementation of `VAE2d` and `DCGAN` <br>
+06/01,2020: Implementation of `pix2pix` <br>
+05/29,2020: Implementation of `U-Net Classification` <br>
+05/26,2020: Implementation of `U-Net Regression` <br>
+04/24,2020: Release of `v1.5.0` <br>
+03/23,2020: Implementation of `AE2d` <br>
   
 </details>
 
@@ -319,14 +321,14 @@ In addition, I might adapt programs to the latest version. <br>
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Preview (Nightly) <br>
+PyTorch Build : Stable (2.0.1) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 Language : C++ / Java <br>
 Run this Command : Download here (cxx11 ABI) <br>
-CUDA 11.7 : https://download.pytorch.org/libtorch/nightly/cu117/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
-CUDA 11.8 : https://download.pytorch.org/libtorch/nightly/cu118/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
-CPU : https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip <br>
+CUDA 11.7 : https://download.pytorch.org/libtorch/cu117/libtorch-cxx11-abi-shared-with-deps-2.0.1%2Bcu117.zip <br>
+CUDA 11.8 : https://download.pytorch.org/libtorch/cu118/libtorch-cxx11-abi-shared-with-deps-2.0.1%2Bcu118.zip <br>
+CPU : https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.0.1%2Bcpu.zip <br>
 ***
 
 ### 2. OpenCV
@@ -365,7 +367,7 @@ $ sudo apt install libpng-dev libpng++-dev zlib1g-dev
 
 ### 1. Git Clone
 ~~~
-$ git clone -b develop/v2.0.1 https://github.com/koba-jon/pytorch_cpp.git
+$ git clone https://github.com/koba-jon/pytorch_cpp.git
 $ cd pytorch_cpp
 ~~~
 
