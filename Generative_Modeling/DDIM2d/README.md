@@ -1,6 +1,6 @@
-# VAE2d
-This is the implementation of "Variational Autoencoder" corresponding to 2-dimensional shape.<br>
-Original paper: D. P. Kingma and M. Welling. Auto-encoding variational bayes. In International Conference on Learning Representations, 2014. [link](https://arxiv.org/abs/1312.6114)
+# DDIM2d
+This is the implementation of "DDIM" corresponding to 2-dimensional shape.<br>
+Original paper: J. Song, C. Meng, and S. Ermon. Denoising Diffusion Implicit Models. In International Conference on Learning Representations, 2021. [link](https://arxiv.org/abs/2010.02502)
 
 ## Usage
 
@@ -66,7 +66,7 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='celebA'
 
-./VAE2d \
+./DDIM2d \
     --train true \
     --epochs 300 \
     --dataset ${DATA} \
@@ -96,7 +96,7 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='celebA'
 
-./VAE2d \
+./DDIM2d \
     --test true \
     --dataset ${DATA} \
     --test_in_dir "test" \
@@ -129,7 +129,7 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='celebA'
 
-./VAE2d \
+./DDIM2d \
     --synth true \
     --dataset ${DATA} \
     --size 256 \
@@ -158,7 +158,7 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='celebA'
 
-./VAE2d \
+./DDIM2d \
     --sample true \
     --dataset ${DATA} \
     --sample_total 100 \
