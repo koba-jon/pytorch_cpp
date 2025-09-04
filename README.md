@@ -15,6 +15,8 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Updates
 
+09/04,2025: Implementation of `DDIM2d` <br>
+09/04,2025: Implementation of `DDPM2d` <br>
 06/27,2023: Release of `v2.0.1` <br>
 06/27,2023: Create the heatmap for Anomaly Detection <br>
 05/07,2023: Release of `v2.0.0` <br>
@@ -23,12 +25,12 @@ In addition, I might adapt programs to the latest version. <br>
 08/04,2022: Release of `v1.12.0` <br>
 03/18,2022: Release of `v1.11.0` <br>
 02/10,2022: Release of `v1.10.2` <br>
-02/09,2022: Implementation of `YOLOv3` <br>
-01/09,2022: Release of `v1.10.1` <br>
 
 <details>
 <summary>See more...</summary>
   
+02/09,2022: Implementation of `YOLOv3` <br>
+01/09,2022: Release of `v1.10.1` <br>
 01/09,2022: Fixed execution error in test on CPU package <br>
 11/12,2021: Release of `v1.10.0` <br>
 09/27,2021: Release of `v1.9.1` <br>
@@ -175,6 +177,20 @@ In addition, I might adapt programs to the latest version. <br>
   </tr>
   <tr>
     <td><a href="Generative_Modeling/WAE2d_MMD">WAE2d MMD</a></td>
+  </tr>
+  <tr>
+    <td>DDPM2d</td>
+    <td><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
+    <td>NeurIPS 2020</td>
+    <td><a href="Generative_Modeling/DDPM2d">DDPM2d</a></td>
+    <td>v2.8.0</td>
+  </tr>
+  <tr>
+    <td>DDIM2d</td>
+    <td><a href="https://arxiv.org/abs/2010.02502">J. Song et al.</a></td>
+    <td>ICLR 2021</td>
+    <td><a href="Generative_Modeling/DDIM2d">DDIM2d</a></td>
+    <td>v2.8.0</td>
   </tr>
 </table>
 
