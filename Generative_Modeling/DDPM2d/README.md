@@ -1,6 +1,6 @@
-# VAE2d
-This is the implementation of "Variational Autoencoder" corresponding to 2-dimensional shape.<br>
-Original paper: D. P. Kingma and M. Welling. Auto-encoding variational bayes. In International Conference on Learning Representations, 2014. [link](https://arxiv.org/abs/1312.6114)
+# DDPM2d
+This is the implementation of "DDPM" corresponding to 2-dimensional shape.<br>
+Original paper: J. Ho, A. Jain, and P. Abbeel. Denoising Diffusion Probabilistic Models. In Annual Conference on Neural Information Processing Systems, 2020. [link](https://arxiv.org/abs/2006.11239)
 
 ## Usage
 
@@ -66,7 +66,7 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='celebA'
 
-./VAE2d \
+./DDPM2d \
     --train true \
     --epochs 300 \
     --dataset ${DATA} \
@@ -96,7 +96,7 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='celebA'
 
-./VAE2d \
+./DDPM2d \
     --test true \
     --dataset ${DATA} \
     --test_in_dir "test" \
@@ -129,7 +129,7 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='celebA'
 
-./VAE2d \
+./DDPM2d \
     --synth true \
     --dataset ${DATA} \
     --size 256 \
@@ -158,7 +158,7 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='celebA'
 
-./VAE2d \
+./DDPM2d \
     --sample true \
     --dataset ${DATA} \
     --sample_total 100 \
