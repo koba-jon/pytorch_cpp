@@ -179,14 +179,14 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="Generative_Modeling/WAE2d_MMD">WAE2d MMD</a></td>
   </tr>
   <tr>
-    <td>DDPM2d</td>
+    <td>DDPM</td>
     <td><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
     <td>NeurIPS 2020</td>
     <td><a href="Generative_Modeling/DDPM2d">DDPM2d</a></td>
     <td>v2.8.0</td>
   </tr>
   <tr>
-    <td>DDIM2d</td>
+    <td>DDIM</td>
     <td><a href="https://arxiv.org/abs/2010.02502">J. Song et al.</a></td>
     <td>ICLR 2021</td>
     <td><a href="Generative_Modeling/DDIM2d">DDIM2d</a></td>
