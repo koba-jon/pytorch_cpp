@@ -1,6 +1,6 @@
 # PyTorch C++ Samples
 [![Language](https://img.shields.io/badge/Language-C++-blue)]()
-[![LibTorch](https://img.shields.io/badge/LibTorch-2.0.1-blue)]()
+[![LibTorch](https://img.shields.io/badge/LibTorch-2.8.0-blue)]()
 
 These are Deep Learning sample programs of PyTorch written in C++.
 
@@ -15,6 +15,9 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Updates
 
+09/04,2025: Release of `v2.8.0` <br>
+09/04,2025: Implementation of `DDIM2d` <br>
+09/04,2025: Implementation of `DDPM2d` <br>
 06/27,2023: Release of `v2.0.1` <br>
 06/27,2023: Create the heatmap for Anomaly Detection <br>
 05/07,2023: Release of `v2.0.0` <br>
@@ -22,13 +25,13 @@ In addition, I might adapt programs to the latest version. <br>
 09/12,2022: Release of `v1.12.1` <br>
 08/04,2022: Release of `v1.12.0` <br>
 03/18,2022: Release of `v1.11.0` <br>
-02/10,2022: Release of `v1.10.2` <br>
-02/09,2022: Implementation of `YOLOv3` <br>
-01/09,2022: Release of `v1.10.1` <br>
 
 <details>
 <summary>See more...</summary>
   
+02/10,2022: Release of `v1.10.2` <br>
+02/09,2022: Implementation of `YOLOv3` <br>
+01/09,2022: Release of `v1.10.1` <br>
 01/09,2022: Fixed execution error in test on CPU package <br>
 11/12,2021: Release of `v1.10.0` <br>
 09/27,2021: Release of `v1.9.1` <br>
@@ -176,6 +179,20 @@ In addition, I might adapt programs to the latest version. <br>
   <tr>
     <td><a href="Generative_Modeling/WAE2d_MMD">WAE2d MMD</a></td>
   </tr>
+  <tr>
+    <td>DDPM</td>
+    <td><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
+    <td>NeurIPS 2020</td>
+    <td><a href="Generative_Modeling/DDPM2d">DDPM2d</a></td>
+    <td>v2.8.0</td>
+  </tr>
+  <tr>
+    <td>DDIM</td>
+    <td><a href="https://arxiv.org/abs/2010.02502">J. Song et al.</a></td>
+    <td>ICLR 2021</td>
+    <td><a href="Generative_Modeling/DDIM2d">DDIM2d</a></td>
+    <td>v2.8.0</td>
+  </tr>
 </table>
 
 ### Image-to-Image Translation
@@ -321,14 +338,15 @@ In addition, I might adapt programs to the latest version. <br>
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Stable (2.0.1) <br>
+PyTorch Build : Stable (2.8.0) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 Language : C++ / Java <br>
 Run this Command : Download here (cxx11 ABI) <br>
-CUDA 11.7 : https://download.pytorch.org/libtorch/cu117/libtorch-cxx11-abi-shared-with-deps-2.0.1%2Bcu117.zip <br>
-CUDA 11.8 : https://download.pytorch.org/libtorch/cu118/libtorch-cxx11-abi-shared-with-deps-2.0.1%2Bcu118.zip <br>
-CPU : https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.0.1%2Bcpu.zip <br>
+CUDA 12.6 : https://download.pytorch.org/libtorch/cu126/libtorch-shared-with-deps-2.8.0%2Bcu126.zip <br>
+CUDA 12.8 : https://download.pytorch.org/libtorch/cu128/libtorch-shared-with-deps-2.8.0%2Bcu128.zip <br>
+CUDA 12.9 : https://download.pytorch.org/libtorch/cu129/libtorch-shared-with-deps-2.8.0%2Bcu129.zip <br>
+CPU : https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.8.0%2Bcpu.zip <br>
 ***
 
 ### 2. OpenCV
