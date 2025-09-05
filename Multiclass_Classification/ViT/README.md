@@ -1,6 +1,6 @@
 # ViT
 This is the implementation of "Vision Transformer" for Multiclass Classification.<br>
-Original paper: A. Dosovitskiy, L. Beyer, A. Kolesnikov, D. Weissenborn, X. Zhai, T. Unterthiner, M. Dehghani, M. Minderer, G. Heigold, S. Gelly, J. Uszkoreit, N. Houlsby. In International Conference on Learning Representations, 2021. [link](https://arxiv.org/abs/2010.11929)
+Original paper: A. Dosovitskiy, L. Beyer, A. Kolesnikov, D. Weissenborn, X. Zhai, T. Unterthiner, M. Dehghani, M. Minderer, G. Heigold, S. Gelly, J. Uszkoreit, and N. Houlsby. In International Conference on Learning Representations, 2021. [link](https://arxiv.org/abs/2010.11929)
 
 ## Usage
 
