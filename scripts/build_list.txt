@@ -7,6 +7,8 @@ Dimensionality_Reduction/AE1d
 Dimensionality_Reduction/AE2d
 Dimensionality_Reduction/DAE2d
 Generative_Modeling/DCGAN
+Generative_Modeling/DDIM
+Generative_Modeling/DDPM
 Generative_Modeling/VAE2d
 Generative_Modeling/WAE2d_GAN
 Generative_Modeling/WAE2d_MMD
@@ -16,6 +18,7 @@ Multiclass_Classification/AlexNet
 Multiclass_Classification/ResNet
 Multiclass_Classification/VGGNet
 Multiclass_Classification/Discriminator
+Multiclass_Classification/ViT
 Object_Detection/YOLOv1
 Object_Detection/YOLOv2
 Object_Detection/YOLOv3
