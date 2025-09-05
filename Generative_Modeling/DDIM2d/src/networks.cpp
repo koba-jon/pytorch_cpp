@@ -303,7 +303,7 @@ torch::Tensor DDIMImpl::forward_z(torch::Tensor z){
 // function{weights_init}
 // ----------------------------
 void weights_init(nn::Module &m){
-    if ((typeid(m) == typeid(nn::Conv2d)) || (typeid(m) == typeid(nn::Conv2dImpl))) {
+    if ((typeid(m) == typeid(nn::Conv2d)) || (typeid(m) == typeid(nn::Conv2dImpl)) || (typeid(m) == typeid(nn::ConvTranspose2d)) || (typeid(m) == typeid(nn::ConvTranspose2dImpl))) {
         auto p = m.named_parameters(false);
         auto w = p.find("weight");
         auto b = p.find("bias");
