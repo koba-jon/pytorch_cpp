@@ -15,6 +15,7 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Updates
 
+09/05,2025: Implementation of `ViT` <br>
 09/04,2025: Release of `v2.8.0` <br>
 09/04,2025: Implementation of `DDIM2d` <br>
 09/04,2025: Implementation of `DDPM2d` <br>
@@ -24,11 +25,11 @@ In addition, I might adapt programs to the latest version. <br>
 03/01,2023: Release of `v1.13.1` <br>
 09/12,2022: Release of `v1.12.1` <br>
 08/04,2022: Release of `v1.12.0` <br>
-03/18,2022: Release of `v1.11.0` <br>
 
 <details>
 <summary>See more...</summary>
   
+03/18,2022: Release of `v1.11.0` <br>
 02/10,2022: Release of `v1.10.2` <br>
 02/09,2022: Implementation of `YOLOv3` <br>
 01/09,2022: Release of `v1.10.1` <br>
@@ -111,6 +112,13 @@ In addition, I might adapt programs to the latest version. <br>
     <td>ICLR 2016</td>
     <td><a href="Multiclass_Classification/Discriminator">Discriminator</a></td>
     <td>v1.8.1</td>
+  </tr>
+  <tr>
+    <td>Vision Transformer</td>
+    <td><a href="https://arxiv.org/abs/2010.11929">A. Dosovitskiy et al.</a></td>
+    <td>ICLR 2021</td>
+    <td><a href="Multiclass_Classification/ViT">ViT</a></td>
+    <td>v2.8.1</td>
   </tr>
 </table>
   
