@@ -144,23 +144,21 @@ torch::Tensor TransformerImpl::forward(torch::Tensor x){
 // ----------------------------------------------------------------------
 ViTImpl::ViTImpl(po::variables_map &vm){
 
-    this->nc = vm["nc"].as<size_t>();
-    this->np = vm["split"].as<size_t>() * vm["split"].as<size_t>();
+    size_t nc = vm["nc"].as<size_t>();
+    size_t np = vm["split"].as<size_t>() * vm["split"].as<size_t>();
     this->image_size = vm["size"].as<size_t>() - vm["size"].as<size_t>() % vm["split"].as<size_t>();
-    this->patch_size = this->image_size / vm["split"].as<size_t>();
+    size_t patch_size = this->image_size / vm["split"].as<size_t>();
     this->dim = vm["dim"].as<size_t>();
 
-    // Linear Projection of Flattened Patches
-    this->linear_projection = nn::Sequential(
-        nn::LayerNorm(nn::LayerNormOptions(std::vector<long int>{(long int)(this->patch_size*this->patch_size*this->nc)})),
-        nn::Linear(this->patch_size*this->patch_size*this->nc, this->dim),
-        nn::LayerNorm(nn::LayerNormOptions(std::vector<long int>{(long int)this->dim}))
-    );
-    register_module("Linear Projection", this->linear_projection);
+    // Convolutional Patch Embedding
+    this->conv = nn::Conv2d(nn::Conv2dOptions(nc, this->dim, patch_size).stride(patch_size).padding(0).bias(true));
+    register_module("Convolution", this->conv);
+    this->norm = nn::LayerNorm(nn::LayerNormOptions(std::vector<long int>{(long int)this->dim}));
+    register_module("Layer Normalization", this->norm);
 
     // Class Token and Positional Encoding
     this->class_token = register_parameter("Class Token", torch::randn({1, 1, (long int)this->dim}));
-    this->pos_encoding = register_parameter("Positional Encoding", torch::randn({1, (long int)this->np + 1, (long int)this->dim}));
+    this->pos_encoding = register_parameter("Positional Encoding", torch::randn({1, (long int)np + 1, (long int)this->dim}));
     this->dropout = nn::Dropout(0.1);
     register_module("Dropout", this->dropout);
 
@@ -189,27 +187,25 @@ void ViTImpl::init(){
 // ---------------------------------------------------------
 torch::Tensor ViTImpl::forward(torch::Tensor x){
 
-    torch::Tensor p, pf, cf, out; 
+    torch::Tensor pf, cf, out; 
 
     // (1) Resize
     x = F::interpolate(x, F::InterpolateFuncOptions().size(std::vector<long int>{(long int)this->image_size, (long int)this->image_size}).mode(torch::kBilinear).align_corners(false));  // {N,C,H,W}
 
-    // (2) Flatten patches
-    p = x.unfold(/*dim=*/2, this->patch_size, this->patch_size).unfold(/*dim=*/3, this->patch_size, this->patch_size);  // {N,C,H,W} ===> {N,C,NPH,NPW,PH,PW}
-    p = p.permute({0, 2, 3, 4, 5, 1}).contiguous().view({x.size(0), (long int)this->np, (long int)(this->patch_size*this->patch_size*x.size(1))}); // {N,C,NPH,NPW,PH,PW} ===> {N,NPH,NPW,PH,PW,C} ===> {N,NP,PH*PW*C}
+    // (2) Apply Convolutional Patch Embedding
+    pf = this->conv->forward(x);  // {N,C,H,W} ===> {N,D,NPH,NPW}
+    pf = pf.view({pf.size(0), pf.size(1), -1}).transpose(1, 2);  // {N,D,NPH,NPW} ===> {N,D,NP} ===> {N,NP,D}
+    pf= this->norm->forward(pf); // {N,NP,D}
 
-    // (3) Convert patches to features
-    pf = this->linear_projection->forward(p);  // {N,NP,PH*PW*C} ===> {N,NP,D}
-
-    // (4) Add class token and positional encoding
+    // (3) Add class token and positional encoding
     pf = torch::cat({this->class_token.expand({pf.size(0), 1, (long int)this->dim}), pf}, /*dim=*/1);  // {N,1,D} + {N,NP,D} ===> {N,1+NP,D}
     pf += this->pos_encoding;  // {N,1+NP,D}
     pf = this->dropout(pf);  // {N,1+NP,D}
 
-    // (5) Apply Transformer
+    // (4) Apply Transformer
     pf = this->transformer(pf);  // {N,1+NP,D}
 
-    // (6) Apply MLP
+    // (5) Apply MLP
     cf = pf.select(/*dim=*/1, /*index=*/0);  // {N,D}
     out = this->mlp_head->forward(cf);  // {N,D} ===> {N,CN}
     out = F::log_softmax(out, /*dim=*/1);

@@ -68,8 +68,9 @@ TORCH_MODULE(Transformer);
 // -------------------------------------------------
 struct ViTImpl : nn::Module{
 private:
-    size_t nc, np, image_size, patch_size, dim;
-    nn::Sequential linear_projection;
+    size_t image_size, dim;
+    nn::Conv2d conv = nullptr;
+    nn::LayerNorm norm = nullptr;
     torch::Tensor class_token, pos_encoding;
     nn::Dropout dropout = nullptr;
     Transformer transformer;
