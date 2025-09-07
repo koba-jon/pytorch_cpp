@@ -7,8 +7,8 @@ Dimensionality_Reduction/AE1d
 Dimensionality_Reduction/AE2d
 Dimensionality_Reduction/DAE2d
 Generative_Modeling/DCGAN
-Generative_Modeling/DDIM
-Generative_Modeling/DDPM
+Generative_Modeling/DDIM2d
+Generative_Modeling/DDPM2d
 Generative_Modeling/VAE2d
 Generative_Modeling/WAE2d_GAN
 Generative_Modeling/WAE2d_MMD
