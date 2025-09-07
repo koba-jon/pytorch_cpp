@@ -31,7 +31,6 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderPairWithPaths &valid_da
 // -------------------
 void train(po::variables_map &vm, torch::Device &device, ResNet_Generator &genAB, ResNet_Generator &genBA, PatchGAN_Discriminator &disA, PatchGAN_Discriminator &disB, std::vector<transforms_Compose> &transformA, std::vector<transforms_Compose> &transformB){
 
-    constexpr bool train_shuffle = true;  // whether to shuffle the training dataset
     constexpr size_t train_workers = 4;  // the number of workers to retrieve data from the training dataset
     constexpr bool valid_shuffle = true;  // whether to shuffle the validation dataset
     constexpr size_t valid_workers = 4;  // the number of workers to retrieve data from the validation dataset
