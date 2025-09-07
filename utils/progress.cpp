@@ -138,9 +138,9 @@ void progress::display::increment(const std::vector<float> loss_value, std::vect
     // (4) Get Left String
     left_str = "";
     for (i = 0; i < this->loss.size(); i++){
+        this->loss_sum.at(i) += loss_value.at(i);
+        this->loss_ave.at(i) = this->loss_sum.at(i) / (float)this->count;
         if (flag.at(i)){
-            this->loss_sum.at(i) += loss_value.at(i);
-            this->loss_ave.at(i) = this->loss_sum.at(i) / (float)this->count;
             ss.str(""); ss.clear(std::stringstream::goodbit);
             ss << this->loss.at(i) << ":" << loss_value.at(i);
             ss << "(ave:" << this->loss_ave.at(i) << ") ";
