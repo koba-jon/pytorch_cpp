@@ -15,6 +15,7 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Updates
 
+09/07,2025: Implementation of `CycleGAN` <br>
 09/05,2025: Implementation of `ViT` <br>
 09/04,2025: Release of `v2.8.0` <br>
 09/04,2025: Implementation of `DDIM2d` <br>
@@ -24,11 +25,11 @@ In addition, I might adapt programs to the latest version. <br>
 05/07,2023: Release of `v2.0.0` <br>
 03/01,2023: Release of `v1.13.1` <br>
 09/12,2022: Release of `v1.12.1` <br>
-08/04,2022: Release of `v1.12.0` <br>
 
 <details>
 <summary>See more...</summary>
   
+08/04,2022: Release of `v1.12.0` <br>
 03/18,2022: Release of `v1.11.0` <br>
 02/10,2022: Release of `v1.10.2` <br>
 02/09,2022: Implementation of `YOLOv3` <br>
@@ -226,6 +227,13 @@ In addition, I might adapt programs to the latest version. <br>
     <td>CVPR 2017</td>
     <td><a href="Image-to-Image_Translation/pix2pix">pix2pix</a></td>
     <td>v1.5.1</td>
+  </tr>
+  <tr>
+    <td>CycleGAN</td>
+    <td><a href="https://openaccess.thecvf.com/content_iccv_2017/html/Zhu_Unpaired_Image-To-Image_Translation_ICCV_2017_paper.html">J.-Y. Zhu et al.</a></td>
+    <td>ICCV 2017</td>
+    <td><a href="Image-to-Image_Translation/CycleGAN">CycleGAN</a></td>
+    <td>v2.8.1</td>
   </tr>
 </table>
 
