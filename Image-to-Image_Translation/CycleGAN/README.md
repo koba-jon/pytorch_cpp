@@ -116,7 +116,7 @@ DATA='facade'
     --A_nc 3 \
     --B_nc 3
 ~~~
-There are no particular restrictions on both input and output images.<br>
+There are no particular restrictions on both A and B images.<br>
 However, the two file names must correspond without the extension.
 
 #### Run
