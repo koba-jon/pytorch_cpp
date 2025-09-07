@@ -108,7 +108,7 @@ progress::display::display(const size_t count_max_, const std::string header1, c
 // -------------------------------------------------------------
 // namespace{progress} -> class{display} -> function{increment}
 // -------------------------------------------------------------
-void progress::display::increment(const std::vector<float> loss_value){
+void progress::display::increment(const std::vector<float> loss_value, std::vector<size_t> hide){
 
     // (0) Initialization and Declaration
     size_t i;
@@ -117,6 +117,7 @@ void progress::display::increment(const std::vector<float> loss_value){
     int percent;
     int elap_min, elap_sec, rem_times, rem_min, rem_sec;
     double sec_per_iter;
+    std::vector<bool> flag;
     std::string initialize;
     std::string left_str, right_str, center_str;
     std::string elap_min_str, elap_sec_str, sec_per_iter_str, rem_min_str, rem_sec_str;
@@ -128,22 +129,30 @@ void progress::display::increment(const std::vector<float> loss_value){
     // (2) Initialization of Terminal Line
     initialize = std::string(this->length, '\b') + std::string(this->length, ' ') + std::string(this->length, '\b');
 
-    // (3) Get Left String
+    // (3) Set flag of index to be shown
+    flag = std::vector<bool>(this->loss.size(), true);
+    for (i = 0; i < hide.size(); i++){
+        flag.at(hide.at(i)) = false;
+    }
+
+    // (4) Get Left String
     left_str = "";
     for (i = 0; i < this->loss.size(); i++){
-        this->loss_sum.at(i) += loss_value.at(i);
-        this->loss_ave.at(i) = this->loss_sum.at(i) / (float)this->count;
-        ss.str(""); ss.clear(std::stringstream::goodbit);
-        ss << this->loss.at(i) << ":" << loss_value.at(i);
-        ss << "(ave:" << this->loss_ave.at(i) << ") ";
-        left_str += ss.str();
+        if (flag.at(i)){
+            this->loss_sum.at(i) += loss_value.at(i);
+            this->loss_ave.at(i) = this->loss_sum.at(i) / (float)this->count;
+            ss.str(""); ss.clear(std::stringstream::goodbit);
+            ss << this->loss.at(i) << ":" << loss_value.at(i);
+            ss << "(ave:" << this->loss_ave.at(i) << ") ";
+            left_str += ss.str();
+        }
     }
     ss.str(""); ss.clear(std::stringstream::goodbit);
     percent = (int)((float)this->count / (float)this->count_max * 100.0f);
     ss << std::right << std::setw(4) << percent;
     left_str += ss.str() + "%[";
 
-    // (4) Get Times for Right String
+    // (5) Get Times for Right String
     sec_per_iter = 0.0; rem_times = 0;
     this->end = std::chrono::system_clock::now();
     for (i = 0; i < 6; i++){
@@ -183,13 +192,13 @@ void progress::display::increment(const std::vector<float> loss_value){
         }
     }
 
-    // (5) Get Right String
+    // (6) Get Right String
     ss.str(""); ss.clear(std::stringstream::goodbit);
     ss << "] " << this->count << "/" << this->count_max << " ";
     ss << "[" << elap_min_str << ":" << elap_sec_str << "<" << rem_min_str << ":" << rem_sec_str << ", " << sec_per_iter_str << "s/it]";
     right_str = ss.str();
 
-    // (6) Catch Terminal Size
+    // (7) Catch Terminal Size
     struct winsize ws;
     ideal_length = 0;
     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) != -1){
@@ -200,12 +209,12 @@ void progress::display::increment(const std::vector<float> loss_value){
         std::exit(1);
     }
 
-    // (7) Get Center String
+    // (8) Get Center String
     center_length = (size_t)std::max((int)1, (int)(ideal_length - left_str.length() - right_str.length()));
     bar_length = (size_t)((float)center_length * (float)this->count / (float)this->count_max);
     center_str = std::string(bar_length, '#') + std::string(center_length - bar_length, ' ');
 
-    // (8) Output All String
+    // (9) Output All String
     this->length = left_str.length() + center_str.length() + right_str.length();
     std::cout << initialize << std::flush;
     std::cout << left_str << center_str << right_str << std::flush;
