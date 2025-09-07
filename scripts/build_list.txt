@@ -12,6 +12,7 @@ Generative_Modeling/DDPM
 Generative_Modeling/VAE2d
 Generative_Modeling/WAE2d_GAN
 Generative_Modeling/WAE2d_MMD
+Image-to-Image_Translation/CycleGAN
 Image-to-Image_Translation/U-Net_Regression
 Image-to-Image_Translation/pix2pix
 Multiclass_Classification/AlexNet
