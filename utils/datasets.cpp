@@ -320,6 +320,56 @@ size_t datasets::ImageFolderPairWithPaths::size(){
 
 
 // ----------------------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderRandomSampling2WithPaths} -> constructor
+// ----------------------------------------------------------------------------------------
+datasets::ImageFolderRandomSampling2WithPaths::ImageFolderRandomSampling2WithPaths(const std::string root1, const std::string root2, std::vector<transforms_Compose> &transform1_, std::vector<transforms_Compose> &transform2_){
+
+    datasets::collect(root1, "", this->paths1, this->fnames1);
+    std::sort(this->paths1.begin(), this->paths1.end());
+    std::sort(this->fnames1.begin(), this->fnames1.end());
+
+    datasets::collect(root2, "", this->paths2, this->fnames2);
+    std::sort(this->paths2.begin(), this->paths2.end());
+    std::sort(this->fnames2.begin(), this->fnames2.end());
+
+    this->transform1 = transform1_;
+    this->transform2 = transform2_;
+
+}
+
+
+// ------------------------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderRandomSampling2WithPaths} -> function{get}
+// ------------------------------------------------------------------------------------------
+void datasets::ImageFolderRandomSampling2WithPaths::get(const size_t idx1, const size_t idx2, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> &data){
+    cv::Mat image_Mat1 = datasets::RGB_Loader(this->paths1.at(idx1));
+    cv::Mat image_Mat2 = datasets::RGB_Loader(this->paths2.at(idx2));
+    torch::Tensor image1 = transforms::apply(this->transform1, image_Mat1);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
+    torch::Tensor image2 = transforms::apply(this->transform2, image_Mat2);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
+    std::string fname1 = this->fnames1.at(idx1);
+    std::string fname2 = this->fnames2.at(idx2);
+    data = {image1.detach().clone(), image2.detach().clone(), fname1, fname2};
+    return;
+}
+
+
+// -------------------------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderRandomSampling2WithPaths} -> function{size1}
+// -------------------------------------------------------------------------------------------
+size_t datasets::ImageFolderRandomSampling2WithPaths::size1(){
+    return this->fnames1.size();
+}
+
+
+// -------------------------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderRandomSampling2WithPaths} -> function{size2}
+// -------------------------------------------------------------------------------------------
+size_t datasets::ImageFolderRandomSampling2WithPaths::size2(){
+    return this->fnames2.size();
+}
+
+
+// ----------------------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderPairAndRandomSamplingWithPaths} -> constructor
 // ----------------------------------------------------------------------------------------
 datasets::ImageFolderPairAndRandomSamplingWithPaths::ImageFolderPairAndRandomSamplingWithPaths(const std::string root1, const std::string root2, const std::string root_rand, std::vector<transforms_Compose> &transformI_, std::vector<transforms_Compose> &transformO_, std::vector<transforms_Compose> &transform_rand_){

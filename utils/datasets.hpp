@@ -90,6 +90,21 @@ namespace datasets{
     };
 
     // ------------------------------------------------------------------------
+    // namespace{datasets} -> class{ImageFolderRandomSampling2WithPaths}
+    // ------------------------------------------------------------------------
+    class ImageFolderRandomSampling2WithPaths{
+    private:
+        std::vector<transforms_Compose> transform1, transform2;
+        std::vector<std::string> paths1, paths2, fnames1, fnames2;
+    public:
+        ImageFolderRandomSampling2WithPaths(){}
+        ImageFolderRandomSampling2WithPaths(const std::string root1, const std::string root2, std::vector<transforms_Compose> &transform1_, std::vector<transforms_Compose> &transform2_);
+        void get(const size_t idx1, const size_t idx2, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> &data);
+        size_t size1();
+        size_t size2();
+    };
+
+    // ------------------------------------------------------------------------
     // namespace{datasets} -> class{ImageFolderPairAndRandomSamplingWithPaths}
     // ------------------------------------------------------------------------
     class ImageFolderPairAndRandomSamplingWithPaths{
