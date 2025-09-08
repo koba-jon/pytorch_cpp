@@ -108,11 +108,18 @@ In addition, I might adapt programs to the latest version. <br>
     <td>v1.7.0</td>
   </tr>
   <tr>
-    <td>DCGAN Discriminator</td>
+    <td>Discriminator</td>
     <td><a href="https://arxiv.org/abs/1511.06434">A. Radford et al.</a></td>
     <td>ICLR 2016</td>
     <td><a href="Multiclass_Classification/Discriminator">Discriminator</a></td>
     <td>v1.8.1</td>
+  </tr>
+  <tr>
+    <td>EfficientNet</td>
+    <td><a href="https://proceedings.mlr.press/v97/tan19a.html?ref=ji">M. Tan et al.</a></td>
+    <td>ICML 2019</td>
+    <td><a href="Multiclass_Classification/EfficientNet">EfficientNet</a></td>
+    <td>v2.8.1</td>
   </tr>
   <tr>
     <td>Vision Transformer</td>
