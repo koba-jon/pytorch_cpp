@@ -73,7 +73,7 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Implementation
 
-<details>
+<details open>
 <summary>Details</summary>
   
 ### Multiclass Classification
