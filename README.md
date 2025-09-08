@@ -15,6 +15,7 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Updates
 
+09/08,2025: Implementation of `EfficientNet` <br>
 09/07,2025: Implementation of `CycleGAN` <br>
 09/05,2025: Implementation of `ViT` <br>
 09/04,2025: Release of `v2.8.0` <br>
@@ -24,11 +25,11 @@ In addition, I might adapt programs to the latest version. <br>
 06/27,2023: Create the heatmap for Anomaly Detection <br>
 05/07,2023: Release of `v2.0.0` <br>
 03/01,2023: Release of `v1.13.1` <br>
-09/12,2022: Release of `v1.12.1` <br>
 
 <details>
 <summary>See more...</summary>
   
+09/12,2022: Release of `v1.12.1` <br>
 08/04,2022: Release of `v1.12.0` <br>
 03/18,2022: Release of `v1.11.0` <br>
 02/10,2022: Release of `v1.10.2` <br>
