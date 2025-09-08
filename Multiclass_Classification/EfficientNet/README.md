@@ -146,5 +146,5 @@ $ sh scripts/test.sh
 
 
 ## Acknowledgments
-This code is inspired by [pytorch-cifar](https://github.com/kuangliu/pytorch-cifar).
+This code is inspired by [EfficientNet-PyTorch](https://github.com/lukemelas/EfficientNet-PyTorch).
 
