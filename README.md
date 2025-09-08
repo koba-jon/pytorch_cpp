@@ -1,6 +1,7 @@
 # PyTorch C++ Samples
 [![Language](https://img.shields.io/badge/Language-C++-blue)]()
 [![LibTorch](https://img.shields.io/badge/LibTorch-2.8.0-blue)]()
+[![OS](https://img.shields.io/badge/OS-Ubuntu-blue)]()
 
 These are Deep Learning sample programs of PyTorch written in C++.
 
