@@ -356,7 +356,7 @@ In addition, I might adapt programs to the latest version. <br>
   
 ## Requirement
 
-<details>
+<details open>
 <summary>Details</summary>
 
 ### 1. PyTorch C++
