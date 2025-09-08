@@ -405,7 +405,7 @@ $ sudo apt install libpng-dev libpng++-dev zlib1g-dev
 
 ## Preparation
 
-<details>
+<details open>
 <summary>Details</summary>
 
 ### 1. Git Clone
@@ -439,7 +439,7 @@ Please move to the directory of each model and refer to "README.md".
   
 ## Utility
 
-<details>
+<details open>
 <summary>Details</summary>
 
 ### 1. Making Original Dataset
@@ -506,7 +506,7 @@ It corresponds to the following source code in the directory.
 
 ## License
   
-<details>
+<details open>
 <summary>Details</summary>
   
 You can feel free to use all source code in this repository.<br>
