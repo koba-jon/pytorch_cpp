@@ -68,6 +68,7 @@ DATA='celebA'
 
 ./DDPM2d \
     --train true \
+    --timesteps 10000 \
     --epochs 300 \
     --dataset ${DATA} \
     --size 256 \
@@ -98,6 +99,7 @@ DATA='celebA'
 
 ./DDPM2d \
     --test true \
+    --timesteps 10000 \
     --dataset ${DATA} \
     --test_in_dir "test" \
     --test_out_dir "test" \
@@ -131,6 +133,7 @@ DATA='celebA'
 
 ./DDPM2d \
     --synth true \
+    --timesteps 10000 \
     --dataset ${DATA} \
     --size 256 \
     --gpu_id 0 \
@@ -160,6 +163,7 @@ DATA='celebA'
 
 ./DDPM2d \
     --sample true \
+    --timesteps 10000 \
     --dataset ${DATA} \
     --sample_total 100 \
     --size 256 \
