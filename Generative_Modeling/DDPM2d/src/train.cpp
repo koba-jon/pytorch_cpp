@@ -55,7 +55,7 @@ void train(po::variables_map &vm, torch::Device &device, DDPM &model, std::vecto
     std::ifstream infoi;
     std::ofstream ofs, init, infoo;
     std::tuple<torch::Tensor, std::vector<std::string>> mini_batch;
-    torch::Tensor t, x_t, noise, loss, image, output, recon_image, pair;
+    torch::Tensor t, x_t, noise, loss, image, output, pair;
     std::tuple<torch::Tensor, torch::Tensor> x_t_with_noise;
     datasets::ImageFolderWithPaths dataset, valid_dataset;
     DataLoader::ImageFolderWithPaths dataloader, valid_dataloader;
@@ -191,10 +191,9 @@ void train(po::variables_map &vm, torch::Device &device, DDPM &model, std::vecto
             // -----------------------------------
             iter = show_progress->get_iters();
             if (iter % save_sample_iter == 1){
-                recon_image = model->denoise(x_t, t);
                 ss.str(""); ss.clear(std::stringstream::goodbit);
                 ss << save_images_dir << "/epoch_" << epoch << "-iter_" << iter << '.' << extension;
-                pair = torch::cat({image, x_t, recon_image}, /*dim=*/0);
+                pair = torch::cat({image, x_t, output, noise}, /*dim=*/0);
                 visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/mini_batch_size);
             }
 
