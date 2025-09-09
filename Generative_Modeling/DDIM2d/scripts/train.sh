@@ -4,6 +4,8 @@ DATA='celebA'
 
 ./DDIM2d \
     --train true \
+    --timesteps 10000 \
+    --timesteps_inf 100 \
     --epochs 300 \
     --dataset ${DATA} \
     --size 256 \
