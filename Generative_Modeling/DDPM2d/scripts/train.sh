@@ -4,6 +4,7 @@ DATA='celebA'
 
 ./DDPM2d \
     --train true \
+    --timesteps 10000 \
     --epochs 300 \
     --dataset ${DATA} \
     --size 256 \
