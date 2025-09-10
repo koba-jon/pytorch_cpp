@@ -35,7 +35,7 @@ void test(po::variables_map &vm, torch::Device &device, DDIM &model, std::vector
     std::ofstream ofs;
     std::chrono::system_clock::time_point start, end;
     std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>> data;
-    torch::Tensor t, t_prev, x_t, noise, imageI, imageO, output, recon_image, loss, GT_loss;
+    torch::Tensor t, x_t, noise, imageI, imageO, output, recon_image, loss, GT_loss;
     std::tuple<torch::Tensor, torch::Tensor> x_t_with_noise;
     datasets::ImageFolderPairWithPaths dataset;
     DataLoader::ImageFolderPairWithPaths dataloader;
@@ -73,12 +73,11 @@ void test(po::variables_map &vm, torch::Device &device, DDIM &model, std::vector
         start = std::chrono::system_clock::now();
         
         t = torch::randint(1, vm["timesteps"].as<size_t>() + 1, {imageI.size(0)}).to(device);
-        t_prev = t - 1;
         x_t_with_noise = model->add_noise(imageI, t);
         x_t = std::get<0>(x_t_with_noise);
         noise = std::get<1>(x_t_with_noise);
         output = model->forward(x_t, t);
-        recon_image = model->denoise(x_t, t, t_prev);
+        recon_image = model->denoise_t(x_t, t);
 
         if (!device.is_cpu()) torch::cuda::synchronize();
         end = std::chrono::system_clock::now();

@@ -24,12 +24,13 @@ namespace po = boost::program_options;
 
 // Function Prototype
 void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, DDIM &model, const size_t epoch, visualizer::graph &writer);
+void ema(DDIM &source, DDIM &target, const float decay);
 
 
 // -------------------
 // Training Function
 // -------------------
-void train(po::variables_map &vm, torch::Device &device, DDIM &model, std::vector<transforms_Compose> &transform){
+void train(po::variables_map &vm, torch::Device &device, DDIM &model, DDIM &model_aux, std::vector<transforms_Compose> &transform){
 
     constexpr bool train_shuffle = true;  // whether to shuffle the training dataset
     constexpr size_t train_workers = 4;  // the number of workers to retrieve data from the training dataset
@@ -55,7 +56,7 @@ void train(po::variables_map &vm, torch::Device &device, DDIM &model, std::vecto
     std::ifstream infoi;
     std::ofstream ofs, init, infoo;
     std::tuple<torch::Tensor, std::vector<std::string>> mini_batch;
-    torch::Tensor t, x_t, noise, loss, image, output, pair;
+    torch::Tensor t, x_t, noise, loss, image, output, recon, pair;
     std::tuple<torch::Tensor, torch::Tensor> x_t_with_noise;
     datasets::ImageFolderWithPaths dataset, valid_dataset;
     DataLoader::ImageFolderWithPaths dataloader, valid_dataloader;
@@ -83,7 +84,7 @@ void train(po::variables_map &vm, torch::Device &device, DDIM &model, std::vecto
     }
 
     // (3) Set Optimizer Method
-    auto optimizer = torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(vm["lr"].as<float>()).betas({vm["beta1"].as<float>(), vm["beta2"].as<float>()}));
+    auto optimizer = torch::optim::Adam(model_aux->parameters(), torch::optim::AdamOptions(vm["lr"].as<float>()).betas({vm["beta1"].as<float>(), vm["beta2"].as<float>()}));
 
     // (4) Set Loss Function
     auto criterion = Loss(vm["loss"].as<std::string>());
@@ -105,6 +106,7 @@ void train(po::variables_map &vm, torch::Device &device, DDIM &model, std::vecto
     // (7) Get Weights and File Processing
     if (vm["train_load_epoch"].as<std::string>() == ""){
         model->apply(weights_init);
+        model_aux->apply(weights_init);
         ofs.open(checkpoint_dir + "/log/train.txt", std::ios::out);
         if (vm["valid"].as<bool>()){
             init.open(checkpoint_dir + "/log/valid.txt", std::ios::trunc);
@@ -114,7 +116,8 @@ void train(po::variables_map &vm, torch::Device &device, DDIM &model, std::vecto
     }
     else{
         path = checkpoint_dir + "/models/epoch_" + vm["train_load_epoch"].as<std::string>() + ".pth";  torch::load(model, path, device);
-        path = checkpoint_dir + "/optims/epoch_" + vm["train_load_epoch"].as<std::string>() + ".pth";  torch::load(optimizer, path, device);
+        path = checkpoint_dir + "/models/epoch_" + vm["train_load_epoch"].as<std::string>() + "_aux.pth";  torch::load(model_aux, path, device);
+        path = checkpoint_dir + "/optims/epoch_" + vm["train_load_epoch"].as<std::string>() + "_aux.pth";  torch::load(optimizer, path, device);
         ofs.open(checkpoint_dir + "/log/train.txt", std::ios::app);
         ofs << std::endl << std::endl;
         if (vm["train_load_epoch"].as<std::string>() == "latest"){
@@ -154,7 +157,7 @@ void train(po::variables_map &vm, torch::Device &device, DDIM &model, std::vecto
     irreg_progress.restart(start_epoch - 1, total_epoch);
     for (epoch = start_epoch; epoch <= total_epoch; epoch++){
 
-        model->train();
+        model_aux->train();
         ofs << std::endl << "epoch:" << epoch << '/' << total_epoch << std::endl;
         show_progress = new progress::display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"loss"});
 
@@ -170,14 +173,15 @@ void train(po::variables_map &vm, torch::Device &device, DDIM &model, std::vecto
             // c1. DDIM Training Phase
             // -------------------------
             t = torch::randint(1, vm["timesteps"].as<size_t>() + 1, {mini_batch_size}).to(device);
-            x_t_with_noise = model->add_noise(image, t);
+            x_t_with_noise = model_aux->add_noise(image, t);
             x_t = std::get<0>(x_t_with_noise);
             noise = std::get<1>(x_t_with_noise);
-            output = model->forward(x_t, t);
+            output = model_aux->forward(x_t, t);
             loss = criterion(output, noise);
             optimizer.zero_grad();
             loss.backward();
             optimizer.step();
+            ema(model_aux, model, vm["ema_decay"].as<float>());
 
             // -----------------------------------
             // c2. Record Loss (iteration)
@@ -191,9 +195,10 @@ void train(po::variables_map &vm, torch::Device &device, DDIM &model, std::vecto
             // -----------------------------------
             iter = show_progress->get_iters();
             if (iter % save_sample_iter == 1){
+                recon = model->denoise_t(x_t, t);
                 ss.str(""); ss.clear(std::stringstream::goodbit);
                 ss << save_images_dir << "/epoch_" << epoch << "-iter_" << iter << '.' << extension;
-                pair = torch::cat({image, x_t, output, noise}, /*dim=*/0);
+                pair = torch::cat({image, x_t, recon}, /*dim=*/0);
                 visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/mini_batch_size);
             }
 
@@ -224,10 +229,12 @@ void train(po::variables_map &vm, torch::Device &device, DDIM &model, std::vecto
         // -----------------------------------
         if (epoch % vm["save_epoch"].as<size_t>() == 0){
             path = checkpoint_dir + "/models/epoch_" + std::to_string(epoch) + ".pth";  torch::save(model, path);
-            path = checkpoint_dir + "/optims/epoch_" + std::to_string(epoch) + ".pth";  torch::save(optimizer, path);
+            path = checkpoint_dir + "/models/epoch_" + std::to_string(epoch) + "_aux.pth";  torch::save(model_aux, path);
+            path = checkpoint_dir + "/optims/epoch_" + std::to_string(epoch) + "_aux.pth";  torch::save(optimizer, path);
         }
         path = checkpoint_dir + "/models/epoch_latest.pth";  torch::save(model, path);
-        path = checkpoint_dir + "/optims/epoch_latest.pth";  torch::save(optimizer, path);
+        path = checkpoint_dir + "/models/epoch_latest_aux.pth";  torch::save(model_aux, path);
+        path = checkpoint_dir + "/optims/epoch_latest_aux.pth";  torch::save(optimizer, path);
         infoo.open(checkpoint_dir + "/models/info.txt", std::ios::out);
         infoo << "latest = " << epoch << std::endl;
         infoo.close();
@@ -264,4 +271,23 @@ void train(po::variables_map &vm, torch::Device &device, DDIM &model, std::vecto
     // End Processing
     return;
 
+}
+
+
+// ----------------------------
+// Exponential Moving Average
+// ----------------------------
+void ema(DDIM &source, DDIM &target, const float decay){
+    torch::NoGradGuard no_grad;
+    auto sp = source->parameters();
+    auto tp = target->parameters();
+    for (size_t i = 0; i < sp.size(); i++){
+        if (sp[i].defined() && tp[i].defined()) tp[i].data().mul_(decay).add_(sp[i].data(), 1.0 - decay);
+    }
+    auto sb = source->buffers();
+    auto tb = target->buffers();
+    for (size_t i = 0; i < sb.size(); i++){
+        if (sb[i].defined() && tb[i].defined()) tb[i].copy_(sb[i]);
+    }
+    return;
 }

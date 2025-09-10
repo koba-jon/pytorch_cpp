@@ -4,8 +4,6 @@ DATA='celebA'
 
 ./DDIM2d \
     --test true \
-    --timesteps 10000 \
-    --timesteps_inf 100 \
     --dataset ${DATA} \
     --test_in_dir "test" \
     --test_out_dir "test" \
