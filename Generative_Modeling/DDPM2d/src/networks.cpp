@@ -280,7 +280,7 @@ torch::Tensor DDPMImpl::denoise_t(torch::Tensor x_t, torch::Tensor t){
     if (is_training) this->model->train();
 
     alpha_bar = this->alpha_bars.index_select(/*dim=*/0, t).view({-1, 1, 1, 1});
-    out = (x_t - torch::sqrt(1.0 - alpha_bar) * eps) / torch::sqrt(alpha_bar);    // {C,256,256} ===> {C,256,256}
+    out = (x_t - torch::sqrt(1.0 - alpha_bar) * eps) / torch::sqrt(alpha_bar);
 
     return out;
 
