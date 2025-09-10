@@ -88,6 +88,7 @@ public:
     DDPMImpl(po::variables_map &vm, torch::Device device);
     std::tuple<torch::Tensor, torch::Tensor> add_noise(torch::Tensor x_0, torch::Tensor t);
     torch::Tensor denoise(torch::Tensor x_t, torch::Tensor t);
+    torch::Tensor denoise_t(torch::Tensor x_t, torch::Tensor t);
     torch::Tensor forward(torch::Tensor x_t, torch::Tensor t);
     torch::Tensor forward_z(torch::Tensor z);
 };

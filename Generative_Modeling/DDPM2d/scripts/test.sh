@@ -4,7 +4,6 @@ DATA='celebA'
 
 ./DDPM2d \
     --test true \
-    --timesteps 10000 \
     --dataset ${DATA} \
     --test_in_dir "test" \
     --test_out_dir "test" \

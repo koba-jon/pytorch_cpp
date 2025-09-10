@@ -18,7 +18,7 @@ namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
-void train(po::variables_map &vm, torch::Device &device, DDPM &model, std::vector<transforms_Compose> &transform);
+void train(po::variables_map &vm, torch::Device &device, DDPM &model, DDPM &model_aux, std::vector<transforms_Compose> &transform);
 void test(po::variables_map &vm, torch::Device &device, DDPM &model, std::vector<transforms_Compose> &transform);
 void synth(po::variables_map &vm, torch::Device &device, DDPM &model);
 void sample(po::variables_map &vm, torch::Device &device, DDPM &model);
@@ -89,6 +89,7 @@ po::options_description parse_arguments(){
         ("nf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image")
         ("beta_start", po::value<float>()->default_value(0.0001), "the start value of beta")
         ("beta_end", po::value<float>()->default_value(0.02), "the end value of beta")
+        ("ema_decay", po::value<float>()->default_value(0.9999), "decay of exponential moving average")
 
     ;
     
@@ -142,8 +143,8 @@ int main(int argc, const char *argv[]){
     }
     
     // (5) Define Network
-    DDPM ddpm(vm, device);
-    ddpm->to(device);
+    DDPM ddpm(vm, device); ddpm->to(device);
+    DDPM ddpm_aux(vm, device); ddpm_aux->to(device);
     
     // (6) Make Directories
     std::string dir = "checkpoints/" + vm["dataset"].as<std::string>();
@@ -151,11 +152,12 @@ int main(int argc, const char *argv[]){
 
     // (7) Save Model Parameters
     Set_Model_Params(vm, ddpm, "DDPM");
+    Set_Model_Params(vm, ddpm_aux, "DDPM_Auxiliary");
 
     // (8.1) Training Phase
     if (vm["train"].as<bool>()){
         Set_Options(vm, argc, argv, args, "train");
-        train(vm, device, ddpm, transform);
+        train(vm, device, ddpm, ddpm_aux, transform);
     }
 
     // (8.2) Test Phase
