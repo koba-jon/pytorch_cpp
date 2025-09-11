@@ -18,6 +18,7 @@
 // Define Namespace
 namespace fs = std::filesystem;
 namespace po = boost::program_options;
+namespace F = torch::nn::functional;
 
 
 // ---------------
@@ -88,6 +89,8 @@ void test(po::variables_map &vm, torch::Device &device, MaskedAutoEncoder &model
         ofs << '<' << std::get<1>(data).at(0) << "> loss:" << loss.item<float>() << std::endl;
 
         fname = result_dir + '/' + std::get<1>(data).at(0);
+        output = model->unpatchify(output);
+        output = F::interpolate(output, F::InterpolateFuncOptions().size(std::vector<long int>{image.size(2), image.size(3)}).mode(torch::kBilinear).align_corners(false));  // {N,C,H,W}
         visualizer::save_image(output.detach(), fname, /*range=*/output_range, /*cols=*/1, /*padding=*/0);
 
     }
