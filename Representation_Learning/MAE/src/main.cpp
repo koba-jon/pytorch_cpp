@@ -40,7 +40,6 @@ po::options_description parse_arguments(){
         ("size", po::value<size_t>()->default_value(224), "image width and height (x>=64)")
         ("split", po::value<size_t>()->default_value(14), "number of split : patch_size(16) = size(224) / split(14)")
         ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
-        ("nz", po::value<size_t>()->default_value(512), "dimensions of latent space")
         ("mask_ratio", po::value<float>()->default_value(0.75), "mask ratio in the image patch")
         ("gpu_id", po::value<int>()->default_value(0), "cuda device : 'x=-1' is cpu device")
         ("seed_random", po::value<bool>()->default_value(false), "whether to make the seed of random number in a random")
