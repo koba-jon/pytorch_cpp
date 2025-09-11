@@ -37,7 +37,7 @@ po::options_description parse_arguments(){
         // (1) Define for General Parameter
         ("help", "produce help message")
         ("dataset", po::value<std::string>(), "dataset name")
-        ("size", po::value<size_t>()->default_value(224), "image width and height (x>=64)")
+        ("size", po::value<size_t>()->default_value(224), "image width and height")
         ("split", po::value<size_t>()->default_value(14), "number of split : patch_size(16) = size(224) / split(14)")
         ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
         ("mask_ratio", po::value<float>()->default_value(0.75), "mask ratio in the image patch")
