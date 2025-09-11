@@ -16,6 +16,7 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Updates
 
+09/11,2025: Implementation of `MAE` <br>
 09/11,2025: Implementation of `DDPM2d-v` and `DDIM2d-v` <br>
 09/10,2025: Implementation of EMA for `DDPM2d` and `DDIM2d` <br>
 09/08,2025: Implementation of `EfficientNet` <br>
@@ -25,11 +26,11 @@ In addition, I might adapt programs to the latest version. <br>
 09/04,2025: Implementation of `DDIM2d` <br>
 09/04,2025: Implementation of `DDPM2d` <br>
 06/27,2023: Release of `v2.0.1` <br>
-06/27,2023: Create the heatmap for Anomaly Detection <br>
 
 <details>
 <summary>See more...</summary>
   
+06/27,2023: Create the heatmap for Anomaly Detection <br>
 05/07,2023: Release of `v2.0.0` <br>
 03/01,2023: Release of `v1.13.1` <br>
 09/12,2022: Release of `v1.12.1` <br>
@@ -312,6 +313,25 @@ In addition, I might adapt programs to the latest version. <br>
     <td>arXiv 2018</td>
     <td><a href="Object_Detection/YOLOv3">YOLOv3</a></td>
     <td>v1.10.2</td>
+  </tr>
+</table>
+
+### Representation Learning
+
+<table>
+  <tr>
+    <th>Model</th>
+    <th>Paper</th>
+    <th>Conference/Journal</th>
+    <th>Code</th>
+    <th>Release Version</th>
+  </tr>
+  <tr>
+    <td>Masked Autoencoder</td>
+    <td><a href="https://openaccess.thecvf.com/content/CVPR2022/html/He_Masked_Autoencoders_Are_Scalable_Vision_Learners_CVPR_2022_paper">K. He et al.</a></td>
+    <td>CVPR 2022</td>
+    <td><a href="Representation_Learning/MAE">MAE</a></td>
+    <td>v2.8.1</td>
   </tr>
 </table>
 
