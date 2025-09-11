@@ -16,6 +16,7 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Updates
 
+09/11,2025: Implementation of `DDPM2d-v` and `DDIM2d-v` <br>
 09/10,2025: Implementation of EMA for `DDPM2d` and `DDIM2d` <br>
 09/08,2025: Implementation of `EfficientNet` <br>
 09/07,2025: Implementation of `CycleGAN` <br>
@@ -25,11 +26,11 @@ In addition, I might adapt programs to the latest version. <br>
 09/04,2025: Implementation of `DDPM2d` <br>
 06/27,2023: Release of `v2.0.1` <br>
 06/27,2023: Create the heatmap for Anomaly Detection <br>
-05/07,2023: Release of `v2.0.0` <br>
 
 <details>
 <summary>See more...</summary>
   
+05/07,2023: Release of `v2.0.0` <br>
 03/01,2023: Release of `v1.13.1` <br>
 09/12,2022: Release of `v1.12.1` <br>
 08/04,2022: Release of `v1.12.0` <br>
@@ -199,18 +200,26 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="Generative_Modeling/WAE2d_MMD">WAE2d MMD</a></td>
   </tr>
   <tr>
-    <td>DDPM</td>
-    <td><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
-    <td>NeurIPS 2020</td>
+    <td rowspan="2">DDPM</td>
+    <td rowspan="2"><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
+    <td rowspan="2">NeurIPS 2020</td>
     <td><a href="Generative_Modeling/DDPM2d">DDPM2d</a></td>
     <td>v2.8.0</td>
   </tr>
   <tr>
-    <td>DDIM</td>
-    <td><a href="https://arxiv.org/abs/2010.02502">J. Song et al.</a></td>
-    <td>ICLR 2021</td>
+    <td><a href="Generative_Modeling/DDPM2d-v">DDPM2d-v</a></td>
+    <td>v2.8.1</td>
+  </tr>
+  <tr>
+    <td rowspan="2">DDIM</td>
+    <td rowspan="2"><a href="https://arxiv.org/abs/2010.02502">J. Song et al.</a></td>
+    <td rowspan="2">ICLR 2021</td>
     <td><a href="Generative_Modeling/DDIM2d">DDIM2d</a></td>
     <td>v2.8.0</td>
+  </tr>
+  <tr>
+    <td><a href="Generative_Modeling/DDIM2d-v">DDIM2d-v</a></td>
+    <td>v2.8.1</td>
   </tr>
 </table>
 
