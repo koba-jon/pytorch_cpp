@@ -104,6 +104,7 @@ DATA='celebA'
     --gpu_id 0 \
     --nc 3
 ~~~
+If you want to generate image, the above settings will work.
 
 #### Run
 Please execute the following to start the program.
