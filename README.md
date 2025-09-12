@@ -16,6 +16,7 @@ In addition, I might adapt programs to the latest version. <br>
 
 ## Updates
 
+09/12,2025: Implementation of `SimCLR` <br>
 09/11,2025: Implementation of `MAE` <br>
 09/11,2025: Implementation of `DDPM2d-v` and `DDIM2d-v` <br>
 09/10,2025: Implementation of EMA for `DDPM2d` and `DDIM2d` <br>
@@ -25,11 +26,11 @@ In addition, I might adapt programs to the latest version. <br>
 09/04,2025: Release of `v2.8.0` <br>
 09/04,2025: Implementation of `DDIM2d` <br>
 09/04,2025: Implementation of `DDPM2d` <br>
-06/27,2023: Release of `v2.0.1` <br>
 
 <details>
 <summary>See more...</summary>
   
+06/27,2023: Release of `v2.0.1` <br>
 06/27,2023: Create the heatmap for Anomaly Detection <br>
 05/07,2023: Release of `v2.0.0` <br>
 03/01,2023: Release of `v1.13.1` <br>
@@ -325,6 +326,13 @@ In addition, I might adapt programs to the latest version. <br>
     <th>Conference/Journal</th>
     <th>Code</th>
     <th>Release Version</th>
+  </tr>
+  <tr>
+    <td>SimCLR</td>
+    <td><a href="https://proceedings.mlr.press/v119/chen20j.html">T. Chen et al.</a></td>
+    <td>ICML 2020</td>
+    <td><a href="Representation_Learning/MAE">SimCLR</a></td>
+    <td>v2.8.1</td>
   </tr>
   <tr>
     <td>Masked Autoencoder</td>
