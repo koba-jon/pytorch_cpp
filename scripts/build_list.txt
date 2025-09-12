@@ -27,5 +27,6 @@ Object_Detection/YOLOv1
 Object_Detection/YOLOv2
 Object_Detection/YOLOv3
 Representation_Learning/MAE
+Representation_Learning/SimCLR
 Semantic_Segmentation/SegNet
 Semantic_Segmentation/U-Net_Classification
