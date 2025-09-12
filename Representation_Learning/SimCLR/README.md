@@ -66,7 +66,7 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='celebA'
 
-./AE2d \
+./SimCLR \
     --train true \
     --epochs 300 \
     --dataset ${DATA} \
@@ -95,7 +95,7 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='celebA'
 
-./AE2d \
+./SimCLR \
     --test true \
     --dataset ${DATA} \
     --test_dir "test" \
