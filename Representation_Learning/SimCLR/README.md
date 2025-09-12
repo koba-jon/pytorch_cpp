@@ -102,7 +102,6 @@ DATA='celebA'
     --size 224 \
     --gpu_id 0
 ~~~
-If you want to generate image, the above settings will work.
 
 #### Run
 Please execute the following to start the program.
