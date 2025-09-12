@@ -97,9 +97,9 @@ void train(po::variables_map &vm, torch::Device &device, SimCLR &model, std::vec
 
     // (6) Set Training Loss for Graph
     path = checkpoint_dir + "/graph";
-    train_loss = visualizer::graph(path, /*gname_=*/"train_loss", /*label_=*/{"Reconstruct"});
+    train_loss = visualizer::graph(path, /*gname_=*/"train_loss", /*label_=*/{"Contrastive Loss"});
     if (vm["valid"].as<bool>()){
-        valid_loss = visualizer::graph(path, /*gname_=*/"valid_loss", /*label_=*/{"Reconstruct"});
+        valid_loss = visualizer::graph(path, /*gname_=*/"valid_loss", /*label_=*/{"Contrastive Loss"});
     }
     
     // (7) Get Weights and File Processing
@@ -156,7 +156,7 @@ void train(po::variables_map &vm, torch::Device &device, SimCLR &model, std::vec
 
         model->train();
         ofs << std::endl << "epoch:" << epoch << '/' << total_epoch << std::endl;
-        show_progress = new progress::display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"rec"});
+        show_progress = new progress::display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"CL"});
 
         // -----------------------------------
         // b1. Mini Batch Learning
