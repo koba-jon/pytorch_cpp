@@ -31,7 +31,7 @@ void test(po::variables_map &vm, torch::Device &device, SimCLR &model, std::vect
     // (0) Initialization and Declaration
     float ave_loss;
     double seconds, ave_time;
-    std::string path, result_dir, fname;
+    std::string path, result_dir;
     std::string dataroot;
     std::ofstream ofs;
     std::chrono::system_clock::time_point start, end;
@@ -87,9 +87,6 @@ void test(po::variables_map &vm, torch::Device &device, SimCLR &model, std::vect
 
         std::cout << '<' << std::get<1>(data).at(0) << "> loss:" << loss.item<float>() << std::endl;
         ofs << '<' << std::get<1>(data).at(0) << "> loss:" << loss.item<float>() << std::endl;
-
-        fname = result_dir + '/' + std::get<1>(data).at(0);
-        visualizer::save_image(image.detach(), fname, /*range=*/output_range, /*cols=*/1, /*padding=*/0);
 
     }
 
