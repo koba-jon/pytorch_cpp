@@ -24,7 +24,7 @@ namespace po = boost::program_options;
 namespace F = torch::nn::functional;
 
 // Function Prototype
-void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, SimCLR &model, const size_t epoch, visualizer::graph &writer);
+void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_dataloader, torch::Device &device, SimCLR &model, const size_t epoch, visualizer::graph &writer);
 
 
 // -------------------
@@ -183,7 +183,7 @@ void train(po::variables_map &vm, torch::Device &device, SimCLR &model, std::vec
             // -----------------------------------
             show_progress->increment(/*loss_value=*/{loss.item<float>()});
             ofs << "iters:" << show_progress->get_iters() << '/' << total_iter << ' ' << std::flush;
-            ofs << "rec:" << loss.item<float>() << "(ave:" <<  show_progress->get_ave(0) << ')' << std::endl;
+            ofs << "CL:" << loss.item<float>() << "(ave:" <<  show_progress->get_ave(0) << ')' << std::endl;
 
             // -----------------------------------
             // c3. Save Sample Images
@@ -215,7 +215,7 @@ void train(po::variables_map &vm, torch::Device &device, SimCLR &model, std::vec
         // b4. Validation Mode
         // -----------------------------------
         if (vm["valid"].as<bool>() && ((epoch - 1) % vm["valid_freq"].as<size_t>() == 0)){
-            valid(vm, valid_dataloader, device, criterion, model, epoch, valid_loss);
+            valid(vm, valid_dataloader, device, model, epoch, valid_loss);
         }
 
         // -----------------------------------

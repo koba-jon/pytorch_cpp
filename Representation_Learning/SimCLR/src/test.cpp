@@ -53,7 +53,7 @@ void test(po::variables_map &vm, torch::Device &device, SimCLR &model, std::vect
     torch::load(model, path, device);
 
     // (3) Set Loss Function
-    auto criterion = Loss();
+    auto criterion = torch::nn::MSELoss(torch::nn::MSELossOptions().reduction(torch::kMean));
 
     // (4) Initialization of Value
     ave_loss = 0.0;

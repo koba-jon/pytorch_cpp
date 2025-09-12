@@ -19,7 +19,7 @@ namespace po = boost::program_options;
 // -------------------
 // Validation Function
 // -------------------
-void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, SimCLR &model, const size_t epoch, visualizer::graph &writer){
+void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_dataloader, torch::Device &device, SimCLR &model, const size_t epoch, visualizer::graph &writer){
 
     // (0) Initialization and Declaration
     size_t iteration;
@@ -34,6 +34,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datalo
     model->eval();
     iteration = 0;
     total_loss = 0.0;
+    auto criterion = torch::nn::MSELoss(torch::nn::MSELossOptions().reduction(torch::kMean));
     while (valid_dataloader(mini_batch)){
         image = std::get<0>(mini_batch).to(device);
         aug1 = model->augmentation(image);
