@@ -331,7 +331,7 @@ In addition, I might adapt programs to the latest version. <br>
     <td>SimCLR</td>
     <td><a href="https://proceedings.mlr.press/v119/chen20j.html">T. Chen et al.</a></td>
     <td>ICML 2020</td>
-    <td><a href="Representation_Learning/MAE">SimCLR</a></td>
+    <td><a href="Representation_Learning/SimCLR">SimCLR</a></td>
     <td>v2.8.1</td>
   </tr>
   <tr>
