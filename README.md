@@ -24,7 +24,7 @@ $ sudo apt install g++-8
 
 ### 2. Run
 
-**(1) Change directory** (Model: <a href="Dimensionality_Reduction/AE1d">AE1d</a>) <br>
+**(1) Change Directory** (Model: <a href="Dimensionality_Reduction/AE1d">AE1d</a>) <br>
 ~~~
 $ cd Dimensionality_Reduction/AE1d
 ~~~
