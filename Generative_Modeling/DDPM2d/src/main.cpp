@@ -73,8 +73,7 @@ po::options_description parse_arguments(){
         ("synth", po::value<bool>()->default_value(false), "synthesis mode on/off")
         ("synth_load_epoch", po::value<std::string>()->default_value("latest"), "training epoch used for synthesis")
         ("synth_result_dir", po::value<std::string>()->default_value("synth_result"), "synthesis result directory : ./<synth_result_dir>")
-        ("synth_sigma_max", po::value<float>()->default_value(3.0), "maximum value of latent variable for output images in synthesis")
-        ("synth_sigma_inter", po::value<float>()->default_value(0.5), "the interval of latent variable for output images in synthesis")
+        ("synth_count", po::value<size_t>()->default_value(13), "the number of output images in synthesis")
 
         // (6) Define for Sampling
         ("sample", po::value<bool>()->default_value(false), "sampling mode on/off")
