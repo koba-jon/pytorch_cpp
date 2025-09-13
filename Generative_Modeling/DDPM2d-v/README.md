@@ -1,6 +1,6 @@
 # DDPM2d-v
 This is the implementation of "DDPM" corresponding to 2-dimensional shape based on v-prediction for high resolution.<br>
-Original paper: J. Ho, A. Jain, and P. Abbeel. Denoising Diffusion Probabilistic Models. In Annual Conference on Neural Information Processing Systems, 2020. [link](https://arxiv.org/abs/2006.11239)
+Original paper: A. Q. Nichol and P. Dhariwal. Improved Denoising Diffusion Probabilistic Models. In Proceedings of the 38th International Conference on Machine Learning, 2021. [link](https://proceedings.mlr.press/v139/nichol21a.html)
 
 ## Usage
 
