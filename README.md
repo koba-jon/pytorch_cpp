@@ -485,7 +485,7 @@ $ sudo apt install libpng-dev libpng++-dev zlib1g-dev
 
 </details>
 
-## 🛠️ Preparation (Run)
+## 🏃 Preparation (Run)
 
 <details>
 <summary>Details</summary>
@@ -519,7 +519,7 @@ Please move to the directory of each model and refer to "README.md".
 
 </details>
   
-## 🔧 Utility
+## 🛠️ Utility
 
 <details>
 <summary>Details</summary>
