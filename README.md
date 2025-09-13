@@ -121,9 +121,6 @@ $ sh scripts/test.sh
 
 ## Implementation
 
-<details open>
-<summary>Details</summary>
-  
 ### Multiclass Classification
   
 <table>
@@ -439,11 +436,10 @@ $ sh scripts/test.sh
   </tr>
 </table>
 
-</details>
   
 ## Requirement
 
-<details open>
+<details>
 <summary>Details</summary>
 
 ### 1. PyTorch C++
@@ -492,7 +488,7 @@ $ sudo apt install libpng-dev libpng++-dev zlib1g-dev
 
 ## Preparation
 
-<details open>
+<details>
 <summary>Details</summary>
 
 ### 1. Git Clone
@@ -526,7 +522,7 @@ Please move to the directory of each model and refer to "README.md".
   
 ## Utility
 
-<details open>
+<details>
 <summary>Details</summary>
 
 ### 1. Making Original Dataset
@@ -593,7 +589,7 @@ It corresponds to the following source code in the directory.
 
 ## License
   
-<details open>
+<details>
 <summary>Details</summary>
   
 You can feel free to use all source code in this repository.<br>
