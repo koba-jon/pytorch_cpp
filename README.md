@@ -8,7 +8,7 @@ PyTorch is famous as a kind of Deep Learning Frameworks.<br>
 Among them, Python source code is overflowing on the Web, so we can easily write the source code of Deep Learning in Python.<br>
 However, there is very little source code written in C++ of compiler language.<br>
 I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
-(Figure: Synthesis result based on training of <a href="Generative_Modeling/DDIM2d-v">DDIM2d-v</a> with CelebA)
+(Figure: Image synthesis result based on training of <a href="Generative_Modeling/DDIM2d-v">DDIM2d-v</a> with [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html))
 
 ## 🚀 Quick Start (Details: <a href="#-requirement-library">Library</a>, <a href="#%EF%B8%8F-preparation-run">Run</a>)
 Reuirements: `LibTorch`, `OpenCV`, `OpenMP`, `Boost`, `Gnuplot`, `libpng/png++/zlib` <br>
