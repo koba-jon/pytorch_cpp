@@ -209,24 +209,21 @@ In addition, I might adapt programs to the latest version. <br>
   </tr>
   <tr>
     <td rowspan="4">Diffusion Models</td>
-    <td>DDPM</td>
-    <td><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
-    <td>NeurIPS 2020</td>
+    <td rowspan="2">DDPM</td>
+    <td rowspan="2"><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
+    <td rowspan="2">NeurIPS 2020</td>
     <td><a href="Generative_Modeling/DDPM2d">DDPM2d</a></td>
     <td>v2.8.0</td>
   </tr>
   <tr>
-    <td>DDIM</td>
-    <td><a href="https://arxiv.org/abs/2010.02502">J. Song et al.</a></td>
-    <td>ICLR 2021</td>
-    <td><a href="Generative_Modeling/DDIM2d">DDIM2d</a></td>
-    <td>v2.8.0</td>
+    <td><a href="Generative_Modeling/DDPM2d-v">DDPM2d-v</a></td>
+    <td>v2.8.1</td>
   </tr>
   <tr>
-    <td rowspan="2">Improved DDPM</td>
-    <td rowspan="2"><a href="https://proceedings.mlr.press/v139/nichol21a.html">A. Q. Nichol et al.</a></td>
-    <td rowspan="2">ICML 2021</td>
-    <td><a href="Generative_Modeling/DDPM2d-v">DDPM2d-v</a></td>
+    <td rowspan="2">DDIM</td>
+    <td rowspan="2"><a href="https://arxiv.org/abs/2010.02502">J. Song et al.</a></td>
+    <td rowspan="2">ICLR 2021</td>
+    <td><a href="Generative_Modeling/DDIM2d">DDIM2d</a></td>
     <td>v2.8.0</td>
   </tr>
   <tr>
