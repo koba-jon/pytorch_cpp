@@ -3,17 +3,58 @@
 [![LibTorch](https://img.shields.io/badge/LibTorch-2.8.0-orange)]()
 [![OS](https://img.shields.io/badge/OS-Ubuntu-yellow)]()
 
-These are Deep Learning sample programs of PyTorch written in C++.
+These are Deep Learning sample programs of PyTorch written in C++.<br>
 
-## Quick Start (Details: <a href="#preparation">Here</a>)
-
-
-## Description
 PyTorch is famous as a kind of Deep Learning Frameworks.<br>
 Among them, Python source code is overflowing on the Web, so we can easily write the source code of Deep Learning in Python.<br>
 However, there is very little source code written in C++ of compiler language.<br>
 Therefore, I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
-In addition, I might adapt programs to the latest version. <br>
+
+
+## Quick Start (Details: <a href="#preparation">Library</a>, <a href="#preparation">Run</a>)
+
+### 1. Install 
+Library: `LibTorch`, `OpenCV`, `OpenMP`, `Boost`, `Gnuplot`, `libpng/png++/zlib` <br>
+
+~~~
+$ git clone -b develop/v2.8.1 https://github.com/koba-jon/pytorch_cpp.git
+$ cd pytorch_cpp
+$ sudo apt install g++-8
+~~~
+
+### 2. Run
+
+**(1) Change directory** (Model: `Autoencoder 2D`) <br>
+~~~
+$ cd Dimensionality_Reduction/AE1d
+~~~
+
+**(2) Build**
+~~~
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make -j4
+$ cd ..
+~~~
+
+**(3) Dataset Setting**
+~~~
+$ cd datasets
+$ git clone https://github.com/koba-jon/normal_distribution_dataset.git
+$ ln -s normal_distribution_dataset/NormalDistribution ./NormalDistribution
+$ cd ..
+~~~
+
+**(4) Training**
+~~~
+$ sh scripts/train.sh
+~~~
+
+**(5) Test**
+~~~
+$ sh scripts/test.sh
+~~~
 
 ## Updates
 
