@@ -1,4 +1,4 @@
-# PyTorch C++ Samples
+#  PyTorch C++ Samples 🐍🔥
 [![Language](https://img.shields.io/badge/Language-C++-blue)]()
 [![LibTorch](https://img.shields.io/badge/LibTorch-2.8.0-orange)]()
 [![OS](https://img.shields.io/badge/OS-Ubuntu-yellow)]()
@@ -10,7 +10,7 @@ However, there is very little source code written in C++ of compiler language.<b
 Therefore, I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
 
 
-## Quick Start (Details: <a href="#requirement">Library</a>, <a href="#preparation">Run</a>)
+## 🚀 Quick Start (Details: <a href="#requirement">Library</a>, <a href="#preparation">Run</a>)
 Reuirements: `LibTorch`, `OpenCV`, `OpenMP`, `Boost`, `Gnuplot`, `libpng/png++/zlib` <br>
 
 ### 1. Git Clone
@@ -55,7 +55,7 @@ $ sh scripts/train.sh
 $ sh scripts/test.sh
 ~~~
 
-## Updates
+## 🔄 Updates
 
 09/12,2025: Implementation of `SimCLR` <br>
 09/11,2025: Implementation of `MAE` <br>
@@ -118,9 +118,9 @@ $ sh scripts/test.sh
 </details>
 
 
-## Implementation
+## 🏗️ Implementation
 
-### Multiclass Classification
+### 📊 Multiclass Classification
   
 <table>
   <tr>
@@ -177,7 +177,7 @@ $ sh scripts/test.sh
   </tr>
 </table>
   
-### Dimensionality Reduction
+### 🔽 Dimensionality Reduction
 
 <table>
   <tr>
@@ -208,7 +208,7 @@ $ sh scripts/test.sh
 </table>
 
 
-### Generative Modeling
+### 🎨 Generative Modeling
 
 <table>
   <tr>
@@ -270,7 +270,7 @@ $ sh scripts/test.sh
   </tr>
 </table>
 
-### Image-to-Image Translation
+### 🖼️ Image-to-Image Translation
 
 <table>
   <tr>
@@ -303,7 +303,7 @@ $ sh scripts/test.sh
   </tr>
 </table>
 
-### Semantic Segmentation
+### 🧩 Semantic Segmentation
 
 <table>
   <tr>
@@ -329,7 +329,7 @@ $ sh scripts/test.sh
   </tr>
 </table>
 
-### Object Detection
+### 🎯 Object Detection
 
 <table>
   <tr>
@@ -362,7 +362,7 @@ $ sh scripts/test.sh
   </tr>
 </table>
 
-### Representation Learning
+### 🧠 Representation Learning
 
 <table>
   <tr>
@@ -388,7 +388,7 @@ $ sh scripts/test.sh
   </tr>
 </table>
 
-### Anomaly Detection
+### 🚨 Anomaly Detection
 
 <table>
   <tr>
@@ -436,7 +436,7 @@ $ sh scripts/test.sh
 </table>
 
   
-## Requirement
+## 📦 Requirement
 
 <details>
 <summary>Details</summary>
@@ -485,7 +485,7 @@ $ sudo apt install libpng-dev libpng++-dev zlib1g-dev
 
 </details>
 
-## Preparation
+## 🛠️ Preparation
 
 <details>
 <summary>Details</summary>
@@ -519,7 +519,7 @@ Please move to the directory of each model and refer to "README.md".
 
 </details>
   
-## Utility
+## 🔧 Utility
 
 <details>
 <summary>Details</summary>
@@ -586,7 +586,7 @@ It corresponds to the following source code in the directory.
 
 </details>
 
-## License
+## ⚖️ License
   
 <details>
 <summary>Details</summary>
@@ -628,7 +628,7 @@ License (zlib) : https://zlib.net/zlib_license.html <br>
 
 </details>
   
-## Conclusion
+## 🎉 Conclusion
 I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
 If you have any problems with the source code of this repository, please feel free to "issue".<br>
 Let's have a good development and research life!
