@@ -214,7 +214,7 @@ void train(po::variables_map &vm, torch::Device &device, DDIM &model, DDIM &mode
         // -----------------------------------
         ss.str(""); ss.clear(std::stringstream::goodbit);
         ss << save_images_dir << "/epoch_" << epoch << "-iter_" << show_progress->get_iters() << '.' << extension;
-        visualizer::save_image(output.detach(), ss.str(), /*range=*/output_range);
+        visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/mini_batch_size);
         delete show_progress;
         
         // -----------------------------------
