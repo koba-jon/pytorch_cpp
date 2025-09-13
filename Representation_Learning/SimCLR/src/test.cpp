@@ -26,6 +26,8 @@ namespace F = torch::nn::functional;
 // ---------------
 void test(po::variables_map &vm, torch::Device &device, SimCLR &model, std::vector<transforms_Compose> &transform){
 
+    constexpr std::pair<float, float> output_range = {-1.0, 1.0};  // range of the value in output images
+
     // (0) Initialization and Declaration
     float ave_loss;
     double seconds, ave_time;
