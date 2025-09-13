@@ -12,9 +12,9 @@ Therefore, I hope this repository will help many programmers by providing PyTorc
 
 
 ## Quick Start (Details: <a href="#requirement">Library</a>, <a href="#preparation">Run</a>)
+Reuirements: `LibTorch`, `OpenCV`, `OpenMP`, `Boost`, `Gnuplot`, `libpng/png++/zlib` <br>
 
-### 1. Install 
-Library: `LibTorch`, `OpenCV`, `OpenMP`, `Boost`, `Gnuplot`, `libpng/png++/zlib` <br>
+### 1. Git Clone
 
 ~~~
 $ git clone -b develop/v2.8.1 https://github.com/koba-jon/pytorch_cpp.git
