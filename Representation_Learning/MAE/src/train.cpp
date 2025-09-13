@@ -152,6 +152,7 @@ void train(po::variables_map &vm, torch::Device &device, MaskedAutoEncoder &mode
     total_epoch = vm["epochs"].as<size_t>();
 
     // (2) Training per Epoch
+    mini_batch_size = 0;
     irreg_progress.restart(start_epoch - 1, total_epoch);
     for (epoch = start_epoch; epoch <= total_epoch; epoch++){
 
