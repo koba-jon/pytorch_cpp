@@ -37,7 +37,7 @@ $ make -j4
 $ cd ..
 ~~~
 
-**(3) Dataset Setting** (Dataset: <a href="[Dimensionality_Reduction/AE1d](https://github.com/koba-jon/normal_distribution_dataset)">Normal Distribution Dataset</a>)
+**(3) Dataset Setting** (Dataset: <a href="https://github.com/koba-jon/normal_distribution_dataset">Normal Distribution Dataset</a>)
 ~~~
 $ cd datasets
 $ git clone https://github.com/koba-jon/normal_distribution_dataset.git
