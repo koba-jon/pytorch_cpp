@@ -94,7 +94,7 @@ In addition, I might adapt programs to the latest version. <br>
     <th>Release Version</th>
   </tr>
   <tr>
-    <td rowspan="5">CNN系</td>
+    <td rowspan="5">CNNs</td>
     <td>AlexNet</td>
     <td><a href="http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networ">A. Krizhevsky et al.</a></td>
     <td>NeurIPS 2012</td>
@@ -130,7 +130,7 @@ In addition, I might adapt programs to the latest version. <br>
     <td>v2.8.1</td>
   </tr>
   <tr>
-    <td rowspan="1">Transformer系</td>
+    <td rowspan="1">Transformers</td>
     <td>Vision Transformer</td>
     <td><a href="https://arxiv.org/abs/2010.11929">A. Dosovitskiy et al.</a></td>
     <td>ICLR 2021</td>
@@ -182,7 +182,7 @@ In addition, I might adapt programs to the latest version. <br>
     <th>Release Version</th>
   </tr>
   <tr>
-    <td rowspan="3">VAE系</td>
+    <td rowspan="3">VAEs</td>
     <td>Variational Autoencoder</td>
     <td><a href="https://arxiv.org/abs/1312.6114">D. P. Kingma et al.</a></td>
     <td>ICLR 2014</td>
@@ -200,7 +200,7 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="Generative_Modeling/WAE2d_MMD">WAE2d MMD</a></td>
   </tr>
   <tr>
-    <td rowspan="1">GAN系</td>
+    <td rowspan="1">GANs</td>
     <td>DCGAN</td>
     <td><a href="https://arxiv.org/abs/1511.06434">A. Radford et al.</a></td>
     <td>ICLR 2016</td>
@@ -208,7 +208,7 @@ In addition, I might adapt programs to the latest version. <br>
     <td>v1.5.1</td>
   </tr>
   <tr>
-    <td rowspan="4">Diffusion系</td>
+    <td rowspan="4">Diffusion Models</td>
     <td rowspan="2">DDPM</td>
     <td rowspan="2"><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
     <td rowspan="2">NeurIPS 2020</td>
