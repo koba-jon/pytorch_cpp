@@ -10,7 +10,7 @@ However, there is very little source code written in C++ of compiler language.<b
 Therefore, I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
 
 
-## 🚀 Quick Start (Details: <a href="#requirement">Library</a>, <a href="#preparation">Run</a>)
+## 🚀 Quick Start (Details: <a href="#-requirement">Library</a>, <a href="#%EF%B8%8F-preparation">Run</a>)
 Reuirements: `LibTorch`, `OpenCV`, `OpenMP`, `Boost`, `Gnuplot`, `libpng/png++/zlib` <br>
 
 ### 1. Git Clone
