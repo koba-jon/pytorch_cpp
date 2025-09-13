@@ -10,7 +10,7 @@ However, there is very little source code written in C++ of compiler language.<b
 I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
 (Figure: Image synthesis result based on training of <a href="Generative_Modeling/DDIM2d-v">DDIM2d-v</a> with [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html))
 
-## 🚀 Quick Start (Details: <a href="#-requirement-library">Library</a>, <a href="#%EF%B8%8F-preparation-run">Run</a>)
+## 🚀 Quick Start (Details: <a href="#-requirement-library">Library</a>, <a href="#-preparation-run">Run</a>)
 Reuirements: `LibTorch`, `OpenCV`, `OpenMP`, `Boost`, `Gnuplot`, `libpng/png++/zlib` <br>
 
 ### 1. Git Clone
