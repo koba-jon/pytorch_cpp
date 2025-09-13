@@ -306,8 +306,8 @@ torch::Tensor DDIMImpl::forward_z(torch::Tensor z){
     torch::Tensor x, t, t_prev;
     x = z;
     for (size_t i = this->timesteps_inf; i > 0; i--){   
-        t = torch::full({z.size(0)}, /*value=*/(size_t)(float(i - 1) / (this->timesteps_inf - 1) * (this->timesteps - 1) + 1 + 0.5), torch::TensorOptions().dtype(torch::kLong)).to(z.device());
-        t_prev = torch::full({z.size(0)}, /*value=*/(size_t)(float(i - 2) / (this->timesteps_inf - 1) * (this->timesteps - 1) + 1 + 0.5), torch::TensorOptions().dtype(torch::kLong)).to(z.device());
+        t = torch::full({z.size(0)}, /*value=*/(size_t)(float(i) / this->timesteps_inf * this->timesteps + 0.5), torch::TensorOptions().dtype(torch::kLong)).to(z.device());
+        t_prev = torch::full({z.size(0)}, /*value=*/(size_t)(float(i - 1) / this->timesteps_inf * this->timesteps + 0.5), torch::TensorOptions().dtype(torch::kLong)).to(z.device());
         x = this->denoise(x, t, t_prev);  // {C,256,256} ===> {C,256,256}
     }
     return x;
