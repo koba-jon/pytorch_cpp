@@ -57,6 +57,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+09/14,2025: Implementation of `PNDM2d` and `PNDM2d-v` <br>
 09/14,2025: Release of `v2.8.0.1` <br>
 09/12,2025: Implementation of `SimCLR` <br>
 09/11,2025: Implementation of `MAE` <br>
@@ -66,11 +67,11 @@ $ sh scripts/test.sh
 09/07,2025: Implementation of `CycleGAN` <br>
 09/05,2025: Implementation of `ViT` <br>
 09/04,2025: Release of `v2.8.0` <br>
-09/04,2025: Implementation of `DDIM2d` <br>
 
 <details>
 <summary>See more...</summary>
   
+09/04,2025: Implementation of `DDIM2d` <br>
 09/04,2025: Implementation of `DDPM2d` <br>
 06/27,2023: Release of `v2.0.1` <br>
 06/27,2023: Create the heatmap for Anomaly Detection <br>
@@ -247,7 +248,7 @@ $ sh scripts/test.sh
     <td>v1.5.1</td>
   </tr>
   <tr>
-    <td rowspan="4">Diffusion Models</td>
+    <td rowspan="6">Diffusion Models</td>
     <td rowspan="2">DDPM</td>
     <td rowspan="2"><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
     <td rowspan="2">NeurIPS 2020</td>
@@ -268,6 +269,17 @@ $ sh scripts/test.sh
   <tr>
     <td><a href="Generative_Modeling/DDIM2d-v">DDIM2d-v</a></td>
     <td>v2.8.0.1</td>
+  </tr>
+  <tr>
+    <td rowspan="2">PNDM</td>
+    <td rowspan="2"><a href="https://arxiv.org/abs/2202.09778">L. Liu et al.</a></td>
+    <td rowspan="2">ICLR 2022</td>
+    <td><a href="Generative_Modeling/PNDM2d">PNDM2d</a></td>
+    <td>v2.8.1</td>
+  </tr>
+  <tr>
+    <td><a href="Generative_Modeling/PNDM2d-v">PNDM2d-v</a></td>
+    <td>v2.8.1</td>
   </tr>
 </table>
 
