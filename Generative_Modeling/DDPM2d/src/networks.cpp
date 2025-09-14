@@ -212,9 +212,10 @@ torch::Tensor UNetImpl::forward(torch::Tensor x, torch::Tensor t){
 DDPMImpl::DDPMImpl(po::variables_map &vm, torch::Device device){
 
     this->timesteps = vm["timesteps"].as<size_t>();
-    this->betas = torch::linspace(vm["beta_start"].as<float>(), vm["beta_end"].as<float>(), this->timesteps + 1).to(device);  // {T+1} (0.0001, 0.00012, 0.00014, ..., 0.01996, 0.01998, 0.02)
-    this->alphas = 1.0 - this->betas;  // {T+1} (0.9999, 0.99988, 0.99986, ..., 0.98004, 0.98002, 0.98)
-    this->alpha_bars = torch::cumprod(this->alphas, /*dim=*/0);  // {T+1} (0.9999, 0.99978, 0.99964, ..., 0.000042, 0.000041, 0.00004)
+    this->betas = torch::linspace(vm["beta_start"].as<float>(), vm["beta_end"].as<float>(), this->timesteps).to(device);  // {T} (0.0001, 0.00012, 0.00014, ..., 0.01996, 0.01998, 0.02)
+    this->betas = torch::cat({torch::zeros({1}).to(device), this->betas}, /*dim=*/0);  // {T+1} (0.0, 0.0001, 0.00012, 0.00014, ..., 0.01996, 0.01998, 0.02)
+    this->alphas = 1.0 - this->betas;  // {T+1} (1.0, 0.9999, 0.99988, 0.99986, ..., 0.98004, 0.98002, 0.98)
+    this->alpha_bars = torch::cumprod(this->alphas, /*dim=*/0);  // {T+1} (1.0, 0.9999, 0.99978, 0.99964, ..., 0.000042, 0.000041, 0.00004)
 
     this->model = UNet(vm);
     register_module("U-Net", this->model);
