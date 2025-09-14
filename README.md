@@ -57,6 +57,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+09/14,2025: Release of `v2.8.0.1` <br>
 09/12,2025: Implementation of `SimCLR` <br>
 09/11,2025: Implementation of `MAE` <br>
 09/11,2025: Implementation of `DDPM2d-v` and `DDIM2d-v` <br>
@@ -66,11 +67,11 @@ $ sh scripts/test.sh
 09/05,2025: Implementation of `ViT` <br>
 09/04,2025: Release of `v2.8.0` <br>
 09/04,2025: Implementation of `DDIM2d` <br>
-09/04,2025: Implementation of `DDPM2d` <br>
 
 <details>
 <summary>See more...</summary>
   
+09/04,2025: Implementation of `DDPM2d` <br>
 06/27,2023: Release of `v2.0.1` <br>
 06/27,2023: Create the heatmap for Anomaly Detection <br>
 05/07,2023: Release of `v2.0.0` <br>
@@ -445,15 +446,15 @@ $ sh scripts/test.sh
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Preview (Nightly) <br>
+PyTorch Build : Stable (2.8.0) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 Language : C++ / Java <br>
 Run this Command : Download here (cxx11 ABI) <br>
-CUDA 12.6 : https://download.pytorch.org/libtorch/nightly/cu126/libtorch-shared-with-deps-latest.zip <br>
-CUDA 12.8 : https://download.pytorch.org/libtorch/nightly/cu128/libtorch-shared-with-deps-latest.zip <br>
-CUDA 12.9 : https://download.pytorch.org/libtorch/nightly/cu129/libtorch-shared-with-deps-latest.zip <br>
-CPU : https://download.pytorch.org/libtorch/nightly/cpu/libtorch-shared-with-deps-latest.zip <br>
+CUDA 12.6 : https://download.pytorch.org/libtorch/cu126/libtorch-shared-with-deps-2.8.0%2Bcu126.zip <br>
+CUDA 12.8 : https://download.pytorch.org/libtorch/cu128/libtorch-shared-with-deps-2.8.0%2Bcu128.zip <br>
+CUDA 12.9 : https://download.pytorch.org/libtorch/cu129/libtorch-shared-with-deps-2.8.0%2Bcu129.zip <br>
+CPU : https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.8.0%2Bcpu.zip <br>
 ***
 
 ### 2. OpenCV
@@ -492,7 +493,7 @@ $ sudo apt install libpng-dev libpng++-dev zlib1g-dev
 
 ### 1. Git Clone
 ~~~
-$ git clone -b develop/v2.8.1 https://github.com/koba-jon/pytorch_cpp.git
+$ git clone https://github.com/koba-jon/pytorch_cpp.git
 $ cd pytorch_cpp
 ~~~
 
