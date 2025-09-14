@@ -528,6 +528,109 @@ size_t DataLoader::ImageFolderPairWithPaths::get_count_max(){
 
 
 // ------------------------------------------------------------------------------------------
+// namespace{DataLoader} -> class{ImageFolderRandomSampling2WithPaths} -> constructor
+// ------------------------------------------------------------------------------------------
+DataLoader::ImageFolderRandomSampling2WithPaths::ImageFolderRandomSampling2WithPaths(datasets::ImageFolderRandomSampling2WithPaths &dataset_, const size_t batch_size_, const size_t num_workers_, const bool pin_memory_){
+
+    this->dataset = dataset_;
+    this->batch_size = batch_size_;
+    this->num_workers = num_workers_;
+    this->pin_memory = pin_memory_;
+
+    size_t size1 = this->dataset.size1();
+    this->idx1 = std::vector<size_t>(size1);
+    for (size_t i = 0; i < size1; i++){
+        this->idx1.at(i) = i;
+    }
+
+    size_t size2 = this->dataset.size2();
+    this->idx2 = std::vector<size_t>(size2);
+    for (size_t i = 0; i < size2; i++){
+        this->idx2.at(i) = i;
+    }
+
+    this->mt.seed(std::rand());
+    this->int_rand1 = std::uniform_int_distribution<int>(/*min=*/0, /*max=*/this->dataset.size1() - 1);
+    this->int_rand2 = std::uniform_int_distribution<int>(/*min=*/0, /*max=*/this->dataset.size2() - 1);
+
+}
+
+
+// ---------------------------------------------------------------------------------------
+// namespace{DataLoader} -> class{ImageFolderRandomSampling2WithPaths} -> operator
+// ---------------------------------------------------------------------------------------
+bool DataLoader::ImageFolderRandomSampling2WithPaths::operator()(std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>> &data){
+
+    // (0) Initialization and Declaration
+    size_t i;
+    torch::Tensor data1, data2, tensor1, tensor2;
+    std::vector<std::string> data3, data4;
+    std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> group;
+    std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> *data_before;
+
+    // (1) Get Mini Batch Data
+    data_before = new std::tuple<torch::Tensor, torch::Tensor, std::string, std::string>[this->batch_size];
+    // (1.1) Get Mini Batch Data using Single Thread
+    if (this->num_workers == 0){
+        for (i = 0; i < this->batch_size; i++){
+            this->dataset.get(this->int_rand1(this->mt), this->int_rand2(this->mt), data_before[i]);
+        }
+    }
+    // (1.2) Get Mini Batch Data using Multi Thread
+    else{
+
+        std::vector<int> rand_vec1(this->batch_size), rand_vec2(this->batch_size);
+        for (i = 0; i < this->batch_size; i++){
+            rand_vec1.at(i) = this->int_rand1(this->mt);
+            rand_vec2.at(i) = this->int_rand2(this->mt);
+        }
+
+        omp_set_num_threads(this->num_workers);
+        #pragma omp parallel for
+        for (i = 0; i < this->batch_size; i++){
+            this->dataset.get(rand_vec1.at(i), rand_vec2.at(i), data_before[i]);
+        }
+
+    }
+
+    // (2) Organize Data
+    data1 = std::get<0>(data_before[0]);
+    data1 = torch::unsqueeze(data1, /*dim=*/0);
+    data2 = std::get<1>(data_before[0]);
+    data2 = torch::unsqueeze(data2, /*dim=*/0);
+    data3.push_back(std::get<2>(data_before[0]));
+    data4.push_back(std::get<3>(data_before[0]));
+    for (i = 1; i < this->batch_size; i++){
+        group = data_before[i];
+        tensor1 = std::get<0>(group);
+        tensor1 = torch::unsqueeze(tensor1, /*dim=*/0);  // {C,H,W} ===> {1,C,H,W}
+        data1 = torch::cat({data1, tensor1}, /*dim=*/0);  // {i,C,H,W} + {1,C,H,W} ===> {i+1,C,H,W}
+        tensor2 = std::get<1>(group);
+        tensor2 = torch::unsqueeze(tensor2, /*dim=*/0);  // {C,H,W} ===> {1,C,H,W}
+        data2 = torch::cat({data2, tensor2}, /*dim=*/0);  // {i,C,H,W} + {1,C,H,W} ===> {i+1,C,H,W}
+        data3.push_back(std::get<2>(group));
+        data4.push_back(std::get<3>(group));
+    }
+    data1 = data1.contiguous().detach().clone();
+    data2 = data2.contiguous().detach().clone();
+
+    // (3) Pin
+    if (this->pin_memory){
+        data1 = data1.pin_memory();
+        data2 = data2.pin_memory();
+    }
+
+    // Post Processing
+    data = {data1, data2, data3, data4};  // {N,C,H,W} (images1), {N,C,H,W} (images2), {N} (fnames1), {N} (fnames2)
+    delete[] data_before;
+
+    // End Processing
+    return true;
+    
+}
+
+
+// ------------------------------------------------------------------------------------------
 // namespace{DataLoader} -> class{ImageFolderPairAndRandomSamplingWithPaths} -> constructor
 // ------------------------------------------------------------------------------------------
 DataLoader::ImageFolderPairAndRandomSamplingWithPaths::ImageFolderPairAndRandomSamplingWithPaths(datasets::ImageFolderPairAndRandomSamplingWithPaths &dataset_, const size_t batch_size_, const bool shuffle_, const size_t num_workers_, const bool pin_memory_, const bool drop_last_){

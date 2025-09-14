@@ -123,6 +123,24 @@ namespace DataLoader{
     };
 
     // --------------------------------------------------------------------------
+    // namespace{DataLoader} -> class{ImageFolderRandomSampling2WithPaths}
+    // --------------------------------------------------------------------------
+    class ImageFolderRandomSampling2WithPaths{
+    private:
+        datasets::ImageFolderRandomSampling2WithPaths dataset;
+        size_t batch_size;
+        size_t num_workers;
+        bool pin_memory;
+        std::vector<size_t> idx1, idx2;
+        std::mt19937 mt;
+        std::uniform_int_distribution<int> int_rand1, int_rand2;
+    public:
+        ImageFolderRandomSampling2WithPaths(){}
+        ImageFolderRandomSampling2WithPaths(datasets::ImageFolderRandomSampling2WithPaths &dataset_, const size_t batch_size_=1, const size_t num_workers_=0, const bool pin_memory_=false);
+        bool operator()(std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>> &data);
+    };
+
+    // --------------------------------------------------------------------------
     // namespace{DataLoader} -> class{ImageFolderPairAndRandomSamplingWithPaths}
     // --------------------------------------------------------------------------
     class ImageFolderPairAndRandomSamplingWithPaths{

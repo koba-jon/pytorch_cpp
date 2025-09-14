@@ -1,0 +1,49 @@
+1. What kind of dataset do you need?
+
+Please prepare images that can be read by OpenCV.
+In case of training, all data doesn't need to be paired images.
+That is, the data amount and file name don't need to match between 'A' and 'B'.
+In case of validation or test, all data must be paired images with matching file name.
+And, 'A' is input image and 'B' is ground truth of output image in validation and test.
+
+
+2. What kind of hierarchical relationship do you need?
+
+The following hierarchical relationships are recommended.
+
+---------------------------------------------------------
+datasets
+|--Dataset1
+|    |--trainA
+|    |    |--image1.png
+|    |    |--image2.bmp
+|    |    |--image3.jpg
+|    |
+|    |--trainB
+|    |    |--image4.png
+|    |    |--image5.bmp
+|    |    |--image6.jpg
+|    |
+|    |--validA
+|    |    |--image7.png
+|    |    |--image8.bmp
+|    |    |--image9.jpg
+|    |
+|    |--validB
+|    |    |--image7.png
+|    |    |--image8.bmp
+|    |    |--image9.jpg
+|    |
+|    |--testA
+|    |    |--image10.png
+|    |    |--image11.bmp
+|    |    |--image12.jpg
+|    |
+|    |--testB
+|         |--image10.png
+|         |--image11.bmp
+|         |--image12.jpg
+|
+|--Dataset2
+|--Dataset3
+---------------------------------------------------------

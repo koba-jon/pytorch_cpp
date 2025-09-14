@@ -77,7 +77,7 @@ void test(po::variables_map &vm, torch::Device &device, DDPM &model, std::vector
         x_t = std::get<0>(x_t_with_noise);
         noise = std::get<1>(x_t_with_noise);
         output = model->forward(x_t, t);
-        recon_image = model->denoise(x_t, t);
+        recon_image = model->denoise_t(x_t, t);
 
         if (!device.is_cpu()) torch::cuda::synchronize();
         end = std::chrono::system_clock::now();

@@ -1,22 +1,76 @@
-# PyTorch C++ Samples
+<div align="center">
+  
+# 🔥 PyTorch C++ Samples 🔥
+  
 [![Language](https://img.shields.io/badge/Language-C++-blue)]()
-[![LibTorch](https://img.shields.io/badge/LibTorch-2.8.0-blue)]()
+[![LibTorch](https://img.shields.io/badge/LibTorch-2.8.0-orange)]()
+[![OS](https://img.shields.io/badge/OS-Ubuntu-yellow)]()
+[![OS](https://img.shields.io/badge/License-MIT-green)]()
+<img width="3356" height="260" alt="Generated_Image" src="https://github.com/user-attachments/assets/725531c1-db2a-4292-be04-49ef37fb1f58" />
+Image synthesis result based on training of <a href="Generative_Modeling/DDIM2d-v">DDIM2d-v</a> with <a href="[Generative_Modeling/DDIM2d-v](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)">CelebA</a>
+</div>
 
-These are Deep Learning sample programs of PyTorch written in C++.
+## 🚀 Quick Start (Details: <a href="#-requirement-library">Library</a>, <a href="#-preparation-run">Run</a>)
+Reuirements: `LibTorch`, `OpenCV`, `OpenMP`, `Boost`, `Gnuplot`, `libpng/png++/zlib` <br>
 
+### 1. Git Clone
 
+~~~
+$ git clone https://github.com/koba-jon/pytorch_cpp.git
+$ cd pytorch_cpp
+$ sudo apt install g++-8
+~~~
 
-## Description
-PyTorch is famous as a kind of Deep Learning Frameworks.<br>
-Among them, Python source code is overflowing on the Web, so we can easily write the source code of Deep Learning in Python.<br>
-However, there is very little source code written in C++ of compiler language.<br>
-Therefore, I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
-In addition, I might adapt programs to the latest version. <br>
+### 2. Run
 
-## Updates
+**(1) Change Directory** (Model: <a href="Dimensionality_Reduction/AE1d">AE1d</a>)
+~~~
+$ cd Dimensionality_Reduction/AE1d
+~~~
 
+**(2) Build**
+~~~
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make -j4
+$ cd ..
+~~~
+
+**(3) Dataset Setting** (Dataset: <a href="https://github.com/koba-jon/normal_distribution_dataset">Normal Distribution Dataset</a>)
+~~~
+$ cd datasets
+$ git clone https://github.com/koba-jon/normal_distribution_dataset.git
+$ ln -s normal_distribution_dataset/NormalDistribution ./NormalDistribution
+$ cd ..
+~~~
+
+**(4) Training**
+~~~
+$ sh scripts/train.sh
+~~~
+
+**(5) Test**
+~~~
+$ sh scripts/test.sh
+~~~
+
+## 🔄 Updates
+
+09/14,2025: Release of `v2.8.0.1` <br>
+09/12,2025: Implementation of `SimCLR` <br>
+09/11,2025: Implementation of `MAE` <br>
+09/11,2025: Implementation of `DDPM2d-v` and `DDIM2d-v` <br>
+09/10,2025: Implementation of EMA for `DDPM2d` and `DDIM2d` <br>
+09/08,2025: Implementation of `EfficientNet` <br>
+09/07,2025: Implementation of `CycleGAN` <br>
+09/05,2025: Implementation of `ViT` <br>
 09/04,2025: Release of `v2.8.0` <br>
 09/04,2025: Implementation of `DDIM2d` <br>
+
+<details>
+<summary>See more...</summary>
+  
 09/04,2025: Implementation of `DDPM2d` <br>
 06/27,2023: Release of `v2.0.1` <br>
 06/27,2023: Create the heatmap for Anomaly Detection <br>
@@ -25,10 +79,6 @@ In addition, I might adapt programs to the latest version. <br>
 09/12,2022: Release of `v1.12.1` <br>
 08/04,2022: Release of `v1.12.0` <br>
 03/18,2022: Release of `v1.11.0` <br>
-
-<details>
-<summary>See more...</summary>
-  
 02/10,2022: Release of `v1.10.2` <br>
 02/09,2022: Implementation of `YOLOv3` <br>
 01/09,2022: Release of `v1.10.1` <br>
@@ -69,15 +119,13 @@ In addition, I might adapt programs to the latest version. <br>
 </details>
 
 
-## Implementation
+## 🏗️ Implementation
 
-<details>
-<summary>Details</summary>
-  
-### Multiclass Classification
+### 📊 Multiclass Classification
   
 <table>
   <tr>
+    <th>Category</th>
     <th>Model</th>
     <th>Paper</th>
     <th>Conference/Journal</th>
@@ -85,6 +133,7 @@ In addition, I might adapt programs to the latest version. <br>
     <th>Release Version</th>
   </tr>
   <tr>
+    <td rowspan="5">CNNs</td>
     <td>AlexNet</td>
     <td><a href="http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networ">A. Krizhevsky et al.</a></td>
     <td>NeurIPS 2012</td>
@@ -112,9 +161,24 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="Multiclass_Classification/Discriminator">Discriminator</a></td>
     <td>v1.8.1</td>
   </tr>
+  <tr>
+    <td>EfficientNet</td>
+    <td><a href="https://proceedings.mlr.press/v97/tan19a.html?ref=ji">M. Tan et al.</a></td>
+    <td>ICML 2019</td>
+    <td><a href="Multiclass_Classification/EfficientNet">EfficientNet</a></td>
+    <td>v2.8.1</td>
+  </tr>
+  <tr>
+    <td rowspan="1">Transformers</td>
+    <td>Vision Transformer</td>
+    <td><a href="https://arxiv.org/abs/2010.11929">A. Dosovitskiy et al.</a></td>
+    <td>ICLR 2021</td>
+    <td><a href="Multiclass_Classification/ViT">ViT</a></td>
+    <td>v2.8.1</td>
+  </tr>
 </table>
   
-### Dimensionality Reduction
+### 🔽 Dimensionality Reduction
 
 <table>
   <tr>
@@ -145,10 +209,11 @@ In addition, I might adapt programs to the latest version. <br>
 </table>
 
 
-### Generative Modeling
+### 🎨 Generative Modeling
 
 <table>
   <tr>
+    <th>Category</th>
     <th>Model</th>
     <th>Paper</th>
     <th>Conference/Journal</th>
@@ -156,17 +221,11 @@ In addition, I might adapt programs to the latest version. <br>
     <th>Release Version</th>
   </tr>
   <tr>
+    <td rowspan="3">VAEs</td>
     <td>Variational Autoencoder</td>
     <td><a href="https://arxiv.org/abs/1312.6114">D. P. Kingma et al.</a></td>
     <td>ICLR 2014</td>
     <td><a href="Generative_Modeling/VAE2d">VAE2d</a></td>
-    <td>v1.5.1</td>
-  </tr>
-  <tr>
-    <td>DCGAN</td>
-    <td><a href="https://arxiv.org/abs/1511.06434">A. Radford et al.</a></td>
-    <td>ICLR 2016</td>
-    <td><a href="Generative_Modeling/DCGAN">DCGAN</a></td>
     <td>v1.5.1</td>
   </tr>
   <tr>
@@ -180,22 +239,39 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="Generative_Modeling/WAE2d_MMD">WAE2d MMD</a></td>
   </tr>
   <tr>
-    <td>DDPM</td>
-    <td><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
-    <td>NeurIPS 2020</td>
+    <td rowspan="1">GANs</td>
+    <td>DCGAN</td>
+    <td><a href="https://arxiv.org/abs/1511.06434">A. Radford et al.</a></td>
+    <td>ICLR 2016</td>
+    <td><a href="Generative_Modeling/DCGAN">DCGAN</a></td>
+    <td>v1.5.1</td>
+  </tr>
+  <tr>
+    <td rowspan="4">Diffusion Models</td>
+    <td rowspan="2">DDPM</td>
+    <td rowspan="2"><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
+    <td rowspan="2">NeurIPS 2020</td>
     <td><a href="Generative_Modeling/DDPM2d">DDPM2d</a></td>
     <td>v2.8.0</td>
   </tr>
   <tr>
-    <td>DDIM</td>
-    <td><a href="https://arxiv.org/abs/2010.02502">J. Song et al.</a></td>
-    <td>ICLR 2021</td>
+    <td><a href="Generative_Modeling/DDPM2d-v">DDPM2d-v</a></td>
+    <td>v2.8.1</td>
+  </tr>
+  <tr>
+    <td rowspan="2">DDIM</td>
+    <td rowspan="2"><a href="https://arxiv.org/abs/2010.02502">J. Song et al.</a></td>
+    <td rowspan="2">ICLR 2021</td>
     <td><a href="Generative_Modeling/DDIM2d">DDIM2d</a></td>
     <td>v2.8.0</td>
   </tr>
+  <tr>
+    <td><a href="Generative_Modeling/DDIM2d-v">DDIM2d-v</a></td>
+    <td>v2.8.1</td>
+  </tr>
 </table>
 
-### Image-to-Image Translation
+### 🖼️ Image-to-Image Translation
 
 <table>
   <tr>
@@ -219,9 +295,16 @@ In addition, I might adapt programs to the latest version. <br>
     <td><a href="Image-to-Image_Translation/pix2pix">pix2pix</a></td>
     <td>v1.5.1</td>
   </tr>
+  <tr>
+    <td>CycleGAN</td>
+    <td><a href="https://openaccess.thecvf.com/content_iccv_2017/html/Zhu_Unpaired_Image-To-Image_Translation_ICCV_2017_paper.html">J.-Y. Zhu et al.</a></td>
+    <td>ICCV 2017</td>
+    <td><a href="Image-to-Image_Translation/CycleGAN">CycleGAN</a></td>
+    <td>v2.8.1</td>
+  </tr>
 </table>
 
-### Semantic Segmentation
+### 🧩 Semantic Segmentation
 
 <table>
   <tr>
@@ -247,7 +330,7 @@ In addition, I might adapt programs to the latest version. <br>
   </tr>
 </table>
 
-### Object Detection
+### 🎯 Object Detection
 
 <table>
   <tr>
@@ -280,7 +363,33 @@ In addition, I might adapt programs to the latest version. <br>
   </tr>
 </table>
 
-### Anomaly Detection
+### 🧠 Representation Learning
+
+<table>
+  <tr>
+    <th>Model</th>
+    <th>Paper</th>
+    <th>Conference/Journal</th>
+    <th>Code</th>
+    <th>Release Version</th>
+  </tr>
+  <tr>
+    <td>SimCLR</td>
+    <td><a href="https://proceedings.mlr.press/v119/chen20j.html">T. Chen et al.</a></td>
+    <td>ICML 2020</td>
+    <td><a href="Representation_Learning/SimCLR">SimCLR</a></td>
+    <td>v2.8.1</td>
+  </tr>
+  <tr>
+    <td>Masked Autoencoder</td>
+    <td><a href="https://openaccess.thecvf.com/content/CVPR2022/html/He_Masked_Autoencoders_Are_Scalable_Vision_Learners_CVPR_2022_paper">K. He et al.</a></td>
+    <td>CVPR 2022</td>
+    <td><a href="Representation_Learning/MAE">MAE</a></td>
+    <td>v2.8.1</td>
+  </tr>
+</table>
+
+### 🚨 Anomaly Detection
 
 <table>
   <tr>
@@ -327,9 +436,8 @@ In addition, I might adapt programs to the latest version. <br>
   </tr>
 </table>
 
-</details>
   
-## Requirement
+## 📦 Requirement (Library)
 
 <details>
 <summary>Details</summary>
@@ -378,7 +486,7 @@ $ sudo apt install libpng-dev libpng++-dev zlib1g-dev
 
 </details>
 
-## Preparation
+## 🏃 Preparation (Run)
 
 <details>
 <summary>Details</summary>
@@ -412,7 +520,7 @@ Please move to the directory of each model and refer to "README.md".
 
 </details>
   
-## Utility
+## 🛠️ Utility
 
 <details>
 <summary>Details</summary>
@@ -479,7 +587,7 @@ It corresponds to the following source code in the directory.
 
 </details>
 
-## License
+## ⚖️ License
   
 <details>
 <summary>Details</summary>
@@ -521,7 +629,10 @@ License (zlib) : https://zlib.net/zlib_license.html <br>
 
 </details>
   
-## Conclusion
+## 🎉 Conclusion
+PyTorch is famous as a kind of Deep Learning Frameworks.<br>
+Among them, Python source code is overflowing on the Web, so we can easily write the source code of Deep Learning in Python.<br>
+However, there is very little source code written in C++ of compiler language.<br>
 I hope this repository will help many programmers by providing PyTorch sample programs written in C++.<br>
 If you have any problems with the source code of this repository, please feel free to "issue".<br>
 Let's have a good development and research life!

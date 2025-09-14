@@ -25,9 +25,6 @@ DownSamplingImpl::DownSamplingImpl(const size_t in_nc, const size_t out_nc, cons
     if (ReLU){
         this->convs->push_back(nn::ReLU(nn::ReLUOptions().inplace(true)));
     }
-    this->convs->push_back(nn::Conv2d(nn::Conv2dOptions(out_nc, out_nc, 3).stride(1).padding(1).bias(false)));
-    this->convs->push_back(nn::BatchNorm2d(out_nc));
-    this->convs->push_back(nn::ReLU(nn::ReLUOptions().inplace(true)));
     this->convs->push_back(nn::Conv2d(nn::Conv2dOptions(out_nc, out_nc, 4).stride(2).padding(1).bias(false)));
     this->convs->push_back(nn::BatchNorm2d(out_nc));
     this->convs->push_back(nn::ReLU(nn::ReLUOptions().inplace(true)));
@@ -59,9 +56,6 @@ torch::Tensor DownSamplingImpl::forward(torch::Tensor x, torch::Tensor v){
 // ----------------------------------------------------------------------
 UpSamplingImpl::UpSamplingImpl(const size_t in_nc, const size_t out_nc, const bool BN, const bool ReLU, const size_t time_embed){
 
-    this->convs->push_back(nn::Conv2d(nn::Conv2dOptions(in_nc, in_nc, 3).stride(1).padding(1).bias(false)));
-    this->convs->push_back(nn::BatchNorm2d(in_nc));
-    this->convs->push_back(nn::ReLU(nn::ReLUOptions().inplace(true)));
     this->convs->push_back(nn::Conv2d(nn::Conv2dOptions(in_nc, in_nc, 3).stride(1).padding(1).bias(false)));
     this->convs->push_back(nn::BatchNorm2d(in_nc));
     this->convs->push_back(nn::ReLU(nn::ReLUOptions().inplace(true)));
@@ -190,7 +184,7 @@ torch::Tensor UNetImpl::pos_encoding(torch::Tensor t, long int dim){
         tt = t[i];
         vv = torch::zeros(dim).to(device);
         ii = torch::arange(0, dim).to(device);
-        div_term = torch::exp(ii / dim * std::log(10000.0));
+        div_term = torch::exp(ii / float(dim) * std::log(10000.0));
         idx0 = torch::arange(0, vv.size(0), 2, torch::kLong).to(device);
         idx1 = torch::arange(1, vv.size(0), 2, torch::kLong).to(device);
         vv.index_put_({idx0}, torch::sin(tt / div_term.index_select(/*dim=*/0, idx0)));
@@ -275,6 +269,27 @@ torch::Tensor DDIMImpl::denoise(torch::Tensor x_t, torch::Tensor t, torch::Tenso
 }
 
 
+// -----------------------------------------------------
+// struct{DDIMImpl}(nn::Module) -> function{denoise_t}
+// -----------------------------------------------------
+torch::Tensor DDIMImpl::denoise_t(torch::Tensor x_t, torch::Tensor t){
+
+    bool is_training;
+    torch::Tensor alpha_bar, eps, out;
+
+    is_training = this->model->is_training();
+    this->model->eval();
+    eps = this->model->forward(x_t, t);
+    if (is_training) this->model->train();
+
+    alpha_bar = this->alpha_bars.index_select(/*dim=*/0, t).view({-1, 1, 1, 1});
+    out = (x_t - torch::sqrt(1.0 - alpha_bar) * eps) / torch::sqrt(alpha_bar);
+
+    return out;
+
+}
+
+
 // ---------------------------------------------------
 // struct{DDIMImpl}(nn::Module) -> function{forward}
 // ---------------------------------------------------
@@ -291,8 +306,8 @@ torch::Tensor DDIMImpl::forward_z(torch::Tensor z){
     torch::Tensor x, t, t_prev;
     x = z;
     for (size_t i = this->timesteps_inf; i > 0; i--){   
-        t = torch::full({z.size(0)}, /*value=*/(size_t)(float(i - 1) / (this->timesteps_inf - 1) * (this->timesteps - 1) + 1 + 0.5), torch::TensorOptions().dtype(torch::kLong)).to(z.device());
-        t_prev = torch::full({z.size(0)}, /*value=*/(size_t)(float(i - 2) / (this->timesteps_inf - 1) * (this->timesteps - 1) + 1 + 0.5), torch::TensorOptions().dtype(torch::kLong)).to(z.device());
+        t = torch::full({z.size(0)}, /*value=*/(size_t)(float(i) / this->timesteps_inf * this->timesteps + 0.5), torch::TensorOptions().dtype(torch::kLong)).to(z.device());
+        t_prev = torch::full({z.size(0)}, /*value=*/(size_t)(float(i - 1) / this->timesteps_inf * this->timesteps + 0.5), torch::TensorOptions().dtype(torch::kLong)).to(z.device());
         x = this->denoise(x, t, t_prev);  // {C,256,256} ===> {C,256,256}
     }
     return x;
@@ -303,7 +318,7 @@ torch::Tensor DDIMImpl::forward_z(torch::Tensor z){
 // function{weights_init}
 // ----------------------------
 void weights_init(nn::Module &m){
-    if ((typeid(m) == typeid(nn::Conv2d)) || (typeid(m) == typeid(nn::Conv2dImpl))) {
+    if ((typeid(m) == typeid(nn::Conv2d)) || (typeid(m) == typeid(nn::Conv2dImpl)) || (typeid(m) == typeid(nn::ConvTranspose2d)) || (typeid(m) == typeid(nn::ConvTranspose2dImpl))) {
         auto p = m.named_parameters(false);
         auto w = p.find("weight");
         auto b = p.find("bias");
