@@ -213,7 +213,6 @@ PNDMImpl::PNDMImpl(po::variables_map &vm, torch::Device device){
 
     this->timesteps = vm["timesteps"].as<size_t>();
     this->timesteps_inf = vm["timesteps_inf"].as<size_t>();
-    this->eta = vm["eta"].as<float>();
     this->betas = torch::linspace(vm["beta_start"].as<float>(), vm["beta_end"].as<float>(), this->timesteps).to(device);  // {T} (0.0001, 0.00012, 0.00014, ..., 0.01996, 0.01998, 0.02)
     this->betas = torch::cat({torch::zeros({1}).to(device), this->betas}, /*dim=*/0);  // {T+1} (0.0, 0.0001, 0.00012, 0.00014, ..., 0.01996, 0.01998, 0.02)
     this->alphas = 1.0 - this->betas;  // {T+1} (1.0, 0.9999, 0.99988, 0.99986, ..., 0.98004, 0.98002, 0.98)

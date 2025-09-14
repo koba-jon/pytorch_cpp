@@ -80,7 +80,6 @@ TORCH_MODULE(UNet);
 struct PNDMImpl : nn::Module{
 private:
     size_t timesteps, timesteps_inf;
-    float eta;
     torch::Tensor betas, alphas, alpha_bars;
     UNet model;
     torch::Tensor sampling(torch::Tensor &mean, torch::Tensor &var);

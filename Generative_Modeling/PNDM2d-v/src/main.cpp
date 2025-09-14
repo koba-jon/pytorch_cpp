@@ -44,7 +44,6 @@ po::options_description parse_arguments(){
         ("nt", po::value<size_t>()->default_value(100), "time embedding dimensions")
         ("timesteps", po::value<size_t>()->default_value(1000), "total time steps for training")
         ("timesteps_inf", po::value<size_t>()->default_value(50), "total time steps for inference")
-        ("eta", po::value<float>()->default_value(0.0), "eta (0.0 <= eta <= 1.0) at inference")
         ("loss", po::value<std::string>()->default_value("l2"), "l1 (mean absolute error), l2 (mean squared error), ssim (structural similarity), etc.")
         ("gpu_id", po::value<int>()->default_value(0), "cuda device : 'x=-1' is cpu device")
         ("seed_random", po::value<bool>()->default_value(false), "whether to make the seed of random number in a random")
