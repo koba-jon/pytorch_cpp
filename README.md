@@ -16,7 +16,7 @@ Reuirements: `LibTorch`, `OpenCV`, `OpenMP`, `Boost`, `Gnuplot`, `libpng/png++/z
 ### 1. Git Clone
 
 ~~~
-$ git clone -b develop/v2.8.1 https://github.com/koba-jon/pytorch_cpp.git
+$ git clone https://github.com/koba-jon/pytorch_cpp.git
 $ cd pytorch_cpp
 $ sudo apt install g++-8
 ~~~
