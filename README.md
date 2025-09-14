@@ -166,7 +166,7 @@ $ sh scripts/test.sh
     <td><a href="https://proceedings.mlr.press/v97/tan19a.html?ref=ji">M. Tan et al.</a></td>
     <td>ICML 2019</td>
     <td><a href="Multiclass_Classification/EfficientNet">EfficientNet</a></td>
-    <td>v2.8.1</td>
+    <td>v2.8.0.1</td>
   </tr>
   <tr>
     <td rowspan="1">Transformers</td>
@@ -174,7 +174,7 @@ $ sh scripts/test.sh
     <td><a href="https://arxiv.org/abs/2010.11929">A. Dosovitskiy et al.</a></td>
     <td>ICLR 2021</td>
     <td><a href="Multiclass_Classification/ViT">ViT</a></td>
-    <td>v2.8.1</td>
+    <td>v2.8.0.1</td>
   </tr>
 </table>
   
@@ -256,7 +256,7 @@ $ sh scripts/test.sh
   </tr>
   <tr>
     <td><a href="Generative_Modeling/DDPM2d-v">DDPM2d-v</a></td>
-    <td>v2.8.1</td>
+    <td>v2.8.0.1</td>
   </tr>
   <tr>
     <td rowspan="2">DDIM</td>
@@ -267,7 +267,7 @@ $ sh scripts/test.sh
   </tr>
   <tr>
     <td><a href="Generative_Modeling/DDIM2d-v">DDIM2d-v</a></td>
-    <td>v2.8.1</td>
+    <td>v2.8.0.1</td>
   </tr>
 </table>
 
@@ -300,7 +300,7 @@ $ sh scripts/test.sh
     <td><a href="https://openaccess.thecvf.com/content_iccv_2017/html/Zhu_Unpaired_Image-To-Image_Translation_ICCV_2017_paper.html">J.-Y. Zhu et al.</a></td>
     <td>ICCV 2017</td>
     <td><a href="Image-to-Image_Translation/CycleGAN">CycleGAN</a></td>
-    <td>v2.8.1</td>
+    <td>v2.8.0.1</td>
   </tr>
 </table>
 
@@ -378,14 +378,14 @@ $ sh scripts/test.sh
     <td><a href="https://proceedings.mlr.press/v119/chen20j.html">T. Chen et al.</a></td>
     <td>ICML 2020</td>
     <td><a href="Representation_Learning/SimCLR">SimCLR</a></td>
-    <td>v2.8.1</td>
+    <td>v2.8.0.1</td>
   </tr>
   <tr>
     <td>Masked Autoencoder</td>
     <td><a href="https://openaccess.thecvf.com/content/CVPR2022/html/He_Masked_Autoencoders_Are_Scalable_Vision_Learners_CVPR_2022_paper">K. He et al.</a></td>
     <td>CVPR 2022</td>
     <td><a href="Representation_Learning/MAE">MAE</a></td>
-    <td>v2.8.1</td>
+    <td>v2.8.0.1</td>
   </tr>
 </table>
 
@@ -493,7 +493,7 @@ $ sudo apt install libpng-dev libpng++-dev zlib1g-dev
 
 ### 1. Git Clone
 ~~~
-$ git clone https://github.com/koba-jon/pytorch_cpp.git
+$ git clone -b support/v2.8.0.1 https://github.com/koba-jon/pytorch_cpp.git
 $ cd pytorch_cpp
 ~~~
 
