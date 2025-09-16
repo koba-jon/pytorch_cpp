@@ -199,8 +199,7 @@ torch::Tensor VQVAEImpl::sampling(const std::vector<long int> z_shape, PixelCNN 
 
     torch::Tensor idx, logits, probs, sampled, z_q, out;
 
-    idx = torch::randint(0, this->vq->e.size(0), {z_shape[0], z_shape[2], z_shape[3]}).to(device);
-    // idx = torch::zeros({z_shape[0], z_shape[2], z_shape[3]}).to(torch::kLong).to(device);
+    idx = torch::zeros({z_shape[0], z_shape[2], z_shape[3]}).to(torch::kLong).to(device);
     for (long int j = 0; j < z_shape[2]; j++){
         for (long int i = 0; i < z_shape[3]; i++){
             logits = pixelcnn->forward(idx);
