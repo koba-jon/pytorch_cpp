@@ -53,7 +53,7 @@ torch::Tensor MaskedConv2dImpl::forward(torch::Tensor x){
 
 
 // -----------------------------------------------------------------------------
-// struct{GatedMaskedConv2dImpl}(nn::Module) -> constructor
+// struct{MaskedConv2dBlockImpl}(nn::Module) -> constructor
 // -----------------------------------------------------------------------------
 MaskedConv2dBlockImpl::MaskedConv2dBlockImpl(char mask_type, long int dim){
     this->model->push_back(MaskedConv2d(mask_type, dim, dim, 7));
@@ -73,9 +73,9 @@ torch::Tensor MaskedConv2dBlockImpl::forward(torch::Tensor x){
 
 
 // -----------------------------------------------------------------------------
-// struct{GatedPixelCNNImpl}(nn::Module) -> constructor
+// struct{PixelCNNImpl}(nn::Module) -> constructor
 // -----------------------------------------------------------------------------
-GatedPixelCNNImpl::GatedPixelCNNImpl(po::variables_map &vm){
+PixelCNNImpl::PixelCNNImpl(po::variables_map &vm){
 
     this->dim = vm["dim_pix"].as<size_t>();
 
@@ -95,9 +95,9 @@ GatedPixelCNNImpl::GatedPixelCNNImpl(po::variables_map &vm){
 
 
 // -----------------------------------------------------------------------------
-// struct{GatedPixelCNNImpl}(nn::Module) -> function{forward}
+// struct{PixelCNNImpl}(nn::Module) -> function{forward}
 // -----------------------------------------------------------------------------
-torch::Tensor GatedPixelCNNImpl::forward(torch::Tensor x){
+torch::Tensor PixelCNNImpl::forward(torch::Tensor x){
     torch::Tensor out;
     x = this->token_emb->forward(x.view({-1})).view({x.size(0), x.size(1), x.size(2), this->dim}).permute({0, 3, 1, 2}).contiguous();
     x = this->layers->forward(x);
@@ -195,7 +195,7 @@ VQVAEImpl::VQVAEImpl(po::variables_map &vm){
 // ----------------------------------------------------------------------
 // struct{VQVAEImpl}(nn::Module) -> function{forward_z}
 // ----------------------------------------------------------------------
-torch::Tensor VQVAEImpl::sampling(const std::vector<long int> z_shape, GatedPixelCNN pixelcnn, torch::Device device){
+torch::Tensor VQVAEImpl::sampling(const std::vector<long int> z_shape, PixelCNN pixelcnn, torch::Device device){
 
     torch::Tensor idx, logits, probs, sampled, z_q, out;
 

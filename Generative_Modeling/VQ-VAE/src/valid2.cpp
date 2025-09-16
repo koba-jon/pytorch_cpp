@@ -8,7 +8,7 @@
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
 #include "loss.hpp"                    // Loss_PixelCNN
-#include "networks.hpp"                // VQVAE, GatedPixelCNN
+#include "networks.hpp"                // VQVAE, PixelCNN
 #include "dataloader.hpp"              // DataLoader::ImageFolderWithPaths
 #include "visualizer.hpp"              // visualizer::graph
 
@@ -19,7 +19,7 @@ namespace po = boost::program_options;
 // -------------------
 // Validation Function
 // -------------------
-void valid2(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_dataloader, torch::Device &device, Loss_PixelCNN &criterion, VQVAE &vqvae, GatedPixelCNN &model, const size_t epoch, visualizer::graph &writer){
+void valid2(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_dataloader, torch::Device &device, Loss_PixelCNN &criterion, VQVAE &vqvae, PixelCNN &model, const size_t epoch, visualizer::graph &writer){
 
     // (0) Initialization and Declaration
     size_t iteration;

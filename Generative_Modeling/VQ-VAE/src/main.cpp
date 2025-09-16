@@ -10,7 +10,7 @@
 #include <opencv2/opencv.hpp>          // cv::Mat
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
-#include "networks.hpp"                // VQVAE, GatedPixelCNN
+#include "networks.hpp"                // VQVAE, PixelCNN
 #include "transforms.hpp"              // transforms
 
 // Define Namespace
@@ -19,11 +19,11 @@ namespace po = boost::program_options;
 
 // Function Prototype
 void train1(po::variables_map &vm, torch::Device &device, VQVAE &model, std::vector<transforms_Compose> &transform);
-void train2(po::variables_map &vm, torch::Device &device, VQVAE &vqvae, GatedPixelCNN &model, std::vector<transforms_Compose> &transform);
+void train2(po::variables_map &vm, torch::Device &device, VQVAE &vqvae, PixelCNN &model, std::vector<transforms_Compose> &transform);
 void test1(po::variables_map &vm, torch::Device &device, VQVAE &model, std::vector<transforms_Compose> &transform);
-void test2(po::variables_map &vm, torch::Device &device, VQVAE &vqvae, GatedPixelCNN &model, std::vector<transforms_Compose> &transform);
-void synth(po::variables_map &vm, torch::Device &device, VQVAE &model, GatedPixelCNN &pixelcnn);
-void sample(po::variables_map &vm, torch::Device &device, VQVAE &model, GatedPixelCNN &pixelcnn);
+void test2(po::variables_map &vm, torch::Device &device, VQVAE &vqvae, PixelCNN &model, std::vector<transforms_Compose> &transform);
+void synth(po::variables_map &vm, torch::Device &device, VQVAE &model, PixelCNN &pixelcnn);
+void sample(po::variables_map &vm, torch::Device &device, VQVAE &model, PixelCNN &pixelcnn);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode);
@@ -170,7 +170,7 @@ int main(int argc, const char *argv[]){
     
     // (5) Define Network
     VQVAE vqvae(vm); vqvae->to(device);
-    GatedPixelCNN pixelcnn(vm); pixelcnn->to(device);
+    PixelCNN pixelcnn(vm); pixelcnn->to(device);
     
     // (6) Make Directories
     std::string dir = "checkpoints/" + vm["dataset"].as<std::string>();
@@ -178,7 +178,7 @@ int main(int argc, const char *argv[]){
 
     // (7) Save Model Parameters
     Set_Model_Params(vm, vqvae, "VQ-VAE");
-    Set_Model_Params(vm, pixelcnn, "Gated PixelCNN");
+    Set_Model_Params(vm, pixelcnn, "PixelCNN");
 
     // (8.1.1) Training Phase of VQVAE
     if (vm["train1"].as<bool>()){

@@ -23,7 +23,7 @@ namespace po = boost::program_options;
 // ---------------
 // Test Function
 // ---------------
-void test2(po::variables_map &vm, torch::Device &device, VQVAE &vqvae, GatedPixelCNN &model, std::vector<transforms_Compose> &transform){
+void test2(po::variables_map &vm, torch::Device &device, VQVAE &vqvae, PixelCNN &model, std::vector<transforms_Compose> &transform){
 
     // (0) Initialization and Declaration
     float ave_loss;

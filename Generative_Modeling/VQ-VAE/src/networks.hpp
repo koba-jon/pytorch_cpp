@@ -47,20 +47,20 @@ TORCH_MODULE(MaskedConv2dBlock);
 
 
 // -------------------------------------------------
-// struct{GatedPixelCNNImpl}(nn::Module)
+// struct{PixelCNNImpl}(nn::Module)
 // -------------------------------------------------
-struct GatedPixelCNNImpl : nn::Module{
+struct PixelCNNImpl : nn::Module{
 private:
     long int dim;
     nn::Embedding token_emb = nullptr;
     nn::Sequential layers;
     nn::Conv2d output_conv = nullptr;
 public:
-    GatedPixelCNNImpl(){}
-    GatedPixelCNNImpl(po::variables_map &vm);
+    PixelCNNImpl(){}
+    PixelCNNImpl(po::variables_map &vm);
     torch::Tensor forward(torch::Tensor x);
 };
-TORCH_MODULE(GatedPixelCNN);
+TORCH_MODULE(PixelCNN);
 
 
 // -------------------------------------------------
@@ -102,7 +102,7 @@ private:
 public:
     VQVAEImpl(){}
     VQVAEImpl(po::variables_map &vm);
-    torch::Tensor sampling(const std::vector<long int> z_shape, GatedPixelCNN pixelcnn, torch::Device device);
+    torch::Tensor sampling(const std::vector<long int> z_shape, PixelCNN pixelcnn, torch::Device device);
     torch::Tensor synthesis(torch::Tensor x, torch::Tensor y, const float alpha);
     std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> forward(torch::Tensor x);
     torch::Tensor forward_idx(torch::Tensor x);

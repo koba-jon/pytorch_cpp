@@ -10,7 +10,7 @@
 #include <torch/torch.h>               // torch
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
-#include "networks.hpp"                // VQVAE, GatedPixelCNN
+#include "networks.hpp"                // VQVAE, PixelCNN
 #include "visualizer.hpp"              // visualizer
 
 // Define Namespace
@@ -21,7 +21,7 @@ namespace po = boost::program_options;
 // -------------------
 // Sampling Function
 // -------------------
-void sample(po::variables_map &vm, torch::Device &device, VQVAE &model, GatedPixelCNN &pixelcnn){
+void sample(po::variables_map &vm, torch::Device &device, VQVAE &model, PixelCNN &pixelcnn){
 
     constexpr std::string_view extension = "png";  // the extension of file name to save sample images
     constexpr std::pair<float, float> output_range = {-1.0, 1.0};  // range of the value in output images

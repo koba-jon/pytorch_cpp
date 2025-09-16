@@ -11,7 +11,7 @@
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
 #include "loss.hpp"                    // Loss_PixelCNN
-#include "networks.hpp"                // VQVAE, GatedPixelCNN
+#include "networks.hpp"                // VQVAE, PixelCNN
 #include "transforms.hpp"              // transforms_Compose
 #include "datasets.hpp"                // datasets::ImageFolderWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderWithPaths
@@ -23,13 +23,13 @@ namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
-void valid2(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_dataloader, torch::Device &device, Loss_PixelCNN &criterion, VQVAE &vqvae, GatedPixelCNN &model, const size_t epoch, visualizer::graph &writer);
+void valid2(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_dataloader, torch::Device &device, Loss_PixelCNN &criterion, VQVAE &vqvae, PixelCNN &model, const size_t epoch, visualizer::graph &writer);
 
 
 // -------------------
 // Training Function
 // -------------------
-void train2(po::variables_map &vm, torch::Device &device, VQVAE &vqvae, GatedPixelCNN &model, std::vector<transforms_Compose> &transform){
+void train2(po::variables_map &vm, torch::Device &device, VQVAE &vqvae, PixelCNN &model, std::vector<transforms_Compose> &transform){
 
     constexpr bool train_shuffle = true;  // whether to shuffle the training dataset
     constexpr size_t train_workers = 4;  // the number of workers to retrieve data from the training dataset
