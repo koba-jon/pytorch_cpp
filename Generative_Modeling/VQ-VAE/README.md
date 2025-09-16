@@ -29,13 +29,20 @@ The following hierarchical relationships are recommended.
 ~~~
 datasets
 |--Dataset1
-|    |--train
+|    |--train1
 |    |    |--image1.png
 |    |    |--image2.bmp
 |    |    |--image3.jpg
 |    |
-|    |--valid
-|    |--test
+|    |--valid1
+|    |--test1
+|    |--train2
+|    |    |--image1.png
+|    |    |--image2.bmp
+|    |    |--image3.jpg
+|    |
+|    |--valid2
+|    |--test2
 |
 |--Dataset2
 |--Dataset3
