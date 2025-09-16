@@ -57,6 +57,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+09/16,2025: Implementation of `VQ-VAE` <br>
 09/14,2025: Implementation of `PNDM2d` and `PNDM2d-v` <br>
 09/14,2025: Release of `v2.8.0.1` <br>
 09/12,2025: Implementation of `SimCLR` <br>
@@ -66,11 +67,11 @@ $ sh scripts/test.sh
 09/08,2025: Implementation of `EfficientNet` <br>
 09/07,2025: Implementation of `CycleGAN` <br>
 09/05,2025: Implementation of `ViT` <br>
-09/04,2025: Release of `v2.8.0` <br>
 
 <details>
 <summary>See more...</summary>
   
+09/04,2025: Release of `v2.8.0` <br>
 09/04,2025: Implementation of `DDIM2d` <br>
 09/04,2025: Implementation of `DDPM2d` <br>
 06/27,2023: Release of `v2.0.1` <br>
@@ -222,7 +223,7 @@ $ sh scripts/test.sh
     <th>Release Version</th>
   </tr>
   <tr>
-    <td rowspan="3">VAEs</td>
+    <td rowspan="4">VAEs</td>
     <td>Variational Autoencoder</td>
     <td><a href="https://arxiv.org/abs/1312.6114">D. P. Kingma et al.</a></td>
     <td>ICLR 2014</td>
@@ -238,6 +239,13 @@ $ sh scripts/test.sh
   </tr>
   <tr>
     <td><a href="Generative_Modeling/WAE2d_MMD">WAE2d MMD</a></td>
+  </tr>
+  <tr>
+    <td>VQ-VAE</td>
+    <td><a href="https://proceedings.neurips.cc/paper/2017/hash/7a98af17e63a0ac09ce2e96d03992fbc-Abstract.html">A. v. d. Oord et al.</a></td>
+    <td>NeurIPS 2017</td>
+    <td><a href="Generative_Modeling/VQ-VAE">VQ-VAE</a></td>
+    <td>v2.8.1</td>
   </tr>
   <tr>
     <td rowspan="1">GANs</td>
