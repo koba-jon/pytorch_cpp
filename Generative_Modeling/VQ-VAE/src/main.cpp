@@ -20,8 +20,9 @@ namespace po = boost::program_options;
 // Function Prototype
 void train1(po::variables_map &vm, torch::Device &device, VQVAE &model, std::vector<transforms_Compose> &transform);
 void train2(po::variables_map &vm, torch::Device &device, VQVAE &vqvae, GatedPixelCNN &model, std::vector<transforms_Compose> &transform);
-void test(po::variables_map &vm, torch::Device &device, VQVAE &model, std::vector<transforms_Compose> &transform);
-void synth(po::variables_map &vm, torch::Device &device, VQVAE &model);
+void test1(po::variables_map &vm, torch::Device &device, VQVAE &model, std::vector<transforms_Compose> &transform);
+void test2(po::variables_map &vm, torch::Device &device, VQVAE &vqvae, GatedPixelCNN &model, std::vector<transforms_Compose> &transform);
+void synth(po::variables_map &vm, torch::Device &device, VQVAE &model, GatedPixelCNN &pixelcnn);
 void sample(po::variables_map &vm, torch::Device &device, VQVAE &model, GatedPixelCNN &pixelcnn);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
@@ -63,6 +64,13 @@ po::options_description parse_arguments(){
         ("valid1_batch_size", po::value<size_t>()->default_value(1), "validation 1 batch size")
         ("valid1_freq", po::value<size_t>()->default_value(1), "validation frequency to training epoch for validation 1")
 
+        // (2.3) Define for Test for Training 1
+        ("test1", po::value<bool>()->default_value(false), "test 1 mode on/off")
+        ("test1_in_dir", po::value<std::string>()->default_value("test1I"), "test 1 input image directory : ./datasets/<dataset>/<test1_in_dir>/<image files>")
+        ("test1_out_dir", po::value<std::string>()->default_value("test1O"), "test 1 output image directory : ./datasets/<dataset>/<test1_out_dir>/<image files>")
+        ("test1_load_epoch", po::value<std::string>()->default_value("latest"), "training epoch used for testing 1")
+        ("test1_result_dir", po::value<std::string>()->default_value("test1_result"), "test 1 result directory : ./<test1_result_dir>")
+
         // (3.1) Define for Training 2
         ("train2", po::value<bool>()->default_value(false), "training 2 mode on/off")
         ("train2_dir", po::value<std::string>()->default_value("train2"), "training 2 image directory : ./datasets/<dataset>/<train2_dir>/<image files>")
@@ -78,28 +86,28 @@ po::options_description parse_arguments(){
         ("valid2_batch_size", po::value<size_t>()->default_value(1), "validation 2 batch size")
         ("valid2_freq", po::value<size_t>()->default_value(1), "validation frequency to training epoch for validation 2")
 
-        // (4) Define for Test
-        ("test", po::value<bool>()->default_value(false), "test mode on/off")
-        ("test_in_dir", po::value<std::string>()->default_value("testI"), "test input image directory : ./datasets/<dataset>/<test_in_dir>/<image files>")
-        ("test_out_dir", po::value<std::string>()->default_value("testO"), "test output image directory : ./datasets/<dataset>/<test_out_dir>/<image files>")
-        ("test_load_epoch", po::value<std::string>()->default_value("latest"), "training epoch used for testing")
-        ("test_result_dir", po::value<std::string>()->default_value("test_result"), "test result directory : ./<test_result_dir>")
+        // (3.3) Define for Test for Training 2
+        ("test2", po::value<bool>()->default_value(false), "test 2 mode on/off")
+        ("test2_dir", po::value<std::string>()->default_value("test2"), "test 2 image directory : ./datasets/<dataset>/<test2_in_dir>/<image files>")
+        ("test2_vqvae_load_epoch", po::value<std::string>()->default_value("latest"), "training 1 epoch used for testing 2")
+        ("test2_pixelcnn_load_epoch", po::value<std::string>()->default_value("latest"), "training 2 epoch used for testing 2")
+        ("test2_result_dir", po::value<std::string>()->default_value("test2_result"), "test 2 result directory : ./<test2_result_dir>")
 
-        // (5) Define for Synthesis
+        // (4) Define for Synthesis
         ("synth", po::value<bool>()->default_value(false), "synthesis mode on/off")
-        ("synth_load_epoch", po::value<std::string>()->default_value("latest"), "training epoch used for synthesis")
+        ("synth_vqvae_load_epoch", po::value<std::string>()->default_value("latest"), "training 1 epoch used for synthesis")
+        ("synth_pixelcnn_load_epoch", po::value<std::string>()->default_value("latest"), "training 2 epoch used for synthesis")
         ("synth_result_dir", po::value<std::string>()->default_value("synth_result"), "synthesis result directory : ./<synth_result_dir>")
-        ("synth_sigma_max", po::value<float>()->default_value(3.0), "maximum value of latent variable for output images in synthesis")
-        ("synth_sigma_inter", po::value<float>()->default_value(0.5), "the interval of latent variable for output images in synthesis")
+        ("synth_count", po::value<size_t>()->default_value(13), "the number of output images in synthesis")
 
-        // (6) Define for Sampling
+        // (5) Define for Sampling
         ("sample", po::value<bool>()->default_value(false), "sampling mode on/off")
         ("sample_vqvae_load_epoch", po::value<std::string>()->default_value("latest"), "training 1 epoch used for sampling")
         ("sample_pixelcnn_load_epoch", po::value<std::string>()->default_value("latest"), "training 2 epoch used for sampling")
         ("sample_result_dir", po::value<std::string>()->default_value("sample_result"), "sampling result directory : ./<sample_result_dir>")
         ("sample_total", po::value<size_t>()->default_value(100), "total number of data obtained by random sampling")
 
-        // (7) Define for Network Parameter
+        // (6) Define for Network Parameter
         ("lr", po::value<float>()->default_value(1e-4), "learning rate")
         ("beta1", po::value<float>()->default_value(0.5), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
@@ -172,31 +180,37 @@ int main(int argc, const char *argv[]){
     Set_Model_Params(vm, vqvae, "VQ-VAE");
     Set_Model_Params(vm, pixelcnn, "Gated PixelCNN");
 
-    // (8.1) Training Phase of VQVAE
+    // (8.1.1) Training Phase of VQVAE
     if (vm["train1"].as<bool>()){
         Set_Options(vm, argc, argv, args, "train1");
         train1(vm, device, vqvae, transform);
     }
 
-    // (8.2) Training Phase of PixelCNN
+    // (8.1.2) Test Phase of VQVAE
+    if (vm["test1"].as<bool>()){
+        Set_Options(vm, argc, argv, args, "test1");
+        test1(vm, device, vqvae, transform);
+    }
+
+    // (8.2.1) Training Phase of PixelCNN
     if (vm["train2"].as<bool>()){
         Set_Options(vm, argc, argv, args, "train2");
         train2(vm, device, vqvae, pixelcnn, transform);
     }
 
-    // (8.3) Test Phase
-    if (vm["test"].as<bool>()){
-        Set_Options(vm, argc, argv, args, "test");
-        test(vm, device, vqvae, transform);
+    // (8.2.2) Test Phase of PixelCNN
+    if (vm["test2"].as<bool>()){
+        Set_Options(vm, argc, argv, args, "test2");
+        test2(vm, device, vqvae, pixelcnn, transform);
     }
 
-    // (8.4) Synthesis Phase
+    // (8.3) Synthesis Phase
     if (vm["synth"].as<bool>()){
         Set_Options(vm, argc, argv, args, "synth");
-        synth(vm, device, vqvae);
+        synth(vm, device, vqvae, pixelcnn);
     }
 
-    // (8.5) Sampling Phase
+    // (8.4) Sampling Phase
     if (vm["sample"].as<bool>()){
         Set_Options(vm, argc, argv, args, "sample");
         sample(vm, device, vqvae, pixelcnn);

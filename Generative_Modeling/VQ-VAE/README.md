@@ -52,7 +52,7 @@ $ ln -s <test_path> ./test
 $ cd ../..
 ~~~
 
-### 3. Training 1 (VQ-VAE)
+### 3.1. Training 1 (VQ-VAE)
 
 #### Setting
 Please set the shell for executable file.
@@ -82,7 +82,34 @@ Please execute the following to start the program.
 $ sh scripts/train1.sh
 ~~~
 
-### 4. Training 2 (PixelCNN)
+### 3.2. Test 1 (VQ-VAE)
+
+#### Setting
+Please set the shell for executable file.
+~~~
+$ vi scripts/test1.sh
+~~~
+The following is an example of the test phase.<br>
+If you want to view specific examples of command line arguments, please view "src/main.cpp" or add "--help" to the argument.
+~~~
+#!/bin/bash
+
+DATA='celebA'
+
+./VQ-VAE \
+    --test1 true \
+    --dataset ${DATA} \
+    --test1_in_dir "test1" \
+    --test1_out_dir "test1" \
+    --size 256 \
+    --gpu_id 0 \
+    --nc 3
+~~~
+If you want to test the reconstruction error of the image, the above settings will work.<br>
+If you want to test the denoising of the image, set "test_in_dir" to "directory of noisy images" and "test_out_dir" to "directory of output ground truth".<br>
+However, the two file names must correspond.
+
+### 4.1. Training 2 (PixelCNN)
 
 #### Setting
 Please set the shell for executable file.
@@ -98,7 +125,7 @@ DATA='celebA'
 
 ./VQ-VAE \
     --train2 true \
-    --train2_epochs 1 \
+    --train2_epochs 100 \
     --dataset ${DATA} \
     --size 256 \
     --train2_batch_size 16 \
@@ -112,12 +139,12 @@ Please execute the following to start the program.
 $ sh scripts/train2.sh
 ~~~
 
-### 5. Test
+### 4.2. Test 2 (PixelCNN)
 
 #### Setting
 Please set the shell for executable file.
 ~~~
-$ vi scripts/test.sh
+$ vi scripts/test2.sh
 ~~~
 The following is an example of the test phase.<br>
 If you want to view specific examples of command line arguments, please view "src/main.cpp" or add "--help" to the argument.
@@ -127,25 +154,20 @@ If you want to view specific examples of command line arguments, please view "sr
 DATA='celebA'
 
 ./VQ-VAE \
-    --test true \
+    --test2 true \
     --dataset ${DATA} \
-    --test_in_dir "test" \
-    --test_out_dir "test" \
     --size 256 \
     --gpu_id 0 \
     --nc 3
 ~~~
-If you want to test the reconstruction error of the image, the above settings will work.<br>
-If you want to test the denoising of the image, set "test_in_dir" to "directory of noisy images" and "test_out_dir" to "directory of output ground truth".<br>
-However, the two file names must correspond.
 
 #### Run
 Please execute the following to start the program.
 ~~~
-$ sh scripts/test.sh
+$ sh scripts/test2.sh
 ~~~
 
-### 6. Image Synthesis
+### 5. Image Synthesis
 
 #### Setting
 Please set the shell for executable file.
@@ -174,7 +196,7 @@ Please execute the following to start the program.
 $ sh scripts/synth.sh
 ~~~
 
-### 7. Image Sampling
+### 6. Image Sampling
 
 #### Setting
 Please set the shell for executable file.

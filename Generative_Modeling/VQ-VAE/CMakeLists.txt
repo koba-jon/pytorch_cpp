@@ -13,9 +13,10 @@ set(SRCS
     ${SRC_DIR}/main.cpp
     ${SRC_DIR}/train1.cpp
     ${SRC_DIR}/valid1.cpp
+    ${SRC_DIR}/test1.cpp
     ${SRC_DIR}/train2.cpp
     ${SRC_DIR}/valid2.cpp
-    ${SRC_DIR}/test.cpp
+    ${SRC_DIR}/test2.cpp
     ${SRC_DIR}/synth.cpp
     ${SRC_DIR}/sample.cpp
     ${SRC_DIR}/loss.cpp

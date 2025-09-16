@@ -167,7 +167,10 @@ void train2(po::variables_map &vm, torch::Device &device, VQVAE &vqvae, GatedPix
             // -----------------------------------
             // c1. VQVAE Training Phase
             // -----------------------------------
-            idx = vqvae->forward_idx(image);
+            {
+                torch::NoGradGuard no_grad;
+                idx = vqvae->forward_idx(image);
+            }
             output = model->forward(idx);
             loss = criterion(output, idx);
             optimizer.zero_grad();

@@ -31,7 +31,6 @@ TORCH_MODULE(GatedActivation);
 // -------------------------------------------------
 struct GatedMaskedConv2dImpl : nn::Module{
 private:
-    char mask_type;
     bool residual;
     nn::Embedding class_cond = nullptr;
     nn::Conv2d vert_stack = nullptr;
@@ -42,7 +41,7 @@ private:
     torch::Tensor vmask, hmask;
 public:
     GatedMaskedConv2dImpl(){}
-    GatedMaskedConv2dImpl(char mask_type_, long int dim, long int kernel, bool residual_=true);
+    GatedMaskedConv2dImpl(char mask_type, long int dim, long int kernel, bool residual_=true);
     std::tuple<torch::Tensor, torch::Tensor> forward(torch::Tensor x_v, torch::Tensor x_h);
 };
 TORCH_MODULE(GatedMaskedConv2d);
@@ -105,9 +104,9 @@ public:
     VQVAEImpl(){}
     VQVAEImpl(po::variables_map &vm);
     torch::Tensor sampling(const std::vector<long int> z_shape, GatedPixelCNN pixelcnn, torch::Device device);
+    torch::Tensor synthesis(torch::Tensor x, torch::Tensor y, const float alpha);
     std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> forward(torch::Tensor x);
     torch::Tensor forward_idx(torch::Tensor x);
-    torch::Tensor forward_z(torch::Tensor z);
     std::vector<long int> get_z_shape(const std::vector<long int> x_shape, torch::Device &device);
 };
 TORCH_MODULE(VQVAE);

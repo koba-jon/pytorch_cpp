@@ -10,17 +10,32 @@ The following hierarchical relationships are recommended.
 ---------------------------------------------------------
 datasets
 |--Dataset1
-|    |--train
+|    |--train1
 |    |    |--image1.png
 |    |    |--image2.bmp
 |    |    |--image3.jpg
 |    |
-|    |--valid
+|    |--valid1
 |    |    |--image4.png
 |    |    |--image5.bmp
 |    |    |--image6.jpg
 |    |
-|    |--test
+|    |--test1
+|    |    |--image7.png
+|    |    |--image8.bmp
+|    |    |--image9.jpg
+|    |
+|    |--train2
+|    |    |--image1.png
+|    |    |--image2.bmp
+|    |    |--image3.jpg
+|    |
+|    |--valid2
+|    |    |--image4.png
+|    |    |--image5.bmp
+|    |    |--image6.jpg
+|    |
+|    |--test2
 |         |--image7.png
 |         |--image8.bmp
 |         |--image9.jpg
