@@ -10,7 +10,7 @@
 #include <torch/torch.h>               // torch
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
-#include "networks.hpp"                // VQVAE
+#include "networks.hpp"                // VQVAE, GatedPixelCNN
 #include "visualizer.hpp"              // visualizer
 
 // Define Namespace

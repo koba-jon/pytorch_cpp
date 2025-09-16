@@ -16,35 +16,34 @@ void weights_init(nn::Module &m);
 
 
 // -------------------------------------------------
-// struct{GatedActivationImpl}(nn::Module)
+// struct{MaskedConv2dImpl}(nn::Module)
 // -------------------------------------------------
-struct GatedActivationImpl : nn::Module{
+struct MaskedConv2dImpl : nn::Module{
+private:
+    long int padding;
+    nn::Conv2d conv = nullptr;
+    torch::Tensor weight, mask;
 public:
-    GatedActivationImpl(){}
+    MaskedConv2dImpl(){}
+    MaskedConv2dImpl(char mask_type, long int in_nc, long int out_nc, long int kernel);
     torch::Tensor forward(torch::Tensor x);
 };
-TORCH_MODULE(GatedActivation);
+TORCH_MODULE(MaskedConv2d);
 
 
 // -------------------------------------------------
-// struct{GatedMaskedConv2dImpl}(nn::Module)
+// struct{MaskedConv2dBlockImpl}(nn::Module)
 // -------------------------------------------------
-struct GatedMaskedConv2dImpl : nn::Module{
+struct MaskedConv2dBlockImpl : nn::Module{
 private:
     bool residual;
-    nn::Embedding class_cond = nullptr;
-    nn::Conv2d vert_stack = nullptr;
-    nn::Conv2d vert_to_horiz = nullptr;
-    nn::Conv2d horiz_stack = nullptr;
-    nn::Conv2d horiz_resid = nullptr;
-    GatedActivation gate;
-    torch::Tensor vmask, hmask;
+    nn::Sequential model;
 public:
-    GatedMaskedConv2dImpl(){}
-    GatedMaskedConv2dImpl(char mask_type, long int dim, long int kernel, bool residual_=true);
-    std::tuple<torch::Tensor, torch::Tensor> forward(torch::Tensor x_v, torch::Tensor x_h);
+    MaskedConv2dBlockImpl(){}
+    MaskedConv2dBlockImpl(char mask_type, long int dim);
+    torch::Tensor forward(torch::Tensor x);
 };
-TORCH_MODULE(GatedMaskedConv2d);
+TORCH_MODULE(MaskedConv2dBlock);
 
 
 // -------------------------------------------------
@@ -54,8 +53,8 @@ struct GatedPixelCNNImpl : nn::Module{
 private:
     long int dim;
     nn::Embedding token_emb = nullptr;
-    nn::ModuleList layers;
-    nn::Sequential output_conv;
+    nn::Sequential layers;
+    nn::Conv2d output_conv = nullptr;
 public:
     GatedPixelCNNImpl(){}
     GatedPixelCNNImpl(po::variables_map &vm);

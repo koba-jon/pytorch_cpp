@@ -14,12 +14,40 @@ namespace po = boost::program_options;
 using Slice = torch::indexing::Slice;
 
 
+
 // -----------------------------------------------------------------------------
-// struct{GatedActivationImpl}(nn::Module) -> function{forward}
+// struct{MaskedConv2dImpl}(nn::Module) -> constructor
 // -----------------------------------------------------------------------------
-torch::Tensor GatedActivationImpl::forward(torch::Tensor x){
-    std::vector<torch::Tensor> chunks = x.chunk(2, /*dim=*/1);
-    torch::Tensor out = torch::tanh(chunks[0]) * torch::sigmoid(chunks[1]);
+MaskedConv2dImpl::MaskedConv2dImpl(char mask_type, long int in_nc, long int out_nc, long int kernel){
+    
+    this->padding = kernel / 2;
+
+    this->conv = torch::nn::Conv2d(nn::Conv2dOptions(in_nc, out_nc, kernel).bias(false));
+    register_module("conv", this->conv);
+
+    this->weight = register_parameter("weight", conv->weight.detach().clone().set_requires_grad(true));
+
+    this->mask = torch::ones_like(this->weight);
+    if (mask_type == 'A'){
+        this->mask.index_put_({Slice(), Slice(), kernel / 2, Slice(kernel / 2, torch::indexing::None)}, 0.0);
+        this->mask.index_put_({Slice(), Slice(), Slice(kernel / 2 + 1, torch::indexing::None), Slice()}, 0.0);
+    }
+    else{
+        this->mask.index_put_({Slice(), Slice(), kernel / 2, Slice(kernel / 2 + 1, torch::indexing::None)}, 0.0);
+        this->mask.index_put_({Slice(), Slice(), Slice(kernel / 2 + 1, torch::indexing::None), Slice()}, 0.0);
+    }
+    register_buffer("mask", this->mask);
+
+}
+
+
+// -----------------------------------------------------------------------------
+// struct{MaskedConv2dImpl}(nn::Module) -> function{forward}
+// -----------------------------------------------------------------------------
+torch::Tensor MaskedConv2dImpl::forward(torch::Tensor x){
+    torch::Tensor w, out;
+    w = this->weight * this->mask;
+    out = F::conv2d(x, w, F::Conv2dFuncOptions().stride(1).padding(this->padding));
     return out;
 }
 
@@ -27,67 +55,20 @@ torch::Tensor GatedActivationImpl::forward(torch::Tensor x){
 // -----------------------------------------------------------------------------
 // struct{GatedMaskedConv2dImpl}(nn::Module) -> constructor
 // -----------------------------------------------------------------------------
-GatedMaskedConv2dImpl::GatedMaskedConv2dImpl(char mask_type, long int dim, long int kernel, bool residual_){
-
-    this->residual = residual_;
-
-    this->vert_stack = nn::Conv2d(nn::Conv2dOptions(dim, 2 * dim, {kernel / 2 + 1, kernel}).stride(1).padding({kernel / 2, kernel / 2}));
-    register_module("vert_stack", this->vert_stack);
-
-    this->vert_to_horiz = nn::Conv2d(nn::Conv2dOptions(dim, 2 * dim, 1));
-    register_module("vert_to_horiz", this->vert_to_horiz);
-
-    this->horiz_stack = nn::Conv2d(nn::Conv2dOptions(dim, 2 * dim, {1, kernel / 2 + 1}).stride(1).padding({0, kernel / 2}));
-    register_module("horiz_stack", this->horiz_stack);
-
-    this->horiz_resid = nn::Conv2d(nn::Conv2dOptions(dim, dim, 1));
-    register_module("horiz_resid", this->horiz_resid);
-
-    this->gate = GatedActivation();
-    register_module("gate", this->gate);
-
-    this->vmask = torch::zeros_like(this->vert_stack->weight);
-    this->vmask.index_put_({Slice(), Slice(), Slice(0, kernel / 2), Slice()}, 1.0);
-    if (mask_type == 'B'){
-        this->vmask.index_put_({Slice(), Slice(), kernel / 2, Slice()}, 1.0);
-    }
-    register_buffer("vmask", this->vmask);
-
-    this->hmask = torch::zeros_like(this->horiz_stack->weight);
-    this->hmask.index_put_({Slice(), Slice(), 0, Slice(0, kernel / 2)}, 1.0);
-    if (mask_type == 'B'){
-        this->hmask.index_put_({Slice(), Slice(), 0, kernel / 2}, 1.0);
-    }
-    register_buffer("hmask", this->hmask);
-
+MaskedConv2dBlockImpl::MaskedConv2dBlockImpl(char mask_type, long int dim){
+    this->model->push_back(MaskedConv2d(mask_type, dim, dim, 7));
+    this->model->push_back(nn::BatchNorm2d(dim));
+    this->model->push_back(nn::ReLU(nn::ReLUOptions().inplace(true)));
+    register_module("model", this->model);
 }
 
 
 // -----------------------------------------------------------------------------
-// struct{GatedMaskedConv2dImpl}(nn::Module) -> function{forward}
+// struct{MaskedConv2dBlockImpl}(nn::Module) -> function{forward}
 // -----------------------------------------------------------------------------
-std::tuple<torch::Tensor, torch::Tensor> GatedMaskedConv2dImpl::forward(torch::Tensor x_v, torch::Tensor x_h){
-
-    long int vkh, vkw, hw;
-    torch::Tensor xvp, wv, hv, out_v, xhp, wh, hh, v2h, out, out_h;
-
-    vkh = this->vmask.size(2);
-    vkw = this->vmask.size(3);
-    xvp = F::pad(x_v, F::PadFuncOptions({vkw / 2, vkw / 2, vkh - 1, 0}));
-    wv = this->vert_stack->weight * this->vmask;
-    hv = F::conv2d(xvp, wv, F::Conv2dFuncOptions().stride(1).padding(0).bias(this->vert_stack->bias));
-    out_v = this->gate->forward(hv);
-
-    hw = this->hmask.size(3);
-    xhp = F::pad(x_h, F::PadFuncOptions({hw - 1, 0, 0, 0}));
-    wh = this->horiz_stack->weight * this->hmask;
-    hh = F::conv2d(xhp, wh, F::Conv2dFuncOptions().stride(1).padding(0).bias(this->horiz_stack->bias));
-    v2h = this->vert_to_horiz->forward(out_v);
-    out = this->gate->forward(v2h + hh);
-    out_h = this->residual ? (this->horiz_resid->forward(out) + x_h) : this->horiz_resid->forward(out);
-
-    return {out_v, out_h};
-
+torch::Tensor MaskedConv2dBlockImpl::forward(torch::Tensor x){
+    torch::Tensor out = this->model->forward(x);
+    return out;
 }
 
 
@@ -101,17 +82,13 @@ GatedPixelCNNImpl::GatedPixelCNNImpl(po::variables_map &vm){
     this->token_emb = nn::Embedding(nn::EmbeddingOptions(vm["K"].as<size_t>(), this->dim));
     register_module("token_emb", this->token_emb);
 
-    this->layers->push_back(GatedMaskedConv2d('A', this->dim, /*kernel_size=*/7, /*residual_=*/false));
+    this->layers->push_back(MaskedConv2dBlock('A', this->dim));
     for (size_t i = 1; i < vm["n_layers"].as<size_t>(); i++){
-        this->layers->push_back(GatedMaskedConv2d('B', this->dim, /*kernel_size=*/3, /*residual_=*/true));
+        this->layers->push_back(MaskedConv2dBlock('B', this->dim));
     }
     register_module("layers", this->layers);
 
-    this->output_conv = nn::Sequential(
-        nn::Conv2d(nn::Conv2dOptions(this->dim, 512, 1)),
-        nn::ReLU(nn::ReLUOptions(true)),
-        nn::Conv2d(nn::Conv2dOptions(512, vm["K"].as<size_t>(), 1))
-    );
+    this->output_conv = nn::Conv2d(nn::Conv2dOptions(this->dim, vm["K"].as<size_t>(), 1));
     register_module("output_conv", this->output_conv);
 
 }
@@ -121,23 +98,11 @@ GatedPixelCNNImpl::GatedPixelCNNImpl(po::variables_map &vm){
 // struct{GatedPixelCNNImpl}(nn::Module) -> function{forward}
 // -----------------------------------------------------------------------------
 torch::Tensor GatedPixelCNNImpl::forward(torch::Tensor x){
-
-    torch::Tensor emb, x_v, x_h, out;
-    std::tuple<torch::Tensor, torch::Tensor> x_vh;
-
-    emb = this->token_emb->forward(x.view({-1})).view({x.size(0), x.size(1), x.size(2), this->dim}).permute({0, 3, 1, 2}).contiguous();
-    x_v = emb.clone();
-    x_h = emb;
-
-    for (size_t i = 0; i < this->layers->size(); i++){
-        x_vh = this->layers[i]->as<GatedMaskedConv2d>()->forward(x_v, x_h);
-        x_v = std::get<0>(x_vh);
-        x_h = std::get<1>(x_vh);
-    }
-    out = this->output_conv->forward(x_h);
-
+    torch::Tensor out;
+    x = this->token_emb->forward(x.view({-1})).view({x.size(0), x.size(1), x.size(2), this->dim}).permute({0, 3, 1, 2}).contiguous();
+    x = this->layers->forward(x);
+    out = this->output_conv->forward(x);
     return out;
-
 }
 
 

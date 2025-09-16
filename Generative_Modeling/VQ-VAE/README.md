@@ -235,3 +235,6 @@ Please execute the following to start the program.
 $ sh scripts/sample.sh
 ~~~
 
+
+## Acknowledgments
+This code is inspired by [vqvae](https://github.com/MishaLaskin/vqvae).
