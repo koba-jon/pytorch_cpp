@@ -54,8 +54,10 @@ The following is an example for "celebA".
 $ cd datasets
 $ mkdir celebA
 $ cd celebA
-$ ln -s <training_path> ./train
-$ ln -s <test_path> ./test
+$ ln -s <training_path> ./train1
+$ ln -s <training_path> ./train2
+$ ln -s <test_path> ./test1
+$ ln -s <test_path> ./test2
 $ cd ../..
 ~~~
 
