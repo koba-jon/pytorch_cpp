@@ -16,52 +16,53 @@ void weights_init(nn::Module &m);
 
 
 // -------------------------------------------------
-// struct{GatedActivationImpl}(nn::Module)
+// struct{MaskedConv2dImpl}(nn::Module)
 // -------------------------------------------------
-struct GatedActivationImpl : nn::Module{
+struct MaskedConv2dImpl : nn::Module{
+private:
+    char mask_type;
+    long int padding;
+    torch::Tensor weight, mask;
 public:
-    GatedActivationImpl(){}
+    MaskedConv2dImpl(){}
+    MaskedConv2dImpl(char mask_type_, long int in_nc, long int out_nc, long int kernel);
     torch::Tensor forward(torch::Tensor x);
+    void pretty_print(std::ostream& stream) const override;
 };
-TORCH_MODULE(GatedActivation);
+TORCH_MODULE(MaskedConv2d);
 
 
 // -------------------------------------------------
-// struct{GatedMaskedConv2dImpl}(nn::Module)
+// struct{MaskedConv2dBlockImpl}(nn::Module)
 // -------------------------------------------------
-struct GatedMaskedConv2dImpl : nn::Module{
+struct MaskedConv2dBlockImpl : nn::Module{
 private:
     bool residual;
-    nn::Embedding class_cond = nullptr;
-    nn::Conv2d vert_stack = nullptr;
-    nn::Conv2d vert_to_horiz = nullptr;
-    nn::Conv2d horiz_stack = nullptr;
-    nn::Conv2d horiz_resid = nullptr;
-    GatedActivation gate;
-    torch::Tensor vmask, hmask;
+    nn::Sequential model;
 public:
-    GatedMaskedConv2dImpl(){}
-    GatedMaskedConv2dImpl(char mask_type, long int dim, long int kernel, bool residual_=true);
-    std::tuple<torch::Tensor, torch::Tensor> forward(torch::Tensor x_v, torch::Tensor x_h);
+    MaskedConv2dBlockImpl(){}
+    MaskedConv2dBlockImpl(char mask_type, long int dim, bool residual_);
+    torch::Tensor forward(torch::Tensor x);
 };
-TORCH_MODULE(GatedMaskedConv2d);
+TORCH_MODULE(MaskedConv2dBlock);
 
 
 // -------------------------------------------------
-// struct{GatedPixelSnailImpl}(nn::Module)
+// struct{PixelSnailImpl}(nn::Module)
 // -------------------------------------------------
-struct GatedPixelSnailImpl : nn::Module{
+struct PixelSnailImpl : nn::Module{
 private:
     long int dim;
     nn::Embedding token_emb = nullptr;
-    nn::ModuleList layers;
-    nn::Sequential output_conv;
+    nn::Sequential cond_resnet;
+    nn::Sequential layers;
+    nn::Conv2d output_conv = nullptr;
 public:
-    GatedPixelSnailImpl(){}
-    GatedPixelSnailImpl(po::variables_map &vm);
-    torch::Tensor forward(torch::Tensor x);
+    PixelSnailImpl(){}
+    PixelSnailImpl(po::variables_map &vm);
+    torch::Tensor forward(torch::Tensor x, std::vector<torch::Tensor> condition={});
 };
-TORCH_MODULE(GatedPixelSnail);
+TORCH_MODULE(PixelSnail);
 
 
 // -------------------------------------------------
@@ -69,11 +70,11 @@ TORCH_MODULE(GatedPixelSnail);
 // -------------------------------------------------
 struct VectorQuantizerImpl : nn::Module{
 private:
-    size_t K, D;
+    float decay, eps;
 public:
-    torch::Tensor e;
+    torch::Tensor e, cluster_size, e_avg;
     VectorQuantizerImpl(){}
-    VectorQuantizerImpl(const size_t K, const size_t D);
+    VectorQuantizerImpl(const size_t D, const size_t K, const float decay_=0.99, const float eps_=1e-5);
     std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> forward(torch::Tensor z_e);
 };
 TORCH_MODULE(VectorQuantizer);
@@ -94,20 +95,56 @@ TORCH_MODULE(ResidualLayer);
 
 
 // -------------------------------------------------
+// struct{EncoderImpl}(nn::Module)
+// -------------------------------------------------
+struct EncoderImpl : nn::Module{
+private:
+    nn::Sequential model;
+public:
+    EncoderImpl(){}
+    EncoderImpl(long int in_nc, long int out_nc, long int n_res_block, long int n_res_nc, long int stride);
+    torch::Tensor forward(torch::Tensor x);
+};
+TORCH_MODULE(Encoder);
+
+
+// -------------------------------------------------
+// struct{DecoderImpl}(nn::Module)
+// -------------------------------------------------
+struct DecoderImpl : nn::Module{
+private:
+    nn::Sequential model;
+public:
+    DecoderImpl(){}
+    DecoderImpl(long int in_nc, long int out_nc, long int mid_nc, long int res_block, long int res_nc, long int stride);
+    torch::Tensor forward(torch::Tensor x);
+};
+TORCH_MODULE(Decoder);
+
+
+// -------------------------------------------------
 // struct{VQVAE2Impl}(nn::Module)
 // -------------------------------------------------
 struct VQVAE2Impl : nn::Module{
 private:
-    nn::Sequential encoder, decoder;
-    VectorQuantizer vq;
+    Encoder enc_b, enc_t;
+    nn::Conv2d quantize_conv_t = nullptr;
+    VectorQuantizer quantize_t;
+    Decoder dec_t;
+    nn::Conv2d quantize_conv_b = nullptr;
+    VectorQuantizer quantize_b;
+    nn::ConvTranspose2d upsample_t = nullptr;
+    Decoder dec;
 public:
     VQVAE2Impl(){}
     VQVAE2Impl(po::variables_map &vm);
-    torch::Tensor sampling(const std::vector<long int> z_shape, GatedPixelSnail pixelsnail, torch::Device device);
+    torch::Tensor sampling(const std::tuple<std::vector<long int>, std::vector<long int>> idx_shape, PixelSnail pixelsnail_t, PixelSnail pixelsnail_b, torch::Device device);
     torch::Tensor synthesis(torch::Tensor x, torch::Tensor y, const float alpha);
-    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> forward(torch::Tensor x);
-    torch::Tensor forward_idx(torch::Tensor x);
-    std::vector<long int> get_z_shape(const std::vector<long int> x_shape, torch::Device &device);
+    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> encode(torch::Tensor x);
+    torch::Tensor decode(torch::Tensor quant_t, torch::Tensor quant_b);
+    std::tuple<torch::Tensor, torch::Tensor> forward(torch::Tensor x);
+    std::tuple<torch::Tensor, torch::Tensor> forward_idx(torch::Tensor x);
+    std::tuple<std::vector<long int>, std::vector<long int>> get_idx_shape(const std::vector<long int> x_shape, torch::Device &device);
 };
 TORCH_MODULE(VQVAE2);
 

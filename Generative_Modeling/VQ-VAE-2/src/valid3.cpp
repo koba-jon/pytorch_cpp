@@ -19,14 +19,14 @@ namespace po = boost::program_options;
 // -------------------
 // Validation Function
 // -------------------
-void valid2(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_dataloader, torch::Device &device, Loss_PixelSnail &criterion, VQVAE2 &vqvae2, PixelSnail &model, const size_t epoch, visualizer::graph &writer){
+void valid3(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_dataloader, torch::Device &device, Loss_PixelSnail &criterion, VQVAE2 &vqvae2, PixelSnail &model, const size_t epoch, visualizer::graph &writer){
 
     // (0) Initialization and Declaration
     size_t iteration;
     float ave_loss, total_loss;
     std::ofstream ofs;
     std::tuple<torch::Tensor, std::vector<std::string>> mini_batch;
-    torch::Tensor loss, image, idx_t, output;
+    torch::Tensor loss, image, idx_t, idx_b, output;
     std::tuple<torch::Tensor, torch::Tensor> idx;
 
     // (1) Tensor Forward per Mini Batch
@@ -38,8 +38,9 @@ void valid2(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datal
         image = std::get<0>(mini_batch).to(device);
         idx = vqvae2->forward_idx(image);
         idx_t = std::get<0>(idx);
-        output = model->forward(idx_t);
-        loss = criterion(output, idx_t);
+        idx_b = std::get<1>(idx);
+        output = model->forward(idx_b, {idx_t});
+        loss = criterion(output, idx_b);
         total_loss += loss.item<float>();
         iteration++;
     }
@@ -48,8 +49,8 @@ void valid2(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datal
     ave_loss = total_loss / (float)iteration;
 
     // (3.1) Record Loss (Log)
-    ofs.open("checkpoints/" + vm["dataset"].as<std::string>() + "/log/valid2.txt", std::ios::app);
-    ofs << "epoch:" << epoch << '/' << vm["train2_epochs"].as<size_t>() << ' ' << std::flush;
+    ofs.open("checkpoints/" + vm["dataset"].as<std::string>() + "/log/valid3.txt", std::ios::app);
+    ofs << "epoch:" << epoch << '/' << vm["train3_epochs"].as<size_t>() << ' ' << std::flush;
     ofs << "index:" << ave_loss << std::endl;
     ofs.close();
 

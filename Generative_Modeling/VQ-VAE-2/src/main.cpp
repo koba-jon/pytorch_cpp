@@ -10,7 +10,7 @@
 #include <opencv2/opencv.hpp>          // cv::Mat
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
-#include "networks.hpp"                // VQVAE2, GatedPixelSnail
+#include "networks.hpp"                // VQVAE2, PixelSnail
 #include "transforms.hpp"              // transforms
 
 // Define Namespace
@@ -19,11 +19,13 @@ namespace po = boost::program_options;
 
 // Function Prototype
 void train1(po::variables_map &vm, torch::Device &device, VQVAE2 &model, std::vector<transforms_Compose> &transform);
-void train2(po::variables_map &vm, torch::Device &device, VQVAE2 &vqvae2, GatedPixelSnail &model, std::vector<transforms_Compose> &transform);
+void train2(po::variables_map &vm, torch::Device &device, VQVAE2 &vqvae2, PixelSnail &model, std::vector<transforms_Compose> &transform);
+void train3(po::variables_map &vm, torch::Device &device, VQVAE2 &vqvae2, PixelSnail &model, std::vector<transforms_Compose> &transform);
 void test1(po::variables_map &vm, torch::Device &device, VQVAE2 &model, std::vector<transforms_Compose> &transform);
-void test2(po::variables_map &vm, torch::Device &device, VQVAE2 &vqvae2, GatedPixelSnail &model, std::vector<transforms_Compose> &transform);
-void synth(po::variables_map &vm, torch::Device &device, VQVAE2 &model, GatedPixelSnail &pixelsnail);
-void sample(po::variables_map &vm, torch::Device &device, VQVAE2 &model, GatedPixelSnail &pixelsnail);
+void test2(po::variables_map &vm, torch::Device &device, VQVAE2 &vqvae2, PixelSnail &model, std::vector<transforms_Compose> &transform);
+void test3(po::variables_map &vm, torch::Device &device, VQVAE2 &vqvae2, PixelSnail &model, std::vector<transforms_Compose> &transform);
+void synth(po::variables_map &vm, torch::Device &device, VQVAE2 &model, PixelSnail &pixelsnail_t, PixelSnail &pixelsnail_b);
+void sample(po::variables_map &vm, torch::Device &device, VQVAE2 &model, PixelSnail &pixelsnail_t, PixelSnail &pixelsnail_b);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode);
@@ -77,7 +79,7 @@ po::options_description parse_arguments(){
         ("train2_epochs", po::value<size_t>()->default_value(200), "training 2 total epoch")
         ("train2_batch_size", po::value<size_t>()->default_value(32), "training 2 batch size")
         ("train2_load_epoch", po::value<std::string>()->default_value(""), "epoch of model to resume learning for training 2")
-        ("train2_vqvae2_load_epoch", po::value<std::string>()->default_value("latest"), "training 1 epoch for training 2")
+        ("train2_vqvae2_load_epoch", po::value<std::string>()->default_value("latest"), "training 2 epoch for training 2")
         ("train2_save_epoch", po::value<size_t>()->default_value(20), "frequency of epoch to save model and optimizer for training 2")
 
         // (3.2) Define for Validation of Training 2
@@ -93,26 +95,49 @@ po::options_description parse_arguments(){
         ("test2_pixelsnail_load_epoch", po::value<std::string>()->default_value("latest"), "training 2 epoch used for testing 2")
         ("test2_result_dir", po::value<std::string>()->default_value("test2_result"), "test 2 result directory : ./<test2_result_dir>")
 
-        // (4) Define for Synthesis
+        // (4.1) Define for Training 3
+        ("train3", po::value<bool>()->default_value(false), "training 3 mode on/off")
+        ("train3_dir", po::value<std::string>()->default_value("train3"), "training 3 image directory : ./datasets/<dataset>/<train3_dir>/<image files>")
+        ("train3_epochs", po::value<size_t>()->default_value(200), "training 3 total epoch")
+        ("train3_batch_size", po::value<size_t>()->default_value(32), "training 3 batch size")
+        ("train3_load_epoch", po::value<std::string>()->default_value(""), "epoch of model to resume learning for training 3")
+        ("train3_vqvae2_load_epoch", po::value<std::string>()->default_value("latest"), "training 3 epoch for training 3")
+        ("train3_save_epoch", po::value<size_t>()->default_value(20), "frequency of epoch to save model and optimizer for training 3")
+
+        // (4.2) Define for Validation of Training 3
+        ("valid3", po::value<bool>()->default_value(false), "validation 3 mode on/off")
+        ("valid3_dir", po::value<std::string>()->default_value("valid3"), "validation 3 image directory : ./datasets/<dataset>/<valid3_dir>/<image files>")
+        ("valid3_batch_size", po::value<size_t>()->default_value(1), "validation 3 batch size")
+        ("valid3_freq", po::value<size_t>()->default_value(1), "validation frequency to training epoch for validation 3")
+
+        // (4.3) Define for Test for Training 3
+        ("test3", po::value<bool>()->default_value(false), "test 3 mode on/off")
+        ("test3_dir", po::value<std::string>()->default_value("test3"), "test 3 image directory : ./datasets/<dataset>/<test3_in_dir>/<image files>")
+        ("test3_vqvae2_load_epoch", po::value<std::string>()->default_value("latest"), "training 3 epoch used for testing 3")
+        ("test3_pixelsnail_load_epoch", po::value<std::string>()->default_value("latest"), "training 3 epoch used for testing 3")
+        ("test3_result_dir", po::value<std::string>()->default_value("test3_result"), "test 3 result directory : ./<test3_result_dir>")
+
+        // (5) Define for Synthesis
         ("synth", po::value<bool>()->default_value(false), "synthesis mode on/off")
         ("synth_vqvae2_load_epoch", po::value<std::string>()->default_value("latest"), "training 1 epoch used for synthesis")
         ("synth_pixelsnail_load_epoch", po::value<std::string>()->default_value("latest"), "training 2 epoch used for synthesis")
         ("synth_result_dir", po::value<std::string>()->default_value("synth_result"), "synthesis result directory : ./<synth_result_dir>")
         ("synth_count", po::value<size_t>()->default_value(13), "the number of output images in synthesis")
 
-        // (5) Define for Sampling
+        // (6) Define for Sampling
         ("sample", po::value<bool>()->default_value(false), "sampling mode on/off")
         ("sample_vqvae2_load_epoch", po::value<std::string>()->default_value("latest"), "training 1 epoch used for sampling")
         ("sample_pixelsnail_load_epoch", po::value<std::string>()->default_value("latest"), "training 2 epoch used for sampling")
         ("sample_result_dir", po::value<std::string>()->default_value("sample_result"), "sampling result directory : ./<sample_result_dir>")
         ("sample_total", po::value<size_t>()->default_value(100), "total number of data obtained by random sampling")
 
-        // (6) Define for Network Parameter
+        // (7) Define for Network Parameter
         ("lr", po::value<float>()->default_value(1e-4), "learning rate")
         ("beta1", po::value<float>()->default_value(0.5), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
-        ("nf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image")
-        ("res_h", po::value<size_t>()->default_value(32), "hidden dimensions in residual layer")
+        ("nf", po::value<size_t>()->default_value(128), "the number of filters in convolution layer closest to image")
+        ("res_block", po::value<size_t>()->default_value(2), "the number of blocks in residual layer")
+        ("res_nc", po::value<size_t>()->default_value(32), "the number of channel in residual layer")
         ("Lambda", po::value<float>()->default_value(0.25), "the multiple of Latent Loss")
         ("dim_pix", po::value<size_t>()->default_value(64), "dimensions of hidden layers of PixelSnail")
         ("n_layers", po::value<size_t>()->default_value(15), "the number of layers of PixelSnail")
@@ -170,7 +195,8 @@ int main(int argc, const char *argv[]){
     
     // (5) Define Network
     VQVAE2 vqvae2(vm); vqvae2->to(device);
-    GatedPixelSnail pixelsnail(vm); pixelsnail->to(device);
+    PixelSnail pixelsnail_t(vm); pixelsnail_t->to(device);
+    PixelSnail pixelsnail_b(vm); pixelsnail_b->to(device);
     
     // (6) Make Directories
     std::string dir = "checkpoints/" + vm["dataset"].as<std::string>();
@@ -178,7 +204,8 @@ int main(int argc, const char *argv[]){
 
     // (7) Save Model Parameters
     Set_Model_Params(vm, vqvae2, "VQ-VAE");
-    Set_Model_Params(vm, pixelsnail, "Gated PixelSnail");
+    Set_Model_Params(vm, pixelsnail_t, "PixelSnail Top");
+    Set_Model_Params(vm, pixelsnail_b, "PixelSnail Bottom");
 
     // (8.1.1) Training Phase of VQVAE2
     if (vm["train1"].as<bool>()){
@@ -192,28 +219,40 @@ int main(int argc, const char *argv[]){
         test1(vm, device, vqvae2, transform);
     }
 
-    // (8.2.1) Training Phase of PixelSnail
+    // (8.2.1) Training Phase of PixelSnail for top latent space
     if (vm["train2"].as<bool>()){
         Set_Options(vm, argc, argv, args, "train2");
-        train2(vm, device, vqvae2, pixelsnail, transform);
+        train2(vm, device, vqvae2, pixelsnail_t, transform);
     }
 
-    // (8.2.2) Test Phase of PixelSnail
+    // (8.2.2) Test Phase of PixelSnail for top latent space
     if (vm["test2"].as<bool>()){
         Set_Options(vm, argc, argv, args, "test2");
-        test2(vm, device, vqvae2, pixelsnail, transform);
+        test2(vm, device, vqvae2, pixelsnail_t, transform);
     }
 
-    // (8.3) Synthesis Phase
+    // (8.3.1) Training Phase of PixelSnail for bottom latent space
+    if (vm["train3"].as<bool>()){
+        Set_Options(vm, argc, argv, args, "train3");
+        train3(vm, device, vqvae2, pixelsnail_b, transform);
+    }
+
+    // (8.3.2) Test Phase of PixelSnail for bottom latent space
+    if (vm["test3"].as<bool>()){
+        Set_Options(vm, argc, argv, args, "test3");
+        test3(vm, device, vqvae2, pixelsnail_b, transform);
+    }
+
+    // (8.4) Synthesis Phase
     if (vm["synth"].as<bool>()){
         Set_Options(vm, argc, argv, args, "synth");
-        synth(vm, device, vqvae2, pixelsnail);
+        synth(vm, device, vqvae2, pixelsnail_t, pixelsnail_b);
     }
 
-    // (8.4) Sampling Phase
+    // (8.5) Sampling Phase
     if (vm["sample"].as<bool>()){
         Set_Options(vm, argc, argv, args, "sample");
-        sample(vm, device, vqvae2, pixelsnail);
+        sample(vm, device, vqvae2, pixelsnail_t, pixelsnail_b);
     }
 
     // End Processing

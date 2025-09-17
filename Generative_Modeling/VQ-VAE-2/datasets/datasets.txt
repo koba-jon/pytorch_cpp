@@ -36,6 +36,21 @@ datasets
 |    |    |--image6.jpg
 |    |
 |    |--test2
+|    |    |--image7.png
+|    |    |--image8.bmp
+|    |    |--image9.jpg
+|    |
+|    |--train3
+|    |    |--image1.png
+|    |    |--image2.bmp
+|    |    |--image3.jpg
+|    |
+|    |--valid3
+|    |    |--image4.png
+|    |    |--image5.bmp
+|    |    |--image6.jpg
+|    |
+|    |--test3
 |         |--image7.png
 |         |--image8.bmp
 |         |--image9.jpg

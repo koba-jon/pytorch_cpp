@@ -43,6 +43,13 @@ datasets
 |    |
 |    |--valid2
 |    |--test2
+|    |--train3
+|    |    |--image1.png
+|    |    |--image2.bmp
+|    |    |--image3.jpg
+|    |
+|    |--valid3
+|    |--test3
 |
 |--Dataset2
 |--Dataset3
@@ -118,7 +125,7 @@ If you want to test the reconstruction error of the image, the above settings wi
 If you want to test the denoising of the image, set "test_in_dir" to "directory of noisy images" and "test_out_dir" to "directory of output ground truth".<br>
 However, the two file names must correspond.
 
-### 4.1. Training 2 (PixelSnail)
+### 4.1. Training 2 (Top Level PixelSnail)
 
 #### Setting
 Please set the shell for executable file.
@@ -148,7 +155,7 @@ Please execute the following to start the program.
 $ sh scripts/train2.sh
 ~~~
 
-### 4.2. Test 2 (PixelSnail)
+### 4.2. Test 2 (Top Level PixelSnail)
 
 #### Setting
 Please set the shell for executable file.
@@ -176,7 +183,65 @@ Please execute the following to start the program.
 $ sh scripts/test2.sh
 ~~~
 
-### 5. Image Synthesis
+### 5.1. Training 3 (Bottom Level PixelSnail)
+
+#### Setting
+Please set the shell for executable file.
+~~~
+$ vi scripts/train3.sh
+~~~
+The following is an example of the training phase.<br>
+If you want to view specific examples of command line arguments, please view "src/main.cpp" or add "--help" to the argument.
+~~~
+#!/bin/bash
+
+DATA='celebA'
+
+./VQ-VAE-2 \
+    --train3 true \
+    --train3_epochs 100 \
+    --dataset ${DATA} \
+    --size 256 \
+    --train3_batch_size 16 \
+    --gpu_id 0 \
+    --nc 3
+~~~
+
+#### Run
+Please execute the following to start the program.
+~~~
+$ sh scripts/train3.sh
+~~~
+
+### 5.2. Test 3 (Bottom Level PixelSnail)
+
+#### Setting
+Please set the shell for executable file.
+~~~
+$ vi scripts/test3.sh
+~~~
+The following is an example of the test phase.<br>
+If you want to view specific examples of command line arguments, please view "src/main.cpp" or add "--help" to the argument.
+~~~
+#!/bin/bash
+
+DATA='celebA'
+
+./VQ-VAE-2 \
+    --test3 true \
+    --dataset ${DATA} \
+    --size 256 \
+    --gpu_id 0 \
+    --nc 3
+~~~
+
+#### Run
+Please execute the following to start the program.
+~~~
+$ sh scripts/test3.sh
+~~~
+
+### 6. Image Synthesis
 
 #### Setting
 Please set the shell for executable file.
@@ -205,7 +270,7 @@ Please execute the following to start the program.
 $ sh scripts/synth.sh
 ~~~
 
-### 6. Image Sampling
+### 7. Image Sampling
 
 #### Setting
 Please set the shell for executable file.
@@ -234,4 +299,8 @@ Please execute the following to start the program.
 ~~~
 $ sh scripts/sample.sh
 ~~~
+
+
+## Acknowledgments
+This code is inspired by [vq-vae-2-pytorch](https://github.com/rosinality/vq-vae-2-pytorch).
 

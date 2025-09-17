@@ -17,6 +17,9 @@ set(SRCS
     ${SRC_DIR}/train2.cpp
     ${SRC_DIR}/valid2.cpp
     ${SRC_DIR}/test2.cpp
+    ${SRC_DIR}/train3.cpp
+    ${SRC_DIR}/valid3.cpp
+    ${SRC_DIR}/test3.cpp
     ${SRC_DIR}/synth.cpp
     ${SRC_DIR}/sample.cpp
     ${SRC_DIR}/loss.cpp

@@ -23,7 +23,7 @@ namespace po = boost::program_options;
 // ---------------
 // Test Function
 // ---------------
-void test2(po::variables_map &vm, torch::Device &device, VQVAE2 &vqvae2, PixelSnail &model, std::vector<transforms_Compose> &transform){
+void test3(po::variables_map &vm, torch::Device &device, VQVAE2 &vqvae2, PixelSnail &model, std::vector<transforms_Compose> &transform){
 
     // (0) Initialization and Declaration
     float ave_loss;
@@ -33,21 +33,21 @@ void test2(po::variables_map &vm, torch::Device &device, VQVAE2 &vqvae2, PixelSn
     std::ofstream ofs;
     std::chrono::system_clock::time_point start, end;
     std::tuple<torch::Tensor, std::vector<std::string>> data;
-    torch::Tensor image, idx_t, output;
+    torch::Tensor image, idx_t, idx_b, output;
     std::tuple<torch::Tensor, torch::Tensor> idx;
     torch::Tensor loss;
     datasets::ImageFolderWithPaths dataset;
     DataLoader::ImageFolderWithPaths dataloader;
 
     // (1) Get Test Dataset
-    dataroot = "datasets/" + vm["dataset"].as<std::string>() + '/' + vm["test2_dir"].as<std::string>();
+    dataroot = "datasets/" + vm["dataset"].as<std::string>() + '/' + vm["test3_dir"].as<std::string>();
     dataset = datasets::ImageFolderWithPaths(dataroot, transform);
     dataloader = DataLoader::ImageFolderWithPaths(dataset, /*batch_size_=*/1, /*shuffle_=*/false, /*num_workers_=*/0);
     std::cout << "total test images : " << dataset.size() << std::endl << std::endl;
 
     // (2) Get Model
-    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test2_vqvae2_load_epoch"].as<std::string>() + "_vqvae2.pth"; torch::load(vqvae2, path, device);
-    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test2_pixelsnail_load_epoch"].as<std::string>() + "_pixelsnail_t.pth"; torch::load(model, path, device);
+    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test3_vqvae2_load_epoch"].as<std::string>() + "_vqvae2.pth"; torch::load(vqvae2, path, device);
+    path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["test3_pixelsnail_load_epoch"].as<std::string>() + "_pixelsnail_b.pth"; torch::load(model, path, device);
 
     // (3) Set Loss Function
     auto criterion = Loss_PixelSnail(vm["K"].as<size_t>());
@@ -60,7 +60,7 @@ void test2(po::variables_map &vm, torch::Device &device, VQVAE2 &vqvae2, PixelSn
     torch::NoGradGuard no_grad;
     vqvae2->eval();
     model->eval();
-    result_dir = vm["test2_result_dir"].as<std::string>();  fs::create_directories(result_dir);
+    result_dir = vm["test3_result_dir"].as<std::string>();  fs::create_directories(result_dir);
     ofs.open(result_dir + "/loss.txt", std::ios::out);
     while (dataloader(data)){
         
@@ -71,13 +71,14 @@ void test2(po::variables_map &vm, torch::Device &device, VQVAE2 &vqvae2, PixelSn
         
         idx = vqvae2->forward_idx(image);
         idx_t = std::get<0>(idx);
-        output = model->forward(idx_t);
+        idx_b = std::get<1>(idx);
+        output = model->forward(idx_b, {idx_t});
 
         if (!device.is_cpu()) torch::cuda::synchronize();
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         
-        loss = criterion(output, idx_t);
+        loss = criterion(output, idx_b);
         
         ave_loss += loss.item<float>();
         ave_time += seconds;

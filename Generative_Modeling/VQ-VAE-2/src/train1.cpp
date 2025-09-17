@@ -169,9 +169,9 @@ void train1(po::variables_map &vm, torch::Device &device, VQVAE2 &model, std::ve
             // -----------------------------------
             // c1. VQVAE2 Training Phase
             // -----------------------------------
-            auto [output, z_e, z_q] = model->forward(image);
+            auto [output, diff] = model->forward(image);
             rec = criterion(output, image);
-            latent = torch::mean((z_e.detach() - z_q).pow(2.0)) + vm["Lambda"].as<float>() * torch::mean((z_e - z_q.detach()).pow(2.0));
+            latent = vm["Lambda"].as<float>() * diff.mean();
             loss = rec + latent;
             optimizer.zero_grad();
             loss.backward();

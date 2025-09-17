@@ -73,14 +73,14 @@ void test1(po::variables_map &vm, torch::Device &device, VQVAE2 &model, std::vec
         if (!device.is_cpu()) torch::cuda::synchronize();
         start = std::chrono::system_clock::now();
         
-        auto [output, z_e, z_q] = model->forward(imageI);
+        auto [output, diff] = model->forward(imageI);
 
         if (!device.is_cpu()) torch::cuda::synchronize();
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         
         rec = criterion(output, imageI);
-        latent = torch::mean((z_e.detach() - z_q).pow(2.0)) + vm["Lambda"].as<float>() * torch::mean((z_e - z_q.detach()).pow(2.0));
+        latent = vm["Lambda"].as<float>() * diff;
         GT_loss = criterion(output, imageO);
         
         ave_rec_loss += rec.item<float>();

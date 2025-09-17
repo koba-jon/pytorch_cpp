@@ -36,9 +36,9 @@ void valid1(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datal
     total_rec_loss = 0.0; total_latent_loss = 0.0;
     while (valid_dataloader(mini_batch)){
         image = std::get<0>(mini_batch).to(device);
-        auto [output, z_e, z_q] = model->forward(image);
+        auto [output, diff] = model->forward(image);
         rec = criterion(output, image);
-        latent = torch::mean((z_e.detach() - z_q).pow(2.0)) + vm["Lambda"].as<float>() * torch::mean((z_e - z_q.detach()).pow(2.0));
+        latent = vm["Lambda"].as<float>() * diff.mean();
         loss = rec + latent;
         total_rec_loss += rec.item<float>();
         total_latent_loss += latent.item<float>();
