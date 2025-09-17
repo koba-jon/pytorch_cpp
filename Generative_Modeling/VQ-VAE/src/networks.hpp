@@ -20,13 +20,14 @@ void weights_init(nn::Module &m);
 // -------------------------------------------------
 struct MaskedConv2dImpl : nn::Module{
 private:
+    char mask_type;
     long int padding;
-    nn::Conv2d conv = nullptr;
     torch::Tensor weight, mask;
 public:
     MaskedConv2dImpl(){}
-    MaskedConv2dImpl(char mask_type, long int in_nc, long int out_nc, long int kernel);
+    MaskedConv2dImpl(char mask_type_, long int in_nc, long int out_nc, long int kernel);
     torch::Tensor forward(torch::Tensor x);
+    void pretty_print(std::ostream& stream) const override;
 };
 TORCH_MODULE(MaskedConv2d);
 
@@ -40,7 +41,7 @@ private:
     nn::Sequential model;
 public:
     MaskedConv2dBlockImpl(){}
-    MaskedConv2dBlockImpl(char mask_type, long int dim);
+    MaskedConv2dBlockImpl(char mask_type, long int dim, bool residual_);
     torch::Tensor forward(torch::Tensor x);
 };
 TORCH_MODULE(MaskedConv2dBlock);

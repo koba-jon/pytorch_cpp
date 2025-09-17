@@ -18,17 +18,16 @@ using Slice = torch::indexing::Slice;
 // -----------------------------------------------------------------------------
 // struct{MaskedConv2dImpl}(nn::Module) -> constructor
 // -----------------------------------------------------------------------------
-MaskedConv2dImpl::MaskedConv2dImpl(char mask_type, long int in_nc, long int out_nc, long int kernel){
-    
+MaskedConv2dImpl::MaskedConv2dImpl(char mask_type_, long int in_nc, long int out_nc, long int kernel){
+
+    this->mask_type = mask_type_;
     this->padding = kernel / 2;
 
-    this->conv = torch::nn::Conv2d(nn::Conv2dOptions(in_nc, out_nc, kernel).bias(false));
-    register_module("conv", this->conv);
-
-    this->weight = register_parameter("weight", conv->weight.detach().clone().set_requires_grad(true));
+    torch::nn::Conv2d conv = torch::nn::Conv2d(nn::Conv2dOptions(in_nc, out_nc, kernel).bias(false));
+    this->weight = register_parameter("weight", conv->weight.detach().clone());
 
     this->mask = torch::ones_like(this->weight);
-    if (mask_type == 'A'){
+    if (this->mask_type == 'A'){
         this->mask.index_put_({Slice(), Slice(), kernel / 2, Slice(kernel / 2, torch::indexing::None)}, 0.0);
         this->mask.index_put_({Slice(), Slice(), Slice(kernel / 2 + 1, torch::indexing::None), Slice()}, 0.0);
     }
@@ -52,11 +51,29 @@ torch::Tensor MaskedConv2dImpl::forward(torch::Tensor x){
 }
 
 
+// ----------------------------------------------------------------------
+// struct{MaskedConv2dImpl}(nn::Module) -> function{pretty_print}
+// ----------------------------------------------------------------------
+void MaskedConv2dImpl::pretty_print(std::ostream& stream) const{
+    stream << "MaskedConv2d(" << this->weight.size(1) << ", " << this->weight.size(0) << ", ";
+    stream << "kernel_size=[" << this->weight.size(2) << ", " << this->weight.size(3) << "], ";
+    stream << "stride=[1, 1], ";
+    stream << "padding=[" << this->padding << ", " << this->padding << "], ";
+    stream << "bias=false, ";
+    stream << "mask=" << this->mask_type << ")";
+    return;
+}
+
+
 // -----------------------------------------------------------------------------
 // struct{MaskedConv2dBlockImpl}(nn::Module) -> constructor
 // -----------------------------------------------------------------------------
-MaskedConv2dBlockImpl::MaskedConv2dBlockImpl(char mask_type, long int dim){
+MaskedConv2dBlockImpl::MaskedConv2dBlockImpl(char mask_type, long int dim, bool residual_){
+    this->residual = residual_;
     this->model->push_back(MaskedConv2d(mask_type, dim, dim, 7));
+    this->model->push_back(nn::BatchNorm2d(dim));
+    this->model->push_back(nn::ReLU(nn::ReLUOptions().inplace(true)));
+    this->model->push_back(nn::Conv2d(nn::Conv2dOptions(dim, dim, 1)));
     this->model->push_back(nn::BatchNorm2d(dim));
     this->model->push_back(nn::ReLU(nn::ReLUOptions().inplace(true)));
     register_module("model", this->model);
@@ -67,7 +84,7 @@ MaskedConv2dBlockImpl::MaskedConv2dBlockImpl(char mask_type, long int dim){
 // struct{MaskedConv2dBlockImpl}(nn::Module) -> function{forward}
 // -----------------------------------------------------------------------------
 torch::Tensor MaskedConv2dBlockImpl::forward(torch::Tensor x){
-    torch::Tensor out = this->model->forward(x);
+    torch::Tensor out = this->residual ? (this->model->forward(x) + x) : this->model->forward(x);
     return out;
 }
 
@@ -82,9 +99,9 @@ PixelCNNImpl::PixelCNNImpl(po::variables_map &vm){
     this->token_emb = nn::Embedding(nn::EmbeddingOptions(vm["K"].as<size_t>(), this->dim));
     register_module("token_emb", this->token_emb);
 
-    this->layers->push_back(MaskedConv2dBlock('A', this->dim));
+    this->layers->push_back(MaskedConv2dBlock('A', this->dim, false));
     for (size_t i = 1; i < vm["n_layers"].as<size_t>(); i++){
-        this->layers->push_back(MaskedConv2dBlock('B', this->dim));
+        this->layers->push_back(MaskedConv2dBlock('B', this->dim, true));
     }
     register_module("layers", this->layers);
 

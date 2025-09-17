@@ -114,7 +114,7 @@ po::options_description parse_arguments(){
         ("nf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image")
         ("res_h", po::value<size_t>()->default_value(32), "hidden dimensions in residual layer")
         ("Lambda", po::value<float>()->default_value(0.25), "the multiple of Latent Loss")
-        ("dim_pix", po::value<size_t>()->default_value(128), "dimensions of hidden layers of PixelCNN")
+        ("dim_pix", po::value<size_t>()->default_value(64), "dimensions of hidden layers of PixelCNN")
         ("n_layers", po::value<size_t>()->default_value(15), "the number of layers of PixelCNN")
 
     ;
