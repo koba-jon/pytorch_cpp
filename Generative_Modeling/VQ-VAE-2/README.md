@@ -63,8 +63,10 @@ $ mkdir celebA
 $ cd celebA
 $ ln -s <training_path> ./train1
 $ ln -s <training_path> ./train2
+$ ln -s <training_path> ./train3
 $ ln -s <test_path> ./test1
 $ ln -s <test_path> ./test2
+$ ln -s <test_path> ./test3
 $ cd ../..
 ~~~
 
