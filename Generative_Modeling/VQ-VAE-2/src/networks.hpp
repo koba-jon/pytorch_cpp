@@ -117,10 +117,11 @@ TORCH_MODULE(PixelBlock);
 // -------------------------------------------------
 struct CondResNetImpl : nn::Module{
 private:
-    nn::Sequential blocks;
+    long int res_block;
+    nn::ModuleList blocks;
 public:
     CondResNetImpl(){}
-    CondResNetImpl(long int in_nc, long int nc, long int kernel, long int res_block);
+    CondResNetImpl(long int in_nc, long int nc, long int kernel, long int res_block_);
     torch::Tensor forward(torch::Tensor x);
 };
 TORCH_MODULE(CondResNet);

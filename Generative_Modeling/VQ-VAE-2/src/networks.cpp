@@ -34,7 +34,7 @@ WNConv2dImpl::WNConv2dImpl(long int in_nc, long int out_nc, std::vector<long int
 // -----------------------------------------------------------------------------
 torch::Tensor WNConv2dImpl::forward(torch::Tensor x){
     torch::Tensor v_norm, out;
-    v_norm = this->v.norm(2, /*dim=*/0, /*keepdim=*/true);
+    v_norm = this->v.norm(2, /*dim=*/0, /*keepdim=*/true).clamp(1e-10);
     this->conv->weight = this->g * this->v / v_norm;
     out = this->conv->forward(x);
     return out;
@@ -60,7 +60,7 @@ WNLinearImpl::WNLinearImpl(long int in_nc, long int out_nc){
 // -----------------------------------------------------------------------------
 torch::Tensor WNLinearImpl::forward(torch::Tensor x){
     torch::Tensor v_norm, out;
-    v_norm = this->v.norm(2, /*dim=*/0, /*keepdim=*/true);
+    v_norm = this->v.norm(2, /*dim=*/0, /*keepdim=*/true).clamp(1e-10);
     this->linear->weight = this->g * this->v / v_norm;
     out = this->linear->forward(x);
     return out;
@@ -102,7 +102,10 @@ CausalConv2dImpl::CausalConv2dImpl(long int in_nc, long int out_nc, std::vector<
 torch::Tensor CausalConv2dImpl::forward(torch::Tensor x){
     torch::Tensor out;
     out = this->zero_pad(x);
-    if (this->causal > 0) this->conv->v.index({Slice(), Slice(), -1, Slice(this->causal, torch::indexing::None)}).zero_();
+    if (this->causal > 0) {
+        torch::NoGradGuard no_grad;
+        this->conv->v.index_put_({Slice(), Slice(), -1, Slice(this->causal, torch::indexing::None)}, 0.0);
+    }
     out = this->conv->forward(out);
     return out;
 }
@@ -264,7 +267,7 @@ PixelBlockImpl::PixelBlockImpl(long int in_nc, long int nc, long int kernel, lon
         this->key_resblock = GatedResBlock(in_nc * 2 + 2, in_nc, std::vector<long int>{1, 1}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate);
         this->query_resblock = GatedResBlock(in_nc + 2, in_nc, std::vector<long int>{1, 1}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate);
         this->causal_attention = GatedResBlock(in_nc + 2, in_nc * 2 + 2, std::vector<long int>{in_nc / 2, in_nc / 2}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate);
-        this->out_resblock = GatedResBlock(in_nc, in_nc, std::vector<long int>{1, 1}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate, /*aux_nc=*/in_nc / 2);
+        this->out_resblock = GatedResBlock(in_nc, in_nc, std::vector<long int>{1, 1}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate, /*aux_nc=*/5);
         register_module("key_resblock", this->key_resblock);
         register_module("query_resblock", this->query_resblock);
         register_module("causal_attention", this->causal_attention);
@@ -311,9 +314,10 @@ torch::Tensor PixelBlockImpl::forward(torch::Tensor x, torch::Tensor background,
 // -----------------------------------------------------------------------------
 // struct{CondResNetImpl}(nn::Module) -> constructor
 // -----------------------------------------------------------------------------
-CondResNetImpl::CondResNetImpl(long int in_nc, long int nc, long int kernel, long int res_block){
+CondResNetImpl::CondResNetImpl(long int in_nc, long int nc, long int kernel, long int res_block_){
+    this->res_block = res_block_;
     this->blocks->push_back(WNConv2d(in_nc, nc, std::vector<long int>{kernel, kernel}, /*stride=*/1, /*padding=*/std::vector<long int>{kernel / 2, kernel / 2}));
-    for (long int i = 0; i < res_block; i++){
+    for (long int i = 0; i < this->res_block; i++){
         this->blocks->push_back(GatedResBlock(nc, nc, std::vector<long int>{kernel, kernel}));
     }
     register_module("blocks", this->blocks);
@@ -324,7 +328,11 @@ CondResNetImpl::CondResNetImpl(long int in_nc, long int nc, long int kernel, lon
 // struct{CondResNetImpl}(nn::Module) -> function{forward}
 // -----------------------------------------------------------------------------
 torch::Tensor CondResNetImpl::forward(torch::Tensor x){
-    torch::Tensor out = this->blocks->forward(x);
+    torch::Tensor out;
+    out = this->blocks[0]->as<WNConv2d>()->forward(x);
+    for (long int i = 0; i < this->res_block; i++){
+        out = this->blocks[i + 1]->as<GatedResBlock>()->forward(out);
+    }
     return out;
 }
 
@@ -375,19 +383,19 @@ PixelSnailImpl::PixelSnailImpl(std::vector<long int> shape, long int n_class_, l
 // -----------------------------------------------------------------------------
 torch::Tensor PixelSnailImpl::forward(torch::Tensor x, torch::Tensor condition){
 
-    torch::Tensor horiz, vert, out, back;
+    torch::Tensor x_, horiz, vert, out, back;
 
-    x = F::one_hot(x, this->n_class).permute({0, 3, 1, 2}).to(this->background.device());
-    horiz = this->horizontal->forward(x);
+    x_ = F::one_hot(x, this->n_class).permute({0, 3, 1, 2}).to(torch::kFloat);
+    horiz = this->horizontal->forward(x_);
     horiz = F::pad(horiz, std::vector<long int>{0, 0, 1, 0}).index({Slice(), Slice(), Slice(0, horiz.size(2)), Slice()});
-    vert = this->vertical->forward(x);
+    vert = this->vertical->forward(x_);
     vert = F::pad(vert, std::vector<long int>{1, 0, 0, 0}).index({Slice(), Slice(), Slice(), Slice(0, vert.size(3))});
     out = horiz + vert;
 
     back = this->background.index({Slice(), Slice(), Slice(0, x.size(1)), Slice()}).expand({x.size(0), 2, x.size(1), x.size(2)});
 
     if (condition.numel() > 0){
-        condition = F::one_hot(condition, this->n_class).permute({0, 3, 1, 2}).to(this->background.device());
+        condition = F::one_hot(condition, this->n_class).permute({0, 3, 1, 2}).to(torch::kFloat);
         condition = this->cond_resnet->forward(condition);
         condition = F::interpolate(condition, F::InterpolateFuncOptions().scale_factor(std::vector<double>{2.0, 2.0}));
         condition = condition.index({Slice(), Slice(), Slice(0, x.size(1)), Slice()});
