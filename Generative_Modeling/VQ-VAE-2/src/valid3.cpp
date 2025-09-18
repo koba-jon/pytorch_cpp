@@ -39,7 +39,7 @@ void valid3(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datal
         idx = vqvae2->forward_idx(image);
         idx_t = std::get<0>(idx);
         idx_b = std::get<1>(idx);
-        output = model->forward(idx_b, {idx_t});
+        output = model->forward(idx_b, idx_t);
         loss = criterion(output, idx_b);
         total_loss += loss.item<float>();
         iteration++;

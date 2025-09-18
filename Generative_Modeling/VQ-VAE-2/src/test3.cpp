@@ -72,7 +72,7 @@ void test3(po::variables_map &vm, torch::Device &device, VQVAE2 &vqvae2, PixelSn
         idx = vqvae2->forward_idx(image);
         idx_t = std::get<0>(idx);
         idx_b = std::get<1>(idx);
-        output = model->forward(idx_b, {idx_t});
+        output = model->forward(idx_b, idx_t);
 
         if (!device.is_cpu()) torch::cuda::synchronize();
         end = std::chrono::system_clock::now();

@@ -1,3 +1,4 @@
+#include <cmath>
 #include <vector>
 #include <tuple>
 #include <typeinfo>
@@ -15,75 +16,315 @@ using Slice = torch::indexing::Slice;
 
 
 // -----------------------------------------------------------------------------
-// struct{MaskedConv2dImpl}(nn::Module) -> constructor
+// struct{WNConv2dImpl}(nn::Module) -> constructor
 // -----------------------------------------------------------------------------
-MaskedConv2dImpl::MaskedConv2dImpl(char mask_type_, long int in_nc, long int out_nc, long int kernel){
+WNConv2dImpl::WNConv2dImpl(long int in_nc, long int out_nc, std::vector<long int> kernel, long int stride, std::vector<long int> padding, bool bias){
 
-    this->mask_type = mask_type_;
-    this->padding = kernel / 2;
+    this->conv = torch::nn::Conv2d(nn::Conv2dOptions(in_nc, out_nc, kernel).stride(stride).padding(padding).bias(bias));
+    register_module("conv", conv);
 
-    torch::nn::Conv2d conv = torch::nn::Conv2d(nn::Conv2dOptions(in_nc, out_nc, kernel).bias(false));
-    this->weight = register_parameter("weight", conv->weight.detach().clone());
-
-    this->mask = torch::ones_like(this->weight);
-    if (this->mask_type == 'A'){
-        this->mask.index_put_({Slice(), Slice(), kernel / 2, Slice(kernel / 2, torch::indexing::None)}, 0.0);
-        this->mask.index_put_({Slice(), Slice(), Slice(kernel / 2 + 1, torch::indexing::None), Slice()}, 0.0);
-    }
-    else{
-        this->mask.index_put_({Slice(), Slice(), kernel / 2, Slice(kernel / 2 + 1, torch::indexing::None)}, 0.0);
-        this->mask.index_put_({Slice(), Slice(), Slice(kernel / 2 + 1, torch::indexing::None), Slice()}, 0.0);
-    }
-    register_buffer("mask", this->mask);
+    this->v = register_parameter("v", this->conv->weight.detach().clone());
+    this->g = register_parameter("g", this->conv->weight.norm(2, /*dim=*/0, /*keepdim=*/true).detach().clone());
 
 }
 
 
 // -----------------------------------------------------------------------------
-// struct{MaskedConv2dImpl}(nn::Module) -> function{forward}
+// struct{WNConv2dImpl}(nn::Module) -> function{forward}
 // -----------------------------------------------------------------------------
-torch::Tensor MaskedConv2dImpl::forward(torch::Tensor x){
-    torch::Tensor w, out;
-    w = this->weight * this->mask;
-    out = F::conv2d(x, w, F::Conv2dFuncOptions().stride(1).padding(this->padding));
+torch::Tensor WNConv2dImpl::forward(torch::Tensor x){
+    torch::Tensor v_norm, out;
+    v_norm = this->v.norm(2, /*dim=*/0, /*keepdim=*/true);
+    this->conv->weight = this->g * this->v / v_norm;
+    out = this->conv->forward(x);
     return out;
 }
 
 
-// ----------------------------------------------------------------------
-// struct{MaskedConv2dImpl}(nn::Module) -> function{pretty_print}
-// ----------------------------------------------------------------------
-void MaskedConv2dImpl::pretty_print(std::ostream& stream) const{
-    stream << "MaskedConv2d(" << this->weight.size(1) << ", " << this->weight.size(0) << ", ";
-    stream << "kernel_size=[" << this->weight.size(2) << ", " << this->weight.size(3) << "], ";
-    stream << "stride=[1, 1], ";
-    stream << "padding=[" << this->padding << ", " << this->padding << "], ";
-    stream << "bias=false, ";
-    stream << "mask=" << this->mask_type << ")";
-    return;
+// -----------------------------------------------------------------------------
+// struct{WNLinearImpl}(nn::Module) -> constructor
+// -----------------------------------------------------------------------------
+WNLinearImpl::WNLinearImpl(long int in_nc, long int out_nc){
+
+    this->linear = torch::nn::Linear(in_nc, out_nc);
+    register_module("linear", linear);
+
+    this->v = register_parameter("v", this->linear->weight.detach().clone());
+    this->g = register_parameter("g", this->linear->weight.norm(2, /*dim=*/0, /*keepdim=*/true).detach().clone());
+
 }
 
 
 // -----------------------------------------------------------------------------
-// struct{MaskedConv2dBlockImpl}(nn::Module) -> constructor
+// struct{WNLinearImpl}(nn::Module) -> function{forward}
 // -----------------------------------------------------------------------------
-MaskedConv2dBlockImpl::MaskedConv2dBlockImpl(char mask_type, long int dim, bool residual_){
-    this->residual = residual_;
-    this->model->push_back(MaskedConv2d(mask_type, dim, dim, 7));
-    this->model->push_back(nn::BatchNorm2d(dim));
-    this->model->push_back(nn::ReLU(nn::ReLUOptions().inplace(true)));
-    this->model->push_back(nn::Conv2d(nn::Conv2dOptions(dim, dim, 1)));
-    this->model->push_back(nn::BatchNorm2d(dim));
-    this->model->push_back(nn::ReLU(nn::ReLUOptions().inplace(true)));
-    register_module("model", this->model);
+torch::Tensor WNLinearImpl::forward(torch::Tensor x){
+    torch::Tensor v_norm, out;
+    v_norm = this->v.norm(2, /*dim=*/0, /*keepdim=*/true);
+    this->linear->weight = this->g * this->v / v_norm;
+    out = this->linear->forward(x);
+    return out;
+}
+
+
+
+// -----------------------------------------------------------------------------
+// struct{CausalConv2dImpl}(nn::Module) -> constructor
+// -----------------------------------------------------------------------------
+CausalConv2dImpl::CausalConv2dImpl(long int in_nc, long int out_nc, std::vector<long int> kernel, long int stride, std::string padding){
+
+    std::vector<long int> pad;
+
+    if (padding == "downright"){
+        pad = {kernel[1] - 1, 0, kernel[0] - 1, 0};
+    }
+    else if ((padding == "down") || (padding == "causal")){
+        pad = {kernel[1] / 2, kernel[1] / 2, kernel[0] - 1, 0};
+    }
+
+    this->causal = 0;
+    if (padding == "causal"){
+        this->causal = kernel[1] / 2;
+    }
+
+    this->zero_pad = nn::ZeroPad2d(nn::ZeroPad2dOptions(pad));
+    register_module("zero_pad", zero_pad);
+
+    this->conv = WNConv2d(in_nc, out_nc, kernel, stride, /*padding=*/std::vector<long int>{0, 0});
+    register_module("conv", this->conv);
+
 }
 
 
 // -----------------------------------------------------------------------------
-// struct{MaskedConv2dBlockImpl}(nn::Module) -> function{forward}
+// struct{CausalConv2dImpl}(nn::Module) -> function{forward}
 // -----------------------------------------------------------------------------
-torch::Tensor MaskedConv2dBlockImpl::forward(torch::Tensor x){
-    torch::Tensor out = this->residual ? (this->model->forward(x) + x) : this->model->forward(x);
+torch::Tensor CausalConv2dImpl::forward(torch::Tensor x){
+    torch::Tensor out;
+    out = this->zero_pad(x);
+    if (this->causal > 0) this->conv->v.index({Slice(), Slice(), -1, Slice(this->causal, torch::indexing::None)}).zero_();
+    out = this->conv->forward(out);
+    return out;
+}
+
+
+// -----------------------------------------------------------------------------
+// struct{GatedResBlockImpl}(nn::Module) -> constructor
+// -----------------------------------------------------------------------------
+GatedResBlockImpl::GatedResBlockImpl(long int in_nc, long int nc, std::vector<long int> kernel, std::string conv, std::string act, float droprate, long int aux_nc, long int cond_dim){
+
+    if (conv == "wnconv2d"){
+        this->conv1->push_back(WNConv2d(in_nc, nc, kernel, /*stride=*/1, /*padding=*/std::vector<long int>{kernel[0] / 2, kernel[1] / 2}));
+        this->conv2->push_back(WNConv2d(nc, in_nc * 2, kernel, /*stride=*/1, /*padding=*/std::vector<long int>{kernel[0] / 2, kernel[1] / 2}));
+    }
+    else if (conv == "causal_downright"){
+        this->conv1->push_back(CausalConv2d(in_nc, nc, kernel, /*stride=*/1, /*padding=*/"downright"));
+        this->conv2->push_back(CausalConv2d(nc, in_nc * 2, kernel, /*stride=*/1, /*padding=*/"downright"));
+    }
+    else if (conv == "causal"){
+        this->conv1->push_back(CausalConv2d(in_nc, nc, kernel, /*stride=*/1, /*padding=*/"causal"));
+        this->conv2->push_back(CausalConv2d(nc, in_nc * 2, kernel, /*stride=*/1, /*padding=*/"causal"));
+    }
+    register_module("conv1", this->conv1);
+    register_module("conv2", this->conv2);
+
+    if (act == "ELU"){
+        this->activation = nn::ELU();
+    }
+    register_module("activation", this->activation);
+
+    if (aux_nc > 0){
+        this->aux_conv->push_back(WNConv2d(aux_nc, nc, /*kernel*/std::vector<long int>{1, 1}));
+    }
+    else{
+        this->aux_conv->push_back(nn::Identity());
+    }
+    register_module("aux_conv", this->aux_conv);
+
+    this->dropout = nn::Dropout(droprate);
+    register_module("dropout", this->dropout);
+
+    if (cond_dim > 0){
+        this->cond->push_back(WNConv2d(cond_dim, in_nc * 2, /*kernel*/std::vector<long int>{1, 1}, /*stride=*/1, /*padding=*/std::vector<long int>{0, 0}, /*bias=*/false));
+    }
+    else{
+        this->cond->push_back(nn::Identity());
+    }
+    register_module("cond", this->cond);
+
+    this->gate = nn::GLU(nn::GLUOptions(1));
+    register_module("gate", this->gate);
+
+}
+
+
+// -----------------------------------------------------------------------------
+// struct{GatedResBlockImpl}(nn::Module) -> function{forward}
+// -----------------------------------------------------------------------------
+torch::Tensor GatedResBlockImpl::forward(torch::Tensor x, torch::Tensor aux, torch::Tensor condition){
+    
+    torch::Tensor out;
+
+    out = this->conv1->forward(this->activation->forward(x));
+
+    if (aux.numel() > 0){
+        out = out + this->aux_conv->forward(this->activation->forward(aux));
+    }
+
+    out = this->activation->forward(out);
+    out = this->dropout->forward(out);
+    out = this->conv2->forward(out);
+
+    if (condition.numel() > 0){
+        condition = this->cond->forward(condition);
+        out = out + condition;
+    }
+
+    out = this->gate->forward(out);
+    out = out + x;
+
+    return out;
+
+}
+
+
+// -----------------------------------------------------------------------------
+// struct{CausalAttentionImpl}(nn::Module) -> constructor
+// -----------------------------------------------------------------------------
+CausalAttentionImpl::CausalAttentionImpl(long int query_nc, long int key_nc, long int nc, long int n_head_, float droprate){
+
+    this->dim_head = nc / n_head_;
+    this->n_head = n_head_;
+
+    this->query_linear = WNLinear(query_nc, nc);
+    register_module("query_linear", this->query_linear);
+
+    this->key_linear = WNLinear(key_nc, nc);
+    register_module("key_linear", this->key_linear);
+
+    this->value_linear = WNLinear(key_nc, nc);
+    register_module("value_linear", this->value_linear);
+
+    this->dropout = nn::Dropout(droprate);
+    register_module("dropout", this->dropout);
+
+}
+
+
+// -----------------------------------------------------------------------------
+// struct{CausalAttentionImpl}(nn::Module) -> function{forward}
+// -----------------------------------------------------------------------------
+torch::Tensor CausalAttentionImpl::forward(torch::Tensor query, torch::Tensor key){
+
+    long int N, H, W;
+    torch::Tensor query_flat, key_flat, query_map, key_map, value_map, attn, mask, start_mask, out;
+
+    N = key.size(0);
+    H = key.size(2);
+    W = key.size(3);
+
+    query_flat = query.view({N, query.size(1), -1}).transpose(1, 2);
+    key_flat = key.view({N, key.size(1), -1}).transpose(1, 2);
+    query_map = this->query_linear->forward(query_flat).view({N, -1, this->n_head, this->dim_head}).transpose(1, 2);
+    key_map = this->key_linear->forward(key_flat).view({N, -1, this->n_head, this->dim_head}).transpose(1, 2).transpose(2, 3);
+    value_map = this->value_linear(key_flat).view({N, -1, this->n_head, this->dim_head}).transpose(1, 2);
+
+    attn = query_map.matmul(key_map) / std::sqrt(this->dim_head);
+    mask = torch::ones({H * W, H * W}).triu(1).t().unsqueeze(0).to(query.device());
+    start_mask = torch::ones({H * W}).to(query.device());
+    start_mask[0] = 0.0;
+    start_mask = start_mask.unsqueeze(1);
+    attn = attn.masked_fill(mask == 0, -1e4);
+    attn = torch::softmax(attn, 3) * start_mask;
+    attn = this->dropout->forward(attn);
+
+    out = attn.matmul(value_map);
+    out = out.transpose(1, 2).view({N, H, W, this->dim_head * this->n_head}).contiguous();
+    out = out.permute({0, 3, 1, 2}).contiguous();
+
+    return out;
+
+}
+
+
+// -----------------------------------------------------------------------------
+// struct{PixelBlockImpl}(nn::Module) -> constructor
+// -----------------------------------------------------------------------------
+PixelBlockImpl::PixelBlockImpl(long int in_nc, long int nc, long int kernel, long int res_block_, bool attention_, float droprate, long int cond_dim){
+    
+    this->res_block = res_block_;
+    this->attention = attention_;
+
+    for (long int i = 0; i < this->res_block; i++){
+        this->resblocks->push_back(GatedResBlock(in_nc, nc, std::vector<long int>{kernel, kernel}, /*conv=*/"causal", /*act=*/"ELU", /*dropout=*/droprate, /*aux_nc=*/0, /*cond_dim=*/cond_dim));
+    }
+    register_module("resblocks", this->resblocks);
+
+    if (this->attention){
+        this->key_resblock = GatedResBlock(in_nc * 2 + 2, in_nc, std::vector<long int>{1, 1}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate);
+        this->query_resblock = GatedResBlock(in_nc + 2, in_nc, std::vector<long int>{1, 1}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate);
+        this->causal_attention = GatedResBlock(in_nc + 2, in_nc * 2 + 2, std::vector<long int>{in_nc / 2, in_nc / 2}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate);
+        this->out_resblock = GatedResBlock(in_nc, in_nc, std::vector<long int>{1, 1}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate, /*aux_nc=*/in_nc / 2);
+        register_module("key_resblock", this->key_resblock);
+        register_module("query_resblock", this->query_resblock);
+        register_module("causal_attention", this->causal_attention);
+        register_module("out_resblock", this->out_resblock);
+    }
+    else{
+        this->out_conv = WNConv2d(in_nc + 2, in_nc, std::vector<long int>{1, 1});
+        register_module("out_conv", this->out_conv);
+    }
+
+}
+
+
+// -----------------------------------------------------------------------------
+// struct{PixelBlockImpl}(nn::Module) -> function{forward}
+// -----------------------------------------------------------------------------
+torch::Tensor PixelBlockImpl::forward(torch::Tensor x, torch::Tensor background, torch::Tensor condition){
+
+    torch::Tensor out, key_cat, key, query_cat, query, attn_out, bg_cat;
+
+    out = x;
+    for (long int i = 0; i < this->res_block; i++){
+        out = this->resblocks[i]->as<GatedResBlock>()->forward(out, torch::Tensor(), condition);
+    }
+
+    if (this->attention){
+        key_cat = torch::cat({x, out, background}, 1);
+        key = this->key_resblock->forward(key_cat);
+        query_cat = torch::cat({out, background}, 1);
+        query = this->query_resblock->forward(query_cat);
+        attn_out = this->causal_attention->forward(query, key);
+        out = this->out_resblock->forward(out, attn_out);
+    }
+    else{
+        bg_cat = torch::cat({out, background}, 1);
+        out = this->out_conv->forward(bg_cat);
+    }
+
+    return out;
+
+}
+
+
+// -----------------------------------------------------------------------------
+// struct{CondResNetImpl}(nn::Module) -> constructor
+// -----------------------------------------------------------------------------
+CondResNetImpl::CondResNetImpl(long int in_nc, long int nc, long int kernel, long int res_block){
+    this->blocks->push_back(WNConv2d(in_nc, nc, std::vector<long int>{kernel, kernel}, /*stride=*/1, /*padding=*/std::vector<long int>{kernel / 2, kernel / 2}));
+    for (long int i = 0; i < res_block; i++){
+        this->blocks->push_back(GatedResBlock(nc, nc, std::vector<long int>{kernel, kernel}));
+    }
+    register_module("blocks", this->blocks);
+}
+
+
+// -----------------------------------------------------------------------------
+// struct{CondResNetImpl}(nn::Module) -> function{forward}
+// -----------------------------------------------------------------------------
+torch::Tensor CondResNetImpl::forward(torch::Tensor x){
+    torch::Tensor out = this->blocks->forward(x);
     return out;
 }
 
@@ -91,31 +332,40 @@ torch::Tensor MaskedConv2dBlockImpl::forward(torch::Tensor x){
 // -----------------------------------------------------------------------------
 // struct{PixelSnailImpl}(nn::Module) -> constructor
 // -----------------------------------------------------------------------------
-PixelSnailImpl::PixelSnailImpl(po::variables_map &vm){
+PixelSnailImpl::PixelSnailImpl(std::vector<long int> shape, long int n_class_, long int nc, long int kernel, long int block_, long int res_block, long int res_nc, bool attention, float droprate, long int cond_res_block, long int cond_res_nc, long int cond_res_kernel, long int out_res_block){
 
-    this->dim = vm["dim_pix"].as<size_t>();
+    this->n_class = n_class_;
+    this->block = block_;
+    torch::Tensor coord_x, coord_y;
 
-    this->token_emb = nn::Embedding(nn::EmbeddingOptions(vm["K"].as<size_t>(), this->dim));
-    register_module("token_emb", this->token_emb);
+    if (kernel % 2 == 0) kernel = kernel + 1;
+    this->horizontal = CausalConv2d(this->n_class, nc, std::vector<long int>{kernel / 2, kernel}, 1, /*padding=*/"down");
+    this->vertical = CausalConv2d(this->n_class, nc, std::vector<long int>{(kernel + 1) / 2, kernel / 2}, 1, /*padding=*/"downright");
+    register_module("horizontal", this->horizontal);
+    register_module("vertical", this->vertical);
 
-    this->cond_resnet = nn::Sequential(
-        nn::ConvTranspose2d(nn::ConvTranspose2dOptions(this->dim, this->dim, 4).stride(2).padding(1).bias(false)),
-        nn::BatchNorm2d(this->dim),
-        nn::ReLU(nn::ReLUOptions().inplace(true)),
-        nn::Conv2d(nn::Conv2dOptions(this->dim, this->dim, 3).padding(1).bias(false)),
-        nn::BatchNorm2d(this->dim),
-        nn::ReLU(nn::ReLUOptions().inplace(true))
-    );
-    register_module("cond_resnet", this->cond_resnet);
+    coord_x = (torch::arange(shape[0]).to(torch::kFloat) - shape[0] * 0.5) / shape[0];
+    coord_x = coord_x.view({1, 1, shape[0], 1}).expand({1, 1, shape[0], shape[1]});
+    coord_y = (torch::arange(shape[1]).to(torch::kFloat) - shape[1] * 0.5) / shape[1];
+    coord_y = coord_y.view({1, 1, 1, shape[0]}).expand({1, 1, shape[0], shape[1]});
+    this->background = register_buffer("background", torch::cat({coord_x, coord_y}, 1));
 
-    this->layers->push_back(MaskedConv2dBlock('A', this->dim, false));
-    for (size_t i = 1; i < vm["n_layers"].as<size_t>(); i++){
-        this->layers->push_back(MaskedConv2dBlock('B', this->dim, true));
+    for (long int i = 0; i < this->block; i++){
+        this->blocks->push_back(PixelBlock(nc, res_nc, kernel, res_block, attention, droprate, cond_res_nc));
     }
-    register_module("layers", this->layers);
+    register_module("blocks", this->blocks);
 
-    this->output_conv = nn::Conv2d(nn::Conv2dOptions(this->dim, vm["K"].as<size_t>(), 1));
-    register_module("output_conv", this->output_conv);
+    if (cond_res_block > 0){
+        this->cond_resnet = CondResNet(this->n_class, cond_res_nc, cond_res_kernel, cond_res_block);
+        register_module("cond_resnet", this->cond_resnet);
+    }
+
+    for (long int i = 0; i < out_res_block; i++){
+        this->out_module->push_back(GatedResBlock(nc, res_nc, std::vector<long int>{1, 1}));
+    }
+    this->out_module->push_back(nn::ELU(nn::ELUOptions().inplace(true)));
+    this->out_module->push_back(WNConv2d(nc, n_class, std::vector<long int>{1, 1}));
+    register_module("out_module", this->out_module);
 
 }
 
@@ -123,17 +373,33 @@ PixelSnailImpl::PixelSnailImpl(po::variables_map &vm){
 // -----------------------------------------------------------------------------
 // struct{PixelSnailImpl}(nn::Module) -> function{forward}
 // -----------------------------------------------------------------------------
-torch::Tensor PixelSnailImpl::forward(torch::Tensor x, std::vector<torch::Tensor> condition){
-    torch::Tensor x_emb, c_emb, c_res, last, out;
-    x_emb = this->token_emb->forward(x.view({-1})).view({x.size(0), x.size(1), x.size(2), this->dim}).permute({0, 3, 1, 2}).contiguous();
-    if (condition.size() > 0){
-        c_emb = this->token_emb->forward(condition[0].view({-1})).view({condition[0].size(0), condition[0].size(1), condition[0].size(2), this->dim}).permute({0, 3, 1, 2}).contiguous();
-        c_res = this->cond_resnet->forward(c_emb);
-        x_emb = x_emb + c_res;
+torch::Tensor PixelSnailImpl::forward(torch::Tensor x, torch::Tensor condition){
+
+    torch::Tensor horiz, vert, out, back;
+
+    x = F::one_hot(x, this->n_class).permute({0, 3, 1, 2}).to(this->background.device());
+    horiz = this->horizontal->forward(x);
+    horiz = F::pad(horiz, std::vector<long int>{0, 0, 1, 0}).index({Slice(), Slice(), Slice(0, horiz.size(2)), Slice()});
+    vert = this->vertical->forward(x);
+    vert = F::pad(vert, std::vector<long int>{1, 0, 0, 0}).index({Slice(), Slice(), Slice(), Slice(0, vert.size(3))});
+    out = horiz + vert;
+
+    back = this->background.index({Slice(), Slice(), Slice(0, x.size(1)), Slice()}).expand({x.size(0), 2, x.size(1), x.size(2)});
+
+    if (condition.numel() > 0){
+        condition = F::one_hot(condition, this->n_class).permute({0, 3, 1, 2}).to(this->background.device());
+        condition = this->cond_resnet->forward(condition);
+        condition = F::interpolate(condition, F::InterpolateFuncOptions().scale_factor(std::vector<double>{2.0, 2.0}));
+        condition = condition.index({Slice(), Slice(), Slice(0, x.size(1)), Slice()});
     }
-    last = this->layers->forward(x_emb);
-    out = this->output_conv->forward(last);
+    
+    for (long int i = 0; i < this->block; i++){
+        out = this->blocks[i]->as<PixelBlock>()->forward(out, back, condition);
+    }
+    out = this->out_module->forward(out);
+
     return out;
+
 }
 
 
@@ -476,6 +742,13 @@ std::tuple<std::vector<long int>, std::vector<long int>> VQVAE2Impl::get_idx_sha
 // ----------------------------
 void weights_init(nn::Module &m){
     if ((typeid(m) == typeid(nn::Conv2d)) || (typeid(m) == typeid(nn::Conv2dImpl)) || (typeid(m) == typeid(nn::ConvTranspose2d)) || (typeid(m) == typeid(nn::ConvTranspose2dImpl))) {
+        auto p = m.named_parameters(false);
+        auto w = p.find("weight");
+        auto b = p.find("bias");
+        if (w != nullptr) nn::init::normal_(*w, /*mean=*/0.0, /*std=*/0.02);
+        if (b != nullptr) nn::init::constant_(*b, /*bias=*/0.0);
+    }
+    else if ((typeid(m) == typeid(nn::Linear)) || (typeid(m) == typeid(nn::LinearImpl))){
         auto p = m.named_parameters(false);
         auto w = p.find("weight");
         auto b = p.find("bias");

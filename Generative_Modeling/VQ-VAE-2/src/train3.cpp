@@ -174,7 +174,7 @@ void train3(po::variables_map &vm, torch::Device &device, VQVAE2 &vqvae2, PixelS
             }
             idx_t = std::get<0>(idx);
             idx_b = std::get<1>(idx);
-            output = model->forward(idx_b, {idx_t});
+            output = model->forward(idx_b, idx_t);
             loss = criterion(output, idx_b);
             optimizer.zero_grad();
             loss.backward();

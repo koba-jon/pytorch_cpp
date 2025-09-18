@@ -1,6 +1,7 @@
 #ifndef NETWORKS_HPP
 #define NETWORKS_HPP
 
+#include <string>
 #include <vector>
 #include <tuple>
 // For External Library
@@ -16,35 +17,113 @@ void weights_init(nn::Module &m);
 
 
 // -------------------------------------------------
-// struct{MaskedConv2dImpl}(nn::Module)
+// struct{WNConv2dImpl}(nn::Module)
 // -------------------------------------------------
-struct MaskedConv2dImpl : nn::Module{
+struct WNConv2dImpl : nn::Module{
 private:
-    char mask_type;
-    long int padding;
-    torch::Tensor weight, mask;
+    nn::Conv2d conv = nullptr;
 public:
-    MaskedConv2dImpl(){}
-    MaskedConv2dImpl(char mask_type_, long int in_nc, long int out_nc, long int kernel);
+    torch::Tensor v, g;
+    WNConv2dImpl(){}
+    WNConv2dImpl(long int in_nc, long int out_nc, std::vector<long int> kernel, long int stride=1, std::vector<long int> padding={0, 0}, bool bias=true);
     torch::Tensor forward(torch::Tensor x);
-    void pretty_print(std::ostream& stream) const override;
 };
-TORCH_MODULE(MaskedConv2d);
+TORCH_MODULE(WNConv2d);
 
 
 // -------------------------------------------------
-// struct{MaskedConv2dBlockImpl}(nn::Module)
+// struct{WNLinearImpl}(nn::Module)
 // -------------------------------------------------
-struct MaskedConv2dBlockImpl : nn::Module{
+struct WNLinearImpl : nn::Module{
 private:
-    bool residual;
-    nn::Sequential model;
+    nn::Linear linear = nullptr;
 public:
-    MaskedConv2dBlockImpl(){}
-    MaskedConv2dBlockImpl(char mask_type, long int dim, bool residual_);
+    torch::Tensor v, g;
+    WNLinearImpl(){}
+    WNLinearImpl(long int in_nc, long int out_nc);
     torch::Tensor forward(torch::Tensor x);
 };
-TORCH_MODULE(MaskedConv2dBlock);
+TORCH_MODULE(WNLinear);
+
+
+// -------------------------------------------------
+// struct{CausalConv2dImpl}(nn::Module)
+// -------------------------------------------------
+struct CausalConv2dImpl : nn::Module{
+private:
+    long int causal;
+    nn::ZeroPad2d zero_pad = nullptr;
+    WNConv2d conv;
+public:
+    CausalConv2dImpl(){}
+    CausalConv2dImpl(long int in_nc, long int out_nc, std::vector<long int> kernel, long int stride=1, std::string padding="downright");
+    torch::Tensor forward(torch::Tensor x);
+};
+TORCH_MODULE(CausalConv2d);
+
+
+// -------------------------------------------------
+// struct{GatedResBlockImpl}(nn::Module)
+// -------------------------------------------------
+struct GatedResBlockImpl : nn::Module{
+private:
+    nn::Sequential conv1, conv2, aux_conv, cond;
+    nn::ELU activation = nullptr;
+    nn::Dropout dropout = nullptr;
+    nn::GLU gate = nullptr;
+public:
+    GatedResBlockImpl(){}
+    GatedResBlockImpl(long int in_nc, long int nc, std::vector<long int> kernel, std::string conv="wnconv2d", std::string act="ELU", float droprate=0.1, long int aux_nc=0, long int cond_dim=0);
+    torch::Tensor forward(torch::Tensor x, torch::Tensor aux=torch::Tensor(), torch::Tensor condition=torch::Tensor());
+};
+TORCH_MODULE(GatedResBlock);
+
+
+// -------------------------------------------------
+// struct{CausalAttentionImpl}(nn::Module)
+// -------------------------------------------------
+struct CausalAttentionImpl : nn::Module{
+private:
+    long int dim_head, n_head;
+    WNLinear query_linear, key_linear, value_linear;
+    nn::Dropout dropout = nullptr;
+public:
+    CausalAttentionImpl(){}
+    CausalAttentionImpl(long int query_nc, long int key_nc, long int nc, long int n_head_, float droprate);
+    torch::Tensor forward(torch::Tensor query, torch::Tensor key);
+};
+TORCH_MODULE(CausalAttention);
+
+
+// -------------------------------------------------
+// struct{PixelBlockImpl}(nn::Module)
+// -------------------------------------------------
+struct PixelBlockImpl : nn::Module{
+private:
+    long int res_block, attention;
+    nn::ModuleList resblocks;
+    GatedResBlock key_resblock, query_resblock, causal_attention, out_resblock;
+    WNConv2d out_conv;
+public:
+    PixelBlockImpl(){}
+    PixelBlockImpl(long int in_nc, long int nc, long int kernel, long int res_block_, bool attention_, float droprate, long int cond_dim);
+    torch::Tensor forward(torch::Tensor x, torch::Tensor background, torch::Tensor condition);
+};
+TORCH_MODULE(PixelBlock);
+
+
+// -------------------------------------------------
+// struct{CondResNetImpl}(nn::Module)
+// -------------------------------------------------
+struct CondResNetImpl : nn::Module{
+private:
+    nn::Sequential blocks;
+public:
+    CondResNetImpl(){}
+    CondResNetImpl(long int in_nc, long int nc, long int kernel, long int res_block);
+    torch::Tensor forward(torch::Tensor x);
+};
+TORCH_MODULE(CondResNet);
 
 
 // -------------------------------------------------
@@ -52,15 +131,16 @@ TORCH_MODULE(MaskedConv2dBlock);
 // -------------------------------------------------
 struct PixelSnailImpl : nn::Module{
 private:
-    long int dim;
-    nn::Embedding token_emb = nullptr;
-    nn::Sequential cond_resnet;
-    nn::Sequential layers;
-    nn::Conv2d output_conv = nullptr;
+    long int n_class, block;
+    CausalConv2d horizontal, vertical;
+    torch::Tensor background;
+    nn::ModuleList blocks;
+    CondResNet cond_resnet;
+    nn::Sequential out_module;
 public:
     PixelSnailImpl(){}
-    PixelSnailImpl(po::variables_map &vm);
-    torch::Tensor forward(torch::Tensor x, std::vector<torch::Tensor> condition={});
+    PixelSnailImpl(std::vector<long int> shape, long int n_class_, long int nc, long int kernel, long int block_, long int res_block, long int res_nc, bool attention=true, float droprate=0.1, long int cond_res_block=0, long int cond_res_nc=0, long int cond_res_kernel=3, long int out_res_block=0);
+    torch::Tensor forward(torch::Tensor x, torch::Tensor condition=torch::Tensor());
 };
 TORCH_MODULE(PixelSnail);
 

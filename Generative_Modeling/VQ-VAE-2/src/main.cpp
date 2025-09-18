@@ -138,6 +138,11 @@ po::options_description parse_arguments(){
         ("nf", po::value<size_t>()->default_value(128), "the number of filters in convolution layer closest to image")
         ("res_block", po::value<size_t>()->default_value(2), "the number of blocks in residual layer")
         ("res_nc", po::value<size_t>()->default_value(32), "the number of channel in residual layer")
+        ("res_block_pix", po::value<size_t>()->default_value(4), "the number of blocks in residual layer of PixelSnail")
+        ("res_nc_pix", po::value<size_t>()->default_value(256), "the number of channel in residual layer of PixelSnail")
+        ("droprate", po::value<float>()->default_value(0.1), "the rate of dropout")
+        ("out_res_block_pix", po::value<size_t>()->default_value(0), "the number of out residual block")
+        ("cond_res_block_pix", po::value<size_t>()->default_value(3), "the number of conditional residual block")
         ("Lambda", po::value<float>()->default_value(0.25), "the multiple of Latent Loss")
         ("dim_pix", po::value<size_t>()->default_value(64), "dimensions of hidden layers of PixelSnail")
         ("n_layers", po::value<size_t>()->default_value(15), "the number of layers of PixelSnail")
@@ -195,8 +200,8 @@ int main(int argc, const char *argv[]){
     
     // (5) Define Network
     VQVAE2 vqvae2(vm); vqvae2->to(device);
-    PixelSnail pixelsnail_t(vm); pixelsnail_t->to(device);
-    PixelSnail pixelsnail_b(vm); pixelsnail_b->to(device);
+    PixelSnail pixelsnail_t(std::vector<long int>{32, 32}, 512, vm["nc"].as<size_t>(), 5, 4, vm["res_block_pix"].as<size_t>(), vm["res_nc_pix"].as<size_t>(), true, vm["droprate"].as<float>(), 0, 0, 3, vm["out_res_block_pix"].as<size_t>()); pixelsnail_t->to(device);
+    PixelSnail pixelsnail_b(std::vector<long int>{64, 64}, 512, vm["nc"].as<size_t>(), 5, 4, vm["res_block_pix"].as<size_t>(), vm["res_nc_pix"].as<size_t>(), false, vm["droprate"].as<float>(), vm["cond_res_block_pix"].as<size_t>(), vm["res_nc_pix"].as<size_t>()); pixelsnail_b->to(device);
     
     // (6) Make Directories
     std::string dir = "checkpoints/" + vm["dataset"].as<std::string>();
