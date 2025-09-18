@@ -17,33 +17,18 @@ void weights_init(nn::Module &m);
 
 
 // -------------------------------------------------
-// struct{WNConv2dImpl}(nn::Module)
+// struct{BNConv2dImpl}(nn::Module)
 // -------------------------------------------------
-struct WNConv2dImpl : nn::Module{
+struct BNConv2dImpl : nn::Module{
 private:
+    nn::BatchNorm2d bn = nullptr;
+public:
     nn::Conv2d conv = nullptr;
-public:
-    torch::Tensor v, g;
-    WNConv2dImpl(){}
-    WNConv2dImpl(long int in_nc, long int out_nc, std::vector<long int> kernel, long int stride=1, std::vector<long int> padding={0, 0}, bool bias=true);
+    BNConv2dImpl(){}
+    BNConv2dImpl(long int in_nc, long int out_nc, std::vector<long int> kernel, long int stride=1, std::vector<long int> padding={0, 0}, bool bias=true);
     torch::Tensor forward(torch::Tensor x);
 };
-TORCH_MODULE(WNConv2d);
-
-
-// -------------------------------------------------
-// struct{WNLinearImpl}(nn::Module)
-// -------------------------------------------------
-struct WNLinearImpl : nn::Module{
-private:
-    nn::Linear linear = nullptr;
-public:
-    torch::Tensor v, g;
-    WNLinearImpl(){}
-    WNLinearImpl(long int in_nc, long int out_nc);
-    torch::Tensor forward(torch::Tensor x);
-};
-TORCH_MODULE(WNLinear);
+TORCH_MODULE(BNConv2d);
 
 
 // -------------------------------------------------
@@ -53,7 +38,7 @@ struct CausalConv2dImpl : nn::Module{
 private:
     long int causal;
     nn::ZeroPad2d zero_pad = nullptr;
-    WNConv2d conv;
+    BNConv2d conv;
 public:
     CausalConv2dImpl(){}
     CausalConv2dImpl(long int in_nc, long int out_nc, std::vector<long int> kernel, long int stride=1, std::string padding="downright");
@@ -73,7 +58,7 @@ private:
     nn::GLU gate = nullptr;
 public:
     GatedResBlockImpl(){}
-    GatedResBlockImpl(long int in_nc, long int nc, std::vector<long int> kernel, std::string conv="wnconv2d", std::string act="ELU", float droprate=0.1, long int aux_nc=0, long int cond_dim=0);
+    GatedResBlockImpl(long int in_nc, long int nc, std::vector<long int> kernel, std::string conv="bnconv2d", std::string act="ELU", float droprate=0.1, long int aux_nc=0, long int cond_dim=0);
     torch::Tensor forward(torch::Tensor x, torch::Tensor aux=torch::Tensor(), torch::Tensor condition=torch::Tensor());
 };
 TORCH_MODULE(GatedResBlock);
@@ -85,7 +70,9 @@ TORCH_MODULE(GatedResBlock);
 struct CausalAttentionImpl : nn::Module{
 private:
     long int dim_head, n_head;
-    WNLinear query_linear, key_linear, value_linear;
+    nn::Linear query_linear = nullptr;
+    nn::Linear key_linear = nullptr;
+    nn::Linear value_linear = nullptr;
     nn::Dropout dropout = nullptr;
 public:
     CausalAttentionImpl(){}
@@ -103,7 +90,7 @@ private:
     long int res_block, attention;
     nn::ModuleList resblocks;
     GatedResBlock key_resblock, query_resblock, causal_attention, out_resblock;
-    WNConv2d out_conv;
+    BNConv2d out_conv;
 public:
     PixelBlockImpl(){}
     PixelBlockImpl(long int in_nc, long int nc, long int kernel, long int res_block_, bool attention_, float droprate, long int cond_dim);
