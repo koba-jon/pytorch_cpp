@@ -267,7 +267,7 @@ PixelBlockImpl::PixelBlockImpl(long int in_nc, long int nc, long int kernel, lon
         this->key_resblock = GatedResBlock(in_nc * 2 + 2, in_nc, std::vector<long int>{1, 1}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate);
         this->query_resblock = GatedResBlock(in_nc + 2, in_nc, std::vector<long int>{1, 1}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate);
         this->causal_attention = GatedResBlock(in_nc + 2, in_nc * 2 + 2, std::vector<long int>{in_nc / 2, in_nc / 2}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate);
-        this->out_resblock = GatedResBlock(in_nc, in_nc, std::vector<long int>{1, 1}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate, /*aux_nc=*/5);
+        this->out_resblock = GatedResBlock(in_nc, in_nc, std::vector<long int>{1, 1}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate, /*aux_nc=*/in_nc + 2);
         register_module("key_resblock", this->key_resblock);
         register_module("query_resblock", this->query_resblock);
         register_module("causal_attention", this->causal_attention);

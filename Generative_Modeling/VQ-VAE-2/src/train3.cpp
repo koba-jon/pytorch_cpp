@@ -113,7 +113,7 @@ void train3(po::variables_map &vm, torch::Device &device, VQVAE2 &vqvae2, PixelS
         ofs.open(checkpoint_dir + "/log/train3.txt", std::ios::app);
         ofs << std::endl << std::endl;
         if (vm["train3_load_epoch"].as<std::string>() == "latest"){
-            infoi.open(checkpoint_dir + "/models/info.txt", std::ios::in);
+            infoi.open(checkpoint_dir + "/models/info_train3.txt", std::ios::in);
             std::getline(infoi, buff);
             infoi.close();
             latest = "";
@@ -211,7 +211,7 @@ void train3(po::variables_map &vm, torch::Device &device, VQVAE2 &vqvae2, PixelS
         }
         path = checkpoint_dir + "/models/epoch_latest_pixelsnail_b.pth";  torch::save(model, path);
         path = checkpoint_dir + "/optims/epoch_latest_pixelsnail_b.pth";  torch::save(optimizer, path);
-        infoo.open(checkpoint_dir + "/models/info.txt", std::ios::out);
+        infoo.open(checkpoint_dir + "/models/info_train3.txt", std::ios::out);
         infoo << "latest = " << epoch << std::endl;
         infoo.close();
 
