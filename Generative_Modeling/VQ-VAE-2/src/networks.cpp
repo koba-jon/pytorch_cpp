@@ -650,7 +650,7 @@ torch::Tensor VQVAE2Impl::synthesis(torch::Tensor x, torch::Tensor y, const floa
     enc_b_x_out = this->enc_b->forward(x);
     enc_t_x_out = this->enc_t->forward(enc_b_x_out);
 
-    enc_b_y_out = this->enc_b->forward(x);
+    enc_b_y_out = this->enc_b->forward(y);
     enc_t_y_out = this->enc_t->forward(enc_b_y_out);
 
     enc_b_out = enc_b_x_out * alpha + enc_b_y_out * (1.0 - alpha);
