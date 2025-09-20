@@ -200,8 +200,8 @@ int main(int argc, const char *argv[]){
     
     // (5) Define Network
     VQVAE2 vqvae2(vm); vqvae2->to(device);
-    PixelSnail pixelsnail_t(std::vector<long int>{32, 32}, 512, vm["nc"].as<size_t>(), 5, 4, vm["res_block_pix"].as<size_t>(), vm["res_nc_pix"].as<size_t>(), true, vm["droprate"].as<float>(), 0, 0, 3, vm["out_res_block_pix"].as<size_t>()); pixelsnail_t->to(device);
-    PixelSnail pixelsnail_b(std::vector<long int>{64, 64}, 512, vm["nc"].as<size_t>(), 5, 4, vm["res_block_pix"].as<size_t>(), vm["res_nc_pix"].as<size_t>(), false, vm["droprate"].as<float>(), vm["cond_res_block_pix"].as<size_t>(), vm["res_nc_pix"].as<size_t>()); pixelsnail_b->to(device);
+    PixelSnail pixelsnail_t(vm["K"].as<size_t>(), vm["nc"].as<size_t>(), 5, 4, vm["res_block_pix"].as<size_t>(), vm["res_nc_pix"].as<size_t>(), true, vm["droprate"].as<float>(), 0, 0, 3, vm["out_res_block_pix"].as<size_t>()); pixelsnail_t->to(device);
+    PixelSnail pixelsnail_b(vm["K"].as<size_t>(), vm["nc"].as<size_t>(), 5, 4, vm["res_block_pix"].as<size_t>(), vm["res_nc_pix"].as<size_t>(), false, vm["droprate"].as<float>(), vm["cond_res_block_pix"].as<size_t>(), vm["res_nc_pix"].as<size_t>()); pixelsnail_b->to(device);
     
     // (6) Make Directories
     std::string dir = "checkpoints/" + vm["dataset"].as<std::string>();

@@ -340,23 +340,16 @@ torch::Tensor CondResNetImpl::forward(torch::Tensor x){
 // -----------------------------------------------------------------------------
 // struct{PixelSnailImpl}(nn::Module) -> constructor
 // -----------------------------------------------------------------------------
-PixelSnailImpl::PixelSnailImpl(std::vector<long int> shape, long int n_class_, long int nc, long int kernel, long int block_, long int res_block, long int res_nc, bool attention, float droprate, long int cond_res_block, long int cond_res_nc, long int cond_res_kernel, long int out_res_block){
+PixelSnailImpl::PixelSnailImpl(long int K_, long int nc, long int kernel, long int block_, long int res_block, long int res_nc, bool attention, float droprate, long int cond_res_block, long int cond_res_nc, long int cond_res_kernel, long int out_res_block){
 
-    this->n_class = n_class_;
+    this->K = K_;
     this->block = block_;
-    torch::Tensor coord_x, coord_y;
 
     if (kernel % 2 == 0) kernel = kernel + 1;
-    this->horizontal = CausalConv2d(this->n_class, nc, std::vector<long int>{kernel / 2, kernel}, 1, /*padding=*/"down");
-    this->vertical = CausalConv2d(this->n_class, nc, std::vector<long int>{(kernel + 1) / 2, kernel / 2}, 1, /*padding=*/"downright");
+    this->horizontal = CausalConv2d(this->K, nc, std::vector<long int>{kernel / 2, kernel}, 1, /*padding=*/"down");
+    this->vertical = CausalConv2d(this->K, nc, std::vector<long int>{(kernel + 1) / 2, kernel / 2}, 1, /*padding=*/"downright");
     register_module("horizontal", this->horizontal);
     register_module("vertical", this->vertical);
-
-    coord_x = (torch::arange(shape[0]).to(torch::kFloat) - shape[0] * 0.5) / shape[0];
-    coord_x = coord_x.view({1, 1, shape[0], 1}).expand({1, 1, shape[0], shape[1]});
-    coord_y = (torch::arange(shape[1]).to(torch::kFloat) - shape[1] * 0.5) / shape[1];
-    coord_y = coord_y.view({1, 1, 1, shape[0]}).expand({1, 1, shape[0], shape[1]});
-    this->background = register_buffer("background", torch::cat({coord_x, coord_y}, 1));
 
     for (long int i = 0; i < this->block; i++){
         this->blocks->push_back(PixelBlock(nc, res_nc, kernel, res_block, attention, droprate, cond_res_nc));
@@ -364,7 +357,7 @@ PixelSnailImpl::PixelSnailImpl(std::vector<long int> shape, long int n_class_, l
     register_module("blocks", this->blocks);
 
     if (cond_res_block > 0){
-        this->cond_resnet = CondResNet(this->n_class, cond_res_nc, cond_res_kernel, cond_res_block);
+        this->cond_resnet = CondResNet(this->K, cond_res_nc, cond_res_kernel, cond_res_block);
         register_module("cond_resnet", this->cond_resnet);
     }
 
@@ -372,7 +365,7 @@ PixelSnailImpl::PixelSnailImpl(std::vector<long int> shape, long int n_class_, l
         this->out_module->push_back(GatedResBlock(nc, res_nc, std::vector<long int>{1, 1}));
     }
     this->out_module->push_back(nn::ELU(nn::ELUOptions().inplace(true)));
-    this->out_module->push_back(WNConv2d(nc, n_class, std::vector<long int>{1, 1}));
+    this->out_module->push_back(WNConv2d(nc, this->K, std::vector<long int>{1, 1}));
     register_module("out_module", this->out_module);
 
 }
@@ -383,19 +376,23 @@ PixelSnailImpl::PixelSnailImpl(std::vector<long int> shape, long int n_class_, l
 // -----------------------------------------------------------------------------
 torch::Tensor PixelSnailImpl::forward(torch::Tensor x, torch::Tensor condition){
 
-    torch::Tensor x_, horiz, vert, out, back;
+    torch::Tensor x_, horiz, vert, out, coord_x, coord_y, back;
 
-    x_ = F::one_hot(x, this->n_class).permute({0, 3, 1, 2}).to(torch::kFloat);
+    x_ = F::one_hot(x, this->K).permute({0, 3, 1, 2}).to(torch::kFloat);
     horiz = this->horizontal->forward(x_);
     horiz = F::pad(horiz, std::vector<long int>{0, 0, 1, 0}).index({Slice(), Slice(), Slice(0, horiz.size(2)), Slice()});
     vert = this->vertical->forward(x_);
     vert = F::pad(vert, std::vector<long int>{1, 0, 0, 0}).index({Slice(), Slice(), Slice(), Slice(0, vert.size(3))});
     out = horiz + vert;
 
-    back = this->background.index({Slice(), Slice(), Slice(0, x.size(1)), Slice()}).expand({x.size(0), 2, x.size(1), x.size(2)});
+    coord_x = (torch::arange(x.size(1)).to(torch::kFloat).to(x.device()) - x.size(1) * 0.5) / x.size(1);
+    coord_x = coord_x.view({1, 1, x.size(1), 1}).expand({x.size(0), 1, x.size(1), x.size(2)});
+    coord_y = (torch::arange(x.size(2)).to(torch::kFloat).to(x.device()) - x.size(2) * 0.5) / x.size(2);
+    coord_y = coord_y.view({1, 1, 1, x.size(2)}).expand({x.size(0), 1, x.size(1), x.size(2)});
+    back = torch::cat({coord_x, coord_y}, 1);
 
     if (condition.numel() > 0){
-        condition = F::one_hot(condition, this->n_class).permute({0, 3, 1, 2}).to(torch::kFloat);
+        condition = F::one_hot(condition, this->K).permute({0, 3, 1, 2}).to(torch::kFloat);
         condition = this->cond_resnet->forward(condition);
         condition = F::interpolate(condition, F::InterpolateFuncOptions().scale_factor(std::vector<double>{2.0, 2.0}));
         condition = condition.index({Slice(), Slice(), Slice(0, x.size(1)), Slice()});

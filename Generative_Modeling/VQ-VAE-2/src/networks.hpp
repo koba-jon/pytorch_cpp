@@ -132,15 +132,14 @@ TORCH_MODULE(CondResNet);
 // -------------------------------------------------
 struct PixelSnailImpl : nn::Module{
 private:
-    long int n_class, block;
+    long int K, block;
     CausalConv2d horizontal, vertical;
-    torch::Tensor background;
     nn::ModuleList blocks;
     CondResNet cond_resnet;
     nn::Sequential out_module;
 public:
     PixelSnailImpl(){}
-    PixelSnailImpl(std::vector<long int> shape, long int n_class_, long int nc, long int kernel, long int block_, long int res_block, long int res_nc, bool attention=true, float droprate=0.1, long int cond_res_block=0, long int cond_res_nc=0, long int cond_res_kernel=3, long int out_res_block=0);
+    PixelSnailImpl(long int K_, long int nc, long int kernel, long int block_, long int res_block, long int res_nc, bool attention=true, float droprate=0.1, long int cond_res_block=0, long int cond_res_nc=0, long int cond_res_kernel=3, long int out_res_block=0);
     torch::Tensor forward(torch::Tensor x, torch::Tensor condition=torch::Tensor());
 };
 TORCH_MODULE(PixelSnail);
