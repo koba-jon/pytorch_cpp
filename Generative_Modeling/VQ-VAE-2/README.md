@@ -127,6 +127,12 @@ If you want to test the reconstruction error of the image, the above settings wi
 If you want to test the denoising of the image, set "test_in_dir" to "directory of noisy images" and "test_out_dir" to "directory of output ground truth".<br>
 However, the two file names must correspond.
 
+#### Run
+Please execute the following to start the program.
+~~~
+$ sh scripts/test1.sh
+~~~
+
 ### 4.1. Training 2 (Top Level PixelSnail)
 
 #### Setting
