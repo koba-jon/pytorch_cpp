@@ -57,7 +57,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
-09/22,2025: Implementation of `PixelCNN-Gray` <br>
+09/22,2025: Implementation of `PixelCNN-Gray` and `PixelCNN-RGB` <br>
 09/18,2025: Implementation of `VQ-VAE-2` <br>
 09/16,2025: Implementation of `VQ-VAE` <br>
 09/14,2025: Implementation of `PNDM2d` and `PNDM2d-v` <br>
