@@ -276,11 +276,14 @@ $ sh scripts/test.sh
     <td><a href="Generative_Modeling/PNDM2d-v">PNDM2d-v</a></td>
   </tr>
   <tr>
-    <td rowspan="1">Autoregressive Models</td>
-    <td>PixelCNN</td>
-    <td><a href="https://proceedings.mlr.press/v48/oord16.html">A. v. d. Oord et al.</a></td>
-    <td>ICML 2016</td>
+    <td rowspan="2">Autoregressive Models</td>
+    <td rowspan="2">PixelCNN</td>
+    <td rowspan="2"><a href="https://proceedings.mlr.press/v48/oord16.html">A. v. d. Oord et al.</a></td>
+    <td rowspan="2">ICML 2016</td>
     <td><a href="Generative_Modeling/PixelCNN-Gray">PixelCNN-Gray</a></td>
+  </tr>
+  <tr>
+    <td><a href="Generative_Modeling/PixelCNN-RGB">PixelCNN-RGB</a></td>
   </tr>
 </table>
 
