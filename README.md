@@ -303,7 +303,7 @@ $ sh scripts/test.sh
     <td>PixelCNN</td>
     <td><a href="https://proceedings.mlr.press/v48/oord16.html">A. v. d. Oord et al.</a></td>
     <td>ICML 2016</td>
-    <td><a href="Generative_Modeling/PixelCNN">PixelCNN</a></td>
+    <td><a href="Generative_Modeling/PixelCNN-Gray">PixelCNN-Gray</a></td>
     <td>v2.8.1</td>
   </tr>
 </table>
