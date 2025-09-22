@@ -42,11 +42,11 @@ datasets
 ~~~
 
 You should substitute the path of training data for "<training_path>", test data for "<test_path>", respectively.<br>
-The following is an example for "MNIST".
+The following is an example for "celebA".
 ~~~
 $ cd datasets
-$ mkdir MNIST
-$ cd MNIST
+$ mkdir celebA
+$ cd celebA
 $ ln -s <training_path> ./train
 $ ln -s <test_path> ./test
 $ cd ../..
@@ -64,7 +64,7 @@ If you want to view specific examples of command line arguments, please view "sr
 ~~~
 #!/bin/bash
 
-DATA='MNIST'
+DATA='celebA'
 
 ./PixelCNN-RGB \
     --train true \
@@ -93,7 +93,7 @@ If you want to view specific examples of command line arguments, please view "sr
 ~~~
 #!/bin/bash
 
-DATA='MNIST'
+DATA='celebA'
 
 ./PixelCNN-RGB \
     --test true \
@@ -120,7 +120,7 @@ If you want to view specific examples of command line arguments, please view "sr
 ~~~
 #!/bin/bash
 
-DATA='MNIST'
+DATA='celebA'
 
 ./PixelCNN-RGB \
     --sample true \
