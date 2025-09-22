@@ -143,7 +143,7 @@ DATA='celebA'
 
 ./VQ-VAE-2 \
     --train2 true \
-    --train2_epochs 100 \
+    --train2_epochs 300 \
     --dataset ${DATA} \
     --size 256 \
     --train2_batch_size 16 \
@@ -201,7 +201,7 @@ DATA='celebA'
 
 ./VQ-VAE-2 \
     --train3 true \
-    --train3_epochs 100 \
+    --train3_epochs 300 \
     --dataset ${DATA} \
     --size 256 \
     --train3_batch_size 16 \
