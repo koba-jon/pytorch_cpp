@@ -57,6 +57,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+09/22,2025: Implementation of `PixelCNN-Gray` <br>
 09/18,2025: Implementation of `VQ-VAE-2` <br>
 09/16,2025: Implementation of `VQ-VAE` <br>
 09/14,2025: Implementation of `PNDM2d` and `PNDM2d-v` <br>
@@ -66,11 +67,11 @@ $ sh scripts/test.sh
 09/11,2025: Implementation of `DDPM2d-v` and `DDIM2d-v` <br>
 09/10,2025: Implementation of EMA for `DDPM2d` and `DDIM2d` <br>
 09/08,2025: Implementation of `EfficientNet` <br>
-09/07,2025: Implementation of `CycleGAN` <br>
 
 <details>
 <summary>See more...</summary>
   
+09/07,2025: Implementation of `CycleGAN` <br>
 09/05,2025: Implementation of `ViT` <br>
 09/04,2025: Release of `v2.8.0` <br>
 09/04,2025: Implementation of `DDIM2d` <br>
@@ -295,6 +296,14 @@ $ sh scripts/test.sh
   </tr>
   <tr>
     <td><a href="Generative_Modeling/PNDM2d-v">PNDM2d-v</a></td>
+    <td>v2.8.1</td>
+  </tr>
+  <tr>
+    <td rowspan="1">Autoregressive Models</td>
+    <td>PixelCNN</td>
+    <td><a href="https://proceedings.mlr.press/v48/oord16.html">A. v. d. Oord et al.</a></td>
+    <td>ICML 2016</td>
+    <td><a href="Generative_Modeling/PixelCNN">PixelCNN</a></td>
     <td>v2.8.1</td>
   </tr>
 </table>
