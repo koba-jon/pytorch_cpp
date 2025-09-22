@@ -134,7 +134,6 @@ $ sh scripts/test.sh
     <th>Paper</th>
     <th>Conference/Journal</th>
     <th>Code</th>
-    <th>Release Version</th>
   </tr>
   <tr>
     <td rowspan="5">CNNs</td>
@@ -142,35 +141,30 @@ $ sh scripts/test.sh
     <td><a href="http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networ">A. Krizhevsky et al.</a></td>
     <td>NeurIPS 2012</td>
     <td><a href="Multiclass_Classification/AlexNet">AlexNet</a></td>
-    <td>v1.7.0</td>
   </tr>
   <tr>
     <td>VGGNet</td>
     <td><a href="https://arxiv.org/abs/1409.1556">K. Simonyan et al.</a></td>
     <td>ICLR 2015</td>
     <td><a href="Multiclass_Classification/VGGNet">VGGNet</a></td>
-    <td>v1.7.0</td>
   </tr>
   <tr>
     <td>ResNet</td>
     <td><a href="https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html">K. He et al.</a></td>
     <td>CVPR 2016</td>
     <td><a href="Multiclass_Classification/ResNet">ResNet</a></td>
-    <td>v1.7.0</td>
   </tr>
   <tr>
     <td>Discriminator</td>
     <td><a href="https://arxiv.org/abs/1511.06434">A. Radford et al.</a></td>
     <td>ICLR 2016</td>
     <td><a href="Multiclass_Classification/Discriminator">Discriminator</a></td>
-    <td>v1.8.1</td>
   </tr>
   <tr>
     <td>EfficientNet</td>
     <td><a href="https://proceedings.mlr.press/v97/tan19a.html?ref=ji">M. Tan et al.</a></td>
     <td>ICML 2019</td>
     <td><a href="Multiclass_Classification/EfficientNet">EfficientNet</a></td>
-    <td>v2.8.0.1</td>
   </tr>
   <tr>
     <td rowspan="1">Transformers</td>
@@ -178,7 +172,6 @@ $ sh scripts/test.sh
     <td><a href="https://arxiv.org/abs/2010.11929">A. Dosovitskiy et al.</a></td>
     <td>ICLR 2021</td>
     <td><a href="Multiclass_Classification/ViT">ViT</a></td>
-    <td>v2.8.0.1</td>
   </tr>
 </table>
   
@@ -190,25 +183,21 @@ $ sh scripts/test.sh
     <th>Paper</th>
     <th>Conference/Journal</th>
     <th>Code</th>
-    <th>Release Version</th>
   </tr>
   <tr>
     <td rowspan="2">Autoencoder</td>
     <td rowspan="2"><a href="https://science.sciencemag.org/content/313/5786/504.abstract">G. E. Hinton et al.</a></td>
     <td rowspan="2">Science 2006</td>
     <td><a href="Dimensionality_Reduction/AE1d">AE1d</a></td>
-    <td>v1.8.1</td>
   </tr>
   <tr>
     <td><a href="Dimensionality_Reduction/AE2d">AE2d</a></td>
-    <td>v1.5.0</td>
   </tr>
   <tr>
     <td>Denoising Autoencoder</td>
     <td><a href="https://dl.acm.org/doi/abs/10.1145/1390156.1390294">P. Vincent et al.</a></td>
     <td>ICML 2008</td>
     <td><a href="Dimensionality_Reduction/DAE2d">DAE2d</a></td>
-    <td>v1.7.0</td>
   </tr>
 </table>
 
@@ -222,7 +211,6 @@ $ sh scripts/test.sh
     <th>Paper</th>
     <th>Conference/Journal</th>
     <th>Code</th>
-    <th>Release Version</th>
   </tr>
   <tr>
     <td rowspan="5">VAEs</td>
@@ -230,14 +218,12 @@ $ sh scripts/test.sh
     <td><a href="https://arxiv.org/abs/1312.6114">D. P. Kingma et al.</a></td>
     <td>ICLR 2014</td>
     <td><a href="Generative_Modeling/VAE2d">VAE2d</a></td>
-    <td>v1.5.1</td>
   </tr>
   <tr>
     <td rowspan="2">Wasserstein Autoencoder</td>
     <td rowspan="2"><a href="https://openreview.net/forum?id=HkL7n1-0b">I. Tolstikhin et al.</a></td>
     <td rowspan="2">ICLR 2018</td>
     <td><a href="Generative_Modeling/WAE2d_GAN">WAE2d GAN</a></td>
-    <td rowspan="2">v1.7.0</td>
   </tr>
   <tr>
     <td><a href="Generative_Modeling/WAE2d_MMD">WAE2d MMD</a></td>
@@ -247,14 +233,12 @@ $ sh scripts/test.sh
     <td><a href="https://proceedings.neurips.cc/paper/2017/hash/7a98af17e63a0ac09ce2e96d03992fbc-Abstract.html">A. v. d. Oord et al.</a></td>
     <td>NeurIPS 2017</td>
     <td><a href="Generative_Modeling/VQ-VAE">VQ-VAE</a></td>
-    <td>v2.8.1</td>
   </tr>
   <tr>
     <td>VQ-VAE-2</td>
     <td><a href="https://proceedings.neurips.cc/paper/2019/hash/5f8e2fa1718d1bbcadf1cd9c7a54fb8c-Abstract.html">A. Razavi et al.</a></td>
     <td>NeurIPS 2019</td>
     <td><a href="Generative_Modeling/VQ-VAE-2">VQ-VAE-2</a></td>
-    <td>v2.8.1</td>
   </tr>
   <tr>
     <td rowspan="1">GANs</td>
@@ -262,7 +246,6 @@ $ sh scripts/test.sh
     <td><a href="https://arxiv.org/abs/1511.06434">A. Radford et al.</a></td>
     <td>ICLR 2016</td>
     <td><a href="Generative_Modeling/DCGAN">DCGAN</a></td>
-    <td>v1.5.1</td>
   </tr>
   <tr>
     <td rowspan="6">Diffusion Models</td>
@@ -270,33 +253,27 @@ $ sh scripts/test.sh
     <td rowspan="2"><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
     <td rowspan="2">NeurIPS 2020</td>
     <td><a href="Generative_Modeling/DDPM2d">DDPM2d</a></td>
-    <td>v2.8.0</td>
   </tr>
   <tr>
     <td><a href="Generative_Modeling/DDPM2d-v">DDPM2d-v</a></td>
-    <td>v2.8.0.1</td>
   </tr>
   <tr>
     <td rowspan="2">DDIM</td>
     <td rowspan="2"><a href="https://arxiv.org/abs/2010.02502">J. Song et al.</a></td>
     <td rowspan="2">ICLR 2021</td>
     <td><a href="Generative_Modeling/DDIM2d">DDIM2d</a></td>
-    <td>v2.8.0</td>
   </tr>
   <tr>
     <td><a href="Generative_Modeling/DDIM2d-v">DDIM2d-v</a></td>
-    <td>v2.8.0.1</td>
   </tr>
   <tr>
     <td rowspan="2">PNDM</td>
     <td rowspan="2"><a href="https://arxiv.org/abs/2202.09778">L. Liu et al.</a></td>
     <td rowspan="2">ICLR 2022</td>
     <td><a href="Generative_Modeling/PNDM2d">PNDM2d</a></td>
-    <td>v2.8.1</td>
   </tr>
   <tr>
     <td><a href="Generative_Modeling/PNDM2d-v">PNDM2d-v</a></td>
-    <td>v2.8.1</td>
   </tr>
   <tr>
     <td rowspan="1">Autoregressive Models</td>
@@ -304,7 +281,6 @@ $ sh scripts/test.sh
     <td><a href="https://proceedings.mlr.press/v48/oord16.html">A. v. d. Oord et al.</a></td>
     <td>ICML 2016</td>
     <td><a href="Generative_Modeling/PixelCNN-Gray">PixelCNN-Gray</a></td>
-    <td>v2.8.1</td>
   </tr>
 </table>
 
@@ -323,21 +299,18 @@ $ sh scripts/test.sh
     <td><a href="https://arxiv.org/abs/1505.04597">O. Ronneberger et al.</a></td>
     <td>MICCAI 2015</td>
     <td><a href="Image-to-Image_Translation/U-Net_Regression">U-Net Regression</a></td>
-    <td>v1.5.1</td>
   </tr>
   <tr>
     <td>pix2pix</td>
     <td><a href="https://openaccess.thecvf.com/content_cvpr_2017/html/Isola_Image-To-Image_Translation_With_CVPR_2017_paper.html">P. Isola et al.</a></td>
     <td>CVPR 2017</td>
     <td><a href="Image-to-Image_Translation/pix2pix">pix2pix</a></td>
-    <td>v1.5.1</td>
   </tr>
   <tr>
     <td>CycleGAN</td>
     <td><a href="https://openaccess.thecvf.com/content_iccv_2017/html/Zhu_Unpaired_Image-To-Image_Translation_ICCV_2017_paper.html">J.-Y. Zhu et al.</a></td>
     <td>ICCV 2017</td>
     <td><a href="Image-to-Image_Translation/CycleGAN">CycleGAN</a></td>
-    <td>v2.8.0.1</td>
   </tr>
 </table>
 
@@ -349,21 +322,18 @@ $ sh scripts/test.sh
     <th>Paper</th>
     <th>Conference/Journal</th>
     <th>Code</th>
-    <th>Release Version</th>
   </tr>
   <tr>
     <td>SegNet</td>
     <td><a href="https://arxiv.org/abs/1511.00561">V. Badrinarayanan et al.</a></td>
     <td>CVPR 2015</td>
     <td><a href="Semantic_Segmentation/SegNet">SegNet</a></td>
-    <td>v1.7.0</td>
   </tr>
   <tr>
     <td>U-Net</td>
     <td><a href="https://arxiv.org/abs/1505.04597">O. Ronneberger et al.</a></td>
     <td>MICCAI 2015</td>
     <td><a href="Semantic_Segmentation/U-Net_Classification">U-Net Classification</a></td>
-    <td>v1.5.1</td>
   </tr>
 </table>
 
@@ -375,28 +345,24 @@ $ sh scripts/test.sh
     <th>Paper</th>
     <th>Conference/Journal</th>
     <th>Code</th>
-    <th>Release Version</th>
   </tr>
   <tr>
     <td>YOLOv1</td>
     <td><a href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/html/Redmon_You_Only_Look_CVPR_2016_paper.html">J. Redmon et al.</a></td>
     <td>CVPR 2016</td>
     <td><a href="Object_Detection/YOLOv1">YOLOv1</a></td>
-    <td>v1.8.0</td>
   </tr>
   <tr>
     <td>YOLOv2</td>
     <td><a href="https://openaccess.thecvf.com/content_cvpr_2017/html/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.html">J. Redmon et al.</a></td>
     <td>CVPR 2017</td>
     <td><a href="Object_Detection/YOLOv2">YOLOv2</a></td>
-    <td>v1.8.0</td>
   </tr>
   <tr>
     <td>YOLOv3</td>
     <td><a href="https://arxiv.org/abs/1804.02767">J. Redmon et al.</a></td>
     <td>arXiv 2018</td>
     <td><a href="Object_Detection/YOLOv3">YOLOv3</a></td>
-    <td>v1.10.2</td>
   </tr>
 </table>
 
@@ -408,21 +374,18 @@ $ sh scripts/test.sh
     <th>Paper</th>
     <th>Conference/Journal</th>
     <th>Code</th>
-    <th>Release Version</th>
   </tr>
   <tr>
     <td>SimCLR</td>
     <td><a href="https://proceedings.mlr.press/v119/chen20j.html">T. Chen et al.</a></td>
     <td>ICML 2020</td>
     <td><a href="Representation_Learning/SimCLR">SimCLR</a></td>
-    <td>v2.8.0.1</td>
   </tr>
   <tr>
     <td>Masked Autoencoder</td>
     <td><a href="https://openaccess.thecvf.com/content/CVPR2022/html/He_Masked_Autoencoders_Are_Scalable_Vision_Learners_CVPR_2022_paper">K. He et al.</a></td>
     <td>CVPR 2022</td>
     <td><a href="Representation_Learning/MAE">MAE</a></td>
-    <td>v2.8.0.1</td>
   </tr>
 </table>
 
@@ -434,42 +397,36 @@ $ sh scripts/test.sh
     <th>Paper</th>
     <th>Conference/Journal</th>
     <th>Code</th>
-    <th>Release Version</th>
   </tr>
   <tr>
     <td>AnoGAN</td>
     <td><a href="https://arxiv.org/abs/1703.05921">T. Schlegl et al.</a></td>
     <td>IPMI 2017</td>
     <td><a href="Anomaly_Detection/AnoGAN2d">AnoGAN2d</a></td>
-    <td>v1.7.0</td>
   </tr>
   <tr>
     <td>DAGMM</td>
     <td><a href="https://openreview.net/forum?id=BJJLHbb0-">B. Zong et al.</a></td>
     <td>ICLR 2018</td>
     <td><a href="Anomaly_Detection/DAGMM2d">DAGMM2d</a></td>
-    <td>v1.6.0</td>
   </tr>
   <tr>
     <td>EGBAD</td>
     <td><a href="https://arxiv.org/abs/1802.06222">H. Zenati et al.</a></td>
     <td>ICLR Workshop 2018</td>
     <td><a href="Anomaly_Detection/EGBAD2d">EGBAD2d</a></td>
-    <td>v1.7.0</td>
   </tr>
   <tr>
     <td>GANomaly</td>
     <td><a href="https://arxiv.org/abs/1805.06725">S. Akçay et al.</a></td>
     <td>ACCV 2018</td>
     <td><a href="Anomaly_Detection/GANomaly2d">GANomaly2d</a></td>
-    <td>v1.7.0</td>
   </tr>
   <tr>
     <td>Skip-GANomaly</td>
     <td><a href="https://arxiv.org/abs/1901.08954">S. Akçay et al.</a></td>
     <td>IJCNN 2019</td>
     <td><a href="Anomaly_Detection/Skip-GANomaly2d">Skip-GANomaly2d</a></td>
-    <td>v1.7.0</td>
   </tr>
 </table>
 
