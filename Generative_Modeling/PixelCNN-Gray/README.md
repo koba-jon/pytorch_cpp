@@ -64,7 +64,7 @@ If you want to view specific examples of command line arguments, please view "sr
 ~~~
 #!/bin/bash
 
-DATA='celebA'
+DATA='MNIST'
 
 ./PixelCNN-Gray \
     --train true \
@@ -120,7 +120,7 @@ If you want to view specific examples of command line arguments, please view "sr
 ~~~
 #!/bin/bash
 
-DATA='celebA'
+DATA='MNIST'
 
 ./PixelCNN-Gray \
     --sample true \
