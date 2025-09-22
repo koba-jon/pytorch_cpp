@@ -96,9 +96,9 @@ void train1(po::variables_map &vm, torch::Device &device, VQVAE2 &model, std::ve
 
     // (6) Set Training Loss for Graph
     path = checkpoint_dir + "/graph";
-    train1_loss = visualizer::graph(path, /*gname_=*/"train1_loss", /*label_=*/{"Total", "Reconstruct", "KL-divergence"});
+    train1_loss = visualizer::graph(path, /*gname_=*/"train1_loss", /*label_=*/{"Total", "Reconstruct", "Latent"});
     if (vm["valid1"].as<bool>()){
-        valid1_loss = visualizer::graph(path, /*gname_=*/"valid1_loss", /*label_=*/{"Total", "Reconstruct", "KL-divergence"});
+        valid1_loss = visualizer::graph(path, /*gname_=*/"valid1_loss", /*label_=*/{"Total", "Reconstruct", "Latent"});
     }
     
     // (7) Get Weights and File Processing
