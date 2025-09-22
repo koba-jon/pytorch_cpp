@@ -133,7 +133,7 @@ Please execute the following to start the program.
 $ sh scripts/test1.sh
 ~~~
 
-### 4.1. Training 2 (Top Level PixelSnail)
+### 4.1. Training 2 (Top Level PixelSNAIL)
 
 #### Setting
 Please set the shell for executable file.
@@ -163,7 +163,7 @@ Please execute the following to start the program.
 $ sh scripts/train2.sh
 ~~~
 
-### 4.2. Test 2 (Top Level PixelSnail)
+### 4.2. Test 2 (Top Level PixelSNAIL)
 
 #### Setting
 Please set the shell for executable file.
@@ -191,7 +191,7 @@ Please execute the following to start the program.
 $ sh scripts/test2.sh
 ~~~
 
-### 5.1. Training 3 (Bottom Level PixelSnail)
+### 5.1. Training 3 (Bottom Level PixelSNAIL)
 
 #### Setting
 Please set the shell for executable file.
@@ -221,7 +221,7 @@ Please execute the following to start the program.
 $ sh scripts/train3.sh
 ~~~
 
-### 5.2. Test 3 (Bottom Level PixelSnail)
+### 5.2. Test 3 (Bottom Level PixelSNAIL)
 
 #### Setting
 Please set the shell for executable file.
