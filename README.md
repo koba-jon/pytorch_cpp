@@ -292,7 +292,6 @@ $ sh scripts/test.sh
     <th>Paper</th>
     <th>Conference/Journal</th>
     <th>Code</th>
-    <th>Release Version</th>
   </tr>
   <tr>
     <td>U-Net</td>
