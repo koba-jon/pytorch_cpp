@@ -1,5 +1,5 @@
 # PixelCNN-Gray
-This is the implementation of "PixelCNN" for Grayscale image.<br>
+This is the implementation of "PixelCNN" for grayscale image.<br>
 Original paper: A. v. d. Oord, N. Kalchbrenner, and K. Kavukcuoglu. Pixel Recurrent Neural Networks. In Proceedings of The 33rd International Conference on Machine Learning, 2016. [link](https://proceedings.mlr.press/v48/oord16.html)
 
 ## Usage
@@ -29,13 +29,13 @@ The following hierarchical relationships are recommended.
 ~~~
 datasets
 |--Dataset1
-|    |--train1
+|    |--train
 |    |    |--image1.png
 |    |    |--image2.bmp
 |    |    |--image3.jpg
 |    |
-|    |--valid1
-|    |--test1
+|    |--valid
+|    |--test
 |
 |--Dataset2
 |--Dataset3
@@ -57,7 +57,7 @@ $ cd ../..
 #### Setting
 Please set the shell for executable file.
 ~~~
-$ vi scripts/train1.sh
+$ vi scripts/train.sh
 ~~~
 The following is an example of the training phase.<br>
 If you want to view specific examples of command line arguments, please view "src/main.cpp" or add "--help" to the argument.
@@ -78,7 +78,7 @@ DATA='celebA'
 #### Run
 Please execute the following to start the program.
 ~~~
-$ sh scripts/train1.sh
+$ sh scripts/train.sh
 ~~~
 
 ### 4. Test
@@ -86,7 +86,7 @@ $ sh scripts/train1.sh
 #### Setting
 Please set the shell for executable file.
 ~~~
-$ vi scripts/test1.sh
+$ vi scripts/test.sh
 ~~~
 The following is an example of the test phase.<br>
 If you want to view specific examples of command line arguments, please view "src/main.cpp" or add "--help" to the argument.
@@ -100,6 +100,12 @@ DATA='MNIST'
     --dataset ${DATA} \
     --size 64 \
     --gpu_id 0
+~~~
+
+#### Run
+Please execute the following to start the program.
+~~~
+$ sh scripts/test.sh
 ~~~
 
 ### 5. Image Sampling
