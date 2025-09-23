@@ -6,7 +6,7 @@
 [![LibTorch](https://img.shields.io/badge/LibTorch-2.8.0-orange)]()
 [![OS](https://img.shields.io/badge/OS-Ubuntu-yellow)]()
 [![OS](https://img.shields.io/badge/License-MIT-green)]()
-![sample](sample.png)
+![sample](sample.png) 
 </div>
 
 ## 🚀 Quick Start (Details: <a href="#-requirement-library">Library</a>, <a href="#-preparation-run">Run</a>)
