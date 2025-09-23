@@ -6,9 +6,7 @@
 [![LibTorch](https://img.shields.io/badge/LibTorch-2.8.0-orange)]()
 [![OS](https://img.shields.io/badge/OS-Ubuntu-yellow)]()
 [![OS](https://img.shields.io/badge/License-MIT-green)]()
-<img width="1692" height="132" alt="Generated_Image" src="https://github.com/user-attachments/assets/56b2597c-da97-4ae2-8226-b4b0433c40b9" />
-<img width="3356" height="260" alt="Generated_Image" src="https://github.com/user-attachments/assets/725531c1-db2a-4292-be04-49ef37fb1f58" />
-1st row: <a href="Generative_Modeling/VQ-VAE">VQ-VAE</a>, 2nd row: <a href="Generative_Modeling/DDIM2d-v">DDIM2d-v</a>
+![sample](sample.png)
 </div>
 
 ## 🚀 Quick Start (Details: <a href="#-requirement-library">Library</a>, <a href="#-preparation-run">Run</a>)
