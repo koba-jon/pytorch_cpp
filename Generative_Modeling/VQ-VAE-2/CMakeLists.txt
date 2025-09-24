@@ -1,0 +1,29 @@
+cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+
+# Project Name
+project(VQ-VAE-2 CXX)
+
+# Directory Name
+set(SUB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../utils)
+set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Create Executable File
+set(SRCS
+    ${SRC_DIR}/main.cpp
+    ${SRC_DIR}/train1.cpp
+    ${SRC_DIR}/valid1.cpp
+    ${SRC_DIR}/test1.cpp
+    ${SRC_DIR}/train2.cpp
+    ${SRC_DIR}/valid2.cpp
+    ${SRC_DIR}/test2.cpp
+    ${SRC_DIR}/train3.cpp
+    ${SRC_DIR}/valid3.cpp
+    ${SRC_DIR}/test3.cpp
+    ${SRC_DIR}/synth.cpp
+    ${SRC_DIR}/sample.cpp
+    ${SRC_DIR}/loss.cpp
+    ${SRC_DIR}/networks.cpp
+)
+
+add_subdirectory(${SUB_DIR} build)

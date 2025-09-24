@@ -1,0 +1,266 @@
+#include <iostream>                    // std::cout, std::flush
+#include <fstream>                     // std::ifstream, std::ofstream
+#include <filesystem>                  // std::filesystem
+#include <string>                      // std::string
+#include <sstream>                     // std::stringstream
+#include <tuple>                       // std::tuple
+#include <vector>                      // std::vector
+#include <utility>                     // std::pair
+// For External Library
+#include <torch/torch.h>               // torch
+#include <boost/program_options.hpp>   // boost::program_options
+// For Original Header
+#include "loss.hpp"                    // Loss
+#include "networks.hpp"                // VQVAE
+#include "transforms.hpp"              // transforms_Compose
+#include "datasets.hpp"                // datasets::ImageFolderWithPaths
+#include "dataloader.hpp"              // DataLoader::ImageFolderWithPaths
+#include "visualizer.hpp"              // visualizer
+#include "progress.hpp"                // progress
+
+// Define Namespace
+namespace fs = std::filesystem;
+namespace po = boost::program_options;
+
+// Function Prototype
+void valid1(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, VQVAE &model, const size_t epoch, visualizer::graph &writer);
+
+
+// -------------------
+// Training Function
+// -------------------
+void train1(po::variables_map &vm, torch::Device &device, VQVAE &model, std::vector<transforms_Compose> &transform){
+
+    constexpr bool train_shuffle = true;  // whether to shuffle the training dataset
+    constexpr size_t train_workers = 4;  // the number of workers to retrieve data from the training dataset
+    constexpr bool valid_shuffle = true;  // whether to shuffle the validation dataset
+    constexpr size_t valid_workers = 4;  // the number of workers to retrieve data from the validation dataset
+    constexpr size_t save_sample_iter = 50;  // the frequency of iteration to save sample images
+    constexpr std::string_view extension = "jpg";  // the extension of file name to save sample images
+    constexpr std::pair<float, float> output_range = {-1.0, 1.0};  // range of the value in output images
+
+    // -----------------------------------
+    // a0. Initialization and Declaration
+    // -----------------------------------
+
+    size_t epoch, iter;
+    size_t total_iter;
+    size_t start_epoch, total_epoch;
+    long int mini_batch_size;
+    std::string date, date_out;
+    std::string buff, latest;
+    std::string checkpoint_dir, save_images_dir, path;
+    std::string dataroot, valid_dataroot;
+    std::stringstream ss;
+    std::ifstream infoi;
+    std::ofstream ofs, init, infoo;
+    std::tuple<torch::Tensor, std::vector<std::string>> mini_batch;
+    torch::Tensor rec, latent, loss, image, pair;
+    datasets::ImageFolderWithPaths dataset, valid_dataset;
+    DataLoader::ImageFolderWithPaths dataloader, valid_dataloader;
+    visualizer::graph train1_loss, valid1_loss;
+    progress::display *show_progress;
+    progress::irregular irreg_progress;
+
+
+    // -----------------------------------
+    // a1. Preparation
+    // -----------------------------------
+
+    // (1) Get Training Dataset
+    dataroot = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["train1_dir"].as<std::string>();
+    dataset = datasets::ImageFolderWithPaths(dataroot, transform);
+    dataloader = DataLoader::ImageFolderWithPaths(dataset, vm["train1_batch_size"].as<size_t>(), /*shuffle_=*/train_shuffle, /*num_workers_=*/train_workers);
+    std::cout << "total training images : " << dataset.size() << std::endl;
+
+    // (2) Get Validation Dataset
+    if (vm["valid1"].as<bool>()){
+        valid_dataroot = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["valid1_dir"].as<std::string>();
+        valid_dataset = datasets::ImageFolderWithPaths(valid_dataroot, transform);
+        valid_dataloader = DataLoader::ImageFolderWithPaths(valid_dataset, vm["valid1_batch_size"].as<size_t>(), /*shuffle_=*/valid_shuffle, /*num_workers_=*/valid_workers);
+        std::cout << "total validation images : " << valid_dataset.size() << std::endl;
+    }
+
+    // (3) Set Optimizer Method
+    auto optimizer = torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(vm["lr"].as<float>()).betas({vm["beta1"].as<float>(), vm["beta2"].as<float>()}));
+
+    // (4) Set Loss Function
+    auto criterion = Loss(vm["loss"].as<std::string>());
+
+    // (5) Make Directories
+    checkpoint_dir = "checkpoints/" + vm["dataset"].as<std::string>();
+    path = checkpoint_dir + "/models";  fs::create_directories(path);
+    path = checkpoint_dir + "/optims";  fs::create_directories(path);
+    path = checkpoint_dir + "/log";  fs::create_directories(path);
+    save_images_dir = checkpoint_dir + "/samples";  fs::create_directories(save_images_dir);
+
+    // (6) Set Training Loss for Graph
+    path = checkpoint_dir + "/graph";
+    train1_loss = visualizer::graph(path, /*gname_=*/"train1_loss", /*label_=*/{"Total", "Reconstruct", "Latent"});
+    if (vm["valid1"].as<bool>()){
+        valid1_loss = visualizer::graph(path, /*gname_=*/"valid1_loss", /*label_=*/{"Total", "Reconstruct", "Latent"});
+    }
+    
+    // (7) Get Weights and File Processing
+    if (vm["train1_load_epoch"].as<std::string>() == ""){
+        model->apply(weights_init);
+        ofs.open(checkpoint_dir + "/log/train1.txt", std::ios::out);
+        if (vm["valid1"].as<bool>()){
+            init.open(checkpoint_dir + "/log/valid1.txt", std::ios::trunc);
+            init.close();
+        }
+        start_epoch = 0;
+    }
+    else{
+        path = checkpoint_dir + "/models/epoch_" + vm["train1_load_epoch"].as<std::string>() + "_vqvae.pth";  torch::load(model, path, device);
+        path = checkpoint_dir + "/optims/epoch_" + vm["train1_load_epoch"].as<std::string>() + "_vqvae.pth";  torch::load(optimizer, path, device);
+        ofs.open(checkpoint_dir + "/log/train1.txt", std::ios::app);
+        ofs << std::endl << std::endl;
+        if (vm["train1_load_epoch"].as<std::string>() == "latest"){
+            infoi.open(checkpoint_dir + "/models/info_train1.txt", std::ios::in);
+            std::getline(infoi, buff);
+            infoi.close();
+            latest = "";
+            for (auto &c : buff){
+                if (('0' <= c) && (c <= '9')){
+                    latest += c;
+                }
+            }
+            start_epoch = std::stoi(latest);
+        }
+        else{
+            start_epoch = std::stoi(vm["train1_load_epoch"].as<std::string>());
+        }
+    }
+
+    // (8) Display Date
+    date = progress::current_date();
+    date = progress::separator_center("Train Loss (" + date + ")");
+    std::cout << std::endl << std::endl << date << std::endl;
+    ofs << date << std::endl;
+
+
+    // -----------------------------------
+    // a2. Training Model
+    // -----------------------------------
+    
+    // (1) Set Parameters
+    start_epoch++;
+    total_iter = dataloader.get_count_max();
+    total_epoch = vm["train1_epochs"].as<size_t>();
+
+    // (2) Training per Epoch
+    mini_batch_size = 0;
+    irreg_progress.restart(start_epoch - 1, total_epoch);
+    for (epoch = start_epoch; epoch <= total_epoch; epoch++){
+
+        model->train();
+        ofs << std::endl << "epoch:" << epoch << '/' << total_epoch << std::endl;
+        show_progress = new progress::display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"rec", "latent"});
+
+        // -----------------------------------
+        // b1. Mini Batch Learning
+        // -----------------------------------
+        while (dataloader(mini_batch)){
+
+            image = std::get<0>(mini_batch).to(device);
+            mini_batch_size = image.size(0);
+
+            // -----------------------------------
+            // c1. VQVAE Training Phase
+            // -----------------------------------
+            auto [output, z_e, z_q] = model->forward(image);
+            rec = criterion(output, image);
+            latent = torch::mean((z_e.detach() - z_q).pow(2.0)) + vm["Lambda"].as<float>() * torch::mean((z_e - z_q.detach()).pow(2.0));
+            loss = rec + latent;
+            optimizer.zero_grad();
+            loss.backward();
+            optimizer.step();
+
+            // -----------------------------------
+            // c2. Record Loss (iteration)
+            // -----------------------------------
+            show_progress->increment(/*loss_value=*/{rec.item<float>(), latent.item<float>()});
+            ofs << "iters:" << show_progress->get_iters() << '/' << total_iter << ' ' << std::flush;
+            ofs << "rec:" << rec.item<float>() << "(ave:" <<  show_progress->get_ave(0) << ") " << std::flush;
+            ofs << "latent:" << latent.item<float>() << "(ave:" <<  show_progress->get_ave(1) << ')' << std::endl;
+
+            // -----------------------------------
+            // c3. Save Sample Images
+            // -----------------------------------
+            iter = show_progress->get_iters();
+            if (iter % save_sample_iter == 1){
+                ss.str(""); ss.clear(std::stringstream::goodbit);
+                ss << save_images_dir << "/epoch_" << epoch << "-iter_" << iter << '.' << extension;
+                pair = torch::cat({image, output}, /*dim=*/0);
+                visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/mini_batch_size);
+            }
+
+        }
+
+        // -----------------------------------
+        // b2. Record Loss (epoch)
+        // -----------------------------------
+        train1_loss.plot(/*base=*/epoch, /*value=*/{show_progress->get_ave(0) + show_progress->get_ave(1), show_progress->get_ave(0), show_progress->get_ave(1)});
+
+        // -----------------------------------
+        // b3. Save Sample Images
+        // -----------------------------------
+        ss.str(""); ss.clear(std::stringstream::goodbit);
+        ss << save_images_dir << "/epoch_" << epoch << "-iter_" << show_progress->get_iters() << '.' << extension;
+        visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/mini_batch_size);
+        delete show_progress;
+        
+        // -----------------------------------
+        // b4. Validation Mode
+        // -----------------------------------
+        if (vm["valid1"].as<bool>() && ((epoch - 1) % vm["valid1_freq"].as<size_t>() == 0)){
+            valid1(vm, valid_dataloader, device, criterion, model, epoch, valid1_loss);
+        }
+
+        // -----------------------------------
+        // b5. Save Model Weights and Optimizer Parameters
+        // -----------------------------------
+        if (epoch % vm["train1_save_epoch"].as<size_t>() == 0){
+            path = checkpoint_dir + "/models/epoch_" + std::to_string(epoch) + "_vqvae.pth";  torch::save(model, path);
+            path = checkpoint_dir + "/optims/epoch_" + std::to_string(epoch) + "_vqvae.pth";  torch::save(optimizer, path);
+        }
+        path = checkpoint_dir + "/models/epoch_latest_vqvae.pth";  torch::save(model, path);
+        path = checkpoint_dir + "/optims/epoch_latest_vqvae.pth";  torch::save(optimizer, path);
+        infoo.open(checkpoint_dir + "/models/info_train1.txt", std::ios::out);
+        infoo << "latest = " << epoch << std::endl;
+        infoo.close();
+
+        // -----------------------------------
+        // b6. Show Elapsed Time
+        // -----------------------------------
+        if (epoch % 10 == 0){
+
+            // -----------------------------------
+            // c1. Get Output String
+            // -----------------------------------
+            ss.str(""); ss.clear(std::stringstream::goodbit);
+            irreg_progress.nab(epoch);
+            ss << "elapsed = " << irreg_progress.get_elap() << '(' << irreg_progress.get_sec_per() << "sec/epoch)   ";
+            ss << "remaining = " << irreg_progress.get_rem() << "   ";
+            ss << "now = " << irreg_progress.get_date() << "   ";
+            ss << "finish = " << irreg_progress.get_date_fin();
+            date_out = ss.str();
+
+            // -----------------------------------
+            // c2. Terminal Output
+            // -----------------------------------
+            std::cout << date_out << std::endl << progress::separator() << std::endl;
+            ofs << date_out << std::endl << progress::separator() << std::endl;
+
+        }
+
+    }
+
+    // Post Processing
+    ofs.close();
+
+    // End Processing
+    return;
+
+}

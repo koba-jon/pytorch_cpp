@@ -56,7 +56,7 @@ void train(po::variables_map &vm, torch::Device &device, MaskedAutoEncoder &mode
     std::ifstream infoi;
     std::ofstream ofs, init, infoo;
     std::tuple<torch::Tensor, std::vector<std::string>> mini_batch;
-    torch::Tensor loss, image, patch, output, mask, pair;
+    torch::Tensor loss, image, patch, output, mask, noise, pair;
     std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> output_set;
     datasets::ImageFolderWithPaths dataset, valid_dataset;
     DataLoader::ImageFolderWithPaths dataloader, valid_dataloader;
@@ -194,9 +194,11 @@ void train(po::variables_map &vm, torch::Device &device, MaskedAutoEncoder &mode
             if (iter % save_sample_iter == 1){
                 ss.str(""); ss.clear(std::stringstream::goodbit);
                 ss << save_images_dir << "/epoch_" << epoch << "-iter_" << iter << '.' << extension;
+                noise = model->unpatchify(patch * (1.0 - mask.unsqueeze(-1)));
+                noise = F::interpolate(noise, F::InterpolateFuncOptions().size(std::vector<long int>{image.size(2), image.size(3)}).mode(torch::kBilinear).align_corners(false));  // {N,C,H,W}
                 output = model->unpatchify(output);
                 output = F::interpolate(output, F::InterpolateFuncOptions().size(std::vector<long int>{image.size(2), image.size(3)}).mode(torch::kBilinear).align_corners(false));  // {N,C,H,W}
-                pair = torch::cat({image, output}, /*dim=*/0);
+                pair = torch::cat({image, noise, output}, /*dim=*/0);
                 visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/mini_batch_size);
             }
 
