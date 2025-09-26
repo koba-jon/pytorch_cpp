@@ -208,6 +208,7 @@ void train1(po::variables_map &vm, torch::Device &device, VQVAE2 &model, std::ve
         // -----------------------------------
         ss.str(""); ss.clear(std::stringstream::goodbit);
         ss << save_images_dir << "/epoch_" << epoch << "-iter_" << show_progress->get_iters() << '.' << extension;
+        pair = torch::cat({image, output}, /*dim=*/0);
         visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/mini_batch_size);
         delete show_progress;
         
