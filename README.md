@@ -56,7 +56,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
-09/28,2025: Implementation of `Planar-Flow2d` <br>
+09/28,2025: Implementation of `Planar-Flow2d` and `Radial-Flow2d` <br>
 09/25,2025: Release of `v2.8.0.2` <br>
 09/22,2025: Implementation of `PixelCNN-Gray` and `PixelCNN-RGB` <br>
 09/18,2025: Implementation of `VQ-VAE-2` <br>
@@ -254,6 +254,12 @@ $ sh scripts/test.sh
     <td><a href="https://proceedings.mlr.press/v37/rezende15">D. Rezende et al.</a></td>
     <td>ICML 2015</td>
     <td><a href="Generative_Modeling/Planar-Flow2d">Planar-Flow2d</a></td>
+  </tr>
+  <tr>
+    <td>Radial Flow</td>
+    <td><a href="https://proceedings.mlr.press/v37/rezende15">D. Rezende et al.</a></td>
+    <td>ICML 2015</td>
+    <td><a href="Generative_Modeling/Radial-Flow2d">Radial-Flow2d</a></td>
   </tr>
   <tr>
     <td rowspan="6">Diffusion Models</td>
