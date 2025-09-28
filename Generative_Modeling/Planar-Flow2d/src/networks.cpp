@@ -47,15 +47,6 @@ std::tuple<torch::Tensor, torch::Tensor> PlanarFlowImpl::forward(torch::Tensor z
 
 
 // ----------------------------------------------------------------------
-// struct{MaskedConv2dImpl}(nn::Module) -> function{pretty_print}
-// ----------------------------------------------------------------------
-void PlanarFlowImpl::pretty_print(std::ostream& stream) const{
-    stream << "PlanarFlow(dim=" << this->u.size(0) << ")";
-    return;
-}
-
-
-// ----------------------------------------------------------------------
 // struct{PlanarFlowImpl}(nn::Module) -> function{inverse}
 // ----------------------------------------------------------------------
 torch::Tensor PlanarFlowImpl::inverse(torch::Tensor z){
@@ -86,6 +77,15 @@ torch::Tensor PlanarFlowImpl::inverse(torch::Tensor z){
 
     return z_new;
 
+}
+
+
+// ----------------------------------------------------------------------
+// struct{MaskedConv2dImpl}(nn::Module) -> function{pretty_print}
+// ----------------------------------------------------------------------
+void PlanarFlowImpl::pretty_print(std::ostream& stream) const{
+    stream << "PlanarFlow(dim=" << this->u.size(0) << ")";
+    return;
 }
 
 
