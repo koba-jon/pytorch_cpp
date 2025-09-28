@@ -56,6 +56,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+09/28,2025: Implementation of `Planar-Flow2d` <br>
 09/25,2025: Release of `v2.8.0.2` <br>
 09/22,2025: Implementation of `PixelCNN-Gray` and `PixelCNN-RGB` <br>
 09/18,2025: Implementation of `VQ-VAE-2` <br>
@@ -65,11 +66,11 @@ $ sh scripts/test.sh
 09/12,2025: Implementation of `SimCLR` <br>
 09/11,2025: Implementation of `MAE` <br>
 09/11,2025: Implementation of `DDPM2d-v` and `DDIM2d-v` <br>
-09/10,2025: Implementation of EMA for `DDPM2d` and `DDIM2d` <br>
 
 <details>
 <summary>See more...</summary>
   
+09/10,2025: Implementation of EMA for `DDPM2d` and `DDIM2d` <br>
 09/08,2025: Implementation of `EfficientNet` <br>
 09/07,2025: Implementation of `CycleGAN` <br>
 09/05,2025: Implementation of `ViT` <br>
@@ -246,6 +247,13 @@ $ sh scripts/test.sh
     <td><a href="https://arxiv.org/abs/1511.06434">A. Radford et al.</a></td>
     <td>ICLR 2016</td>
     <td><a href="Generative_Modeling/DCGAN">DCGAN</a></td>
+  </tr>
+  <tr>
+    <td rowspan="1">Normalizing Flows</td>
+    <td>Planar Flow</td>
+    <td><a href="https://proceedings.mlr.press/v37/rezende15">D. Rezende et al.</a></td>
+    <td>ICML 2015</td>
+    <td><a href="Generative_Modeling/Planar-Flow2d">Planar-Flow2d</a></td>
   </tr>
   <tr>
     <td rowspan="6">Diffusion Models</td>
