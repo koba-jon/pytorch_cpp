@@ -3,7 +3,7 @@
 #include <filesystem>                  // std::filesystem
 #include <string>                      // std::string
 #include <sstream>                     // std::stringstream
-#include <tuple>                       // std::tuple
+#include <tuple>                       // std::tuple, std::tie
 #include <vector>                      // std::vector
 #include <utility>                     // std::pair
 // For External Library
@@ -56,6 +56,7 @@ void train1(po::variables_map &vm, torch::Device &device, VQVAE &model, std::vec
     std::ofstream ofs, init, infoo;
     std::tuple<torch::Tensor, std::vector<std::string>> mini_batch;
     torch::Tensor rec, latent, loss, image, pair;
+    torch::Tensor output, z_e, z_q;
     datasets::ImageFolderWithPaths dataset, valid_dataset;
     DataLoader::ImageFolderWithPaths dataloader, valid_dataloader;
     visualizer::graph train1_loss, valid1_loss;
@@ -169,7 +170,7 @@ void train1(po::variables_map &vm, torch::Device &device, VQVAE &model, std::vec
             // -----------------------------------
             // c1. VQVAE Training Phase
             // -----------------------------------
-            auto [output, z_e, z_q] = model->forward(image);
+            std::tie(output, z_e, z_q) = model->forward(image);
             rec = criterion(output, image);
             latent = torch::mean((z_e.detach() - z_q).pow(2.0)) + vm["Lambda"].as<float>() * torch::mean((z_e - z_q.detach()).pow(2.0));
             loss = rec + latent;
