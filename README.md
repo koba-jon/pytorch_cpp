@@ -251,7 +251,7 @@ $ sh scripts/test.sh
     <td><a href="Generative_Modeling/DCGAN">DCGAN</a></td>
   </tr>
   <tr>
-    <td rowspan="3">Flows</td>
+    <td rowspan="4">Flows</td>
     <td>Planar Flow</td>
     <td><a href="https://proceedings.mlr.press/v37/rezende15">D. Rezende et al.</a></td>
     <td>ICML 2015</td>
