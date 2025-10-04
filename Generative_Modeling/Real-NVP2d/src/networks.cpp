@@ -120,9 +120,14 @@ torch::Tensor NormalizingFlowImpl::swap(torch::Tensor z, long int split){
 // ----------------------------------------------------------------------
 std::tuple<torch::Tensor, torch::Tensor> NormalizingFlowImpl::forward(torch::Tensor z){
 
-    torch::Tensor sum_logdet, z_new, logdet;
+    constexpr float eps = 1e-2;
 
-    sum_logdet = torch::zeros({z.size(0)}).to(z.device());
+    torch::Tensor z_, sum_logdet, z_new, logdet;
+
+    z_ = eps + (1.0 - 2.0 * eps) * z;
+    z = torch::log(z_) - torch::log1p(-z_);
+
+    sum_logdet = (std::log(1.0 - 2.0 * eps) - torch::log(z_) - torch::log1p(-z_)).sum(1);
     for (size_t i = 0; i < this->model->size(); i++){
         if (i % 2 == 1) z = this->swap(z, z.size(1) / 2);
         std::tie(z_new, logdet) = this->model[i]->as<RealNVP_CouplingLayer>()->forward(z);
@@ -140,12 +145,21 @@ std::tuple<torch::Tensor, torch::Tensor> NormalizingFlowImpl::forward(torch::Ten
 // struct{NormalizingFlowImpl}(nn::Module) -> function{inverse}
 // ----------------------------------------------------------------------
 torch::Tensor NormalizingFlowImpl::inverse(torch::Tensor z){
+
+    constexpr float eps = 1e-2;
+
     for (long int i = this->model->size() - 1; i >= 0; i--){
         if (i % 2 == 1) z = this->swap(z, z.size(1) / 2);
         z = this->model[i]->as<RealNVP_CouplingLayer>()->inverse(z);
         if (i % 2 == 1) z = this->swap(z, z.size(1) - z.size(1) / 2);
     }
+
+    z = torch::sigmoid(z);
+    z = (z - eps) / (1.0 - 2.0 * eps);
+    z = z.clamp(0.0, 1.0);
+
     return z;
+
 }
 
 
