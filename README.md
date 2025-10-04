@@ -56,6 +56,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+10/04,2025: Implementation of `Glow` <br>
 10/01,2025: Implementation of `Real-NVP2d` <br>
 09/28,2025: Implementation of `Planar-Flow2d` and `Radial-Flow2d` <br>
 09/25,2025: Release of `v2.8.0.2` <br>
@@ -65,11 +66,11 @@ $ sh scripts/test.sh
 09/14,2025: Implementation of `PNDM2d` and `PNDM2d-v` <br>
 09/14,2025: Release of `v2.8.0.1` <br>
 09/12,2025: Implementation of `SimCLR` <br>
-09/11,2025: Implementation of `MAE` <br>
 
 <details>
 <summary>See more...</summary>
   
+09/11,2025: Implementation of `MAE` <br>
 09/11,2025: Implementation of `DDPM2d-v` and `DDIM2d-v` <br>
 09/10,2025: Implementation of EMA for `DDPM2d` and `DDIM2d` <br>
 09/08,2025: Implementation of `EfficientNet` <br>
@@ -267,6 +268,12 @@ $ sh scripts/test.sh
     <td><a href="https://arxiv.org/abs/1605.08803">L. Dinh et al.</a></td>
     <td>ICLR 2017</td>
     <td><a href="Generative_Modeling/Real-NVP2d">Real-NVP2d</a></td>
+  </tr>
+  <tr>
+    <td>Glow</td>
+    <td><a href="https://arxiv.org/abs/1807.03039">D. P. Kingma et al.</a></td>
+    <td>NeurIPS 2018</td>
+    <td><a href="Generative_Modeling/Glow">Glow</a></td>
   </tr>
   <tr>
     <td rowspan="6">Diffusion Models</td>
