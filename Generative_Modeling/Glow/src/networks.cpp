@@ -20,7 +20,7 @@ using Slice = torch::indexing::Slice;
 // struct{ActNorm2dImpl}(nn::Module) -> constructor
 // ----------------------------------------------------------------------
 ActNorm2dImpl::ActNorm2dImpl(long int dim){
-    this->initialized = false;
+    this->initialized = register_buffer("initialized", torch::zeros({}, torch::kBool));
     this->scale = register_parameter("scale", torch::ones({1, dim, 1, 1}));
     this->bias = register_parameter("bias", torch::zeros({1, dim, 1, 1}));
 }
@@ -33,12 +33,12 @@ std::tuple<torch::Tensor, torch::Tensor> ActNorm2dImpl::forward(torch::Tensor x)
 
     torch::Tensor mean, std, y, ld_per_channel, logdet;
 
-    if (!this->initialized){
+    if (!this->initialized.item<bool>()){
         mean = x.mean({0, 2, 3}, /*keepdim=*/true);  // {1,C,1,1}
         std = x.std({0, 2, 3}, /*unbiased=*/false, /*keepdim=*/true);  // {1,C,1,1}
         this->bias.set_data((-mean).detach());
         this->scale.set_data((1.0 / (std + 1e-6)).detach());
-        this->initialized = true;
+        this->initialized.fill_(true);
     }
 
     y = (x + this->bias) * this->scale;  // {N,C,H,W}
@@ -475,7 +475,7 @@ std::tuple<std::vector<torch::Tensor>, torch::Tensor, torch::Tensor> Normalizing
 torch::Tensor NormalizingFlowImpl::inverse(std::vector<torch::Tensor> z_list){
 
     constexpr float eps = 1e-2;
-    
+
     long int blocks_size;
     torch::Tensor x;
 

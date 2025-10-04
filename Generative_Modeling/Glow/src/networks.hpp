@@ -20,8 +20,7 @@ void weights_init(nn::Module &m);
 // -------------------------------------------------
 struct ActNorm2dImpl : nn::Module{
 private:
-    bool initialized;
-    torch::Tensor scale, bias;
+    torch::Tensor initialized, scale, bias;
 public:
     ActNorm2dImpl(){}
     ActNorm2dImpl(long int dim);
