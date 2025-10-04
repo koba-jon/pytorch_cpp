@@ -117,7 +117,7 @@ $ sh scripts/test.sh
 06/26,2020: Implementation of `DAGMM2d` <br>
 06/26,2020: Release of `v1.5.1` <br>
 06/26,2020: Implementation of `VAE2d` and `DCGAN` <br>
-06/01,2020: Implementation of `pix2pix` <br>
+06/01,2020: Implementation of `Pix2Pix` <br>
 05/29,2020: Implementation of `U-Net Classification` <br>
 05/26,2020: Implementation of `U-Net Regression` <br>
 04/24,2020: Release of `v1.5.0` <br>
@@ -331,10 +331,10 @@ $ sh scripts/test.sh
     <td><a href="Image-to-Image_Translation/U-Net_Regression">U-Net Regression</a></td>
   </tr>
   <tr>
-    <td>pix2pix</td>
+    <td>Pix2Pix</td>
     <td><a href="https://openaccess.thecvf.com/content_cvpr_2017/html/Isola_Image-To-Image_Translation_With_CVPR_2017_paper.html">P. Isola et al.</a></td>
     <td>CVPR 2017</td>
-    <td><a href="Image-to-Image_Translation/pix2pix">pix2pix</a></td>
+    <td><a href="Image-to-Image_Translation/Pix2Pix">Pix2Pix</a></td>
   </tr>
   <tr>
     <td>CycleGAN</td>
