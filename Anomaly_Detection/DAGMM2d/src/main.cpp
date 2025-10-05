@@ -83,7 +83,7 @@ po::options_description parse_arguments(){
         // (6) Define for Network Parameter
         ("lr_com", po::value<float>()->default_value(5e-4), "learning rate for compression network")
         ("lr_est", po::value<float>()->default_value(5e-4), "learning rate for estimation network")
-        ("beta1", po::value<float>()->default_value(0.5), "beta 1 in Adam of optimizer method")
+        ("beta1", po::value<float>()->default_value(0.9), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
         ("nf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image")
         ("nr", po::value<size_t>()->default_value(100), "the number of node for residual block in estimation network")
