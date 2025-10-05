@@ -68,7 +68,7 @@ po::options_description parse_arguments(){
 
         // (5) Define for Network Parameter
         ("lr", po::value<float>()->default_value(1e-4), "learning rate")
-        ("beta1", po::value<float>()->default_value(0.5), "beta 1 in Adam of optimizer method")
+        ("beta1", po::value<float>()->default_value(0.9), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
         ("nf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image")
         ("BN", po::value<bool>()->default_value(true), "whether to use batch normalization")
