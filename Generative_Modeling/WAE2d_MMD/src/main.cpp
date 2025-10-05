@@ -84,7 +84,7 @@ po::options_description parse_arguments(){
         // (7) Define for Network Parameter
         ("lr_enc", po::value<float>()->default_value(1e-4), "learning rate for encoder")
         ("lr_dec", po::value<float>()->default_value(1e-4), "learning rate for decoder")
-        ("beta1", po::value<float>()->default_value(0.5), "beta 1 in Adam of optimizer method")
+        ("beta1", po::value<float>()->default_value(0.9), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
         ("nf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image")
         ("Lambda", po::value<float>()->default_value(0.01), "the multiple of MMD loss")
