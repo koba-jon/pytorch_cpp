@@ -56,7 +56,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
-10/08,2025: Implementation of `LDM` <br>
+10/08,2025: Implementation of `LDM` and `LDM-v` <br>
 10/04,2025: Implementation of `Glow` <br>
 10/01,2025: Implementation of `Real-NVP2d` <br>
 09/28,2025: Implementation of `Planar-Flow2d` and `Radial-Flow2d` <br>
@@ -305,10 +305,13 @@ $ sh scripts/test.sh
     <td><a href="Generative_Modeling/PNDM2d-v">PNDM2d-v</a></td>
   </tr>
   <tr>
-    <td>LDM</td>
-    <td><a href="https://openaccess.thecvf.com/content/CVPR2022/html/Rombach_High-Resolution_Image_Synthesis_With_Latent_Diffusion_Models_CVPR_2022_paper">R. Rombach et al.</a></td>
-    <td>CVPR 2022</td>
+    <td rowspan="2">LDM</td>
+    <td rowspan="2"><a href="https://openaccess.thecvf.com/content/CVPR2022/html/Rombach_High-Resolution_Image_Synthesis_With_Latent_Diffusion_Models_CVPR_2022_paper">R. Rombach et al.</a></td>
+    <td rowspan="2">CVPR 2022</td>
     <td><a href="Generative_Modeling/LDM">LDM</a></td>
+  </tr>
+  <tr>
+    <td><a href="Generative_Modeling/LDM-v">LDM-v</a></td>
   </tr>
   <tr>
     <td rowspan="2">Autoregressive Models</td>
