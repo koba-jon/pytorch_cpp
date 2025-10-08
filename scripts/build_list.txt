@@ -11,6 +11,7 @@ Generative_Modeling/DDIM2d
 Generative_Modeling/DDIM2d-v
 Generative_Modeling/DDPM2d
 Generative_Modeling/DDPM2d-v
+Generative_Modeling/FM2d
 Generative_Modeling/Glow
 Generative_Modeling/LDM
 Generative_Modeling/PixelCNN-Gray
