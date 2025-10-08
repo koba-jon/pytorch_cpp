@@ -1,4 +1,4 @@
-# LDM
+# LDM-v
 This is the implementation of "LDM" based on v-prediction for high resolution.<br>
 Original paper: R. Rombach, A. Blattmann, D. Lorenz, P. Esser, and B. Ommer. High-Resolution Image Synthesis with Latent Diffusion Models. In IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2022. [link](https://openaccess.thecvf.com/content/CVPR2022/html/Rombach_High-Resolution_Image_Synthesis_With_Latent_Diffusion_Models_CVPR_2022_paper)
 
