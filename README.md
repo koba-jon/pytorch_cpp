@@ -56,6 +56,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+10/08,2025: Implementation of `FM2d` <br>
 10/08,2025: Implementation of `LDM` and `LDM-v` <br>
 10/04,2025: Implementation of `Glow` <br>
 10/01,2025: Implementation of `Real-NVP2d` <br>
@@ -65,11 +66,11 @@ $ sh scripts/test.sh
 09/18,2025: Implementation of `VQ-VAE-2` <br>
 09/16,2025: Implementation of `VQ-VAE` <br>
 09/14,2025: Implementation of `PNDM2d` and `PNDM2d-v` <br>
-09/14,2025: Release of `v2.8.0.1` <br>
 
 <details>
 <summary>See more...</summary>
   
+09/14,2025: Release of `v2.8.0.1` <br>
 09/12,2025: Implementation of `SimCLR` <br>
 09/11,2025: Implementation of `MAE` <br>
 09/11,2025: Implementation of `DDPM2d-v` and `DDIM2d-v` <br>
@@ -312,6 +313,13 @@ $ sh scripts/test.sh
   </tr>
   <tr>
     <td><a href="Generative_Modeling/LDM-v">LDM-v</a></td>
+  </tr>
+  <tr>
+    <td rowspan="1">Flow Matching</td>
+    <td rowspan="1">Flow Matching</td>
+    <td rowspan="1"><a href="https://openreview.net/forum?id=PqvMRDCJT9t">Y. Lipman et al.</a></td>
+    <td rowspan="1">ICLR 2023</td>
+    <td><a href="Generative_Modeling/FM2d">FM2d</a></td>
   </tr>
   <tr>
     <td rowspan="2">Autoregressive Models</td>
