@@ -277,7 +277,7 @@ $ sh scripts/test.sh
     <td><a href="Generative_Modeling/Glow">Glow</a></td>
   </tr>
   <tr>
-    <td rowspan="7">Diffusion Models</td>
+    <td rowspan="8">Diffusion Models</td>
     <td rowspan="2">DDPM</td>
     <td rowspan="2"><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
     <td rowspan="2">NeurIPS 2020</td>
