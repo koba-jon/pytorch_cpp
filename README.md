@@ -56,6 +56,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+10/08,2025: Implementation of `LDM` <br>
 10/04,2025: Implementation of `Glow` <br>
 10/01,2025: Implementation of `Real-NVP2d` <br>
 09/28,2025: Implementation of `Planar-Flow2d` and `Radial-Flow2d` <br>
@@ -65,11 +66,11 @@ $ sh scripts/test.sh
 09/16,2025: Implementation of `VQ-VAE` <br>
 09/14,2025: Implementation of `PNDM2d` and `PNDM2d-v` <br>
 09/14,2025: Release of `v2.8.0.1` <br>
-09/12,2025: Implementation of `SimCLR` <br>
 
 <details>
 <summary>See more...</summary>
   
+09/12,2025: Implementation of `SimCLR` <br>
 09/11,2025: Implementation of `MAE` <br>
 09/11,2025: Implementation of `DDPM2d-v` and `DDIM2d-v` <br>
 09/10,2025: Implementation of EMA for `DDPM2d` and `DDIM2d` <br>
@@ -276,7 +277,7 @@ $ sh scripts/test.sh
     <td><a href="Generative_Modeling/Glow">Glow</a></td>
   </tr>
   <tr>
-    <td rowspan="6">Diffusion Models</td>
+    <td rowspan="7">Diffusion Models</td>
     <td rowspan="2">DDPM</td>
     <td rowspan="2"><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
     <td rowspan="2">NeurIPS 2020</td>
@@ -302,6 +303,12 @@ $ sh scripts/test.sh
   </tr>
   <tr>
     <td><a href="Generative_Modeling/PNDM2d-v">PNDM2d-v</a></td>
+  </tr>
+  <tr>
+    <td>LDM</td>
+    <td><a href="https://openaccess.thecvf.com/content/CVPR2022/html/Rombach_High-Resolution_Image_Synthesis_With_Latent_Diffusion_Models_CVPR_2022_paper">R. Rombach et al.</a></td>
+    <td>CVPR 2022</td>
+    <td><a href="Generative_Modeling/LDM">LDM</a></td>
   </tr>
   <tr>
     <td rowspan="2">Autoregressive Models</td>
