@@ -89,6 +89,19 @@ namespace datasets{
         size_t size();
     };
 
+    // ----------------------------------------------------
+    // namespace{datasets} -> class{ImageTensorFolderPairWithPaths}
+    // ----------------------------------------------------
+    class ImageTensorFolderPairWithPaths{
+    private:
+        std::vector<std::string> paths1, paths2, fnames1, fnames2;
+    public:
+        ImageTensorFolderPairWithPaths(){}
+        ImageTensorFolderPairWithPaths(const std::string root1, const std::string root2);
+        void get(const size_t idx, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> &data);
+        size_t size();
+    };
+
     // ------------------------------------------------------------------------
     // namespace{datasets} -> class{ImageFolderRandomSampling2WithPaths}
     // ------------------------------------------------------------------------
