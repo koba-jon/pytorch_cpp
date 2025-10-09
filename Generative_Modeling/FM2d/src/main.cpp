@@ -18,7 +18,7 @@ namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
-void train(po::variables_map &vm, torch::Device &device, FM &model, std::vector<transforms_Compose> &transform);
+void train(po::variables_map &vm, torch::Device &device, FM &model, FM &model_aux, std::vector<transforms_Compose> &transform);
 void test(po::variables_map &vm, torch::Device &device, FM &model, std::vector<transforms_Compose> &transform);
 void synth(po::variables_map &vm, torch::Device &device, FM &model);
 void sample(po::variables_map &vm, torch::Device &device, FM &model);
@@ -86,7 +86,7 @@ po::options_description parse_arguments(){
         ("beta1", po::value<float>()->default_value(0.9), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
         ("nf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image")
-        ("ema_decay", po::value<float>()->default_value(0.9999), "decay of exponential moving average")
+        ("ema_decay", po::value<float>()->default_value(0.999), "decay of exponential moving average")
 
     ;
     
@@ -140,8 +140,8 @@ int main(int argc, const char *argv[]){
     }
     
     // (5) Define Network
-    FM fm(vm, device);
-    fm->to(device);
+    FM fm(vm, device); fm->to(device);
+    FM fm_aux(vm, device); fm_aux->to(device);
     
     // (6) Make Directories
     std::string dir = "checkpoints/" + vm["dataset"].as<std::string>();
@@ -153,7 +153,7 @@ int main(int argc, const char *argv[]){
     // (8.1) Training Phase
     if (vm["train"].as<bool>()){
         Set_Options(vm, argc, argv, args, "train");
-        train(vm, device, fm, transform);
+        train(vm, device, fm, fm_aux, transform);
     }
 
     // (8.2) Test Phase
