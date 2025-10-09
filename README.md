@@ -56,6 +56,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+10/09,2025: Implementation of `RF2d` <br>
 10/08,2025: Implementation of `FM2d` <br>
 10/08,2025: Implementation of `LDM` and `LDM-v` <br>
 10/04,2025: Implementation of `Glow` <br>
@@ -65,11 +66,11 @@ $ sh scripts/test.sh
 09/22,2025: Implementation of `PixelCNN-Gray` and `PixelCNN-RGB` <br>
 09/18,2025: Implementation of `VQ-VAE-2` <br>
 09/16,2025: Implementation of `VQ-VAE` <br>
-09/14,2025: Implementation of `PNDM2d` and `PNDM2d-v` <br>
 
 <details>
 <summary>See more...</summary>
   
+09/14,2025: Implementation of `PNDM2d` and `PNDM2d-v` <br>
 09/14,2025: Release of `v2.8.0.1` <br>
 09/12,2025: Implementation of `SimCLR` <br>
 09/11,2025: Implementation of `MAE` <br>
@@ -315,11 +316,17 @@ $ sh scripts/test.sh
     <td><a href="Generative_Modeling/LDM-v">LDM-v</a></td>
   </tr>
   <tr>
-    <td rowspan="1">Flow Matching</td>
-    <td rowspan="1">Flow Matching</td>
-    <td rowspan="1"><a href="https://openreview.net/forum?id=PqvMRDCJT9t">Y. Lipman et al.</a></td>
-    <td rowspan="1">ICLR 2023</td>
+    <td rowspan="2">Flow Matching</td>
+    <td>Flow Matching</td>
+    <td><a href="https://openreview.net/forum?id=PqvMRDCJT9t">Y. Lipman et al.</a></td>
+    <td>ICLR 2023</td>
     <td><a href="Generative_Modeling/FM2d">FM2d</a></td>
+  </tr>
+  <tr>
+    <td>Rectified Flow</td>
+    <td><a href="https://openreview.net/forum?id=XVjTT1nw5z">X. Liu et al.</a></td>
+    <td>ICLR 2023</td>
+    <td><a href="Generative_Modeling/RF2d">RF2d</a></td>
   </tr>
   <tr>
     <td rowspan="2">Autoregressive Models</td>
