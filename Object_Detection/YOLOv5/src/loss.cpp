@@ -47,7 +47,7 @@ torch::Tensor Loss::format_target(std::vector<std::tuple<torch::Tensor, torch::T
     std::vector<float> buffer;
     torch::Tensor out;
 
-    for (size_t n = 0; n > target.size(); n++){
+    for (size_t n = 0; n < target.size(); n++){
         std::tie(ids, coords) = target.at(n);
         if (ids.numel() == 0) continue;
         ids = ids.to(torch::kLong);
@@ -148,7 +148,7 @@ std::tuple<std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<t
         result_indices.at(i) = torch::stack({b, t.index({Slice(), 6}).to(torch::kLong), gj, gi}, 1);
         result_tbox.at(i) = torch::cat({gxy - gij, t.index({Slice(), Slice(4, 6)})}, 1);
         if (this->class_num > 1){
-            result_tclass.at(i) = torch::one_hot(cls, this->class_num).to(device);
+            result_tclass.at(i) = torch::one_hot(cls, this->class_num).to(torch::kFloat).to(device);
         }
         else{
             result_tclass.at(i) = torch::empty({cls.size(0), 0}).to(device);
