@@ -52,7 +52,7 @@ po::options_description parse_arguments(){
         ("class_num", po::value<size_t>()->default_value(20), "total classes")
         ("size", po::value<size_t>()->default_value(608), "image width and height")
         ("prob_thresh", po::value<float>()->default_value(0.1), "threshold of simultaneous probability with confidence and class score")
-        ("ignore_thresh", po::value<float>()->default_value(0.7), "threshold of IoU between no object anchor and ground truth for excluding loss of 'no object confidence term'")
+        ("anchor_thresh", po::value<float>()->default_value(4.0), "anchor ratio threshold for positive matches")
         ("nms_thresh", po::value<float>()->default_value(0.5), "threshold of IoU between bounding boxes in Non-Maximum Suppression")
         ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
         ("na", po::value<size_t>()->default_value(3), "the number of anchor in each grid")
@@ -116,10 +116,9 @@ po::options_description parse_arguments(){
         ("lr_decay2", po::value<float>()->default_value(1e-4), "learning rate in the decay 2 iteration")
         ("momentum", po::value<float>()->default_value(0.9), "momentum in SGD of optimizer method")
         ("weight_decay", po::value<float>()->default_value(5e-4), "weight decay in SGD of optimizer method")
-        ("Lambda_coord", po::value<float>()->default_value(1.0), "the multiple of coordinate term")
-        ("Lambda_object", po::value<float>()->default_value(1.0), "the multiple of object confidence term")
-        ("Lambda_noobject", po::value<float>()->default_value(1.0), "the multiple of no object confidence term")
-        ("Lambda_class", po::value<float>()->default_value(1.0), "the multiple of class term")
+        ("Lambda_box", po::value<float>()->default_value(0.05), "the multiple of IoU term")
+        ("Lambda_obj", po::value<float>()->default_value(1.0), "the multiple of object confidence term")
+        ("Lambda_class", po::value<float>()->default_value(0.5), "the multiple of class term")
 
     ;
     
