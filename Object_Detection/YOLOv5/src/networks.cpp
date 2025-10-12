@@ -237,11 +237,11 @@ std::vector<torch::Tensor> YOLOv5Impl::forward(torch::Tensor x){
     x23 = this->head_c3_23->forward(x22);
 
     small = this->detect_small->forward(x17);
-    small = small.permute({0, 2, 3, 1}).contiguous();
+    small = small.permute({0, 2, 3, 1}).contiguous();  // {N,A*(5+CN),G,G} ===> {N,G,G,A*(5+CN)}
     medium = this->detect_medium->forward(x20);
-    medium = medium.permute({0, 2, 3, 1}).contiguous();
+    medium = medium.permute({0, 2, 3, 1}).contiguous();  // {N,A*(5+CN),G,G} ===> {N,G,G,A*(5+CN)}
     large = this->detect_large->forward(x23);
-    large = large.permute({0, 2, 3, 1}).contiguous();
+    large = large.permute({0, 2, 3, 1}).contiguous();  // {N,A*(5+CN),G,G} ===> {N,G,G,A*(5+CN)}
 
     out.push_back(small);
     out.push_back(medium);

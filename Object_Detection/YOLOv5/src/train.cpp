@@ -106,9 +106,9 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
     }
 
     // (3) Set Optimizer Method
-    using Optimizer = torch::optim::SGD;
-    using OptimizerOptions = torch::optim::SGDOptions;
-    auto optimizer = Optimizer(model->parameters(), OptimizerOptions(vm["lr_init"].as<float>()).momentum(vm["momentum"].as<float>()).weight_decay(vm["weight_decay"].as<float>()));
+    using Optimizer = torch::optim::Adam;
+    using OptimizerOptions = torch::optim::AdamOptions;
+    auto optimizer = Optimizer(model->parameters(), OptimizerOptions(vm["lr_init"].as<float>()));
 
     // (4) Set Loss Function
     auto criterion = Loss(anchors, (long int)vm["class_num"].as<size_t>(), vm["anchor_thresh"].as<float>());
