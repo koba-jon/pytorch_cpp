@@ -27,7 +27,7 @@ private:
 public:
     Loss(){}
     Loss(const std::vector<std::vector<std::tuple<float, float>>> anchors_, const long int class_num_, const float anchor_thresh_);
-    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> operator()(std::vector<torch::Tensor> &inputs, std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target, const std::tuple<float, float> image_sizes);
+    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> operator()(std::vector<torch::Tensor> &inputs, std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target);
 };
 
 

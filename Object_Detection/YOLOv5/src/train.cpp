@@ -106,9 +106,9 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
     }
 
     // (3) Set Optimizer Method
-    using Optimizer = torch::optim::Adam;
-    using OptimizerOptions = torch::optim::AdamOptions;
-    auto optimizer = Optimizer(model->parameters(), OptimizerOptions(vm["lr_init"].as<float>()));
+    using Optimizer = torch::optim::SGD;
+    using OptimizerOptions = torch::optim::SGDOptions;
+    auto optimizer = Optimizer(model->parameters(), OptimizerOptions(vm["lr_init"].as<float>()).momentum(vm["momentum"].as<float>()).weight_decay(vm["weight_decay"].as<float>()));
 
     // (4) Set Loss Function
     auto criterion = Loss(anchors, (long int)vm["class_num"].as<size_t>(), vm["anchor_thresh"].as<float>());
@@ -233,7 +233,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
             // c3. YOLOv5 Training Phase
             // -----------------------------------
             output = model->forward(image);  // {N,C,H,W} ===> {S,{N,G,G,A*(CN+5)}}
-            losses = criterion(output, label, {(float)width, (float)height});
+            losses = criterion(output, label);
             loss_box = std::get<0>(losses) * vm["Lambda_box"].as<float>();
             loss_obj = std::get<1>(losses) * vm["Lambda_obj"].as<float>();
             loss_class = std::get<2>(losses) * vm["Lambda_class"].as<float>();

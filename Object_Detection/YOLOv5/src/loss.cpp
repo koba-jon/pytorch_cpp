@@ -94,44 +94,49 @@ std::tuple<std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<t
     scale_anchors = std::vector<torch::Tensor>(scales);
     /*******************************************************/
     for (size_t i = 0; i < scales; i++){
+
         anchor = this->anchors[i].to(device);  // {A,2}
-        xyxy_gain = torch::tensor({(float)inputs[i].size(3), (float)inputs[i].size(2), (float)inputs[i].size(3), (float)inputs[i].size(2)}, torch::kFloat).to(device);  // {4}
+        xyxy_gain = torch::tensor({(float)inputs[i].size(2), (float)inputs[i].size(1), (float)inputs[i].size(2), (float)inputs[i].size(1)}, torch::kFloat).to(device);  // {4}
         gain.index_put_({Slice(2, 6)}, xyxy_gain);  // {7}
         t = target_tensor * gain.view({1, 1, 7});  // {A,T,7}
 
-        if (nt > 0){
-            
-            r = t.index({Slice(), Slice(), Slice(4, 6)}) / anchor.view({this->na, 1, 2});  // {A,T,2}
-            j = std::get<0>(torch::max(r, 1 / r).max(2)) < this->anchor_thresh;  // {A,T}
-            t = t.index({j});  // {T',7}
-
-            gxy = t.index({Slice(), Slice(2, 4)});  // {T',2}
-            gxi = gain.index({Slice(2, 4)}).unsqueeze(0) - gxy;  // {T',2}
-            jk = (torch::fmod(gxy, 1.0) < g) * (gxy > 1.0);  // {T',2}
-            lm = (torch::fmod(gxi, 1.0) < g) * (gxi > 1.0);  // {T',2}
-            ones = torch::ones_like(jk.index({Slice(), 0}), torch::kBool);  // {T'}
-            j = torch::stack({ones, jk.index({Slice(), 0}), jk.index({Slice(), 1}), lm.index({Slice(), 0}), lm.index({Slice(), 1})});  // {5,T'}
-            t = t.unsqueeze(0).repeat({5, 1, 1}).index({j});  // {N,7}
-            offsets = off.unsqueeze(1).repeat({1, gxy.size(0), 1}).index({j});  // {N,2}
-        }
-        else{
-            t = torch::zeros({0, 7}).to(device);
-            offsets = torch::zeros({0, 2}).to(device);
+        if (nt == 0){
+            scale_indices_b[i] = torch::empty({0}, torch::kLong).to(device);
+            scale_indices_a[i] = torch::empty({0}, torch::kLong).to(device);
+            scale_indices_gj[i] = torch::empty({0}, torch::kLong).to(device);
+            scale_indices_gi[i] =  torch::empty({0}, torch::kLong).to(device);
+            scale_tbox[i] = torch::empty({0, 4}, torch::kFloat).to(device);
+            scale_tclass[i] = torch::empty({0}, torch::kLong).to(device);
+            scale_anchors[i] = torch::empty({0, 2}, torch::kFloat).to(device);
+            continue;
         }
 
-        b = t.index({Slice(), 0}).to(torch::kLong);  // {N}
-        c = t.index({Slice(), 1}).to(torch::kLong);  // {N}
-        gxy = t.index({Slice(), Slice(2, 4)});  // {N,2}
-        gwh = t.index({Slice(), Slice(4, 6)});  // {N,2}
-        a = t.index({Slice(), 6}).to(torch::kLong);  // {N}
-        gij = (gxy - offsets).to(torch::kLong);  // {N,2}
-        gi = gij.index({Slice(), 0});  // {N}
-        gj = gij.index({Slice(), 1});  // {N}
+        r = t.index({Slice(), Slice(), Slice(4, 6)}) / anchor.view({this->na, 1, 2});  // {A,T,2}
+        j = std::get<0>(torch::max(r, 1 / r).max(2)) < this->anchor_thresh;  // {A,T}
+        t = t.index({j});  // {T',7}
+        
+        gxy = t.index({Slice(), Slice(2, 4)});  // {T',2}
+        gxi = gain.index({Slice(2, 4)}).unsqueeze(0) - gxy;  // {T',2}
+        jk = (gxy - torch::floor(gxy) < g) & (gxy > 1.0);  // {T',2}
+        lm = (gxi - torch::floor(gxi) < g) & (gxi > 1.0);  // {T',2}
+        ones = torch::ones_like(jk.index({Slice(), 0}), torch::kBool);  // {T'}
+        j = torch::stack({ones, jk.index({Slice(), 0}), jk.index({Slice(), 1}), lm.index({Slice(), 0}), lm.index({Slice(), 1})});  // {5,T'}
+        t = t.unsqueeze(0).repeat({5, 1, 1}).index({j});  // {K,7}
+        offsets = off.unsqueeze(1).repeat({1, gxy.size(0), 1}).index({j});  // {K,2}
+
+        b = t.index({Slice(), 0}).to(torch::kLong);  // {K}
+        c = t.index({Slice(), 1}).to(torch::kLong);  // {K}
+        gxy = t.index({Slice(), Slice(2, 4)});  // {K,2}
+        gwh = t.index({Slice(), Slice(4, 6)});  // {K,2}
+        a = t.index({Slice(), 6}).to(torch::kLong);  // {K}
+        gij = (gxy - offsets).to(torch::kLong);  // {K,2}
+        gi = gij.index({Slice(), 0});  // {K}
+        gj = gij.index({Slice(), 1});  // {K}
 
         scale_indices_b[i] = b;
         scale_indices_a[i] = a;
-        scale_indices_gj[i] = gj;
-        scale_indices_gi[i] = gi;
+        scale_indices_gj[i] = gj.clamp(0, inputs[i].size(1) - 1);
+        scale_indices_gi[i] = gi.clamp(0, inputs[i].size(2) - 1);
         scale_tbox[i] = torch::cat({gxy - gij.to(torch::kFloat), gwh}, 1);
         scale_tclass[i] = c;
         scale_anchors[i] = anchor.index({a});
@@ -194,7 +199,7 @@ torch::Tensor Loss::bbox_iou(torch::Tensor box1, torch::Tensor box2){
 // -------------------------
 // class{Loss} -> operator
 // -------------------------
-std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> Loss::operator()(std::vector<torch::Tensor> &inputs, std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target, const std::tuple<float, float> image_sizes){
+std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> Loss::operator()(std::vector<torch::Tensor> &inputs, std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target){
 
     torch::Device device = inputs.at(0).device();
     size_t scales = inputs.size();
@@ -211,33 +216,32 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> Loss::operator()(std::ve
     loss_obj.requires_grad_(true);
     loss_class.requires_grad_(true);
     std::tie(scale_indices_b, scale_indices_a, scale_indices_gj, scale_indices_gi, scale_tbox, scale_tclass, scale_anchors) = this->build_target(inputs, target);
-
     for (size_t i = 0; i < scales; i++){
         b = scale_indices_b[i];
         a = scale_indices_a[i];
         gj = scale_indices_gj[i];
         gi = scale_indices_gi[i];
-        input = inputs[i].view({inputs[i].size(0), inputs[i].size(1), inputs[i].size(2), this->na, 5 + this->class_num}).permute({0, 3, 1, 2, 4});  // {N,G,G,A*(5+CN)} ===> {N,G,G,A,5+CN} ===> {N,A,G,G,5+CN}
-        tobj = torch::zeros({input.size(0), input.size(1), input.size(2), input.size(3)}).to(device);  // {N,A,G,G}
+        input = inputs[i].view({inputs[i].size(0), inputs[i].size(1), inputs[i].size(2), this->na, 5 + this->class_num}).permute({0, 3, 1, 2, 4}).contiguous();  // {N,G,G,A*(5+CN)} ===> {N,G,G,A,5+CN} ===> {N,A,G,G,5+CN}
+        tobj = torch::zeros({input.size(0), input.size(1), input.size(2), input.size(3)}, torch::kFloat).to(device);  // {N,A,G,G}
 
         n = b.size(0);
         if (n > 0){
-            ps = input.index({b, a, gj, gi});  // {N,5+CN}
-            pxy = ps.index({Slice(), Slice(0, 2)});  // {N,2}
-            pwh = ps.index({Slice(), Slice(2, 4)});  // {N,2}
-            pcls = ps.index({Slice(), Slice(5, torch::indexing::None)});  // {N,CN}
+            ps = input.index({b, a, gj, gi});  // {K,5+CN}
+            pxy = ps.index({Slice(), Slice(0, 2)});  // {K,2}
+            pwh = ps.index({Slice(), Slice(2, 4)});  // {K,2}
+            pcls = ps.index({Slice(), Slice(5, torch::indexing::None)});  // {K,CN}
 
-            pxy = pxy.sigmoid() * 2.0 - 0.5;  // {N,2}
-            pwh = (pwh.sigmoid() * 2.0).pow(2.0) * scale_anchors[i];  // {N,2}
-            pbox = torch::cat({pxy, pwh}, 1);  // {N,4}
-            iou = this->bbox_iou(pbox, scale_tbox[i]).squeeze();  // {N}
+            pxy = pxy.sigmoid() * 2.0 - 0.5;  // {K,2}
+            pwh = (pwh.sigmoid() * 2.0).pow(2.0) * scale_anchors[i];  // {K,2}
+            pbox = torch::cat({pxy, pwh}, 1);  // {K,4}
+            iou = this->bbox_iou(pbox, scale_tbox[i]).squeeze();  // {K}
             loss_box = loss_box + (1.0 - iou).mean();  // {}
 
             tobj.index_put_({b, a, gj, gi}, iou.detach().clamp(0.0, 1.0));  // {N,A,G,G}
 
             if (this->class_num > 1){
-                t = torch::zeros_like(pcls);  // {N,CN}
-                t.index_put_({torch::arange(n).to(device), scale_tclass[i]}, 1.0);  // {N,CN}
+                t = torch::zeros_like(pcls);  // {K,CN}
+                t.index_put_({torch::arange(n, torch::kLong).to(device), scale_tclass[i]}, 1.0);  // {K,CN}
                 loss_class = loss_class + this->BCE(pcls, t); // {}
             }
         }
