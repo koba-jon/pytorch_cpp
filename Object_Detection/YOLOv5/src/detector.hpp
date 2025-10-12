@@ -14,7 +14,7 @@ class YOLODetector{
 private:
     long int class_num, na;
     float prob_thresh, nms_thresh;
-    torch::Tensor anchors_wh;
+    torch::Tensor anchors;
     torch::Tensor NonMaximumSuppression(torch::Tensor &coord, torch::Tensor &conf);
 public:
     YOLODetector(){}

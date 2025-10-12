@@ -46,7 +46,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderBBWithPaths &valid_data
         label = std::get<1>(mini_batch);  // {N, ({BB_n}, {BB_n,4}) } (annotations)
         
         output = model->forward(image);  // {N,C,H,W} ===> {S,{N,G,G,FF}}
-        losses = criterion(output, label);
+        losses = criterion(output, label, {(float)image.size(3), (float)image.size(2)});
 
         loss_box = std::get<0>(losses) * vm["Lambda_box"].as<float>();
         loss_obj = std::get<1>(losses) * vm["Lambda_obj"].as<float>();

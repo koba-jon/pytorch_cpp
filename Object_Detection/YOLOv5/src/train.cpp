@@ -233,7 +233,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
             // c3. YOLOv5 Training Phase
             // -----------------------------------
             output = model->forward(image);  // {N,C,H,W} ===> {S,{N,G,G,A*(CN+5)}}
-            losses = criterion(output, label);
+            losses = criterion(output, label, {(float)width, (float)height});
             loss_box = std::get<0>(losses) * vm["Lambda_box"].as<float>();
             loss_obj = std::get<1>(losses) * vm["Lambda_obj"].as<float>();
             loss_class = std::get<2>(losses) * vm["Lambda_class"].as<float>();

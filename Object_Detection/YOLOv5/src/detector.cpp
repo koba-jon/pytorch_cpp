@@ -14,18 +14,17 @@ YOLODetector::YOLODetector(const std::vector<std::vector<std::tuple<float, float
     long int scales = anchors_.size();
     this->na = anchors_.at(0).size();
 
-    std::vector<float> anchors(scales * this->na * 2);
+    this->anchors = torch::zeros({scales, 1, 1, this->na, 2}, torch::TensorOptions().dtype(torch::kFloat));  // {S,A,2}
     for (long int i = 0; i < scales; i++){
         for (long int j = 0; j < this->na; j++){
-            anchors.at(i * this->na * 2 + j * 2) = std::get<0>(anchors_.at(i).at(j));
-            anchors.at(i * this->na * 2 + j * 2 + 1) = std::get<1>(anchors_.at(i).at(j));
+            this->anchors.index_put_({i, 0, 0, j, 0}, std::get<0>(anchors_.at(i).at(j)));
+            this->anchors.index_put_({i, 0, 0, j, 1}, std::get<1>(anchors_.at(i).at(j)));
         }
     }
 
     this->class_num = class_num_;
     this->prob_thresh = prob_thresh_;
     this->nms_thresh = nms_thresh_;
-    this->anchors_wh = torch::from_blob(anchors.data(), {scales, 1, 1, this->na, 2}, torch::kFloat).clone();  // anchors_wh{S,1,1,A,2}
 
 }
 
@@ -190,7 +189,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> YOLODetector::operator()
         pred_view = pred.view({ng, ng, this->na, this->class_num + 5});  // pred{G,G,A*(CN+5)} ===> pred_view{G,G,A,CN+5}
         pred_split = pred_view.split_with_sizes(/*split_sizes=*/{2, 2, 1, this->class_num}, /*dim=*/3);  // pred_view{G,G,A,CN+5} ===> pred_split({G,G,A,CN}, {G,G,A,2}, {G,G,A,2}, {G,G,A,1})
         pred_xy = (torch::sigmoid(pred_split.at(0)) * 2.0 - 0.5 + x0y0) / (float)ng;  // pred_xy{G,G,A,2}
-        pred_wh = (torch::sigmoid(pred_split.at(1)) * 2.0).pow(2.0) * this->anchors_wh[i].to(device) / image_size;  // pred_wh{G,G,A,2}
+        pred_wh = (torch::sigmoid(pred_split.at(1)) * 2.0).pow(2.0) * this->anchors[i].to(device) / image_size;  // pred_wh{G,G,A,2}
         pred_conf = torch::sigmoid(pred_split.at(2)).squeeze(-1);  // pred_conf{G,G,A}
         pred_class = torch::sigmoid(pred_split.at(3));  // pred_class{G,G,A,CN}
         pred_coord = torch::cat({pred_xy, pred_wh}, /*dim=*/3);  // pred_xy{G,G,A,2} + pred_wh{G,G,A,2} ===> pred_coord{G,G,A,4}
