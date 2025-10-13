@@ -178,12 +178,12 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> YOLODetector::operator()
         x0 = arange.view({1, ng, 1, 1}).expand({ng, ng, 1, 1});  // arange{G} ===> {1,G,1,1} ===> x0{G,G,1,1}
         y0 = arange.view({ng, 1, 1, 1}).expand({ng, ng, 1, 1});  // arange{G} ===> {G,1,1,1} ===> y0{G,G,1,1}
         x0y0 = torch::cat({x0, y0}, /*dim=*/3);  // x0{G,G,1,1} + y0{G,G,1,1} ===> x0y0{G,G,1,2}
-        grid_size = torch::tensor({pred.size(1), pred.size(0)}, torch::kFloat).to(device).view({1, 1, 1, 2});  // {1,1,1,2}
+        grid_size = torch::tensor({ng, ng}, torch::kFloat).to(device).view({1, 1, 1, 2});  // {1,1,1,2}
         /*************************************************************************/
-        pred_view = pred.view({ng, ng, this->na, this->class_num + 5});  // pred{G,G,A*(CN+5)} ===> pred_view{G,G,A,CN+5}
+        pred_view = pred.view({ng, ng, this->na, 5 + this->class_num});  // pred{G,G,A*(CN+5)} ===> pred_view{G,G,A,CN+5}
         pred_split = pred_view.split_with_sizes(/*split_sizes=*/{2, 2, 1, this->class_num}, /*dim=*/3);  // pred_view{G,G,A,CN+5} ===> pred_split({G,G,A,CN}, {G,G,A,2}, {G,G,A,2}, {G,G,A,1})
-        pred_xy = (torch::sigmoid(pred_split.at(0)) * 2.0 - 0.5 + x0y0) / (float)ng;  // pred_xy{G,G,A,2}
-        pred_wh = (torch::sigmoid(pred_split.at(1)) * 2.0).pow(2.0) * this->anchors[i].to(device) * grid_size;  // pred_wh{G,G,A,2}
+        pred_xy = (torch::sigmoid(pred_split.at(0)) * 2.0 - 0.5 + x0y0) / grid_size;  // pred_xy{G,G,A,2}
+        pred_wh = (torch::sigmoid(pred_split.at(1)) * 2.0).pow(2.0) * this->anchors[i].to(device);  // pred_wh{G,G,A,2}
         pred_conf = torch::sigmoid(pred_split.at(2)).squeeze(-1);  // pred_conf{G,G,A}
         pred_class = torch::sigmoid(pred_split.at(3));  // pred_class{G,G,A,CN}
         pred_coord = torch::cat({pred_xy, pred_wh}, /*dim=*/3);  // pred_xy{G,G,A,2} + pred_wh{G,G,A,2} ===> pred_coord{G,G,A,4}

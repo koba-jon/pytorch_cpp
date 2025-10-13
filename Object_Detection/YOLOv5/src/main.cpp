@@ -108,12 +108,9 @@ po::options_description parse_arguments(){
         ("demo_load_epoch", po::value<std::string>()->default_value("latest"), "training epoch used for demo")
 
         // (7) Define for Network Parameter
-        ("lr_init", po::value<float>()->default_value(1e-3), "learning rate in the initial iteration")
-        ("lr_base", po::value<float>()->default_value(1e-2), "learning rate in the base iteration")
-        ("lr_decay1", po::value<float>()->default_value(1e-3), "learning rate in the decay 1 iteration")
-        ("lr_decay2", po::value<float>()->default_value(1e-4), "learning rate in the decay 2 iteration")
-        ("momentum", po::value<float>()->default_value(0.9), "momentum in SGD of optimizer method")
-        ("weight_decay", po::value<float>()->default_value(5e-4), "weight decay in SGD of optimizer method")
+        ("lr", po::value<float>()->default_value(1e-4), "learning rate")
+        ("beta1", po::value<float>()->default_value(0.9), "beta 1 in Adam of optimizer method")
+        ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
         ("Lambda_box", po::value<float>()->default_value(0.05), "the multiple of IoU term")
         ("Lambda_obj", po::value<float>()->default_value(1.0), "the multiple of object confidence term")
         ("Lambda_class", po::value<float>()->default_value(0.5), "the multiple of class term")

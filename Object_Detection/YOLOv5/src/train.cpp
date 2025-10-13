@@ -29,7 +29,6 @@ namespace F = torch::nn::functional;
 namespace po = boost::program_options;
 
 // Function Prototype
-template <typename Optimizer, typename OptimizerOptions> void Update_LR(Optimizer &optimizer, const float lr_init, const float lr_base, const float lr_decay1, const float lr_decay2, const size_t epoch, const float burnin_base, const float burnin_exp=4.0);
 void valid(po::variables_map &vm, DataLoader::ImageFolderBBWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, YOLOv5 &model, const std::vector<std::string> class_names, const size_t epoch, std::vector<visualizer::graph> &writer);
 
 
@@ -54,7 +53,6 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
     size_t total_iter;
     size_t start_epoch, total_epoch;
     float loss_f, loss_box_f, loss_obj_f, loss_class_f;
-    float lr_init, lr_base, lr_decay1, lr_decay2;
     std::string date, date_out;
     std::string buff, latest;
     std::string checkpoint_dir, save_images_dir, path;
@@ -103,9 +101,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
     }
 
     // (3) Set Optimizer Method
-    using Optimizer = torch::optim::SGD;
-    using OptimizerOptions = torch::optim::SGDOptions;
-    auto optimizer = Optimizer(model->parameters(), OptimizerOptions(vm["lr_init"].as<float>()).momentum(vm["momentum"].as<float>()).weight_decay(vm["weight_decay"].as<float>()));
+    auto optimizer = torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(vm["lr"].as<float>()).betas({vm["beta1"].as<float>(), vm["beta2"].as<float>()}));
 
     // (4) Set Loss Function
     auto criterion = Loss(anchors, {(float)vm["size"].as<size_t>(), (float)vm["size"].as<size_t>()}, (long int)vm["class_num"].as<size_t>(), vm["anchor_thresh"].as<float>());
@@ -184,10 +180,6 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
     total_iter = dataloader.get_count_max();
     mt.seed(std::rand());
     total_epoch = vm["epochs"].as<size_t>();
-    lr_init = vm["lr_init"].as<float>();
-    lr_base = vm["lr_base"].as<float>();
-    lr_decay1 = vm["lr_decay1"].as<float>();
-    lr_decay2 = vm["lr_decay2"].as<float>();
 
     // (2) Training per Epoch
     irreg_progress.restart(start_epoch - 1, total_epoch);
@@ -206,12 +198,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
             label = std::get<1>(mini_batch);  // {N, ({BB_n}, {BB_n,4}) } (annotations)
 
             // -----------------------------------
-            // c1. Update Learning Rate
-            // -----------------------------------
-            Update_LR<Optimizer, OptimizerOptions>(optimizer, lr_init, lr_base, lr_decay1, lr_decay2, epoch, (float)show_progress->get_iters() / (float)total_iter);
-
-            // -----------------------------------
-            // c2. YOLOv5 Training Phase
+            // c1. YOLOv5 Training Phase
             // -----------------------------------
             output = model->forward(image);  // {N,C,H,W} ===> {S,{N,G,G,A*(CN+5)}}
             losses = criterion(output, label);
@@ -224,7 +211,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
             optimizer.step();
 
             // -----------------------------------
-            // c3. Record Loss (iteration)
+            // c2. Record Loss (iteration)
             // -----------------------------------
             show_progress->increment(/*loss_value=*/{loss_box.item<float>(), loss_obj.item<float>(), loss_class.item<float>()});
             ofs << "iters:" << show_progress->get_iters() << '/' << total_iter << ' ' << std::flush;
@@ -233,7 +220,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
             ofs << "class:" << loss_class.item<float>() << "(ave:" <<  show_progress->get_ave(2) << ")" << std::endl;
 
             // -----------------------------------
-            // c4. Save Sample Images
+            // c3. Save Sample Images
             // -----------------------------------
             iter = show_progress->get_iters();
             if (iter % save_sample_iter == 1){
@@ -334,38 +321,3 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
 
 }
 
-
-// ------------------------------------
-// Function to Update Learning Rate
-// ------------------------------------
-template <typename Optimizer, typename OptimizerOptions>
-void Update_LR(Optimizer &optimizer, const float lr_init, const float lr_base, const float lr_decay1, const float lr_decay2, const size_t epoch, const float burnin_base, const float burnin_exp){
-
-    float lr;
-
-    if (epoch == 1){
-        lr = lr_init + (lr_base - lr_init) * std::pow(burnin_base, burnin_exp);
-    }
-    else if(epoch == 2){
-        lr = lr_base;
-    }
-    else if(epoch == 76){
-        lr = lr_decay1;
-    }
-    else if(epoch == 106){
-        lr = lr_decay2;
-    }
-    else{
-        return;
-    }
-
-    for (auto &param_group : optimizer.param_groups()){
-        if (param_group.has_options()){
-            auto &options = (OptimizerOptions&)(param_group.options());
-            options.lr(lr);
-        }
-    }
-
-    return;
-
-}
