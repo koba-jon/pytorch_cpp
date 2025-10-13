@@ -37,4 +37,19 @@ public:
 };
 
 
+// ------------------------------
+// class{YOLOBatchAugmentation}
+// ------------------------------
+class YOLOBatchAugmentation{
+private:
+    double mosaic_rate, mixup_rate;
+    std::mt19937 mt;
+    std::tuple<torch::Tensor, std::vector<std::tuple<torch::Tensor, torch::Tensor>>> random_mosaic(torch::Tensor data_in1, std::vector<std::tuple<torch::Tensor, torch::Tensor>> data_in2);
+    std::tuple<torch::Tensor, std::vector<std::tuple<torch::Tensor, torch::Tensor>>> random_mixup(torch::Tensor data_in1, std::vector<std::tuple<torch::Tensor, torch::Tensor>> data_in2);
+public:
+    YOLOBatchAugmentation(const double mosaic_rate_=0.5, const double mixup_rate_=0.5);
+    std::tuple<torch::Tensor, std::vector<std::tuple<torch::Tensor, torch::Tensor>>> forward(torch::Tensor data_in1, std::vector<std::tuple<torch::Tensor, torch::Tensor>> data_in2);
+};
+
+
 #endif

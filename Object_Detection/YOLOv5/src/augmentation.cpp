@@ -11,6 +11,10 @@
 #include "augmentation.hpp"
 #include "transforms.hpp"
 
+// Define Namespace
+namespace F = torch::nn::functional;
+using Slice = torch::indexing::Slice;
+
 
 // ------------------------------------------------------------------
 // class{YOLOAugmentationImpl}(transforms::ComposeImpl) -> constructor
@@ -545,5 +549,178 @@ void YOLOAugmentationImpl::forward(cv::Mat &data_in1, std::tuple<torch::Tensor, 
     }
 
     return;
+
+}
+
+
+// ------------------------------------------------------------------
+// class{YOLOBatchAugmentation} -> constructor
+// ------------------------------------------------------------------
+YOLOBatchAugmentation::YOLOBatchAugmentation(const double mosaic_rate_, const double mixup_rate_){
+    this->mosaic_rate = mosaic_rate_;
+    this->mixup_rate = mixup_rate_;
+    this->mt = std::mt19937(std::rand());
+}
+
+
+// --------------------------------------------------------------------------
+// class{YOLOBatchAugmentation} -> function{random_mosaic}
+// --------------------------------------------------------------------------
+std::tuple<torch::Tensor, std::vector<std::tuple<torch::Tensor, torch::Tensor>>> YOLOBatchAugmentation::random_mosaic(torch::Tensor data_in1, std::vector<std::tuple<torch::Tensor, torch::Tensor>> data_in2){
+
+    torch::Device device = data_in1.device();
+    long int mini_batch_size = data_in1.size(0);
+    std::uniform_int_distribution<size_t> irand(0, mini_batch_size - 1);
+    size_t idx;
+    torch::Tensor top_left, top_right, bottom_left, bottom_right, top, bottom, data_mid, data_out1;
+    torch::Tensor ids, coords, idss, coordss;
+    std::vector<std::tuple<torch::Tensor, torch::Tensor>> data_out2;
+    
+    data_out1 = torch::empty({0, data_in1.size(1), data_in1.size(2), data_in1.size(3)}, torch::kFloat).to(device);  // {0,C,H,W}
+    data_out2 = std::vector<std::tuple<torch::Tensor, torch::Tensor>>(mini_batch_size);
+    for (long int i = 0; i < mini_batch_size; i++){
+
+        idss = torch::empty({0}, torch::kLong);
+        coordss = torch::empty({0, 4}, torch::kFloat);
+
+        // (1) Top left
+        top_left = data_in1.index({Slice(i, i + 1)}); // {1,C,H,W}
+        if (std::get<0>(data_in2[i]).numel() > 0){
+            ids = std::get<0>(data_in2[i]).clone();  // {BB_n}
+            coords = std::get<1>(data_in2[i]).clone();  // {BB_n,4}
+            coords.index_put_({Slice(), 0}, coords.index({Slice(), 0}) * 0.5);
+            coords.index_put_({Slice(), 1}, coords.index({Slice(), 1}) * 0.5);
+            coords.index_put_({Slice(), 2}, coords.index({Slice(), 2}) * 0.5);
+            coords.index_put_({Slice(), 3}, coords.index({Slice(), 3}) * 0.5);
+            idss = torch::cat({idss, ids}, 0);
+            coordss = torch::cat({coordss, coords}, 0);
+        }
+
+        // (2) Top right
+        idx = irand(this->mt);
+        top_right = data_in1.index({Slice(idx, idx + 1)}); // {1,C,H,W}
+        if (std::get<0>(data_in2[idx]).numel() > 0){
+            ids = std::get<0>(data_in2[idx]).clone();  // {BB_n}
+            coords = std::get<1>(data_in2[idx]).clone();  // {BB_n,4}
+            coords.index_put_({Slice(), 0}, coords.index({Slice(), 0}) * 0.5 + 0.5);
+            coords.index_put_({Slice(), 1}, coords.index({Slice(), 1}) * 0.5);
+            coords.index_put_({Slice(), 2}, coords.index({Slice(), 2}) * 0.5);
+            coords.index_put_({Slice(), 3}, coords.index({Slice(), 3}) * 0.5);
+            idss = torch::cat({idss, ids}, 0);
+            coordss = torch::cat({coordss, coords}, 0);
+        }
+
+        // (3) Bottom left
+        idx = irand(this->mt);
+        bottom_left = data_in1.index({Slice(idx, idx + 1)}); // {1,C,H,W}
+        if (std::get<0>(data_in2[idx]).numel() > 0){
+            ids = std::get<0>(data_in2[idx]).clone();  // {BB_n}
+            coords = std::get<1>(data_in2[idx]).clone();  // {BB_n,4}
+            coords.index_put_({Slice(), 0}, coords.index({Slice(), 0}) * 0.5);
+            coords.index_put_({Slice(), 1}, coords.index({Slice(), 1}) * 0.5 + 0.5);
+            coords.index_put_({Slice(), 2}, coords.index({Slice(), 2}) * 0.5);
+            coords.index_put_({Slice(), 3}, coords.index({Slice(), 3}) * 0.5);
+            idss = torch::cat({idss, ids}, 0);
+            coordss = torch::cat({coordss, coords}, 0);
+        }
+
+        // (4) Bottom right
+        idx = irand(this->mt);
+        bottom_right = data_in1.index({Slice(idx, idx + 1)}); // {1,C,H,W}
+        if (std::get<0>(data_in2[idx]).numel() > 0){
+            ids = std::get<0>(data_in2[idx]).clone();  // {BB_n}
+            coords = std::get<1>(data_in2[idx]).clone();  // {BB_n,4}
+            coords.index_put_({Slice(), 0}, coords.index({Slice(), 0}) * 0.5 + 0.5);
+            coords.index_put_({Slice(), 1}, coords.index({Slice(), 1}) * 0.5 + 0.5);
+            coords.index_put_({Slice(), 2}, coords.index({Slice(), 2}) * 0.5);
+            coords.index_put_({Slice(), 3}, coords.index({Slice(), 3}) * 0.5);
+            idss = torch::cat({idss, ids}, 0);
+            coordss = torch::cat({coordss, coords}, 0);
+        }
+
+        top = torch::cat({top_left, top_right}, 3); // {1,C,H,2W}
+        bottom = torch::cat({bottom_left, bottom_right}, 3);  // {1,C,H,2W}
+        data_mid = torch::cat({top, bottom}, 2);  // {1,C,2H,2W}
+        data_out1 = torch::cat({data_out1, F::interpolate(data_mid, F::InterpolateFuncOptions().size(std::vector<long int>({data_in1.size(2), data_in1.size(3)})).mode(torch::kBilinear).align_corners(false))}, 0);  // {i,C,H,W}
+        data_out2[i] = {idss, coordss};
+
+    }
+
+    return {data_out1, data_out2};
+
+}
+
+
+// --------------------------------------------------------------------------
+// class{YOLOBatchAugmentation} -> function{random_mixup}
+// --------------------------------------------------------------------------
+std::tuple<torch::Tensor, std::vector<std::tuple<torch::Tensor, torch::Tensor>>> YOLOBatchAugmentation::random_mixup(torch::Tensor data_in1, std::vector<std::tuple<torch::Tensor, torch::Tensor>> data_in2){
+
+    torch::Device device = data_in1.device();
+    long int mini_batch_size = data_in1.size(0);
+    std::uniform_int_distribution<size_t> irand(0, mini_batch_size - 1);
+    torch::Tensor data_out1, image1, image2;
+    torch::Tensor ids, coords, idss, coordss;
+    std::vector<std::tuple<torch::Tensor, torch::Tensor>> data_out2;
+    size_t j;
+
+    data_out1 = torch::empty({0, data_in1.size(1), data_in1.size(2), data_in1.size(3)}, torch::kFloat).to(device);  // {0,C,H,W}
+    data_out2 = std::vector<std::tuple<torch::Tensor, torch::Tensor>>(mini_batch_size);
+    for (long int i = 0; i < mini_batch_size; i++){
+
+        idss = torch::empty({0}, torch::kLong);
+        coordss = torch::empty({0, 4}, torch::kFloat);
+
+        // (1) image 1
+        image1 = data_in1.index({Slice(i, i + 1)});  // {1,C,H,W}
+        if (std::get<0>(data_in2[i]).numel() > 0){
+            std::tie(ids, coords) = data_in2[i];
+            idss = torch::cat({idss, ids}, 0);
+            coordss = torch::cat({coordss, coords}, 0);
+        }
+
+        // (2) image 2
+        j = irand(this->mt);
+        image2 = data_in1.index({Slice(j, j + 1)});  // {1,C,H,W}
+        if (std::get<0>(data_in2[j]).numel() > 0){
+            std::tie(ids, coords) = data_in2[j];
+            idss = torch::cat({idss, ids}, 0);
+            coordss = torch::cat({coordss, coords}, 0);
+        }
+
+        data_out1 = torch::cat({data_out1, image1 * 0.5 + image2 * 0.5}, 0);  // {i,C,H,W}
+        data_out2[i] = {idss, coordss};
+
+    }
+
+    return {data_out1, data_out2};
+
+}
+
+
+
+// -----------------------------------------------------------------
+// class{YOLOBatchAugmentation} -> function{forward}
+// -----------------------------------------------------------------
+std::tuple<torch::Tensor, std::vector<std::tuple<torch::Tensor, torch::Tensor>>> YOLOBatchAugmentation::forward(torch::Tensor data_in1, std::vector<std::tuple<torch::Tensor, torch::Tensor>> data_in2){
+
+    torch::Tensor data_out1;
+    std::vector<std::tuple<torch::Tensor, torch::Tensor>> data_out2;
+    std::uniform_real_distribution<double> urand(0.0, 1.0);
+
+    data_out1 = data_in1;
+    data_out2 = data_in2;
+
+    // (1) Mosaic
+    if (urand(this->mt) <= this->mosaic_rate){
+        std::tie(data_out1, data_out2) = this->random_mosaic(data_out1, data_out2);
+    }
+
+    // (2) Mixup
+    if (urand(this->mt) <= this->mixup_rate){
+        std::tie(data_out1, data_out2) = this->random_mixup(data_out1, data_out2);
+    }
+
+    return {data_out1, data_out2};
 
 }

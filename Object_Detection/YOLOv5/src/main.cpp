@@ -78,6 +78,9 @@ po::options_description parse_arguments(){
         ("saturation_rate", po::value<double>()->default_value(0.5), "frequency to change saturation")
         ("shift_rate", po::value<double>()->default_value(0.5), "frequency to shift")
         ("crop_rate", po::value<double>()->default_value(0.5), "frequency to crop")
+        /*************************** Batch Augmentation ***************************/
+        ("mosaic_rate", po::value<double>()->default_value(0.5), "frequency to mosaic")
+        ("mixup_rate", po::value<double>()->default_value(0.5), "frequency to mixup")
 
         // (3) Define for Validation
         ("valid", po::value<bool>()->default_value(false), "validation mode on/off")

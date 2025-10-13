@@ -17,6 +17,7 @@
 #include "loss.hpp"                    // Loss
 #include "networks.hpp"                // YOLOv5
 #include "detector.hpp"                // YOLODetector
+#include "augmentation.hpp"            // YOLOBatchAugmentation
 #include "transforms.hpp"              // transforms_Compose
 #include "datasets.hpp"                // datasets::ImageFolderBBWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderBBWithPaths
@@ -106,7 +107,8 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
     // (4) Set Loss Function
     auto criterion = Loss(anchors, {(float)vm["size"].as<size_t>(), (float)vm["size"].as<size_t>()}, (long int)vm["class_num"].as<size_t>(), vm["anchor_thresh"].as<float>());
 
-    // (5) Set Detector
+    // (5) Set Augmentation and Detector
+    auto augment = YOLOBatchAugmentation(vm["mosaic_rate"].as<double>(), vm["mixup_rate"].as<double>());
     auto detector = YOLODetector(anchors, {(float)vm["size"].as<size_t>(), (float)vm["size"].as<size_t>()}, (long int)vm["class_num"].as<size_t>(), vm["prob_thresh"].as<float>(), vm["nms_thresh"].as<float>());
     std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette = detector.get_label_palette();
 
@@ -196,6 +198,9 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
 
             image = std::get<0>(mini_batch).to(device);  // {N,C,H,W} (images)
             label = std::get<1>(mini_batch);  // {N, ({BB_n}, {BB_n,4}) } (annotations)
+            if (vm["augmentation"].as<bool>()){
+                std::tie(image, label) = augment.forward(image, label);
+            }
 
             // -----------------------------------
             // c1. YOLOv5 Training Phase

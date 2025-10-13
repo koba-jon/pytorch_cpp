@@ -36,7 +36,6 @@ Loss::Loss(const std::vector<std::vector<std::tuple<float, float>>> anchors_, co
         }
     }
 
-
 }
 
 
