@@ -18,7 +18,7 @@ YOLODetector::YOLODetector(const std::vector<std::vector<std::tuple<float, float
     for (long int i = 0; i < scales; i++){
         for (long int j = 0; j < this->na; j++){
             this->anchors.index_put_({i, 0, 0, j, 0}, std::get<0>(anchors_.at(i).at(j)) / std::get<0>(image_sizes));
-            this->anchors.index_put_({i, 0, 0, j, 1}, std::get<1>(anchors_.at(i).at(j)) / std::get<0>(image_sizes));
+            this->anchors.index_put_({i, 0, 0, j, 1}, std::get<1>(anchors_.at(i).at(j)) / std::get<1>(image_sizes));
         }
     }
 
