@@ -1,6 +1,6 @@
 # YOLOv5
 This is the implementation of "YOLOv5" for Object Detection.<br>
-[link](https://github.com/ultralytics/yolov5)
+Reference: [link](https://github.com/ultralytics/yolov5)
 
 ## Usage
 
@@ -175,14 +175,9 @@ DATA='VOC2012'
     --dataset ${DATA} \
     --class_list "list/${DATA}.txt" \
     --class_num 20 \
-    --size 608 \
-    --batch_size 2 \
+    --size 640 \
+    --batch_size 16 \
     --prob_thresh 0.03 \
-    --Lambda_noobject 0.1 \
-    --lr_init 1e-4 \
-    --lr_base 1e-3 \
-    --lr_decay1 1e-4 \
-    --lr_decay2 1e-5 \
     --gpu_id 0 \
     --nc 3
 ~~~
@@ -213,9 +208,8 @@ DATA='VOC2012'
     --dataset ${DATA} \
     --class_list "list/${DATA}.txt" \
     --class_num 20 \
-    --size 608 \
+    --size 640 \
     --prob_thresh 0.03 \
-    --Lambda_noobject 0.1 \
     --gpu_id 0 \
     --nc 3
 ~~~
@@ -246,7 +240,7 @@ DATA='VOC2012'
     --dataset ${DATA} \
     --class_list "list/${DATA}.txt" \
     --class_num 20 \
-    --size 608 \
+    --size 640 \
     --prob_thresh 0.03 \
     --gpu_id 0 \
     --nc 3
@@ -279,7 +273,7 @@ DATA='VOC2012'
     --dataset ${DATA} \
     --class_list "list/${DATA}.txt" \
     --class_num 20 \
-    --size 608 \
+    --size 640 \
     --prob_thresh 0.03 \
     --gpu_id 0 \
     --nc 3
@@ -293,7 +287,7 @@ $ sh scripts/demo.sh
 
 
 ## Acknowledgments
-This code is inspired by [darknet](https://github.com/pjreddie/darknet), [PyTorch-YOLOv3](https://github.com/eriklindernoren/PyTorch-YOLOv3) and [PyTorch_YOLOv3](https://github.com/DeNA/PyTorch_YOLOv3).
+This code is inspired by [yolov5](https://github.com/ultralytics/yolov5/tree/master).
 
 
 ---
@@ -306,23 +300,9 @@ This code is inspired by [darknet](https://github.com/pjreddie/darknet), [PyTorc
 
 ---
 
-### Loss
-
-If the loss of term `conf<noobj>` is strong, "Not Detected" will occur frequently. <br>
-In the case, it is recommended to add `--Lambda_noobject 0.1` to arguments, where the default value is `1.0`.<br>
-
----
-
-### Learning Rate
-
-If the initial value of `learning rate` is high, gradient values will diverge. <br>
-In the case, it is recommended to add `--lr_init 1e-5`, `--lr_base 1e-4`, `--lr_decay1 1e-5` and `--lr_decay2 1e-6` to arguments. (i.e., slow updation and fluctuation)<br>
-
----
-
 ### Data Augmentation
 
-Transformation of 8 components:
+Transformation of 10 components:
 - Flipping : `--flip_rate 0.5`
 - Scaling (i.e., Resize) : `--scale_rate 0.5`
 - Blurring (i.e., Applying an averaging filter) : `--blur_rate 0.5`
@@ -331,6 +311,8 @@ Transformation of 8 components:
 - Change Saturation : `--saturation_rate 0.5`
 - Shifting : `--shift_rate 0.5`
 - Cropping : `--crop_rate 0.5`
+- Mosaic : `--mosaic_rate 0.5`
+- Mixup : `--mixup_rate 0.5`
 
 Please write the occurrence probability in each argument `rate`.<br>
 Here, `1.0` means that it always occurs.<br>
@@ -362,29 +344,6 @@ If you want to change types of anchor, please write `types` on `--na` to argumen
 
 ---
 
-### Resize
-
-Multi-Scale Training allows the predictor to detect objects at various resolutions.<br>
-Please refer to `cfg/resize.txt` to change the config.<br>
-
-~~~
-10          # types of image size to resize (i.e., it must match the number of lines for size in the text file.)
-10          # iterations to switch
-320 320     # (1) Width Height
-352 352     # (2) Width Height
-384 384     # (3) Width Height
-416 416     # (4) Width Height
-448 448     # (5) Width Height
-480 480     # (6) Width Height
-512 512     # (7) Width Height
-544 544     # (8) Width Height
-576 576     # (9) Width Height
-608 608     # (10) Width Height
-~~~
-
----
-
----
 
 ## Detection Strategy
 
