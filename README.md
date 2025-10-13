@@ -56,6 +56,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+10/13,2025: Implementation of `YOLOv5` <br>
 10/09,2025: Implementation of `RF2d` <br>
 10/08,2025: Implementation of `FM2d` <br>
 10/08,2025: Implementation of `LDM` and `LDM-v` <br>
@@ -65,11 +66,11 @@ $ sh scripts/test.sh
 09/25,2025: Release of `v2.8.0.2` <br>
 09/22,2025: Implementation of `PixelCNN-Gray` and `PixelCNN-RGB` <br>
 09/18,2025: Implementation of `VQ-VAE-2` <br>
-09/16,2025: Implementation of `VQ-VAE` <br>
 
 <details>
 <summary>See more...</summary>
   
+09/16,2025: Implementation of `VQ-VAE` <br>
 09/14,2025: Implementation of `PNDM2d` and `PNDM2d-v` <br>
 09/14,2025: Release of `v2.8.0.1` <br>
 09/12,2025: Implementation of `SimCLR` <br>
@@ -418,6 +419,12 @@ $ sh scripts/test.sh
     <td><a href="https://arxiv.org/abs/1804.02767">J. Redmon et al.</a></td>
     <td>arXiv 2018</td>
     <td><a href="Object_Detection/YOLOv3">YOLOv3</a></td>
+  </tr>
+  <tr>
+    <td>YOLOv5</td>
+    <td><a href="https://github.com/ultralytics/yolov5">Ultralytics</a></td>
+    <td>-</td>
+    <td><a href="Object_Detection/YOLOv5">YOLOv5</a></td>
   </tr>
 </table>
 
