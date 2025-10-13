@@ -79,7 +79,7 @@ TORCH_MODULE(SPPF);
 // -------------------------------------------------
 struct YOLOv5Impl : nn::Module{
 private:
-    ConvBlock conv_0, conv_1, conv_3, conv_5, conv_7, conv_9;
+    ConvBlock conv_0, conv_1, conv_3, conv_5, conv_7;
     ConvBlock head_conv_10, head_conv_14, head_conv_18, head_conv_21;
     C3 c3_2, c3_4, c3_6, c3_8, head_c3_13, head_c3_17, head_c3_20, head_c3_23;
     SPPF sppf_9;

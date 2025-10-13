@@ -97,11 +97,6 @@ std::tuple<std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<t
     /*******************************************************/
     for (size_t i = 0; i < scales; i++){
 
-        anchor = this->anchors[i].to(device) / image_size;  // {A,2}
-        xyxy_gain = torch::tensor({(float)inputs[i].size(2), (float)inputs[i].size(1), (float)inputs[i].size(2), (float)inputs[i].size(1)}, torch::kFloat).to(device);  // {4}
-        gain.index_put_({Slice(2, 6)}, xyxy_gain);  // {7}
-        t = target_tensor * gain.view({1, 1, 7});  // {A,T,7}
-
         if (nt == 0){
             scale_indices_b[i] = torch::empty({0}, torch::kLong).to(device);
             scale_indices_a[i] = torch::empty({0}, torch::kLong).to(device);
@@ -112,6 +107,11 @@ std::tuple<std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<t
             scale_anchors[i] = torch::empty({0, 2}, torch::kFloat).to(device);
             continue;
         }
+
+        anchor = this->anchors[i].to(device) / image_size;  // {A,2}
+        xyxy_gain = torch::tensor({(float)inputs[i].size(2), (float)inputs[i].size(1), (float)inputs[i].size(2), (float)inputs[i].size(1)}, torch::kFloat).to(device);  // {4}
+        gain.index_put_({Slice(2, 6)}, xyxy_gain);  // {7}
+        t = target_tensor * gain.view({1, 1, 7});  // {A,T,7}
 
         r = t.index({Slice(), Slice(), Slice(4, 6)}) / anchor.view({this->na, 1, 2});  // {A,T,2}
         j = std::get<0>(torch::max(r, 1 / r).max(2)) < this->anchor_thresh;  // {A,T}
@@ -156,6 +156,7 @@ std::tuple<std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<t
 torch::Tensor Loss::bbox_iou(torch::Tensor box1, torch::Tensor box2){
     
     constexpr float eps = 1e-7;
+    constexpr float PI = 3.14159265358979;
 
     torch::Tensor x1_1, y1_1, x2_1, y2_1, x1_2, y1_2, x2_2, y2_2;
     torch::Tensor width, height, inter, area1, area2, unions, iou;
@@ -189,7 +190,7 @@ torch::Tensor Loss::bbox_iou(torch::Tensor box1, torch::Tensor box2){
     cw = torch::max(x2_1, x2_2) - torch::min(x1_1, x1_2);
     ch = torch::max(y2_1, y2_2) - torch::min(y1_1, y1_2);
     c2 = torch::pow(cw, 2.0) + torch::pow(ch, 2.0) + eps;
-    v = 4.0 / (M_PI * M_PI) * torch::pow(torch::atan(box2.index({Slice(), 2}) / (box2.index({Slice(), 3}) + eps)) - torch::atan(box1.index({Slice(), 2}) / (box1.index({Slice(), 3}) + eps)), 2.0);
+    v = 4.0 / (PI * PI) * torch::pow(torch::atan(box2.index({Slice(), 2}) / (box2.index({Slice(), 3}) + eps)) - torch::atan(box1.index({Slice(), 2}) / (box1.index({Slice(), 3}) + eps)), 2.0);
     alpha = v / (1.0 - iou + v + eps);
     ciou = iou - (rho2 / c2 + v * alpha);
 
