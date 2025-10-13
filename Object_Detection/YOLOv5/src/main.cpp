@@ -21,7 +21,7 @@ namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
-void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vector<transforms_Compose> &transformBB, std::vector<transforms_Compose> &transformI, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors, const std::vector<std::tuple<long int, long int>> resizes, const size_t resize_step_max);
+void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vector<transforms_Compose> &transformBB, std::vector<transforms_Compose> &transformI, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors);
 void test(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vector<transforms_Compose> &transform, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors);
 void detect(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformD, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors);
 void demo(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformD, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors);
@@ -29,7 +29,6 @@ torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 std::vector<std::string> Set_Class_Names(const std::string path, const size_t class_num);
 std::vector<std::vector<std::tuple<float, float>>> Set_Anchors(const std::string path, const size_t scales, const size_t na);
-std::vector<std::tuple<long int, long int>> Set_Resizes(const std::string path, size_t &resize_step_max);
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode);
 
 
@@ -47,10 +46,9 @@ po::options_description parse_arguments(){
         ("dataset", po::value<std::string>(), "dataset name")
         ("class_list", po::value<std::string>()->default_value("list/VOC2012.txt"), "file name in which class names are listed")
         ("anchor_list", po::value<std::string>()->default_value("cfg/anchor.txt"), "file name in which anchors are listed")
-        ("resize_list", po::value<std::string>()->default_value("cfg/resize.txt"), "file name in which resizes are listed")
         ("model", po::value<std::string>()->default_value("yolov5s"), "model name : yolov5n, yolov5s, yolov5m, yolov5l or yolov5x")
         ("class_num", po::value<size_t>()->default_value(20), "total classes")
-        ("size", po::value<size_t>()->default_value(608), "image width and height")
+        ("size", po::value<size_t>()->default_value(640), "image width and height")
         ("prob_thresh", po::value<float>()->default_value(0.1), "threshold of simultaneous probability with confidence and class score")
         ("anchor_thresh", po::value<float>()->default_value(4.0), "anchor ratio threshold for positive matches")
         ("nms_thresh", po::value<float>()->default_value(0.5), "threshold of IoU between bounding boxes in Non-Maximum Suppression")
@@ -208,13 +206,11 @@ int main(int argc, const char *argv[]){
     // (8) Set Class Names and Configs
     std::vector<std::string> class_names = Set_Class_Names(vm["class_list"].as<std::string>(), vm["class_num"].as<size_t>());
     std::vector<std::vector<std::tuple<float, float>>> anchors = Set_Anchors(vm["anchor_list"].as<std::string>(), vm["scales"].as<size_t>(), vm["na"].as<size_t>());
-    size_t resize_step_max;
-    std::vector<std::tuple<long int, long int>> resizes = Set_Resizes(vm["resize_list"].as<std::string>(), resize_step_max);
 
     // (9.1) Training Phase
     if (vm["train"].as<bool>()){
         Set_Options(vm, argc, argv, args, "train");
-        train(vm, device, model, transformBB, transformI, class_names, anchors, resizes, resize_step_max);
+        train(vm, device, model, transformBB, transformI, class_names, anchors);
     }
 
     // (9.2) Test Phase
@@ -353,54 +349,7 @@ std::vector<std::vector<std::tuple<float, float>>> Set_Anchors(const std::string
 
 
 // -----------------------------------
-// 6. Resizes Setting Function
-// -----------------------------------
-std::vector<std::tuple<long int, long int>> Set_Resizes(const std::string path, size_t &resize_step_max){
-
-    // (1) Memory Allocation
-    std::vector<std::tuple<long int, long int>> resizes;
-
-    // (2) Get Resizes
-    size_t num;
-    long int width, height;
-    std::string line;
-    std::ifstream ifs(path, std::ios::in);
-    /**********************************************************************/
-    for (size_t i = 0; i < 2; i++){
-        if (!getline(ifs, line)){
-            std::cerr << "Error : The number of configs and resizes does not match the number of lines in the resize file." << std::endl;
-            std::exit(1);
-        }
-        std::istringstream iss(line);
-        if (i == 0){
-            iss >> num;
-        }
-        else{
-            iss >> resize_step_max;
-        }
-    }
-    /**********************************************************************/
-    resizes = std::vector<std::tuple<long int, long int>>(num);
-    for (size_t i = 0; i < num; i++){
-        if (!getline(ifs, line)){
-            std::cerr << "Error : The number of configs and resizes does not match the number of lines in the resize file." << std::endl;
-            std::exit(1);
-        }
-        std::istringstream iss(line);
-        iss >> width;
-        iss >> height;
-        resizes.at(i) = {width, height};
-    }
-    ifs.close();
-
-    // End Processing
-    return resizes;
-    
-}
-
-
-// -----------------------------------
-// 7. Options Setting Function
+// 6. Options Setting Function
 // -----------------------------------
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode){
 

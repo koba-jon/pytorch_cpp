@@ -59,7 +59,7 @@ void detect(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::ve
     torch::load(model, path, device);
 
     // (3) Set Detector
-    auto detector = YOLODetector(anchors, (long int)vm["class_num"].as<size_t>(), vm["prob_thresh"].as<float>(), vm["nms_thresh"].as<float>());
+    auto detector = YOLODetector(anchors, {(float)vm["size"].as<size_t>(), (float)vm["size"].as<size_t>()}, (long int)vm["class_num"].as<size_t>(), vm["prob_thresh"].as<float>(), vm["nms_thresh"].as<float>());
     std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette = detector.get_label_palette();
 
     // (4) Tensor Forward
@@ -80,7 +80,7 @@ void detect(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::ve
         for (size_t i = 0; i < output_one.size(); i++){
             output_one.at(i) = output.at(i)[0];
         }
-        detect_result = detector(output_one, {(float)imageI.size(3), (float)imageI.size(2)});  // output_one{S,{G,G,FF}} ===> detect_result{ (ids{BB_n}, coords{BB_n,4}, probs{BB_n}) }
+        detect_result = detector(output_one);  // output_one{S,{G,G,FF}} ===> detect_result{ (ids{BB_n}, coords{BB_n,4}, probs{BB_n}) }
         /*************************************************************************/
         ids = std::get<0>(detect_result);  // ids{BB_n}
         coords = std::get<1>(detect_result);  // coords{BB_n,4}

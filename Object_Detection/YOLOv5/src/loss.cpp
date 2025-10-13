@@ -19,7 +19,7 @@ using Slice = torch::indexing::Slice;
 // -----------------------------------
 // class{Loss} -> constructor
 // -----------------------------------
-Loss::Loss(const std::vector<std::vector<std::tuple<float, float>>> anchors_, const long int class_num_, const float anchor_thresh_){
+Loss::Loss(const std::vector<std::vector<std::tuple<float, float>>> anchors_, const std::tuple<float, float> image_sizes, const long int class_num_, const float anchor_thresh_){
 
     this->na = anchors_.at(0).size();
     this->class_num = class_num_;
@@ -31,8 +31,8 @@ Loss::Loss(const std::vector<std::vector<std::tuple<float, float>>> anchors_, co
     this->anchors = torch::zeros({scales, this->na, 2}, torch::TensorOptions().dtype(torch::kFloat));  // {S,A,2}
     for (long int i = 0; i < scales; i++){
         for (long int j = 0; j < this->na; j++){
-            this->anchors.index_put_({i, j, 0}, std::get<0>(anchors_.at(i).at(j)));
-            this->anchors.index_put_({i, j, 1}, std::get<1>(anchors_.at(i).at(j)));
+            this->anchors.index_put_({i, j, 0}, std::get<0>(anchors_.at(i).at(j)) / std::get<0>(image_sizes));
+            this->anchors.index_put_({i, j, 1}, std::get<1>(anchors_.at(i).at(j)) / std::get<1>(image_sizes));
         }
     }
 
@@ -43,7 +43,7 @@ Loss::Loss(const std::vector<std::vector<std::tuple<float, float>>> anchors_, co
 // -------------------------------------
 // class{Loss} -> function{build_target}
 // -------------------------------------
-std::tuple<std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<torch::Tensor>> Loss::build_target(std::vector<torch::Tensor> &inputs, std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target, const std::tuple<float, float> image_sizes){
+std::tuple<std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<torch::Tensor>> Loss::build_target(std::vector<torch::Tensor> &inputs, std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target){
 
     constexpr float g = 0.5;
     torch::Device device = inputs.at(0).device();
@@ -76,7 +76,7 @@ std::tuple<std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<t
 
     // (2) Build target
     long int nt;
-    torch::Tensor gain, ai, off, image_size, anchor, xyxy_gain, t, r, ones, j, gxy, gxi, jk, lm, offsets, b, c, gwh, a, gij, gi, gj;
+    torch::Tensor gain, ai, off, grid_size, anchor, xyxy_gain, t, r, ones, j, gxy, gxi, jk, lm, offsets, b, c, gwh, a, gij, gi, gj;
     std::vector<torch::Tensor> scale_indices_b, scale_indices_a, scale_indices_gj, scale_indices_gi, scale_tbox, scale_tclass, scale_anchors;
     /*******************************************************/
     nt = target_tensor.size(0);
@@ -93,8 +93,6 @@ std::tuple<std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<t
     scale_tclass = std::vector<torch::Tensor>(scales);
     scale_anchors = std::vector<torch::Tensor>(scales);
     /*******************************************************/
-    image_size = torch::tensor({{std::get<0>(image_sizes), std::get<1>(image_sizes)}}, torch::kFloat).to(device);  // {1,2}
-    /*******************************************************/
     for (size_t i = 0; i < scales; i++){
 
         if (nt == 0){
@@ -108,7 +106,8 @@ std::tuple<std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<t
             continue;
         }
 
-        anchor = this->anchors[i].to(device) / image_size;  // {A,2}
+        grid_size = torch::tensor({{inputs[i].size(2), inputs[i].size(1)}}, torch::kFloat).to(device);  // {1,2}
+        anchor = this->anchors[i].to(device) * grid_size;  // {A,2}
         xyxy_gain = torch::tensor({(float)inputs[i].size(2), (float)inputs[i].size(1), (float)inputs[i].size(2), (float)inputs[i].size(1)}, torch::kFloat).to(device);  // {4}
         gain.index_put_({Slice(2, 6)}, xyxy_gain);  // {7}
         t = target_tensor * gain.view({1, 1, 7});  // {A,T,7}
@@ -202,7 +201,7 @@ torch::Tensor Loss::bbox_iou(torch::Tensor box1, torch::Tensor box2){
 // -------------------------
 // class{Loss} -> operator
 // -------------------------
-std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> Loss::operator()(std::vector<torch::Tensor> &inputs, std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target, const std::tuple<float, float> image_sizes){
+std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> Loss::operator()(std::vector<torch::Tensor> &inputs, std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target){
 
     torch::Device device = inputs.at(0).device();
     size_t scales = inputs.size();
@@ -218,7 +217,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> Loss::operator()(std::ve
     loss_box.requires_grad_(true);
     loss_obj.requires_grad_(true);
     loss_class.requires_grad_(true);
-    std::tie(scale_indices_b, scale_indices_a, scale_indices_gj, scale_indices_gi, scale_tbox, scale_tclass, scale_anchors) = this->build_target(inputs, target, image_sizes);
+    std::tie(scale_indices_b, scale_indices_a, scale_indices_gj, scale_indices_gi, scale_tbox, scale_tclass, scale_anchors) = this->build_target(inputs, target);
     for (size_t i = 0; i < scales; i++){
         b = scale_indices_b[i];
         a = scale_indices_a[i];

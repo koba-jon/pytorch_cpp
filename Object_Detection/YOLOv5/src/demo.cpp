@@ -48,7 +48,7 @@ void demo(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vect
     torch::load(model, path, device);
 
     // (2) Set Detector
-    auto detector = YOLODetector(anchors, (long int)vm["class_num"].as<size_t>(), vm["prob_thresh"].as<float>(), vm["nms_thresh"].as<float>());
+    auto detector = YOLODetector(anchors, {(float)vm["size"].as<size_t>(), (float)vm["size"].as<size_t>()}, (long int)vm["class_num"].as<size_t>(), vm["prob_thresh"].as<float>(), vm["nms_thresh"].as<float>());
     std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette = detector.get_label_palette();
 
     // (3) Set Camera Device
@@ -106,7 +106,7 @@ void demo(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vect
         for (size_t i = 0; i < tensorO.size(); i++){
             tensorO_one.at(i) = tensorO.at(i)[0];
         }
-        detect_result = detector(tensorO_one, {(float)tensorI.size(3), (float)tensorI.size(2)});  // tensorO_one{S,{G,G,FF}} ===> detect_result{ (ids{BB_n}, coords{BB_n,4}, probs{BB_n}) }
+        detect_result = detector(tensorO_one);  // tensorO_one{S,{G,G,FF}} ===> detect_result{ (ids{BB_n}, coords{BB_n,4}, probs{BB_n}) }
         /*************************************************************************/
         imageO = visualizer::draw_detections_des(tensorD.detach(), {std::get<0>(detect_result), std::get<1>(detect_result)}, std::get<2>(detect_result), class_names, label_palette, /*range=*/output_range);
 

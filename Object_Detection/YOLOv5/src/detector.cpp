@@ -9,7 +9,7 @@
 // ------------------------------------
 // class{YOLODetector} -> constructor
 // ------------------------------------
-YOLODetector::YOLODetector(const std::vector<std::vector<std::tuple<float, float>>> anchors_, const long int class_num_, const float prob_thresh_, const float nms_thresh_){
+YOLODetector::YOLODetector(const std::vector<std::vector<std::tuple<float, float>>> anchors_, const std::tuple<float, float> image_sizes, const long int class_num_, const float prob_thresh_, const float nms_thresh_){
 
     long int scales = anchors_.size();
     this->na = anchors_.at(0).size();
@@ -17,8 +17,8 @@ YOLODetector::YOLODetector(const std::vector<std::vector<std::tuple<float, float
     this->anchors = torch::zeros({scales, 1, 1, this->na, 2}, torch::TensorOptions().dtype(torch::kFloat));  // {S,A,2}
     for (long int i = 0; i < scales; i++){
         for (long int j = 0; j < this->na; j++){
-            this->anchors.index_put_({i, 0, 0, j, 0}, std::get<0>(anchors_.at(i).at(j)));
-            this->anchors.index_put_({i, 0, 0, j, 1}, std::get<1>(anchors_.at(i).at(j)));
+            this->anchors.index_put_({i, 0, 0, j, 0}, std::get<0>(anchors_.at(i).at(j)) / std::get<0>(image_sizes));
+            this->anchors.index_put_({i, 0, 0, j, 1}, std::get<1>(anchors_.at(i).at(j)) / std::get<0>(image_sizes));
         }
     }
 
@@ -155,18 +155,11 @@ std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> YOLODetecto
 // ------------------------------------
 // class{YOLODetector} -> operator
 // ------------------------------------
-std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> YOLODetector::operator()(const std::vector<torch::Tensor> preds, const std::tuple<float, float> image_sizes){
+std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> YOLODetector::operator()(const std::vector<torch::Tensor> preds){
 
+    // (1) Set device and scale
     torch::Device device = preds.at(0).device();
     size_t scales = preds.size();
-
-    // (1) Set image size
-    std::vector<float> image_size_vec(2);
-    torch::Tensor image_size;
-    /*************************************************************************/
-    image_size_vec.at(0) = std::get<0>(image_sizes);
-    image_size_vec.at(1) = std::get<1>(image_sizes);
-    image_size = torch::from_blob(image_size_vec.data(), {1, 1, 1, 2}, torch::kFloat).to(device).clone();  // image_size{1,1,1,2}
 
     // (2) Set object tensor
     std::vector<torch::Tensor> obj_id_vec, obj_coord_vec, obj_conf_vec, obj_prob_vec;
@@ -178,18 +171,19 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> YOLODetector::operator()
 
         // (3.1) Activate predicted tensor
         std::vector<torch::Tensor> pred_split;
-        torch::Tensor arange, x0, y0, x0y0;
+        torch::Tensor arange, x0, y0, x0y0, grid_size;
         torch::Tensor pred_view, pred_class, pred_xy, pred_wh, pred_conf, pred_coord, pred_coord_per;
         /*************************************************************************/
         arange = torch::arange(/*start=*/0.0, /*end=*/(float)ng, /*step=*/1.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);  // arange{G} = [0,1,2,...,G-1]
         x0 = arange.view({1, ng, 1, 1}).expand({ng, ng, 1, 1});  // arange{G} ===> {1,G,1,1} ===> x0{G,G,1,1}
         y0 = arange.view({ng, 1, 1, 1}).expand({ng, ng, 1, 1});  // arange{G} ===> {G,1,1,1} ===> y0{G,G,1,1}
         x0y0 = torch::cat({x0, y0}, /*dim=*/3);  // x0{G,G,1,1} + y0{G,G,1,1} ===> x0y0{G,G,1,2}
+        grid_size = torch::tensor({pred.size(1), pred.size(0)}, torch::kFloat).to(device).view({1, 1, 1, 2});  // {1,1,1,2}
         /*************************************************************************/
         pred_view = pred.view({ng, ng, this->na, this->class_num + 5});  // pred{G,G,A*(CN+5)} ===> pred_view{G,G,A,CN+5}
         pred_split = pred_view.split_with_sizes(/*split_sizes=*/{2, 2, 1, this->class_num}, /*dim=*/3);  // pred_view{G,G,A,CN+5} ===> pred_split({G,G,A,CN}, {G,G,A,2}, {G,G,A,2}, {G,G,A,1})
         pred_xy = (torch::sigmoid(pred_split.at(0)) * 2.0 - 0.5 + x0y0) / (float)ng;  // pred_xy{G,G,A,2}
-        pred_wh = (torch::sigmoid(pred_split.at(1)) * 2.0).pow(2.0) * this->anchors[i].to(device) / image_size;  // pred_wh{G,G,A,2}
+        pred_wh = (torch::sigmoid(pred_split.at(1)) * 2.0).pow(2.0) * this->anchors[i].to(device) * grid_size;  // pred_wh{G,G,A,2}
         pred_conf = torch::sigmoid(pred_split.at(2)).squeeze(-1);  // pred_conf{G,G,A}
         pred_class = torch::sigmoid(pred_split.at(3));  // pred_class{G,G,A,CN}
         pred_coord = torch::cat({pred_xy, pred_wh}, /*dim=*/3);  // pred_xy{G,G,A,2} + pred_wh{G,G,A,2} ===> pred_coord{G,G,A,4}

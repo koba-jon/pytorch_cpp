@@ -36,7 +36,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderBBWithPaths &valid_data
 // -------------------
 // Training Function
 // -------------------
-void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vector<transforms_Compose> &transformBB, std::vector<transforms_Compose> &transformI, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors, const std::vector<std::tuple<long int, long int>> resizes, const size_t resize_step_max){
+void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vector<transforms_Compose> &transformBB, std::vector<transforms_Compose> &transformI, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors){
 
     constexpr bool train_shuffle = true;  // whether to shuffle the training dataset
     constexpr size_t train_workers = 4;  // the number of workers to retrieve data from the training dataset
@@ -53,9 +53,6 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
     size_t epoch, iter;
     size_t total_iter;
     size_t start_epoch, total_epoch;
-    size_t resize_step;
-    size_t idx;
-    long int width, height;
     float loss_f, loss_box_f, loss_obj_f, loss_class_f;
     float lr_init, lr_base, lr_decay1, lr_decay2;
     std::string date, date_out;
@@ -111,10 +108,10 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
     auto optimizer = Optimizer(model->parameters(), OptimizerOptions(vm["lr_init"].as<float>()).momentum(vm["momentum"].as<float>()).weight_decay(vm["weight_decay"].as<float>()));
 
     // (4) Set Loss Function
-    auto criterion = Loss(anchors, (long int)vm["class_num"].as<size_t>(), vm["anchor_thresh"].as<float>());
+    auto criterion = Loss(anchors, {(float)vm["size"].as<size_t>(), (float)vm["size"].as<size_t>()}, (long int)vm["class_num"].as<size_t>(), vm["anchor_thresh"].as<float>());
 
     // (5) Set Detector
-    auto detector = YOLODetector(anchors, (long int)vm["class_num"].as<size_t>(), vm["prob_thresh"].as<float>(), vm["nms_thresh"].as<float>());
+    auto detector = YOLODetector(anchors, {(float)vm["size"].as<size_t>(), (float)vm["size"].as<size_t>()}, (long int)vm["class_num"].as<size_t>(), vm["prob_thresh"].as<float>(), vm["nms_thresh"].as<float>());
     std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette = detector.get_label_palette();
 
     // (6) Make Directories
@@ -186,11 +183,6 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
     start_epoch++;
     total_iter = dataloader.get_count_max();
     mt.seed(std::rand());
-    urand = std::uniform_int_distribution<size_t>(/*min=*/0, /*max=*/resizes.size() - 1);
-    resize_step = 0;
-    idx = urand(mt);
-    width = std::get<0>(resizes.at(idx));
-    height = std::get<1>(resizes.at(idx));
     total_epoch = vm["epochs"].as<size_t>();
     lr_init = vm["lr_init"].as<float>();
     lr_base = vm["lr_base"].as<float>();
@@ -203,7 +195,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
 
         model->train();
         ofs << std::endl << "epoch:" << epoch << '/' << total_epoch << std::endl;
-        show_progress = new progress::display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"box", "obj", "class", "W", "H"});
+        show_progress = new progress::display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"box", "obj", "class"});
 
         // -----------------------------------
         // b1. Mini Batch Learning
@@ -219,21 +211,10 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
             Update_LR<Optimizer, OptimizerOptions>(optimizer, lr_init, lr_base, lr_decay1, lr_decay2, epoch, (float)show_progress->get_iters() / (float)total_iter);
 
             // -----------------------------------
-            // c2. Resize Images
-            // -----------------------------------
-            resize_step++;
-            if (resize_step > resize_step_max){
-                resize_step = 1;
-                idx = urand(mt);
-                std::tie(width, height) = resizes.at(idx);
-            }
-            image = F::interpolate(image, F::InterpolateFuncOptions().size(std::vector<long int>({height, width})).mode(torch::kBilinear).align_corners(false));
-
-            // -----------------------------------
-            // c3. YOLOv5 Training Phase
+            // c2. YOLOv5 Training Phase
             // -----------------------------------
             output = model->forward(image);  // {N,C,H,W} ===> {S,{N,G,G,A*(CN+5)}}
-            losses = criterion(output, label, {(float)width, (float)height});
+            losses = criterion(output, label);
             loss_box = std::get<0>(losses) * vm["Lambda_box"].as<float>();
             loss_obj = std::get<1>(losses) * vm["Lambda_obj"].as<float>();
             loss_class = std::get<2>(losses) * vm["Lambda_class"].as<float>();
@@ -243,17 +224,16 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
             optimizer.step();
 
             // -----------------------------------
-            // c4. Record Loss (iteration)
+            // c3. Record Loss (iteration)
             // -----------------------------------
-            show_progress->increment(/*loss_value=*/{loss_box.item<float>(), loss_obj.item<float>(), loss_class.item<float>(), (float)width, (float)height});
+            show_progress->increment(/*loss_value=*/{loss_box.item<float>(), loss_obj.item<float>(), loss_class.item<float>()});
             ofs << "iters:" << show_progress->get_iters() << '/' << total_iter << ' ' << std::flush;
             ofs << "box:" << loss_box.item<float>() << "(ave:" <<  show_progress->get_ave(0) << ") " << std::flush;
             ofs << "obj:" << loss_obj.item<float>() << "(ave:" <<  show_progress->get_ave(1) << ") " << std::flush;
-            ofs << "class:" << loss_class.item<float>() << "(ave:" <<  show_progress->get_ave(2) << ") " << std::flush;
-            ofs << "(W,H):" << "(" << width << "," << height << ")" << std::endl;
+            ofs << "class:" << loss_class.item<float>() << "(ave:" <<  show_progress->get_ave(2) << ")" << std::endl;
 
             // -----------------------------------
-            // c5. Save Sample Images
+            // c4. Save Sample Images
             // -----------------------------------
             iter = show_progress->get_iters();
             if (iter % save_sample_iter == 1){
@@ -264,7 +244,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
                 for (size_t i = 0; i < output_one.size(); i++){
                     output_one.at(i) = output.at(i)[0];
                 }
-                detect_result = detector(output_one, {(float)width, (float)height});
+                detect_result = detector(output_one);
                 /*************************************************************************/
                 sample = visualizer::draw_detections_des(image[0].detach(), {std::get<0>(detect_result), std::get<1>(detect_result)}, std::get<2>(detect_result), class_names, label_palette, /*range=*/output_range);
                 cv::imwrite(ss.str(), sample);
@@ -294,7 +274,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vec
         for (size_t i = 0; i < output_one.size(); i++){
             output_one.at(i) = output.at(i)[0];
         }
-        detect_result = detector(output_one, {(float)width, (float)height});
+        detect_result = detector(output_one);
         /*************************************************************************/
         sample = visualizer::draw_detections_des(image[0].detach(), {std::get<0>(detect_result), std::get<1>(detect_result)}, std::get<2>(detect_result), class_names, label_palette, /*range=*/output_range);
         cv::imwrite(ss.str(), sample);

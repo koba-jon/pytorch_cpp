@@ -54,7 +54,7 @@ void test(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vect
     torch::load(model, path, device);
 
     // (3) Set Loss Function
-    auto criterion = Loss(anchors, (long int)vm["class_num"].as<size_t>(), vm["anchor_thresh"].as<float>());
+    auto criterion = Loss(anchors, {(float)vm["size"].as<size_t>(), (float)vm["size"].as<size_t>()}, (long int)vm["class_num"].as<size_t>(), vm["anchor_thresh"].as<float>());
 
     // (4) Initialization of Value
     ave_loss_box = 0.0;
@@ -81,7 +81,7 @@ void test(po::variables_map &vm, torch::Device &device, YOLOv5 &model, std::vect
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         
-        losses = criterion(output, label, {(float)image.size(3), (float)image.size(2)});
+        losses = criterion(output, label);
         loss_box = std::get<0>(losses) * vm["Lambda_box"].as<float>();
         loss_obj = std::get<1>(losses) * vm["Lambda_obj"].as<float>();
         loss_class = std::get<2>(losses) * vm["Lambda_class"].as<float>();
