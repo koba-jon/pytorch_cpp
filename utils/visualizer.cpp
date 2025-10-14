@@ -230,7 +230,7 @@ cv::Mat visualizer::draw_detections(const torch::Tensor image, const std::tuple<
     constexpr size_t bits = 8;
     constexpr size_t line_thickness = 2;
     constexpr size_t text_thickness = 2;
-    constexpr double font_size = 0.8;
+    constexpr double font_size = 0.7;
     
     // (0) Initialization and Declaration
     size_t width, height, channels;
@@ -324,7 +324,7 @@ cv::Mat visualizer::draw_detections_des(const torch::Tensor image, const std::tu
     constexpr size_t line_thickness_min = 1;
     constexpr size_t text_thickness_max = 2;
     constexpr size_t text_thickness_min = 1;
-    constexpr double font_size_max = 0.5;
+    constexpr double font_size_max = 0.7;
     constexpr double font_size_min = 0.3;
     
     // (0) Initialization and Declaration
