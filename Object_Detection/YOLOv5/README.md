@@ -287,7 +287,7 @@ $ sh scripts/demo.sh
 
 
 ## Acknowledgments
-This code is inspired by [yolov5](https://github.com/ultralytics/yolov5/tree/master).
+This code is inspired by [yolov5](https://github.com/ultralytics/yolov5).
 
 
 ---
