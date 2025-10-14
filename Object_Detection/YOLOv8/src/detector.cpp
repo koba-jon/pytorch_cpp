@@ -11,8 +11,9 @@ using Slice = torch::indexing::Slice;
 // ------------------------------------
 // class{YOLODetector} -> constructor
 // ------------------------------------
-YOLODetector::YOLODetector(const long int class_num_, const float prob_thresh_, const float nms_thresh_){
+YOLODetector::YOLODetector(const long int class_num_, const long int reg_max_, const float prob_thresh_, const float nms_thresh_){
     this->class_num = class_num_;
+    this->reg_max = reg_max_;
     this->prob_thresh = prob_thresh_;
     this->nms_thresh = nms_thresh_;
 }
@@ -170,8 +171,8 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> YOLODetector::operator()
         grid_size = torch::tensor({ng, ng}, torch::kFloat).to(device).view({1, 1, 2});  // {1,1,2}
         /*************************************************************************/
         pred_split = pred.split_with_sizes(/*split_sizes=*/{2, 2, 1, this->class_num}, /*dim=*/2);  // pred_view{G,G,5+CN} ===> pred_split({G,G,2}, {G,G,2}, {G,G,1}, {G,G,CN})
-        pred_xy = (torch::sigmoid(pred_split.at(0)) * 2.0 - 0.5 + x0y0) / grid_size;  // pred_xy{G,G,2}
-        pred_wh = (torch::sigmoid(pred_split.at(1)) * 2.0).pow(2.0);  // pred_wh{G,G,2}
+        pred_xy = (pred_split.at(0) / (this->reg_max - 1.0) * 2.0 - 0.5 + x0y0) / grid_size;  // pred_xy{G,G,2}
+        pred_wh = pred_split.at(1) / (this->reg_max - 1.0);  // pred_wh{G,G,2}
         pred_conf = torch::sigmoid(pred_split.at(2)).squeeze(-1);  // pred_conf{G,G}
         pred_class = torch::sigmoid(pred_split.at(3));  // pred_class{G,G,CN}
         pred_coord = torch::cat({pred_xy, pred_wh}, /*dim=*/2);  // pred_xy{G,G,2} + pred_wh{G,G,2} ===> pred_coord{G,G,4}

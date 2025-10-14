@@ -257,8 +257,8 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> Loss::ope
             pcls = ps.index({Slice(), Slice(5, torch::indexing::None)});  // {K,CN}
 
             grid_size = torch::tensor({{inputs[i].size(2), inputs[i].size(1)}}, torch::kFloat).to(device);  // {1,2}
-            pxy = pxy.sigmoid() * 2.0 - 0.5;  // {K,2}
-            pwh = (pwh.sigmoid() * 2.0).pow(2.0) * grid_size;  // {K,2}
+            pxy = pxy / (this->reg_max - 1.0) * 2.0 - 0.5;  // {K,2}
+            pwh = pwh / (this->reg_max - 1.0) * grid_size;  // {K,2}
             pbox = torch::cat({pxy, pwh}, 1);  // {K,4}
             iou = this->bbox_iou(pbox, scale_tbox[i]).squeeze();  // {K}
             loss_box = loss_box + (1.0 - iou).mean();  // {}
@@ -266,8 +266,8 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> Loss::ope
             pred_dist = dist.index({b, a, gj, gi}).contiguous();  // {K,4,R}
             target_dfl = scale_tbox[i].clone();  // {K,4}
             if (target_dfl.numel() != 0){
-                target_dfl.index_put_({Slice(), Slice(0, 2)}, target_dfl.index({Slice(), Slice(0, 2)}).clamp(0.0, 1.0) * (float)(this->reg_max - 1));
-                target_dfl.index_put_({Slice(), Slice(2, 4)}, target_dfl.index({Slice(), Slice(2, 4)}).clamp(0.0, (float)(this->reg_max - 1)));
+                target_dfl.index_put_({Slice(), Slice(0, 2)}, (target_dfl.index({Slice(), Slice(0, 2)}) + 0.5) * 0.5 * (float)(this->reg_max - 1));
+                target_dfl.index_put_({Slice(), Slice(2, 4)}, target_dfl.index({Slice(), Slice(2, 4)}) / grid_size * (float)(this->reg_max - 1));
                 loss_dfl = loss_dfl + this->distribution_focal_loss(pred_dist, target_dfl);
             }
 
