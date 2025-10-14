@@ -27,7 +27,7 @@ private:
 public:
     Loss(){}
     Loss(const long int class_num_, const long int reg_max_);
-    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> operator()(std::vector<torch::Tensor> &inputs, std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target);
+    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> operator()(std::vector<torch::Tensor> &inputs, std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target);
 };
 
 

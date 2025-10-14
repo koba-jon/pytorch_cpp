@@ -114,6 +114,7 @@ po::options_description parse_arguments(){
         ("Lambda_box", po::value<float>()->default_value(0.05), "the multiple of IoU term")
         ("Lambda_obj", po::value<float>()->default_value(1.0), "the multiple of object confidence term")
         ("Lambda_class", po::value<float>()->default_value(0.5), "the multiple of class term")
+        ("Lambda_dfl", po::value<float>()->default_value(0.05), "the multiple of DFL term")
 
     ;
     

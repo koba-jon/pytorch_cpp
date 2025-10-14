@@ -26,20 +26,21 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderBBWithPaths &valid_data
     float ave_loss_box, total_loss_box;
     float ave_loss_obj, total_loss_obj;
     float ave_loss_class, total_loss_class;
+    float ave_loss_dfl, total_loss_dfl;
     float ave_loss_all;
     std::ofstream ofs;
     std::tuple<torch::Tensor, std::vector<std::tuple<torch::Tensor, torch::Tensor>>, std::vector<std::string>, std::vector<std::string>> mini_batch;
     torch::Tensor image;
-    torch::Tensor loss_box, loss_obj, loss_class;
+    torch::Tensor loss_box, loss_obj, loss_class, loss_dfl;
     std::vector<torch::Tensor> output;
     std::vector<std::tuple<torch::Tensor, torch::Tensor>> label;
-    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> losses;
+    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> losses;
 
     // (1) Tensor Forward per Mini Batch
     torch::NoGradGuard no_grad;
     model->eval();
     iteration = 0;
-    total_loss_box = 0.0; total_loss_obj = 0.0; total_loss_class = 0.0;
+    total_loss_box = 0.0; total_loss_obj = 0.0; total_loss_class = 0.0; total_loss_dfl = 0.0;
     while (valid_dataloader(mini_batch)){
         
         image = std::get<0>(mini_batch).to(device);  // {N,C,H,W} (images)
@@ -51,10 +52,12 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderBBWithPaths &valid_data
         loss_box = std::get<0>(losses) * vm["Lambda_box"].as<float>();
         loss_obj = std::get<1>(losses) * vm["Lambda_obj"].as<float>();
         loss_class = std::get<2>(losses) * vm["Lambda_class"].as<float>();
+        loss_dfl = std::get<3>(losses) * vm["Lambda_dfl"].as<float>();
 
         total_loss_box += loss_box.item<float>();
         total_loss_obj += loss_obj.item<float>();
         total_loss_class += loss_class.item<float>();
+        total_loss_dfl += loss_dfl.item<float>();
 
         iteration++;
 
@@ -64,14 +67,16 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderBBWithPaths &valid_data
     ave_loss_box = total_loss_box / (float)iteration;
     ave_loss_obj = total_loss_obj / (float)iteration;
     ave_loss_class = total_loss_class / (float)iteration;
-    ave_loss_all = ave_loss_box + ave_loss_obj + ave_loss_class;
+    ave_loss_dfl = total_loss_dfl / (float)iteration;
+    ave_loss_all = ave_loss_box + ave_loss_obj + ave_loss_class + ave_loss_dfl;
 
     // (3.1) Record Loss (Log)
     ofs.open("checkpoints/" + vm["dataset"].as<std::string>() + "/log/valid.txt", std::ios::app);
     ofs << "epoch:" << epoch << '/' << vm["epochs"].as<size_t>() << ' ' << std::flush;
     ofs << "box:" << ave_loss_box << ' ' << std::flush;
     ofs << "obj:" << ave_loss_obj << ' ' << std::flush;
-    ofs << "class:" << ave_loss_class << std::endl;
+    ofs << "class:" << ave_loss_class << ' ' << std::flush;
+    ofs << "dfl:" << ave_loss_dfl << std::endl;
     ofs.close();
 
     // (3.2) Record Loss (Graph)
@@ -79,6 +84,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderBBWithPaths &valid_data
     writer.at(1).plot(/*base=*/epoch, /*value=*/{ave_loss_box});
     writer.at(2).plot(/*base=*/epoch, /*value=*/{ave_loss_obj});
     writer.at(3).plot(/*base=*/epoch, /*value=*/{ave_loss_class});
+    writer.at(4).plot(/*base=*/epoch, /*value=*/{ave_loss_dfl});
 
     // End Processing
     return;

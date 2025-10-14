@@ -212,7 +212,7 @@ torch::Tensor Loss::distribution_focal_loss(torch::Tensor pred, torch::Tensor ta
 // -------------------------
 // class{Loss} -> operator
 // -------------------------
-std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> Loss::operator()(std::vector<torch::Tensor> &inputs, std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target){
+std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> Loss::operator()(std::vector<torch::Tensor> &inputs, std::vector<std::tuple<torch::Tensor, torch::Tensor>> &target){
 
     torch::Device device = inputs.at(0).device();
     size_t scales = inputs.size();
@@ -285,6 +285,6 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> Loss::operator()(std::ve
 
     }
 
-    return {loss_box + loss_dfl, loss_obj, loss_class};
+    return {loss_box, loss_obj, loss_class, loss_dfl};
 
 }

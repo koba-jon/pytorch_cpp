@@ -26,7 +26,7 @@ namespace po = boost::program_options;
 void test(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vector<transforms_Compose> &transform){
 
     // (0) Initialization and Declaration
-    float ave_loss_box, ave_loss_obj, ave_loss_class;
+    float ave_loss_box, ave_loss_obj, ave_loss_class, ave_loss_dfl;
     double seconds, ave_time;
     std::string path, result_dir;
     std::string input_dir, output_dir;
@@ -34,10 +34,10 @@ void test(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vect
     std::chrono::system_clock::time_point start, end;
     std::tuple<torch::Tensor, std::vector<std::tuple<torch::Tensor, torch::Tensor>>, std::vector<std::string>, std::vector<std::string>> data;
     torch::Tensor image;
-    torch::Tensor loss_box, loss_obj, loss_class;
+    torch::Tensor loss_box, loss_obj, loss_class, loss_dfl;
     std::vector<torch::Tensor> output;
     std::vector<std::tuple<torch::Tensor, torch::Tensor>> label;
-    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> losses;
+    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> losses;
     datasets::ImageFolderBBWithPaths dataset;
     DataLoader::ImageFolderBBWithPaths dataloader;
     std::vector<transforms_Compose> null;
@@ -60,6 +60,7 @@ void test(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vect
     ave_loss_box = 0.0;
     ave_loss_obj = 0.0;
     ave_loss_class = 0.0;
+    ave_loss_dfl = 0.0;
     ave_time = 0.0;
 
     // (5) Tensor Forward
@@ -85,14 +86,16 @@ void test(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vect
         loss_box = std::get<0>(losses) * vm["Lambda_box"].as<float>();
         loss_obj = std::get<1>(losses) * vm["Lambda_obj"].as<float>();
         loss_class = std::get<2>(losses) * vm["Lambda_class"].as<float>();
+        loss_dfl = std::get<3>(losses) * vm["Lambda_dfl"].as<float>();
         
         ave_loss_box += loss_box.item<float>();
         ave_loss_obj += loss_obj.item<float>();
         ave_loss_class += loss_class.item<float>();
+        ave_loss_dfl += loss_dfl.item<float>();
         ave_time += seconds;
 
-        std::cout << '<' << std::get<2>(data).at(0) << "> box:" << loss_box.item<float>() << " obj:" << loss_obj.item<float>() << " class:" << loss_class.item<float>() << std::endl;
-        ofs << '<' << std::get<2>(data).at(0) << "> box:" << loss_box.item<float>() << " obj:" << loss_obj.item<float>() << " class:" << loss_class.item<float>() << std::endl;
+        std::cout << '<' << std::get<2>(data).at(0) << "> box:" << loss_box.item<float>() << " obj:" << loss_obj.item<float>() << " class:" << loss_class.item<float>() << " dfl:" << loss_dfl.item<float>() << std::endl;
+        ofs << '<' << std::get<2>(data).at(0) << "> box:" << loss_box.item<float>() << " obj:" << loss_obj.item<float>() << " class:" << loss_class.item<float>() << " dfl:" << loss_dfl.item<float>() << std::endl;
 
     }
 
@@ -100,11 +103,12 @@ void test(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vect
     ave_loss_box = ave_loss_box / (float)dataset.size();
     ave_loss_obj = ave_loss_obj / (float)dataset.size();
     ave_loss_class = ave_loss_class / (float)dataset.size();
+    ave_loss_dfl = ave_loss_dfl / (float)dataset.size();
     ave_time = ave_time / (double)dataset.size();
 
     // (7) Average Output
-    std::cout << "<All> box:" << ave_loss_box << " obj:" << ave_loss_obj <<  " class:" << ave_loss_class << " (time:" << ave_time << ')' << std::endl;
-    ofs << "<All> box:" << ave_loss_box << " obj:" << ave_loss_obj << " class:" << ave_loss_class << " (time:" << ave_time << ')' << std::endl;
+    std::cout << "<All> box:" << ave_loss_box << " obj:" << ave_loss_obj <<  " class:" << ave_loss_class << " dfl:" << ave_loss_dfl << " (time:" << ave_time << ')' << std::endl;
+    ofs << "<All> box:" << ave_loss_box << " obj:" << ave_loss_obj << " class:" << ave_loss_class << " dfl:" << ave_loss_dfl << " (time:" << ave_time << ')' << std::endl;
 
     // Post Processing
     ofs.close();

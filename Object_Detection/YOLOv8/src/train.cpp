@@ -53,7 +53,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vec
     size_t epoch, iter;
     size_t total_iter;
     size_t start_epoch, total_epoch;
-    float loss_f, loss_box_f, loss_obj_f, loss_class_f;
+    float loss_f, loss_box_f, loss_obj_f, loss_class_f, loss_dfl_f;
     std::string date, date_out;
     std::string buff, latest;
     std::string checkpoint_dir, save_images_dir, path;
@@ -66,10 +66,10 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vec
     std::uniform_int_distribution<size_t> urand;
     std::tuple<torch::Tensor, std::vector<std::tuple<torch::Tensor, torch::Tensor>>, std::vector<std::string>, std::vector<std::string>> mini_batch;
     torch::Tensor loss, image;
-    torch::Tensor loss_box, loss_obj, loss_class;
+    torch::Tensor loss_box, loss_obj, loss_class, loss_dfl;
     std::vector<torch::Tensor> output, output_one;
     cv::Mat sample;
-    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> losses;
+    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> losses;
     std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> detect_result;
     std::vector<std::tuple<torch::Tensor, torch::Tensor>> label;
     std::vector<transforms_Compose> null;
@@ -121,17 +121,19 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vec
 
     // (7) Set Training Loss for Graph
     path = checkpoint_dir + "/graph";
-    train_loss = std::vector<visualizer::graph>(6);
+    train_loss = std::vector<visualizer::graph>(5);
     train_loss.at(0) = visualizer::graph(path, /*gname_=*/"train_loss_all", /*label_=*/{"Total"});
     train_loss.at(1) = visualizer::graph(path, /*gname_=*/"train_loss_box-IoU", /*label_=*/{"box-IoU"});
     train_loss.at(2) = visualizer::graph(path, /*gname_=*/"train_loss_object", /*label_=*/{"Object"});
     train_loss.at(3) = visualizer::graph(path, /*gname_=*/"train_loss_class", /*label_=*/{"Class"});
+    train_loss.at(4) = visualizer::graph(path, /*gname_=*/"train_loss_dfl", /*label_=*/{"DFL"});
     if (vm["valid"].as<bool>()){
-        valid_loss = std::vector<visualizer::graph>(6);
+        valid_loss = std::vector<visualizer::graph>(5);
         valid_loss.at(0) = visualizer::graph(path, /*gname_=*/"valid_loss_all", /*label_=*/{"Total"});
         valid_loss.at(1) = visualizer::graph(path, /*gname_=*/"valid_loss_box-IoU", /*label_=*/{"box-IoU"});
         valid_loss.at(2) = visualizer::graph(path, /*gname_=*/"valid_loss_object", /*label_=*/{"Object"});
         valid_loss.at(3) = visualizer::graph(path, /*gname_=*/"valid_loss_class", /*label_=*/{"Class"});
+        valid_loss.at(4) = visualizer::graph(path, /*gname_=*/"valid_loss_dfl", /*label_=*/{"DFL"});
     }
     
     // (8) Get Weights and File Processing
@@ -189,7 +191,7 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vec
 
         model->train();
         ofs << std::endl << "epoch:" << epoch << '/' << total_epoch << std::endl;
-        show_progress = new progress::display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"box", "obj", "class"});
+        show_progress = new progress::display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"box", "obj", "class", "dfl"});
 
         // -----------------------------------
         // b1. Mini Batch Learning
@@ -210,7 +212,8 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vec
             loss_box = std::get<0>(losses) * vm["Lambda_box"].as<float>();
             loss_obj = std::get<1>(losses) * vm["Lambda_obj"].as<float>();
             loss_class = std::get<2>(losses) * vm["Lambda_class"].as<float>();
-            loss = loss_box + loss_obj + loss_class;
+            loss_dfl = std::get<3>(losses) * vm["Lambda_dfl"].as<float>();
+            loss = loss_box + loss_obj + loss_class + loss_dfl;
             optimizer.zero_grad();
             loss.backward();
             optimizer.step();
@@ -218,11 +221,12 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vec
             // -----------------------------------
             // c2. Record Loss (iteration)
             // -----------------------------------
-            show_progress->increment(/*loss_value=*/{loss_box.item<float>(), loss_obj.item<float>(), loss_class.item<float>()});
+            show_progress->increment(/*loss_value=*/{loss_box.item<float>(), loss_obj.item<float>(), loss_class.item<float>(), loss_dfl.item<float>()});
             ofs << "iters:" << show_progress->get_iters() << '/' << total_iter << ' ' << std::flush;
             ofs << "box:" << loss_box.item<float>() << "(ave:" <<  show_progress->get_ave(0) << ") " << std::flush;
             ofs << "obj:" << loss_obj.item<float>() << "(ave:" <<  show_progress->get_ave(1) << ") " << std::flush;
-            ofs << "class:" << loss_class.item<float>() << "(ave:" <<  show_progress->get_ave(2) << ")" << std::endl;
+            ofs << "class:" << loss_class.item<float>() << "(ave:" <<  show_progress->get_ave(2) << ") " << std::flush;
+            ofs << "dfl:" << loss_dfl.item<float>() << "(ave:" <<  show_progress->get_ave(3) << ")" << std::endl;
 
             // -----------------------------------
             // c3. Save Sample Images
@@ -247,14 +251,16 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vec
         // -----------------------------------
         // b2. Record Loss (epoch)
         // -----------------------------------
-        loss_f = show_progress->get_ave(0) + show_progress->get_ave(1) + show_progress->get_ave(2);
+        loss_f = show_progress->get_ave(0) + show_progress->get_ave(1) + show_progress->get_ave(2) + show_progress->get_ave(3);
         loss_box_f = show_progress->get_ave(0);
         loss_obj_f = show_progress->get_ave(1);
         loss_class_f = show_progress->get_ave(2);
+        loss_dfl_f = show_progress->get_ave(3);
         train_loss.at(0).plot(/*base=*/epoch, /*value=*/{loss_f});
         train_loss.at(1).plot(/*base=*/epoch, /*value=*/{loss_box_f});
         train_loss.at(2).plot(/*base=*/epoch, /*value=*/{loss_obj_f});
         train_loss.at(3).plot(/*base=*/epoch, /*value=*/{loss_class_f});
+        train_loss.at(4).plot(/*base=*/epoch, /*value=*/{loss_dfl_f});
 
         // -----------------------------------
         // b3. Save Sample Images
