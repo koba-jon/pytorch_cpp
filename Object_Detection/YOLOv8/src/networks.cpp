@@ -159,7 +159,7 @@ YOLOv8Impl::YOLOv8Impl(po::variables_map &vm){
 
     size_t nc = vm["nc"].as<size_t>();  // the number of image channels
     size_t class_num = vm["class_num"].as<size_t>();  // total classes
-    size_t reg_max = vm["nc"].as<size_t>();
+    size_t reg_max = vm["reg_max"].as<size_t>();
     std::string model = vm["model"].as<std::string>();  // total classes
     double depth, width;
 
