@@ -23,7 +23,7 @@ namespace po = boost::program_options;
 // ---------------
 // Test Function
 // ---------------
-void test(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vector<transforms_Compose> &transform, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors){
+void test(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vector<transforms_Compose> &transform){
 
     // (0) Initialization and Declaration
     float ave_loss_box, ave_loss_obj, ave_loss_class;
@@ -54,7 +54,7 @@ void test(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vect
     torch::load(model, path, device);
 
     // (3) Set Loss Function
-    auto criterion = Loss(anchors, {(float)vm["size"].as<size_t>(), (float)vm["size"].as<size_t>()}, (long int)vm["class_num"].as<size_t>(), vm["anchor_thresh"].as<float>());
+    auto criterion = Loss(vm["nb"].as<size_t>(), (long int)vm["class_num"].as<size_t>());
 
     // (4) Initialization of Value
     ave_loss_box = 0.0;

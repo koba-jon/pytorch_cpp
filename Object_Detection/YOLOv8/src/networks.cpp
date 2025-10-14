@@ -135,9 +135,9 @@ torch::Tensor SPPFImpl::forward(torch::Tensor x){
 YOLOv8Impl::YOLOv8Impl(po::variables_map &vm){
 
     size_t nc = vm["nc"].as<size_t>();  // the number of image channels
-    size_t na = vm["na"].as<size_t>();  // the number of anchor
+    size_t nb = vm["nb"].as<size_t>();  // the number of bounding box
     size_t class_num = vm["class_num"].as<size_t>();  // total classes
-    long int final_features = (long int)(na * (class_num + 5));  // anchors * (total classes + 5=len[t_x, t_y, t_w, t_h, confidence])
+    long int final_features = (long int)(nb * (class_num + 5));  // anchors * (total classes + 5=len[t_x, t_y, t_w, t_h, confidence])
     std::string model = vm["model"].as<std::string>();  // total classes
     double depth, width;
 
@@ -239,11 +239,11 @@ std::vector<torch::Tensor> YOLOv8Impl::forward(torch::Tensor x){
     x21 = this->head_c2f_21->forward(x20);
 
     small = this->detect_small->forward(x15);
-    small = small.permute({0, 2, 3, 1}).contiguous();  // {N,A*(5+CN),G,G} ===> {N,G,G,A*(5+CN)}
+    small = small.permute({0, 2, 3, 1}).contiguous();  // {N,B*(5+CN),G,G} ===> {N,G,G,B*(5+CN)}
     medium = this->detect_medium->forward(x18);
-    medium = medium.permute({0, 2, 3, 1}).contiguous();  // {N,A*(5+CN),G,G} ===> {N,G,G,A*(5+CN)}
+    medium = medium.permute({0, 2, 3, 1}).contiguous();  // {N,B*(5+CN),G,G} ===> {N,G,G,B*(5+CN)}
     large = this->detect_large->forward(x21);
-    large = large.permute({0, 2, 3, 1}).contiguous();  // {N,A*(5+CN),G,G} ===> {N,G,G,A*(5+CN)}
+    large = large.permute({0, 2, 3, 1}).contiguous();  // {N,B*(5+CN),G,G} ===> {N,G,G,B*(5+CN)}
 
     out.push_back(small);
     out.push_back(medium);

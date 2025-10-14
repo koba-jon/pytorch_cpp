@@ -36,7 +36,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderBBWithPaths &valid_data
 // -------------------
 // Training Function
 // -------------------
-void train(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vector<transforms_Compose> &transformBB, std::vector<transforms_Compose> &transformI, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors){
+void train(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vector<transforms_Compose> &transformBB, std::vector<transforms_Compose> &transformI, const std::vector<std::string> class_names){
 
     constexpr bool train_shuffle = true;  // whether to shuffle the training dataset
     constexpr size_t train_workers = 4;  // the number of workers to retrieve data from the training dataset
@@ -105,11 +105,11 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vec
     auto optimizer = torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(vm["lr"].as<float>()).betas({vm["beta1"].as<float>(), vm["beta2"].as<float>()}));
 
     // (4) Set Loss Function
-    auto criterion = Loss(anchors, {(float)vm["size"].as<size_t>(), (float)vm["size"].as<size_t>()}, (long int)vm["class_num"].as<size_t>(), vm["anchor_thresh"].as<float>());
+    auto criterion = Loss(vm["nb"].as<size_t>(), (long int)vm["class_num"].as<size_t>());
 
     // (5) Set Augmentation and Detector
     auto augment = YOLOBatchAugmentation(vm["mosaic_rate"].as<double>(), vm["mixup_rate"].as<double>());
-    auto detector = YOLODetector(anchors, {(float)vm["size"].as<size_t>(), (float)vm["size"].as<size_t>()}, (long int)vm["class_num"].as<size_t>(), vm["prob_thresh"].as<float>(), vm["nms_thresh"].as<float>());
+    auto detector = YOLODetector(vm["nb"].as<size_t>(), (long int)vm["class_num"].as<size_t>(), vm["prob_thresh"].as<float>(), vm["nms_thresh"].as<float>());
     std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette = detector.get_label_palette();
 
     // (6) Make Directories

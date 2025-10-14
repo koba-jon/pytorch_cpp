@@ -21,14 +21,13 @@ namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
-void train(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vector<transforms_Compose> &transformBB, std::vector<transforms_Compose> &transformI, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors);
-void test(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vector<transforms_Compose> &transform, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors);
-void detect(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformD, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors);
-void demo(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformD, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors);
+void train(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vector<transforms_Compose> &transformBB, std::vector<transforms_Compose> &transformI, const std::vector<std::string> class_names);
+void test(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vector<transforms_Compose> &transform);
+void detect(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformD, const std::vector<std::string> class_names);
+void demo(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformD, const std::vector<std::string> class_names);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 std::vector<std::string> Set_Class_Names(const std::string path, const size_t class_num);
-std::vector<std::vector<std::tuple<float, float>>> Set_Anchors(const std::string path, const size_t scales, const size_t na);
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode);
 
 
@@ -45,15 +44,13 @@ po::options_description parse_arguments(){
         ("help", "produce help message")
         ("dataset", po::value<std::string>(), "dataset name")
         ("class_list", po::value<std::string>()->default_value("list/VOC2012.txt"), "file name in which class names are listed")
-        ("anchor_list", po::value<std::string>()->default_value("cfg/anchor.txt"), "file name in which anchors are listed")
         ("model", po::value<std::string>()->default_value("yolov8s"), "model name : yolov8n, yolov8s, yolov8m, yolov8l or yolov8x")
         ("class_num", po::value<size_t>()->default_value(20), "total classes")
         ("size", po::value<size_t>()->default_value(640), "image width and height")
         ("prob_thresh", po::value<float>()->default_value(0.1), "threshold of simultaneous probability with confidence and class score")
-        ("anchor_thresh", po::value<float>()->default_value(4.0), "anchor ratio threshold for positive matches")
         ("nms_thresh", po::value<float>()->default_value(0.5), "threshold of IoU between bounding boxes in Non-Maximum Suppression")
         ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
-        ("na", po::value<size_t>()->default_value(3), "the number of anchor in each grid")
+        ("nb", po::value<size_t>()->default_value(3), "the number of bounding box in each grid")
         ("scales", po::value<size_t>()->default_value(3), "the number of predicted map scales")
         ("gpu_id", po::value<int>()->default_value(0), "cuda device : 'x=-1' is cpu device")
         ("seed_random", po::value<bool>()->default_value(false), "whether to make the seed of random number in a random")
@@ -205,30 +202,29 @@ int main(int argc, const char *argv[]){
 
     // (8) Set Class Names and Configs
     std::vector<std::string> class_names = Set_Class_Names(vm["class_list"].as<std::string>(), vm["class_num"].as<size_t>());
-    std::vector<std::vector<std::tuple<float, float>>> anchors = Set_Anchors(vm["anchor_list"].as<std::string>(), vm["scales"].as<size_t>(), vm["na"].as<size_t>());
 
     // (9.1) Training Phase
     if (vm["train"].as<bool>()){
         Set_Options(vm, argc, argv, args, "train");
-        train(vm, device, model, transformBB, transformI, class_names, anchors);
+        train(vm, device, model, transformBB, transformI, class_names);
     }
 
     // (9.2) Test Phase
     if (vm["test"].as<bool>()){
         Set_Options(vm, argc, argv, args, "test");
-        test(vm, device, model, transformI, class_names, anchors);
+        test(vm, device, model, transformI);
     }
 
     // (9.3) Detection Phase
     if (vm["detect"].as<bool>()){
         Set_Options(vm, argc, argv, args, "detect");
-        detect(vm, device, model, transformI, transformD, class_names, anchors);
+        detect(vm, device, model, transformI, transformD, class_names);
     }
     
     // (9.4) Demo Phase
     if (vm["demo"].as<bool>()){
         Set_Options(vm, argc, argv, args, "demo");
-        demo(vm, device, model, transformI, transformD, class_names, anchors);
+        demo(vm, device, model, transformI, transformD, class_names);
     }
 
     // End Processing
@@ -314,42 +310,7 @@ std::vector<std::string> Set_Class_Names(const std::string path, const size_t cl
 
 
 // -----------------------------------
-// 5. Anchors Setting Function
-// -----------------------------------
-std::vector<std::vector<std::tuple<float, float>>> Set_Anchors(const std::string path, const size_t scales, const size_t na){
-
-    // (1) Memory Allocation
-    std::vector<std::vector<std::tuple<float, float>>> anchors = std::vector<std::vector<std::tuple<float, float>>>(scales);
-    for (size_t i = 0; i < scales; i++){
-        anchors.at(i) = std::vector<std::tuple<float, float>>(na);
-    }
-
-    // (2) Get Anchors
-    float pw, ph;
-    std::string line;
-    std::ifstream ifs(path, std::ios::in);
-    for (size_t i = 0; i < scales; i++){
-        for (size_t j = 0; j < na; j++){
-            if (!getline(ifs, line)){
-                std::cerr << "Error : The number of anchors does not match the number of lines in the anchor file." << std::endl;
-                std::exit(1);
-            }
-            std::istringstream iss(line);
-            iss >> pw;
-            iss >> ph;
-            anchors.at(i).at(j) = {pw, ph};
-        }
-    }
-    ifs.close();
-
-    // End Processing
-    return anchors;
-    
-}
-
-
-// -----------------------------------
-// 6. Options Setting Function
+// 5. Options Setting Function
 // -----------------------------------
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode){
 

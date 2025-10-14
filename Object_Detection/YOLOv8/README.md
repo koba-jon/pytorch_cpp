@@ -322,29 +322,6 @@ In the case, it is recommended to add `--augmentation false` to arguments, where
 
 ---
 
-### Anchor
-
-Anchors are useful for stable detection.<br>
-Please refer to `cfg/anchor.txt` to change the config.<br>
-
-~~~
-10.0 13.0     # (scale1.anchor1) Prior-width Prior-height
-16.0 30.0     # (scale1.anchor2) Prior-width Prior-height
-33.0 23.0     # (scale1.anchor3) Prior-width Prior-height
-30.0 61.0     # (scale2.anchor1) Prior-width Prior-height
-62.0 45.0     # (scale2.anchor2) Prior-width Prior-height
-59.0 119.0    # (scale2.anchor3) Prior-width Prior-height
-116.0 90.0    # (scale3.anchor1) Prior-width Prior-height
-156.0 198.0   # (scale3.anchor2) Prior-width Prior-height
-373.0 326.0   # (scale3.anchor3) Prior-width Prior-height
-~~~
-
-Please write the prior-size, where each pixel size is `1.0` on image.<br>
-If you want to change types of anchor, please write `types` on `--na` to arguments.
-
----
-
-
 ## Detection Strategy
 
 Detection performance is determined by the prediction result and two threshold.

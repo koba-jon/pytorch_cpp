@@ -27,7 +27,7 @@ namespace po = boost::program_options;
 // --------------------
 // Detection Function
 // --------------------
-void detect(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformD, const std::vector<std::string> class_names, const std::vector<std::vector<std::tuple<float, float>>> anchors){
+void detect(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vector<transforms_Compose> &transformI, std::vector<transforms_Compose> &transformD, const std::vector<std::string> class_names){
 
     constexpr std::pair<float, float> output_range = {0.0, 1.0};  // range of the value in output images
 
@@ -59,7 +59,7 @@ void detect(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::ve
     torch::load(model, path, device);
 
     // (3) Set Detector
-    auto detector = YOLODetector(anchors, {(float)vm["size"].as<size_t>(), (float)vm["size"].as<size_t>()}, (long int)vm["class_num"].as<size_t>(), vm["prob_thresh"].as<float>(), vm["nms_thresh"].as<float>());
+    auto detector = YOLODetector(vm["nb"].as<size_t>(), (long int)vm["class_num"].as<size_t>(), vm["prob_thresh"].as<float>(), vm["nms_thresh"].as<float>());
     std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette = detector.get_label_palette();
 
     // (4) Tensor Forward
