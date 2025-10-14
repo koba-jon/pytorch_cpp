@@ -201,8 +201,7 @@ torch::Tensor Loss::distribution_focal_loss(torch::Tensor pred, torch::Tensor ta
     loss_low = F::cross_entropy(pred_view, floor_long.view({-1}), F::CrossEntropyFuncOptions().reduction(torch::kNone));
     loss_high = F::cross_entropy(pred_view, ceil_long.view({-1}), F::CrossEntropyFuncOptions().reduction(torch::kNone));
 
-    one = torch::ones_like(weight_view);
-    blended = loss_low * (one - weight_view) + loss_high * weight_view;
+    blended = loss_low * (1.0 - weight_view) + loss_high * weight_view;
     out = blended.view({-1, 4}).sum(1).mean();
 
     return out;
