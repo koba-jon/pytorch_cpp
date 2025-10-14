@@ -9,8 +9,7 @@
 // ------------------------------------
 // class{YOLODetector} -> constructor
 // ------------------------------------
-YOLODetector::YOLODetector(const size_t nb_, const long int class_num_, const float prob_thresh_, const float nms_thresh_){
-    this->nb = nb_;
+YOLODetector::YOLODetector(const long int class_num_, const float prob_thresh_, const float nms_thresh_){
     this->class_num = class_num_;
     this->prob_thresh = prob_thresh_;
     this->nms_thresh = nms_thresh_;
@@ -160,59 +159,58 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> YOLODetector::operator()
         // (3.1) Activate predicted tensor
         std::vector<torch::Tensor> pred_split;
         torch::Tensor arange, x0, y0, x0y0, grid_size;
-        torch::Tensor pred_view, pred_class, pred_xy, pred_wh, pred_conf, pred_coord, pred_coord_per;
+        torch::Tensor pred_class, pred_xy, pred_wh, pred_conf, pred_coord, pred_coord_per;
         /*************************************************************************/
         arange = torch::arange(/*start=*/0.0, /*end=*/(float)ng, /*step=*/1.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);  // arange{G} = [0,1,2,...,G-1]
-        x0 = arange.view({1, ng, 1, 1}).expand({ng, ng, 1, 1});  // arange{G} ===> {1,G,1,1} ===> x0{G,G,1,1}
-        y0 = arange.view({ng, 1, 1, 1}).expand({ng, ng, 1, 1});  // arange{G} ===> {G,1,1,1} ===> y0{G,G,1,1}
-        x0y0 = torch::cat({x0, y0}, /*dim=*/3);  // x0{G,G,1,1} + y0{G,G,1,1} ===> x0y0{G,G,1,2}
-        grid_size = torch::tensor({ng, ng}, torch::kFloat).to(device).view({1, 1, 1, 2});  // {1,1,1,2}
+        x0 = arange.view({1, ng, 1}).expand({ng, ng, 1});  // arange{G} ===> {1,G,1} ===> x0{G,G,1}
+        y0 = arange.view({ng, 1, 1}).expand({ng, ng, 1});  // arange{G} ===> {G,1,1} ===> y0{G,G,1}
+        x0y0 = torch::cat({x0, y0}, /*dim=*/2);  // x0{G,G,1} + y0{G,G,1} ===> x0y0{G,G,2}
+        grid_size = torch::tensor({ng, ng}, torch::kFloat).to(device).view({1, 1, 2});  // {1,1,2}
         /*************************************************************************/
-        pred_view = pred.view({ng, ng, this->nb, 5 + this->class_num});  // pred{G,G,B*(CN+5)} ===> pred_view{G,G,B,CN+5}
-        pred_split = pred_view.split_with_sizes(/*split_sizes=*/{2, 2, 1, this->class_num}, /*dim=*/3);  // pred_view{G,G,B,CN+5} ===> pred_split({G,G,B,CN}, {G,G,B,2}, {G,G,B,2}, {G,G,B,1})
-        pred_xy = (torch::sigmoid(pred_split.at(0)) * 2.0 - 0.5 + x0y0) / grid_size;  // pred_xy{G,G,B,2}
-        pred_wh = (torch::sigmoid(pred_split.at(1)) * 2.0).pow(2.0);  // pred_wh{G,G,B,2}
-        pred_conf = torch::sigmoid(pred_split.at(2)).squeeze(-1);  // pred_conf{G,G,B}
-        pred_class = torch::sigmoid(pred_split.at(3));  // pred_class{G,G,B,CN}
-        pred_coord = torch::cat({pred_xy, pred_wh}, /*dim=*/3);  // pred_xy{G,G,B,2} + pred_wh{G,G,B,2} ===> pred_coord{G,G,B,4}
-        pred_coord_per = pred_coord.permute({3, 0, 1, 2}).contiguous();  // pred_coord{G,G,B,4} ===> pred_coord_per{4,G,G,B}
+        pred_split = pred.split_with_sizes(/*split_sizes=*/{2, 2, 1, this->class_num}, /*dim=*/2);  // pred_view{G,G,5+CN} ===> pred_split({G,G,2}, {G,G,2}, {G,G,1}, {G,G,CN})
+        pred_xy = (torch::sigmoid(pred_split.at(0)) * 2.0 - 0.5 + x0y0) / grid_size;  // pred_xy{G,G,2}
+        pred_wh = (torch::sigmoid(pred_split.at(1)) * 2.0).pow(2.0);  // pred_wh{G,G,2}
+        pred_conf = torch::sigmoid(pred_split.at(2)).squeeze(-1);  // pred_conf{G,G}
+        pred_class = torch::sigmoid(pred_split.at(3));  // pred_class{G,G,CN}
+        pred_coord = torch::cat({pred_xy, pred_wh}, /*dim=*/2);  // pred_xy{G,G,2} + pred_wh{G,G,2} ===> pred_coord{G,G,4}
+        pred_coord_per = pred_coord.permute({2, 0, 1}).contiguous();  // pred_coord{G,G,4} ===> pred_coord_per{4,G,G}
 
         // (3.2) Get object mask
         torch::Tensor class_score, id, prob, obj_mask;
         std::tuple<torch::Tensor, torch::Tensor> class_score_with_idx;
         /*************************************************************************/
-        class_score_with_idx = pred_class.max(/*dim=*/3, /*keepdim=*/false);  // pred_class{G,G,B,CN} ===> class_score_with_idx({G,G,B}, {G,G,B})
-        class_score = std::get<0>(class_score_with_idx);  // class_score{G,G,B}
-        id = std::get<1>(class_score_with_idx);  // id{G,G,B}
-        prob = pred_conf * class_score;  // pred_conf{G,G,B}, class_score{G,G,B} ===> prob{G,G,B}
-        obj_mask = (prob >= this->prob_thresh);  // prob{G,G,B} ===> obj_mask{G,G,B}
+        class_score_with_idx = pred_class.max(/*dim=*/2, /*keepdim=*/false);  // pred_class{G,G,CN} ===> class_score_with_idx({G,G}, {G,G})
+        class_score = std::get<0>(class_score_with_idx);  // class_score{G,G}
+        id = std::get<1>(class_score_with_idx);  // id{G,G}
+        prob = pred_conf * class_score;  // pred_conf{G,G}, class_score{G,G} ===> prob{G,G}
+        obj_mask = (prob >= this->prob_thresh);  // prob{G,G} ===> obj_mask{G,G}
 
         // (4.1) Get ids
         torch::Tensor obj_id;
         /*************************************************************************/
-        obj_id = id.masked_select(/*mask=*/obj_mask);  // id{G,G,B} ===> obj_id{object}
+        obj_id = id.masked_select(/*mask=*/obj_mask);  // id{G,G} ===> obj_id{object}
         obj_id_vec.push_back(obj_id);  // obj_id_vec{scales,{object}}
 
         // (4.2) Get coordinates
         torch::Tensor obj_cx, obj_cy, obj_w, obj_h, obj_coord;
         /*************************************************************************/
-        obj_cx = pred_coord_per[0].masked_select(/*mask=*/obj_mask);  // pred_coord_per{4,G,G,B} ===> obj_cx{object}
-        obj_cy = pred_coord_per[1].masked_select(/*mask=*/obj_mask);  // pred_coord_per{4,G,G,B} ===> obj_cy{object}
-        obj_w = pred_coord_per[2].masked_select(/*mask=*/obj_mask);  // pred_coord_per{4,G,G,B} ===> obj_w{object}
-        obj_h = pred_coord_per[3].masked_select(/*mask=*/obj_mask);  // pred_coord_per{4,G,G,B} ===> obj_h{object}
+        obj_cx = pred_coord_per[0].masked_select(/*mask=*/obj_mask);  // pred_coord_per{4,G,G} ===> obj_cx{object}
+        obj_cy = pred_coord_per[1].masked_select(/*mask=*/obj_mask);  // pred_coord_per{4,G,G} ===> obj_cy{object}
+        obj_w = pred_coord_per[2].masked_select(/*mask=*/obj_mask);  // pred_coord_per{4,G,G} ===> obj_w{object}
+        obj_h = pred_coord_per[3].masked_select(/*mask=*/obj_mask);  // pred_coord_per{4,G,G} ===> obj_h{object}
         obj_coord = torch::cat({obj_cx.unsqueeze(/*dim=*/-1), obj_cy.unsqueeze(/*dim=*/-1), obj_w.unsqueeze(/*dim=*/-1), obj_h.unsqueeze(/*dim=*/-1)}, /*dim=*/1);  // obj_coord{object,4}
         obj_coord_vec.push_back(obj_coord);  // obj_coord_vec{scales,{object,4}}
 
         // (4.3) Get confidences
         torch::Tensor obj_conf;
         /*************************************************************************/
-        obj_conf = pred_conf.masked_select(/*mask=*/obj_mask);  // pred_conf{G,G,B} ===> obj_conf{object}
+        obj_conf = pred_conf.masked_select(/*mask=*/obj_mask);  // pred_conf{G,G} ===> obj_conf{object}
         obj_conf_vec.push_back(obj_conf);  // obj_conf_vec{scales,{object}}
 
         // (4.4) Get probabilities
         torch::Tensor obj_prob;
         /*************************************************************************/
-        obj_prob = prob.masked_select(/*mask=*/obj_mask);  // prob{G,G,B} ===> obj_prob{object}
+        obj_prob = prob.masked_select(/*mask=*/obj_mask);  // prob{G,G} ===> obj_prob{object}
         obj_prob_vec.push_back(obj_prob);  // obj_prob_vec{scales,{object}}
     
     }

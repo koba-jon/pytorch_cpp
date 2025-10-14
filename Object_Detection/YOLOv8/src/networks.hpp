@@ -84,9 +84,9 @@ private:
     ConvBlock head_conv_16, head_conv_19;
     C2f c2f_2, c2f_4, c2f_6, c2f_8, head_c2f_12, head_c2f_15, head_c2f_18, head_c2f_21;
     SPPF sppf_9;
-    nn::Conv2d detect_small = nullptr;
-    nn::Conv2d detect_medium = nullptr;
-    nn::Conv2d detect_large = nullptr;
+    nn::Conv2d detect_small_coord{nullptr}, detect_small_obj{nullptr}, detect_small_class{nullptr};
+    nn::Conv2d detect_medium_coord{nullptr}, detect_medium_obj{nullptr}, detect_medium_class{nullptr};
+    nn::Conv2d detect_large_coord{nullptr}, detect_large_obj{nullptr}, detect_large_class{nullptr};
     size_t mul(const double base, const double scale);
 public:
     YOLOv8Impl(){}

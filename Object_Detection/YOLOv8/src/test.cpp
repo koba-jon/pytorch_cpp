@@ -54,7 +54,7 @@ void test(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vect
     torch::load(model, path, device);
 
     // (3) Set Loss Function
-    auto criterion = Loss(vm["nb"].as<size_t>(), (long int)vm["class_num"].as<size_t>());
+    auto criterion = Loss((long int)vm["class_num"].as<size_t>());
 
     // (4) Initialization of Value
     ave_loss_box = 0.0;

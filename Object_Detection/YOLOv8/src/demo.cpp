@@ -48,7 +48,7 @@ void demo(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vect
     torch::load(model, path, device);
 
     // (2) Set Detector
-    auto detector = YOLODetector(vm["nb"].as<size_t>(), (long int)vm["class_num"].as<size_t>(), vm["prob_thresh"].as<float>(), vm["nms_thresh"].as<float>());
+    auto detector = YOLODetector((long int)vm["class_num"].as<size_t>(), vm["prob_thresh"].as<float>(), vm["nms_thresh"].as<float>());
     std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette = detector.get_label_palette();
 
     // (3) Set Camera Device

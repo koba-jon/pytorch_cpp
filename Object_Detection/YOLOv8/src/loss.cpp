@@ -19,8 +19,7 @@ using Slice = torch::indexing::Slice;
 // -----------------------------------
 // class{Loss} -> constructor
 // -----------------------------------
-Loss::Loss(const size_t nb_, const long int class_num_){
-    this->nb = nb_;
+Loss::Loss(const long int class_num_){
     this->class_num = class_num_;
     this->BCE = nn::BCEWithLogitsLoss(nn::BCEWithLogitsLossOptions().reduction(torch::kMean));
     this->balance = {4.0, 1.0, 0.4};
@@ -68,8 +67,8 @@ std::tuple<std::vector<torch::Tensor>, std::vector<torch::Tensor>, std::vector<t
     /*******************************************************/
     nt = target_tensor.size(0);
     gain = torch::ones({7}).to(device);  // {7}
-    ai = torch::arange(this->nb).to(device).to(torch::kFloat).view({this->nb, 1}).repeat({1, nt}).unsqueeze(-1);  // {B,T,1}
-    target_tensor = torch::cat({target_tensor.view({1, nt, 6}).repeat({this->nb, 1, 1}), ai}, 2);  // {B,T,7}
+    ai = torch::arange(1).to(device).to(torch::kFloat).view({1, 1}).repeat({1, nt}).unsqueeze(-1);  // {1,T,1}
+    target_tensor = torch::cat({target_tensor.view({1, nt, 6}).repeat({1, 1, 1}), ai}, 2);  // {1,T,7}
     off = torch::tensor({{0.0, 0.0}, {1.0, 0.0}, {0.0, 1.0}, {-1.0, 0.0}, {0.0, -1.0}}, torch::kFloat).to(device) * g;  // {5,2}
     /*******************************************************/
     scale_indices_b = std::vector<torch::Tensor>(scales);
@@ -202,7 +201,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> Loss::operator()(std::ve
         a = scale_indices_a[i];
         gj = scale_indices_gj[i];
         gi = scale_indices_gi[i];
-        input = inputs[i].view({inputs[i].size(0), inputs[i].size(1), inputs[i].size(2), this->nb, 5 + this->class_num}).permute({0, 3, 1, 2, 4}).contiguous();  // {N,G,G,A*(5+CN)} ===> {N,G,G,B,5+CN} ===> {N,B,G,G,5+CN}
+        input = inputs[i].view({inputs[i].size(0), inputs[i].size(1), inputs[i].size(2), 1, 5 + this->class_num}).permute({0, 3, 1, 2, 4}).contiguous();  // {N,G,G,5+CN} ===> {N,G,G,1,5+CN} ===> {N,1,G,G,5+CN}
         tobj = torch::zeros({input.size(0), input.size(1), input.size(2), input.size(3)}, torch::kFloat).to(device);  // {N,B,G,G}
 
         n = b.size(0);

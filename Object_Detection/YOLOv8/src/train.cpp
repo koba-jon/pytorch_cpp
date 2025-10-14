@@ -105,11 +105,11 @@ void train(po::variables_map &vm, torch::Device &device, YOLOv8 &model, std::vec
     auto optimizer = torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(vm["lr"].as<float>()).betas({vm["beta1"].as<float>(), vm["beta2"].as<float>()}));
 
     // (4) Set Loss Function
-    auto criterion = Loss(vm["nb"].as<size_t>(), (long int)vm["class_num"].as<size_t>());
+    auto criterion = Loss((long int)vm["class_num"].as<size_t>());
 
     // (5) Set Augmentation and Detector
     auto augment = YOLOBatchAugmentation(vm["mosaic_rate"].as<double>(), vm["mixup_rate"].as<double>());
-    auto detector = YOLODetector(vm["nb"].as<size_t>(), (long int)vm["class_num"].as<size_t>(), vm["prob_thresh"].as<float>(), vm["nms_thresh"].as<float>());
+    auto detector = YOLODetector((long int)vm["class_num"].as<size_t>(), vm["prob_thresh"].as<float>(), vm["nms_thresh"].as<float>());
     std::vector<std::tuple<unsigned char, unsigned char, unsigned char>> label_palette = detector.get_label_palette();
 
     // (6) Make Directories

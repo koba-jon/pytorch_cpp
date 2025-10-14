@@ -50,7 +50,6 @@ po::options_description parse_arguments(){
         ("prob_thresh", po::value<float>()->default_value(0.1), "threshold of simultaneous probability with confidence and class score")
         ("nms_thresh", po::value<float>()->default_value(0.5), "threshold of IoU between bounding boxes in Non-Maximum Suppression")
         ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
-        ("nb", po::value<size_t>()->default_value(1), "the number of bounding box in each grid (YOLOv8 uses 1)")
         ("scales", po::value<size_t>()->default_value(3), "the number of predicted map scales")
         ("gpu_id", po::value<int>()->default_value(0), "cuda device : 'x=-1' is cpu device")
         ("seed_random", po::value<bool>()->default_value(false), "whether to make the seed of random number in a random")
