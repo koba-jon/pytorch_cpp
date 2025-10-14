@@ -171,7 +171,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> YOLODetector::operator()
         pred_view = pred.view({ng, ng, this->nb, 5 + this->class_num});  // pred{G,G,B*(CN+5)} ===> pred_view{G,G,B,CN+5}
         pred_split = pred_view.split_with_sizes(/*split_sizes=*/{2, 2, 1, this->class_num}, /*dim=*/3);  // pred_view{G,G,B,CN+5} ===> pred_split({G,G,B,CN}, {G,G,B,2}, {G,G,B,2}, {G,G,B,1})
         pred_xy = (torch::sigmoid(pred_split.at(0)) * 2.0 - 0.5 + x0y0) / grid_size;  // pred_xy{G,G,B,2}
-        pred_wh = torch::sigmoid(pred_split.at(1));  // pred_wh{G,G,B,2}
+        pred_wh = (torch::sigmoid(pred_split.at(1)) * 2.0).pow(2.0);  // pred_wh{G,G,B,2}
         pred_conf = torch::sigmoid(pred_split.at(2)).squeeze(-1);  // pred_conf{G,G,B}
         pred_class = torch::sigmoid(pred_split.at(3));  // pred_class{G,G,B,CN}
         pred_coord = torch::cat({pred_xy, pred_wh}, /*dim=*/3);  // pred_xy{G,G,B,2} + pred_wh{G,G,B,2} ===> pred_coord{G,G,B,4}

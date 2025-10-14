@@ -214,7 +214,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> Loss::operator()(std::ve
 
             grid_size = torch::tensor({{inputs[i].size(2), inputs[i].size(1)}}, torch::kFloat).to(device);  // {1,2}
             pxy = pxy.sigmoid() * 2.0 - 0.5;  // {K,2}
-            pwh = pwh.sigmoid() * grid_size;  // {K,2}
+            pwh = (pwh.sigmoid() * 2.0).pow(2.0) * grid_size;  // {K,2}
             pbox = torch::cat({pxy, pwh}, 1);  // {K,4}
             iou = this->bbox_iou(pbox, scale_tbox[i]).squeeze();  // {K}
             loss_box = loss_box + (1.0 - iou).mean();  // {}
