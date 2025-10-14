@@ -129,6 +129,29 @@ torch::Tensor SPPFImpl::forward(torch::Tensor x){
 }
 
 
+// ---------------------------------------------------------
+// struct{DFLImpl}(nn::Module) -> constructor
+// ---------------------------------------------------------
+DFLImpl::DFLImpl(const long int reg_max_){
+    this->reg_max = reg_max_;
+    this->project = register_buffer("project", torch::arange(this->reg_max, torch::kFloat));
+}
+
+
+// ---------------------------------------------------------------
+// struct{DFLImpl}(nn::Module) -> function{forward}
+// ---------------------------------------------------------------
+torch::Tensor DFLImpl::forward(torch::Tensor x){
+    torch::Tensor proj, out;
+    out = x.view({x.size(0), 4, this->reg_max, x.size(2), x.size(3)});
+    out = torch::softmax(out, 2);
+    proj = this->project.view({1, 1, this->reg_max, 1, 1});
+    out = (out * proj).sum(2);
+    out = out.view({x.size(0), 4, x.size(2), x.size(3)});
+    return out;
+}
+
+
 // ----------------------------------------------------------------------
 // struct{YOLOv8Impl}(nn::Module) -> constructor
 // ----------------------------------------------------------------------
@@ -136,6 +159,7 @@ YOLOv8Impl::YOLOv8Impl(po::variables_map &vm){
 
     size_t nc = vm["nc"].as<size_t>();  // the number of image channels
     size_t class_num = vm["class_num"].as<size_t>();  // total classes
+    size_t reg_max = vm["nc"].as<size_t>();
     std::string model = vm["model"].as<std::string>();  // total classes
     double depth, width;
 
@@ -186,17 +210,19 @@ YOLOv8Impl::YOLOv8Impl(po::variables_map &vm){
     this->head_conv_19 = register_module("head_conv_19", ConvBlock(mul(512, width), mul(512, width), 3, 2, 1));
     this->head_c2f_21 = register_module("head_c2f_21", C2f(mul(512, width) + mul(1024, width), mul(1024, width), mul(3, depth), false));
 
-    this->detect_small_coord = register_module("detect_small_coord", nn::Conv2d(nn::Conv2dOptions(mul(256, width), 4, 1).stride(1).padding(0).bias(true)));
+    this->detect_small_coord = register_module("detect_small_coord", nn::Conv2d(nn::Conv2dOptions(mul(256, width), 4 * reg_max, 1).stride(1).padding(0).bias(true)));
     this->detect_small_obj = register_module("detect_small_obj", nn::Conv2d(nn::Conv2dOptions(mul(256, width), 1, 1).stride(1).padding(0).bias(true)));
     this->detect_small_class = register_module("detect_small_class", nn::Conv2d(nn::Conv2dOptions(mul(256, width), class_num, 1).stride(1).padding(0).bias(true)));
 
-    this->detect_medium_coord = register_module("detect_medium_coord", nn::Conv2d(nn::Conv2dOptions(mul(512, width), 4, 1).stride(1).padding(0).bias(true)));
+    this->detect_medium_coord = register_module("detect_medium_coord", nn::Conv2d(nn::Conv2dOptions(mul(512, width), 4 * reg_max, 1).stride(1).padding(0).bias(true)));
     this->detect_medium_obj = register_module("detect_medium_obj", nn::Conv2d(nn::Conv2dOptions(mul(512, width), 1, 1).stride(1).padding(0).bias(true)));
     this->detect_medium_class = register_module("detect_medium_class", nn::Conv2d(nn::Conv2dOptions(mul(512, width), class_num, 1).stride(1).padding(0).bias(true)));
 
-    this->detect_large_coord = register_module("detect_large_coord", nn::Conv2d(nn::Conv2dOptions(mul(1024, width), 4, 1).stride(1).padding(0).bias(true)));
+    this->detect_large_coord = register_module("detect_large_coord", nn::Conv2d(nn::Conv2dOptions(mul(1024, width), 4 * reg_max, 1).stride(1).padding(0).bias(true)));
     this->detect_large_obj = register_module("detect_large_obj", nn::Conv2d(nn::Conv2dOptions(mul(1024, width), 1, 1).stride(1).padding(0).bias(true)));
     this->detect_large_class = register_module("detect_large_class", nn::Conv2d(nn::Conv2dOptions(mul(1024, width), class_num, 1).stride(1).padding(0).bias(true)));
+
+    this->dfl = register_module("dfl", DFL(reg_max));
 
 }
 
@@ -214,7 +240,9 @@ size_t YOLOv8Impl::mul(const double base, const double scale){
 std::vector<torch::Tensor> YOLOv8Impl::forward(torch::Tensor x){
 
     torch::Tensor x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21;
-    torch::Tensor small_coord, small_obj, small_class, small, medium_coord, medium_obj, medium_class, medium, large_coord, large_obj, large_class, large;
+    torch::Tensor small_coord_logits, small_coord, small_obj, small_class, small;
+    torch::Tensor medium_coord_logits, medium_coord, medium_obj, medium_class, medium;
+    torch::Tensor large_coord_logits, large_coord, large_obj, large_class, large;
     std::vector<torch::Tensor> out;
 
     x0 = this->conv_0->forward(x);
@@ -244,20 +272,23 @@ std::vector<torch::Tensor> YOLOv8Impl::forward(torch::Tensor x){
     x20 = torch::cat({x19, x9}, 1);
     x21 = this->head_c2f_21->forward(x20);
 
-    small_coord = this->detect_small_coord->forward(x15);  // {N,4,G,G}
+    small_coord_logits = this->detect_small_coord->forward(x15);  // {N,4*R,G,G}
+    small_coord = this->dfl->forward(small_coord_logits);  // {N,4,G,G}
     small_obj = this->detect_small_obj->forward(x15);  // {N,1,G,G}
     small_class = this->detect_small_class->forward(x15);  // {N,CN,G,G}
-    small = torch::cat({small_coord, small_obj, small_class}, 1).permute({0, 2, 3, 1}).contiguous();  // {N,5+CN,G,G} ===> {N,G,G,5+CN}
-    
-    medium_coord = this->detect_medium_coord->forward(x18);  // {N,4,G,G}
+    small = torch::cat({small_coord, small_obj, small_class, small_coord_logits}, 1).permute({0, 2, 3, 1}).contiguous();  // {N,5+CN+4*R,G,G} ===> {N,G,G,5+CN+4*R}
+
+    medium_coord_logits = this->detect_medium_coord->forward(x18);  // {N,4*R,G,G}
+    medium_coord = this->dfl->forward(medium_coord_logits);  // {N,4,G,G}
     medium_obj = this->detect_medium_obj->forward(x18);  // {N,1,G,G}
     medium_class = this->detect_medium_class->forward(x18);  // {N,CN,G,G}
-    medium = torch::cat({medium_coord, medium_obj, medium_class}, 1).permute({0, 2, 3, 1}).contiguous();  // {N,5+CN,G,G} ===> {N,G,G,5+CN}
+    medium = torch::cat({medium_coord, medium_obj, medium_class, medium_coord_logits}, 1).permute({0, 2, 3, 1}).contiguous();  // {N,5+CN+4*R,G,G} ===> {N,G,G,5+CN+4*R}
 
-    large_coord = this->detect_large_coord->forward(x21);  // {N,4,G,G}
+    large_coord_logits = this->detect_large_coord->forward(x21);  // {N,4*R,G,G}
+    large_coord = this->dfl->forward(large_coord_logits);  // {N,4,G,G}
     large_obj = this->detect_large_obj->forward(x21);  // {N,1,G,G}
     large_class = this->detect_large_class->forward(x21);  // {N,CN,G,G}
-    large = torch::cat({large_coord, large_obj, large_class}, 1).permute({0, 2, 3, 1}).contiguous();  // {N,5+CN,G,G} ===> {N,G,G,5+CN}
+    large = torch::cat({large_coord, large_obj, large_class, large_coord_logits}, 1).permute({0, 2, 3, 1}).contiguous();  // {N,5+CN+4*R,G,G} ===> {N,G,G,5+CN+4*R}
 
     out.push_back(small);
     out.push_back(medium);

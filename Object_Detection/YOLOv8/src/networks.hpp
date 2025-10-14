@@ -76,6 +76,21 @@ TORCH_MODULE(SPPF);
 
 
 // -------------------------------------------------
+// struct{DFLImpl}(nn::Module)
+// -------------------------------------------------
+struct DFLImpl : nn::Module{
+private:
+    long int reg_max = 0;
+    torch::Tensor project;
+public:
+    DFLImpl(){}
+    DFLImpl(const long int reg_max_);
+    torch::Tensor forward(torch::Tensor x);
+};
+TORCH_MODULE(DFL);
+
+
+// -------------------------------------------------
 // struct{YOLOv8Impl}(nn::Module)
 // -------------------------------------------------
 struct YOLOv8Impl : nn::Module{
@@ -84,6 +99,7 @@ private:
     ConvBlock head_conv_16, head_conv_19;
     C2f c2f_2, c2f_4, c2f_6, c2f_8, head_c2f_12, head_c2f_15, head_c2f_18, head_c2f_21;
     SPPF sppf_9;
+    DFL dfl;
     nn::Conv2d detect_small_coord{nullptr}, detect_small_obj{nullptr}, detect_small_class{nullptr};
     nn::Conv2d detect_medium_coord{nullptr}, detect_medium_obj{nullptr}, detect_medium_class{nullptr};
     nn::Conv2d detect_large_coord{nullptr}, detect_large_obj{nullptr}, detect_large_class{nullptr};

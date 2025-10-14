@@ -47,6 +47,7 @@ po::options_description parse_arguments(){
         ("model", po::value<std::string>()->default_value("yolov8s"), "model name : yolov8n, yolov8s, yolov8m, yolov8l or yolov8x")
         ("class_num", po::value<size_t>()->default_value(20), "total classes")
         ("size", po::value<size_t>()->default_value(640), "image width and height")
+        ("reg_max", po::value<size_t>()->default_value(16), "maximum value for Distribution Focal Loss bins")
         ("prob_thresh", po::value<float>()->default_value(0.1), "threshold of simultaneous probability with confidence and class score")
         ("nms_thresh", po::value<float>()->default_value(0.5), "threshold of IoU between bounding boxes in Non-Maximum Suppression")
         ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")

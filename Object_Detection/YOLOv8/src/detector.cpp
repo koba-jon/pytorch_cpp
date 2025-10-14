@@ -5,6 +5,8 @@
 // For Original Header
 #include "detector.hpp"
 
+using Slice = torch::indexing::Slice;
+
 
 // ------------------------------------
 // class{YOLODetector} -> constructor
@@ -153,7 +155,7 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> YOLODetector::operator()
 
     for (size_t i = 0; i < scales; i++){
 
-        torch::Tensor pred = preds.at(i);
+        torch::Tensor pred = preds.at(i).index({Slice(), Slice(), Slice(0, 5 + this->class_num)});  // {G,G,5+CN}
         long int ng = pred.size(0);
 
         // (3.1) Activate predicted tensor
