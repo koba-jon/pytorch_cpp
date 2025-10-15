@@ -226,11 +226,11 @@ torch::Tensor CausalAttentionImpl::forward(torch::Tensor query, torch::Tensor ke
     H = key.size(2);
     W = key.size(3);
 
-    query_flat = query.view({N, query.size(1), -1}).transpose(1, 2);
-    key_flat = key.view({N, key.size(1), -1}).transpose(1, 2);
-    query_map = this->query_linear->forward(query_flat).view({N, -1, this->n_head, this->dim_head}).transpose(1, 2);
-    key_map = this->key_linear->forward(key_flat).view({N, -1, this->n_head, this->dim_head}).transpose(1, 2).transpose(2, 3);
-    value_map = this->value_linear(key_flat).view({N, -1, this->n_head, this->dim_head}).transpose(1, 2);
+    query_flat = query.view({N, query.size(1), -1}).transpose(1, 2).contiguous();
+    key_flat = key.view({N, key.size(1), -1}).transpose(1, 2).contiguous();
+    query_map = this->query_linear->forward(query_flat).view({N, -1, this->n_head, this->dim_head}).transpose(1, 2).contiguous();
+    key_map = this->key_linear->forward(key_flat).view({N, -1, this->n_head, this->dim_head}).transpose(1, 2).transpose(2, 3).contiguous();
+    value_map = this->value_linear(key_flat).view({N, -1, this->n_head, this->dim_head}).transpose(1, 2).contiguous();
 
     attn = query_map.matmul(key_map) / std::sqrt(this->dim_head);
     mask = torch::ones({H * W, H * W}).triu(1).t().unsqueeze(0).to(query.device());
@@ -242,7 +242,7 @@ torch::Tensor CausalAttentionImpl::forward(torch::Tensor query, torch::Tensor ke
     attn = this->dropout->forward(attn);
 
     out = attn.matmul(value_map);
-    out = out.transpose(1, 2).view({N, H, W, this->dim_head * this->n_head}).contiguous();
+    out = out.transpose(1, 2).contiguous().view({N, H, W, this->dim_head * this->n_head}).contiguous();
     out = out.permute({0, 3, 1, 2}).contiguous();
 
     return out;

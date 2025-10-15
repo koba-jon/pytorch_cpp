@@ -138,7 +138,7 @@ po::options_description parse_arguments(){
         ("nf", po::value<size_t>()->default_value(128), "the number of filters in convolution layer closest to image")
         ("res_block", po::value<size_t>()->default_value(2), "the number of blocks in residual layer")
         ("res_nc", po::value<size_t>()->default_value(32), "the number of channel in residual layer")
-        ("dim_pix", po::value<size_t>()->default_value(7), "the number of dimensions of PixelSnail")
+        ("dim_pix", po::value<size_t>()->default_value(256), "the number of dimensions of PixelSnail")
         ("res_block_pix", po::value<size_t>()->default_value(4), "the number of blocks in residual layer of PixelSnail")
         ("res_nc_pix", po::value<size_t>()->default_value(256), "the number of channel in residual layer of PixelSnail")
         ("droprate", po::value<float>()->default_value(0.1), "the rate of dropout")
