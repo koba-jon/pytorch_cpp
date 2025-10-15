@@ -111,10 +111,10 @@ po::options_description parse_arguments(){
         ("lr", po::value<float>()->default_value(1e-4), "learning rate")
         ("beta1", po::value<float>()->default_value(0.9), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
-        ("Lambda_box", po::value<float>()->default_value(7.5), "the multiple of IoU term")
+        ("Lambda_box", po::value<float>()->default_value(0.05), "the multiple of IoU term")
         ("Lambda_obj", po::value<float>()->default_value(1.0), "the multiple of object confidence term")
         ("Lambda_class", po::value<float>()->default_value(0.5), "the multiple of class term")
-        ("Lambda_dfl", po::value<float>()->default_value(1.5), "the multiple of DFL term")
+        ("Lambda_dfl", po::value<float>()->default_value(0.005), "the multiple of DFL term")
 
     ;
     
