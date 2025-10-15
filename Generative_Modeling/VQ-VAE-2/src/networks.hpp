@@ -102,7 +102,8 @@ struct PixelBlockImpl : nn::Module{
 private:
     long int res_block, attention;
     nn::ModuleList resblocks;
-    GatedResBlock key_resblock, query_resblock, causal_attention, out_resblock;
+    GatedResBlock key_resblock, query_resblock, out_resblock;
+    CausalAttention causal_attention;
     WNConv2d out_conv;
 public:
     PixelBlockImpl(){}
