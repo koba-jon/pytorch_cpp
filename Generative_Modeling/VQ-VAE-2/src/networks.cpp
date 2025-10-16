@@ -24,7 +24,7 @@ WNConv2dImpl::WNConv2dImpl(long int in_nc, long int out_nc, std::vector<long int
     register_module("conv", conv);
 
     this->v = register_parameter("v", this->conv->weight.detach().clone());
-    this->g = register_parameter("g", this->conv->weight.norm(2, /*dim=*/0, /*keepdim=*/true).detach().clone());
+    this->g = register_parameter("g", this->conv->weight.norm(2, /*dim=*/{1, 2, 3}, /*keepdim=*/true).detach().clone());
 
 }
 
@@ -34,7 +34,7 @@ WNConv2dImpl::WNConv2dImpl(long int in_nc, long int out_nc, std::vector<long int
 // -----------------------------------------------------------------------------
 torch::Tensor WNConv2dImpl::forward(torch::Tensor x){
     torch::Tensor v_norm, out;
-    v_norm = this->v.norm(2, /*dim=*/0, /*keepdim=*/true).clamp(1e-10);
+    v_norm = this->v.norm(2, /*dim=*/{1, 2, 3}, /*keepdim=*/true).clamp(1e-10);
     this->conv->weight = this->g * this->v / v_norm;
     out = this->conv->forward(x);
     return out;
@@ -50,7 +50,7 @@ WNLinearImpl::WNLinearImpl(long int in_nc, long int out_nc){
     register_module("linear", linear);
 
     this->v = register_parameter("v", this->linear->weight.detach().clone());
-    this->g = register_parameter("g", this->linear->weight.norm(2, /*dim=*/0, /*keepdim=*/true).detach().clone());
+    this->g = register_parameter("g", this->linear->weight.norm(2, /*dim=*/{1}, /*keepdim=*/true).detach().clone());
 
 }
 
@@ -60,7 +60,7 @@ WNLinearImpl::WNLinearImpl(long int in_nc, long int out_nc){
 // -----------------------------------------------------------------------------
 torch::Tensor WNLinearImpl::forward(torch::Tensor x){
     torch::Tensor v_norm, out;
-    v_norm = this->v.norm(2, /*dim=*/0, /*keepdim=*/true).clamp(1e-10);
+    v_norm = this->v.norm(2, /*dim=*/{1}, /*keepdim=*/true).clamp(1e-10);
     this->linear->weight = this->g * this->v / v_norm;
     out = this->linear->forward(x);
     return out;
@@ -340,19 +340,19 @@ torch::Tensor CondResNetImpl::forward(torch::Tensor x){
 // -----------------------------------------------------------------------------
 // struct{PixelSnailImpl}(nn::Module) -> constructor
 // -----------------------------------------------------------------------------
-PixelSnailImpl::PixelSnailImpl(long int K_, long int nc, long int kernel, long int block_, long int res_block, long int res_nc, bool attention, float droprate, long int cond_res_block, long int cond_res_nc, long int cond_res_kernel, long int out_res_block){
+PixelSnailImpl::PixelSnailImpl(long int K_, long int dim, long int kernel, long int block_, long int res_block, long int res_nc, bool attention, float droprate, long int cond_res_block, long int cond_res_nc, long int cond_res_kernel, long int out_res_block){
 
     this->K = K_;
     this->block = block_;
 
     if (kernel % 2 == 0) kernel = kernel + 1;
-    this->horizontal = CausalConv2d(this->K, nc, std::vector<long int>{kernel / 2, kernel}, 1, /*padding=*/"down");
-    this->vertical = CausalConv2d(this->K, nc, std::vector<long int>{(kernel + 1) / 2, kernel / 2}, 1, /*padding=*/"downright");
+    this->horizontal = CausalConv2d(this->K, dim, std::vector<long int>{kernel / 2, kernel}, 1, /*padding=*/"down");
+    this->vertical = CausalConv2d(this->K, dim, std::vector<long int>{(kernel + 1) / 2, kernel / 2}, 1, /*padding=*/"downright");
     register_module("horizontal", this->horizontal);
     register_module("vertical", this->vertical);
 
     for (long int i = 0; i < this->block; i++){
-        this->blocks->push_back(PixelBlock(nc, res_nc, kernel, res_block, attention, droprate, cond_res_nc));
+        this->blocks->push_back(PixelBlock(dim, res_nc, kernel, res_block, attention, droprate, cond_res_nc));
     }
     register_module("blocks", this->blocks);
 
@@ -362,10 +362,10 @@ PixelSnailImpl::PixelSnailImpl(long int K_, long int nc, long int kernel, long i
     }
 
     for (long int i = 0; i < out_res_block; i++){
-        this->out_module->push_back(GatedResBlock(nc, res_nc, std::vector<long int>{1, 1}));
+        this->out_module->push_back(GatedResBlock(dim, res_nc, std::vector<long int>{1, 1}));
     }
     this->out_module->push_back(nn::ELU(nn::ELUOptions().inplace(true)));
-    this->out_module->push_back(WNConv2d(nc, this->K, std::vector<long int>{1, 1}));
+    this->out_module->push_back(WNConv2d(dim, this->K, std::vector<long int>{1, 1}));
     register_module("out_module", this->out_module);
 
 }
