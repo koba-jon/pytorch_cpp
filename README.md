@@ -56,6 +56,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+10/16,2025: Implementation of `PixelSNAIL-Gray` and `PixelSNAIL-RGB` <br>
 10/14,2025: Implementation of `YOLOv8` <br>
 10/13,2025: Implementation of `YOLOv5` <br>
 10/09,2025: Implementation of `RF2d` <br>
@@ -65,11 +66,11 @@ $ sh scripts/test.sh
 10/01,2025: Implementation of `Real-NVP2d` <br>
 09/28,2025: Implementation of `Planar-Flow2d` and `Radial-Flow2d` <br>
 09/25,2025: Release of `v2.8.0.2` <br>
-09/22,2025: Implementation of `PixelCNN-Gray` and `PixelCNN-RGB` <br>
 
 <details>
 <summary>See more...</summary>
   
+09/22,2025: Implementation of `PixelCNN-Gray` and `PixelCNN-RGB` <br>
 09/18,2025: Implementation of `VQ-VAE-2` <br>
 09/16,2025: Implementation of `VQ-VAE` <br>
 09/14,2025: Implementation of `PNDM2d` and `PNDM2d-v` <br>
@@ -331,7 +332,7 @@ $ sh scripts/test.sh
     <td><a href="Generative_Modeling/RF2d">RF2d</a></td>
   </tr>
   <tr>
-    <td rowspan="2">Autoregressive Models</td>
+    <td rowspan="4">Autoregressive Models</td>
     <td rowspan="2">PixelCNN</td>
     <td rowspan="2"><a href="https://proceedings.mlr.press/v48/oord16.html">A. v. d. Oord et al.</a></td>
     <td rowspan="2">ICML 2016</td>
@@ -339,6 +340,14 @@ $ sh scripts/test.sh
   </tr>
   <tr>
     <td><a href="Generative_Modeling/PixelCNN-RGB">PixelCNN-RGB</a></td>
+  </tr>
+    <td rowspan="2">PixelSNAIL</td>
+    <td rowspan="2"><a href="https://proceedings.mlr.press/v80/chen18h.html">X. Chen et al.</a></td>
+    <td rowspan="2">ICML 2018</td>
+    <td><a href="Generative_Modeling/PixelSNAIL-Gray">PixelSNAIL-Gray</a></td>
+  </tr>
+  <tr>
+    <td><a href="Generative_Modeling/PixelSNAIL-RGB">PixelSNAIL-RGB</a></td>
   </tr>
 </table>
 
