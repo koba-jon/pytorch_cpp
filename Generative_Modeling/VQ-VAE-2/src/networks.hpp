@@ -102,7 +102,8 @@ struct PixelBlockImpl : nn::Module{
 private:
     long int res_block, attention;
     nn::ModuleList resblocks;
-    GatedResBlock key_resblock, query_resblock, causal_attention, out_resblock;
+    GatedResBlock key_resblock, query_resblock, out_resblock;
+    CausalAttention causal_attention;
     WNConv2d out_conv;
 public:
     PixelBlockImpl(){}
@@ -139,7 +140,7 @@ private:
     nn::Sequential out_module;
 public:
     PixelSnailImpl(){}
-    PixelSnailImpl(long int K_, long int nc, long int kernel, long int block_, long int res_block, long int res_nc, bool attention=true, float droprate=0.1, long int cond_res_block=0, long int cond_res_nc=0, long int cond_res_kernel=3, long int out_res_block=0);
+    PixelSnailImpl(long int K_, long int dim, long int kernel, long int block_, long int res_block, long int res_nc, bool attention=true, float droprate=0.1, long int cond_res_block=0, long int cond_res_nc=0, long int cond_res_kernel=3, long int out_res_block=0);
     torch::Tensor forward(torch::Tensor x, torch::Tensor condition=torch::Tensor());
 };
 TORCH_MODULE(PixelSnail);

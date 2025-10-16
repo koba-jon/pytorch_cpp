@@ -24,7 +24,7 @@ WNConv2dImpl::WNConv2dImpl(long int in_nc, long int out_nc, std::vector<long int
     register_module("conv", conv);
 
     this->v = register_parameter("v", this->conv->weight.detach().clone());
-    this->g = register_parameter("g", this->conv->weight.norm(2, /*dim=*/0, /*keepdim=*/true).detach().clone());
+    this->g = register_parameter("g", this->conv->weight.norm(2, /*dim=*/{1, 2, 3}, /*keepdim=*/true).detach().clone());
 
 }
 
@@ -34,7 +34,7 @@ WNConv2dImpl::WNConv2dImpl(long int in_nc, long int out_nc, std::vector<long int
 // -----------------------------------------------------------------------------
 torch::Tensor WNConv2dImpl::forward(torch::Tensor x){
     torch::Tensor v_norm, out;
-    v_norm = this->v.norm(2, /*dim=*/0, /*keepdim=*/true).clamp(1e-10);
+    v_norm = this->v.norm(2, /*dim=*/{1, 2, 3}, /*keepdim=*/true).clamp(1e-10);
     this->conv->weight = this->g * this->v / v_norm;
     out = this->conv->forward(x);
     return out;
@@ -50,7 +50,7 @@ WNLinearImpl::WNLinearImpl(long int in_nc, long int out_nc){
     register_module("linear", linear);
 
     this->v = register_parameter("v", this->linear->weight.detach().clone());
-    this->g = register_parameter("g", this->linear->weight.norm(2, /*dim=*/0, /*keepdim=*/true).detach().clone());
+    this->g = register_parameter("g", this->linear->weight.norm(2, /*dim=*/{1}, /*keepdim=*/true).detach().clone());
 
 }
 
@@ -60,7 +60,7 @@ WNLinearImpl::WNLinearImpl(long int in_nc, long int out_nc){
 // -----------------------------------------------------------------------------
 torch::Tensor WNLinearImpl::forward(torch::Tensor x){
     torch::Tensor v_norm, out;
-    v_norm = this->v.norm(2, /*dim=*/0, /*keepdim=*/true).clamp(1e-10);
+    v_norm = this->v.norm(2, /*dim=*/{1}, /*keepdim=*/true).clamp(1e-10);
     this->linear->weight = this->g * this->v / v_norm;
     out = this->linear->forward(x);
     return out;
@@ -226,11 +226,11 @@ torch::Tensor CausalAttentionImpl::forward(torch::Tensor query, torch::Tensor ke
     H = key.size(2);
     W = key.size(3);
 
-    query_flat = query.view({N, query.size(1), -1}).transpose(1, 2);
-    key_flat = key.view({N, key.size(1), -1}).transpose(1, 2);
-    query_map = this->query_linear->forward(query_flat).view({N, -1, this->n_head, this->dim_head}).transpose(1, 2);
-    key_map = this->key_linear->forward(key_flat).view({N, -1, this->n_head, this->dim_head}).transpose(1, 2).transpose(2, 3);
-    value_map = this->value_linear(key_flat).view({N, -1, this->n_head, this->dim_head}).transpose(1, 2);
+    query_flat = query.view({N, query.size(1), -1}).transpose(1, 2).contiguous();
+    key_flat = key.view({N, key.size(1), -1}).transpose(1, 2).contiguous();
+    query_map = this->query_linear->forward(query_flat).view({N, -1, this->n_head, this->dim_head}).transpose(1, 2).contiguous();
+    key_map = this->key_linear->forward(key_flat).view({N, -1, this->n_head, this->dim_head}).transpose(1, 2).transpose(2, 3).contiguous();
+    value_map = this->value_linear(key_flat).view({N, -1, this->n_head, this->dim_head}).transpose(1, 2).contiguous();
 
     attn = query_map.matmul(key_map) / std::sqrt(this->dim_head);
     mask = torch::ones({H * W, H * W}).triu(1).t().unsqueeze(0).to(query.device());
@@ -242,7 +242,7 @@ torch::Tensor CausalAttentionImpl::forward(torch::Tensor query, torch::Tensor ke
     attn = this->dropout->forward(attn);
 
     out = attn.matmul(value_map);
-    out = out.transpose(1, 2).view({N, H, W, this->dim_head * this->n_head}).contiguous();
+    out = out.transpose(1, 2).contiguous().view({N, H, W, this->dim_head * this->n_head}).contiguous();
     out = out.permute({0, 3, 1, 2}).contiguous();
 
     return out;
@@ -266,8 +266,8 @@ PixelBlockImpl::PixelBlockImpl(long int in_nc, long int nc, long int kernel, lon
     if (this->attention){
         this->key_resblock = GatedResBlock(in_nc * 2 + 2, in_nc, std::vector<long int>{1, 1}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate);
         this->query_resblock = GatedResBlock(in_nc + 2, in_nc, std::vector<long int>{1, 1}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate);
-        this->causal_attention = GatedResBlock(in_nc + 2, in_nc * 2 + 2, std::vector<long int>{in_nc / 2, in_nc / 2}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate);
-        this->out_resblock = GatedResBlock(in_nc, in_nc, std::vector<long int>{1, 1}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate, /*aux_nc=*/in_nc + 2);
+        this->causal_attention = CausalAttention(in_nc + 2, in_nc * 2 + 2, in_nc / 2, 8, droprate);
+        this->out_resblock = GatedResBlock(in_nc, in_nc, std::vector<long int>{1, 1}, /*conv=*/"wnconv2d", /*act=*/"ELU", /*dropout=*/droprate, /*aux_nc=*/in_nc / 2);
         register_module("key_resblock", this->key_resblock);
         register_module("query_resblock", this->query_resblock);
         register_module("causal_attention", this->causal_attention);
@@ -340,19 +340,19 @@ torch::Tensor CondResNetImpl::forward(torch::Tensor x){
 // -----------------------------------------------------------------------------
 // struct{PixelSnailImpl}(nn::Module) -> constructor
 // -----------------------------------------------------------------------------
-PixelSnailImpl::PixelSnailImpl(long int K_, long int nc, long int kernel, long int block_, long int res_block, long int res_nc, bool attention, float droprate, long int cond_res_block, long int cond_res_nc, long int cond_res_kernel, long int out_res_block){
+PixelSnailImpl::PixelSnailImpl(long int K_, long int dim, long int kernel, long int block_, long int res_block, long int res_nc, bool attention, float droprate, long int cond_res_block, long int cond_res_nc, long int cond_res_kernel, long int out_res_block){
 
     this->K = K_;
     this->block = block_;
 
     if (kernel % 2 == 0) kernel = kernel + 1;
-    this->horizontal = CausalConv2d(this->K, nc, std::vector<long int>{kernel / 2, kernel}, 1, /*padding=*/"down");
-    this->vertical = CausalConv2d(this->K, nc, std::vector<long int>{(kernel + 1) / 2, kernel / 2}, 1, /*padding=*/"downright");
+    this->horizontal = CausalConv2d(this->K, dim, std::vector<long int>{kernel / 2, kernel}, 1, /*padding=*/"down");
+    this->vertical = CausalConv2d(this->K, dim, std::vector<long int>{(kernel + 1) / 2, kernel / 2}, 1, /*padding=*/"downright");
     register_module("horizontal", this->horizontal);
     register_module("vertical", this->vertical);
 
     for (long int i = 0; i < this->block; i++){
-        this->blocks->push_back(PixelBlock(nc, res_nc, kernel, res_block, attention, droprate, cond_res_nc));
+        this->blocks->push_back(PixelBlock(dim, res_nc, kernel, res_block, attention, droprate, cond_res_nc));
     }
     register_module("blocks", this->blocks);
 
@@ -362,10 +362,10 @@ PixelSnailImpl::PixelSnailImpl(long int K_, long int nc, long int kernel, long i
     }
 
     for (long int i = 0; i < out_res_block; i++){
-        this->out_module->push_back(GatedResBlock(nc, res_nc, std::vector<long int>{1, 1}));
+        this->out_module->push_back(GatedResBlock(dim, res_nc, std::vector<long int>{1, 1}));
     }
     this->out_module->push_back(nn::ELU(nn::ELUOptions().inplace(true)));
-    this->out_module->push_back(WNConv2d(nc, this->K, std::vector<long int>{1, 1}));
+    this->out_module->push_back(WNConv2d(dim, this->K, std::vector<long int>{1, 1}));
     register_module("out_module", this->out_module);
 
 }

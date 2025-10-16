@@ -7,6 +7,6 @@ DATA='celebA'
     --train2_epochs 300 \
     --dataset ${DATA} \
     --size 256 \
-    --train2_batch_size 16 \
+    --train2_batch_size 1 \
     --gpu_id 0 \
     --nc 3

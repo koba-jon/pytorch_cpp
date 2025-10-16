@@ -196,9 +196,9 @@ void train(po::variables_map &vm, torch::Device &device, DDPM &model, DDPM &mode
             // -----------------------------------
             iter = show_progress->get_iters();
             if (iter % save_sample_iter == 1){
-                recon = model->denoise_t(x_t, t);
                 ss.str(""); ss.clear(std::stringstream::goodbit);
                 ss << save_images_dir << "/epoch_" << epoch << "-iter_" << iter << '.' << extension;
+                recon = model->denoise_t(x_t, t);
                 pair = torch::cat({image, x_t, recon}, /*dim=*/0);
                 visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/mini_batch_size);
             }
@@ -215,6 +215,8 @@ void train(po::variables_map &vm, torch::Device &device, DDPM &model, DDPM &mode
         // -----------------------------------
         ss.str(""); ss.clear(std::stringstream::goodbit);
         ss << save_images_dir << "/epoch_" << epoch << "-iter_" << show_progress->get_iters() << '.' << extension;
+        recon = model->denoise_t(x_t, t);
+        pair = torch::cat({image, x_t, recon}, /*dim=*/0);
         visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/mini_batch_size);
         delete show_progress;
         

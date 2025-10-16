@@ -3,7 +3,7 @@
 #include <filesystem>                  // std::filesystem
 #include <string>                      // std::string
 #include <sstream>                     // std::stringstream
-#include <tuple>                       // std::tuple
+#include <tuple>                       // std::tuple, std::tie
 #include <vector>                      // std::vector
 #include <utility>                     // std::pair
 // For External Library
@@ -56,6 +56,7 @@ void train1(po::variables_map &vm, torch::Device &device, VQVAE2 &model, std::ve
     std::ofstream ofs, init, infoo;
     std::tuple<torch::Tensor, std::vector<std::string>> mini_batch;
     torch::Tensor rec, latent, loss, image, pair;
+    torch::Tensor output, diff;
     datasets::ImageFolderWithPaths dataset, valid_dataset;
     DataLoader::ImageFolderWithPaths dataloader, valid_dataloader;
     visualizer::graph train1_loss, valid1_loss;
@@ -169,7 +170,7 @@ void train1(po::variables_map &vm, torch::Device &device, VQVAE2 &model, std::ve
             // -----------------------------------
             // c1. VQVAE2 Training Phase
             // -----------------------------------
-            auto [output, diff] = model->forward(image);
+            std::tie(output, diff) = model->forward(image);
             rec = criterion(output, image);
             latent = vm["Lambda"].as<float>() * diff.mean();
             loss = rec + latent;
@@ -208,6 +209,7 @@ void train1(po::variables_map &vm, torch::Device &device, VQVAE2 &model, std::ve
         // -----------------------------------
         ss.str(""); ss.clear(std::stringstream::goodbit);
         ss << save_images_dir << "/epoch_" << epoch << "-iter_" << show_progress->get_iters() << '.' << extension;
+        pair = torch::cat({image, output}, /*dim=*/0);
         visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/mini_batch_size);
         delete show_progress;
         

@@ -133,11 +133,12 @@ po::options_description parse_arguments(){
 
         // (7) Define for Network Parameter
         ("lr", po::value<float>()->default_value(1e-4), "learning rate")
-        ("beta1", po::value<float>()->default_value(0.5), "beta 1 in Adam of optimizer method")
+        ("beta1", po::value<float>()->default_value(0.9), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
         ("nf", po::value<size_t>()->default_value(128), "the number of filters in convolution layer closest to image")
         ("res_block", po::value<size_t>()->default_value(2), "the number of blocks in residual layer")
         ("res_nc", po::value<size_t>()->default_value(32), "the number of channel in residual layer")
+        ("dim_pix", po::value<size_t>()->default_value(256), "the number of dimensions of PixelSnail")
         ("res_block_pix", po::value<size_t>()->default_value(4), "the number of blocks in residual layer of PixelSnail")
         ("res_nc_pix", po::value<size_t>()->default_value(256), "the number of channel in residual layer of PixelSnail")
         ("droprate", po::value<float>()->default_value(0.1), "the rate of dropout")
@@ -200,8 +201,8 @@ int main(int argc, const char *argv[]){
     
     // (5) Define Network
     VQVAE2 vqvae2(vm); vqvae2->to(device);
-    PixelSnail pixelsnail_t(vm["K"].as<size_t>(), vm["nc"].as<size_t>(), 5, 4, vm["res_block_pix"].as<size_t>(), vm["res_nc_pix"].as<size_t>(), true, vm["droprate"].as<float>(), 0, 0, 3, vm["out_res_block_pix"].as<size_t>()); pixelsnail_t->to(device);
-    PixelSnail pixelsnail_b(vm["K"].as<size_t>(), vm["nc"].as<size_t>(), 5, 4, vm["res_block_pix"].as<size_t>(), vm["res_nc_pix"].as<size_t>(), false, vm["droprate"].as<float>(), vm["cond_res_block_pix"].as<size_t>(), vm["res_nc_pix"].as<size_t>()); pixelsnail_b->to(device);
+    PixelSnail pixelsnail_t(vm["K"].as<size_t>(), vm["dim_pix"].as<size_t>(), 5, 4, vm["res_block_pix"].as<size_t>(), vm["res_nc_pix"].as<size_t>(), true, vm["droprate"].as<float>(), 0, 0, 3, vm["out_res_block_pix"].as<size_t>()); pixelsnail_t->to(device);
+    PixelSnail pixelsnail_b(vm["K"].as<size_t>(), vm["dim_pix"].as<size_t>(), 5, 4, vm["res_block_pix"].as<size_t>(), vm["res_nc_pix"].as<size_t>(), false, vm["droprate"].as<float>(), vm["cond_res_block_pix"].as<size_t>(), vm["res_nc_pix"].as<size_t>()); pixelsnail_b->to(device);
     
     // (6) Make Directories
     std::string dir = "checkpoints/" + vm["dataset"].as<std::string>();

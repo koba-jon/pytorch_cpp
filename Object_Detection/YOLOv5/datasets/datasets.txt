@@ -1,0 +1,51 @@
+1. What kind of dataset do you need?
+
+Please prepare RGB or grayscale images that can be read by OpenCV for input image, annotation text files with bounding box information for output label.
+Also, all data must be paired images with matching file name excluding extension.
+
+
+2. What kind of hierarchical relationship do you need?
+
+The following hierarchical relationships are recommended.
+
+---------------------------------------------------------
+datasets
+|--Dataset1
+|    |--trainI
+|    |    |--image1.png
+|    |    |--image2.bmp
+|    |    |--image3.jpg
+|    |
+|    |--trainO
+|    |    |--label1.txt
+|    |    |--label2.txt
+|    |    |--label3.txt
+|    |
+|    |--validI
+|    |    |--image4.png
+|    |    |--image5.bmp
+|    |    |--image6.jpg
+|    |
+|    |--validO
+|    |    |--label4.txt
+|    |    |--label5.txt
+|    |    |--label6.txt
+|    |
+|    |--testI
+|    |    |--image7.png
+|    |    |--image8.bmp
+|    |    |--image9.jpg
+|    |
+|    |--testO
+|    |    |--label7.txt
+|    |    |--label8.txt
+|    |    |--label9.txt
+|    |
+|    |--detect
+|         |--image10.png
+|         |--image11.bmp
+|         |--image12.jpg
+|
+|--Dataset2
+|--Dataset3
+---------------------------------------------------------

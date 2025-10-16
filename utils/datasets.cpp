@@ -319,6 +319,44 @@ size_t datasets::ImageFolderPairWithPaths::size(){
 }
 
 
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageTensorFolderPairWithPaths} -> constructor
+// -------------------------------------------------------------------------
+datasets::ImageTensorFolderPairWithPaths::ImageTensorFolderPairWithPaths(const std::string root1, const std::string root2){
+
+    datasets::collect(root1, "", this->paths1, this->fnames1);
+    std::sort(this->paths1.begin(), this->paths1.end());
+    std::sort(this->fnames1.begin(), this->fnames1.end());
+
+    datasets::collect(root2, "", this->paths2, this->fnames2);
+    std::sort(this->paths2.begin(), this->paths2.end());
+    std::sort(this->fnames2.begin(), this->fnames2.end());
+
+}
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageTensorFolderPairWithPaths} -> function{get}
+// -------------------------------------------------------------------------
+void datasets::ImageTensorFolderPairWithPaths::get(const size_t idx, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> &data){
+    torch::Tensor image1, image2;
+    torch::load(image1, this->paths1.at(idx));  // Tensor Image
+    torch::load(image2, this->paths2.at(idx));  // Tensor Image
+    std::string fname1 = this->fnames1.at(idx);
+    std::string fname2 = this->fnames2.at(idx);
+    data = {image1.detach().clone(), image2.detach().clone(), fname1, fname2};
+    return;
+}
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageTensorFolderPairWithPaths} -> function{size}
+// -------------------------------------------------------------------------
+size_t datasets::ImageTensorFolderPairWithPaths::size(){
+    return this->fnames1.size();
+}
+
+
 // ----------------------------------------------------------------------------------------
 // namespace{datasets} -> class{ImageFolderRandomSampling2WithPaths} -> constructor
 // ----------------------------------------------------------------------------------------

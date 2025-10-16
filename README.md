@@ -3,14 +3,14 @@
 # 🔥 PyTorch C++ Samples 🔥
   
 [![Language](https://img.shields.io/badge/Language-C++-blue)]()
-[![LibTorch](https://img.shields.io/badge/LibTorch-2.8.0-orange)]()
+[![LibTorch](https://img.shields.io/badge/LibTorch-2.9.0-orange)]()
 [![OS](https://img.shields.io/badge/OS-Ubuntu-yellow)]()
 [![OS](https://img.shields.io/badge/License-MIT-green)]()
 ![sample](sample.png)
 </div>
 
 ## 🚀 Quick Start (Details: <a href="#-requirement-library">Library</a>, <a href="#-preparation-run">Run</a>)
-Reuirements: `LibTorch`, `OpenCV`, `OpenMP`, `Boost`, `Gnuplot`, `libpng/png++/zlib` <br>
+Requirements: `LibTorch`, `OpenCV`, `OpenMP`, `Boost`, `Gnuplot`, `libpng/png++/zlib` <br>
 
 ### 1. Git Clone
 
@@ -56,6 +56,20 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+10/16,2025: Release of `v2.9.0` <br>
+10/16,2025: Implementation of `PixelSNAIL-Gray` and `PixelSNAIL-RGB` <br>
+10/14,2025: Implementation of `YOLOv8` <br>
+10/13,2025: Implementation of `YOLOv5` <br>
+10/09,2025: Implementation of `RF2d` <br>
+10/08,2025: Implementation of `FM2d` <br>
+10/08,2025: Implementation of `LDM` and `LDM-v` <br>
+10/04,2025: Implementation of `Glow` <br>
+10/01,2025: Implementation of `Real-NVP2d` <br>
+09/28,2025: Implementation of `Planar-Flow2d` and `Radial-Flow2d` <br>
+
+<details>
+<summary>See more...</summary>
+  
 09/25,2025: Release of `v2.8.0.2` <br>
 09/22,2025: Implementation of `PixelCNN-Gray` and `PixelCNN-RGB` <br>
 09/18,2025: Implementation of `VQ-VAE-2` <br>
@@ -66,10 +80,6 @@ $ sh scripts/test.sh
 09/11,2025: Implementation of `MAE` <br>
 09/11,2025: Implementation of `DDPM2d-v` and `DDIM2d-v` <br>
 09/10,2025: Implementation of EMA for `DDPM2d` and `DDIM2d` <br>
-
-<details>
-<summary>See more...</summary>
-  
 09/08,2025: Implementation of `EfficientNet` <br>
 09/07,2025: Implementation of `CycleGAN` <br>
 09/05,2025: Implementation of `ViT` <br>
@@ -114,7 +124,7 @@ $ sh scripts/test.sh
 06/26,2020: Implementation of `DAGMM2d` <br>
 06/26,2020: Release of `v1.5.1` <br>
 06/26,2020: Implementation of `VAE2d` and `DCGAN` <br>
-06/01,2020: Implementation of `pix2pix` <br>
+06/01,2020: Implementation of `Pix2Pix` <br>
 05/29,2020: Implementation of `U-Net Classification` <br>
 05/26,2020: Implementation of `U-Net Regression` <br>
 04/24,2020: Release of `v1.5.0` <br>
@@ -248,7 +258,32 @@ $ sh scripts/test.sh
     <td><a href="Generative_Modeling/DCGAN">DCGAN</a></td>
   </tr>
   <tr>
-    <td rowspan="6">Diffusion Models</td>
+    <td rowspan="4">Flows</td>
+    <td>Planar Flow</td>
+    <td><a href="https://proceedings.mlr.press/v37/rezende15">D. Rezende et al.</a></td>
+    <td>ICML 2015</td>
+    <td><a href="Generative_Modeling/Planar-Flow2d">Planar-Flow2d</a></td>
+  </tr>
+  <tr>
+    <td>Radial Flow</td>
+    <td><a href="https://proceedings.mlr.press/v37/rezende15">D. Rezende et al.</a></td>
+    <td>ICML 2015</td>
+    <td><a href="Generative_Modeling/Radial-Flow2d">Radial-Flow2d</a></td>
+  </tr>
+  <tr>
+    <td>Real NVP</td>
+    <td><a href="https://arxiv.org/abs/1605.08803">L. Dinh et al.</a></td>
+    <td>ICLR 2017</td>
+    <td><a href="Generative_Modeling/Real-NVP2d">Real-NVP2d</a></td>
+  </tr>
+  <tr>
+    <td>Glow</td>
+    <td><a href="https://arxiv.org/abs/1807.03039">D. P. Kingma et al.</a></td>
+    <td>NeurIPS 2018</td>
+    <td><a href="Generative_Modeling/Glow">Glow</a></td>
+  </tr>
+  <tr>
+    <td rowspan="8">Diffusion Models</td>
     <td rowspan="2">DDPM</td>
     <td rowspan="2"><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
     <td rowspan="2">NeurIPS 2020</td>
@@ -276,7 +311,29 @@ $ sh scripts/test.sh
     <td><a href="Generative_Modeling/PNDM2d-v">PNDM2d-v</a></td>
   </tr>
   <tr>
-    <td rowspan="2">Autoregressive Models</td>
+    <td rowspan="2">LDM</td>
+    <td rowspan="2"><a href="https://openaccess.thecvf.com/content/CVPR2022/html/Rombach_High-Resolution_Image_Synthesis_With_Latent_Diffusion_Models_CVPR_2022_paper">R. Rombach et al.</a></td>
+    <td rowspan="2">CVPR 2022</td>
+    <td><a href="Generative_Modeling/LDM">LDM</a></td>
+  </tr>
+  <tr>
+    <td><a href="Generative_Modeling/LDM-v">LDM-v</a></td>
+  </tr>
+  <tr>
+    <td rowspan="2">Flow Matching</td>
+    <td>Flow Matching</td>
+    <td><a href="https://openreview.net/forum?id=PqvMRDCJT9t">Y. Lipman et al.</a></td>
+    <td>ICLR 2023</td>
+    <td><a href="Generative_Modeling/FM2d">FM2d</a></td>
+  </tr>
+  <tr>
+    <td>Rectified Flow</td>
+    <td><a href="https://openreview.net/forum?id=XVjTT1nw5z">X. Liu et al.</a></td>
+    <td>ICLR 2023</td>
+    <td><a href="Generative_Modeling/RF2d">RF2d</a></td>
+  </tr>
+  <tr>
+    <td rowspan="4">Autoregressive Models</td>
     <td rowspan="2">PixelCNN</td>
     <td rowspan="2"><a href="https://proceedings.mlr.press/v48/oord16.html">A. v. d. Oord et al.</a></td>
     <td rowspan="2">ICML 2016</td>
@@ -284,6 +341,14 @@ $ sh scripts/test.sh
   </tr>
   <tr>
     <td><a href="Generative_Modeling/PixelCNN-RGB">PixelCNN-RGB</a></td>
+  </tr>
+    <td rowspan="2">PixelSNAIL</td>
+    <td rowspan="2"><a href="https://proceedings.mlr.press/v80/chen18h.html">X. Chen et al.</a></td>
+    <td rowspan="2">ICML 2018</td>
+    <td><a href="Generative_Modeling/PixelSNAIL-Gray">PixelSNAIL-Gray</a></td>
+  </tr>
+  <tr>
+    <td><a href="Generative_Modeling/PixelSNAIL-RGB">PixelSNAIL-RGB</a></td>
   </tr>
 </table>
 
@@ -303,10 +368,10 @@ $ sh scripts/test.sh
     <td><a href="Image-to-Image_Translation/U-Net_Regression">U-Net Regression</a></td>
   </tr>
   <tr>
-    <td>pix2pix</td>
+    <td>Pix2Pix</td>
     <td><a href="https://openaccess.thecvf.com/content_cvpr_2017/html/Isola_Image-To-Image_Translation_With_CVPR_2017_paper.html">P. Isola et al.</a></td>
     <td>CVPR 2017</td>
-    <td><a href="Image-to-Image_Translation/pix2pix">pix2pix</a></td>
+    <td><a href="Image-to-Image_Translation/Pix2Pix">Pix2Pix</a></td>
   </tr>
   <tr>
     <td>CycleGAN</td>
@@ -365,6 +430,18 @@ $ sh scripts/test.sh
     <td><a href="https://arxiv.org/abs/1804.02767">J. Redmon et al.</a></td>
     <td>arXiv 2018</td>
     <td><a href="Object_Detection/YOLOv3">YOLOv3</a></td>
+  </tr>
+  <tr>
+    <td>YOLOv5</td>
+    <td><a href="https://github.com/ultralytics/yolov5">Ultralytics</a></td>
+    <td>-</td>
+    <td><a href="Object_Detection/YOLOv5">YOLOv5</a></td>
+  </tr>
+  <tr>
+    <td>YOLOv8</td>
+    <td><a href="https://github.com/ultralytics/ultralytics">Ultralytics</a></td>
+    <td>-</td>
+    <td><a href="Object_Detection/YOLOv8">YOLOv8</a></td>
   </tr>
 </table>
 
@@ -442,15 +519,15 @@ $ sh scripts/test.sh
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Stable (2.8.0) <br>
+PyTorch Build : Stable (2.9.0) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 Language : C++ / Java <br>
 Run this Command : Download here (cxx11 ABI) <br>
-CUDA 12.6 : https://download.pytorch.org/libtorch/cu126/libtorch-shared-with-deps-2.8.0%2Bcu126.zip <br>
-CUDA 12.8 : https://download.pytorch.org/libtorch/cu128/libtorch-shared-with-deps-2.8.0%2Bcu128.zip <br>
-CUDA 12.9 : https://download.pytorch.org/libtorch/cu129/libtorch-shared-with-deps-2.8.0%2Bcu129.zip <br>
-CPU : https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.8.0%2Bcpu.zip <br>
+CUDA 12.6 : https://download.pytorch.org/libtorch/cu126/libtorch-shared-with-deps-2.9.0%2Bcu126.zip <br>
+CUDA 12.8 : https://download.pytorch.org/libtorch/cu128/libtorch-shared-with-deps-2.9.0%2Bcu128.zip <br>
+CUDA 13.0 : https://download.pytorch.org/libtorch/cu130/libtorch-shared-with-deps-2.9.0%2Bcu130.zip <br>
+CPU : https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.9.0%2Bcpu.zip <br>
 ***
 
 ### 2. OpenCV
