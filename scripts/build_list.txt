@@ -16,6 +16,8 @@ Generative_Modeling/Glow
 Generative_Modeling/LDM
 Generative_Modeling/PixelCNN-Gray
 Generative_Modeling/PixelCNN-RGB
+Generative_Modeling/PixelSNAIL-Gray
+Generative_Modeling/PixelSNAIL-RGB
 Generative_Modeling/Planar-Flow2d
 Generative_Modeling/PNDM2d
 Generative_Modeling/PNDM2d-v
