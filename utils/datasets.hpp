@@ -22,6 +22,7 @@ namespace datasets{
     cv::Mat RGB_Loader(std::string &path);
     cv::Mat Index_Loader(std::string &path);
     std::tuple<torch::Tensor, torch::Tensor> BoundingBox_Loader(std::string &path);
+    torch::Tensor CameraPose_Loader(std::string &path);
 
 
     /*******************************************************************************/
@@ -174,6 +175,21 @@ namespace datasets{
         ImageFolderBBWithPaths(){}
         ImageFolderBBWithPaths(const std::string root1, const std::string root2, std::vector<transforms_Compose> &transformBB_, std::vector<transforms_Compose> &transformI_);
         void get(const size_t idx, std::tuple<torch::Tensor, std::tuple<torch::Tensor, torch::Tensor>, std::string, std::string> &data);
+        size_t size();
+    };
+
+    // --------------------------------------------------------------
+    // namespace{datasets} -> class{ImageFolderCameraPoseWithPaths}
+    // --------------------------------------------------------------
+    class ImageFolderCameraPoseWithPaths{
+    private:
+        std::vector<transforms_Compose> transform;
+        float focal_length;
+        std::vector<std::string> paths1, paths2, fnames1, fnames2;
+    public:
+        ImageFolderCameraPoseWithPaths(){}
+        ImageFolderCameraPoseWithPaths(const std::string root1, const std::string root2, std::vector<transforms_Compose> &transform_);
+        void get(const size_t idx, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> &data);
         size_t size();
     };
 
