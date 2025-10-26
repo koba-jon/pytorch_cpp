@@ -484,7 +484,7 @@ $ sh scripts/test.sh
     <td><a href="View_Synthesis/NeRF">NeRF</a></td>
   </tr>
   <tr>
-    <td>3DGS</td>
+    <td>3D Gaussian Splatting</td>
     <td><a href="https://arxiv.org/abs/2308.04079">B. Kerbl et al.</a></td>
     <td>SIGGRAPH 2023</td>
     <td><a href="View_Synthesis/3DGS">3DGS</a></td>
