@@ -9,7 +9,7 @@
 // For Original Header
 #include "loss.hpp"                    // Loss
 #include "networks.hpp"                // NeRF
-#include "dataloader.hpp"              // DataLoader::ImageFolderWithPaths
+#include "dataloader.hpp"              // DataLoader::ImageFolderCameraPoseWithPaths
 #include "visualizer.hpp"              // visualizer::graph
 
 // Define Namespace
@@ -19,7 +19,7 @@ namespace po = boost::program_options;
 // -------------------
 // Validation Function
 // -------------------
-void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, NeRF &model, const size_t epoch, visualizer::graph &writer){
+void valid(po::variables_map &vm, DataLoader::ImageFolderCameraPoseWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, NeRF &model, const size_t epoch, visualizer::graph &writer){
 
     // (0) Initialization and Declaration
     size_t iteration;

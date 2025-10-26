@@ -13,8 +13,8 @@
 #include "loss.hpp"                    // Loss
 #include "networks.hpp"                // NeRF
 #include "transforms.hpp"              // transforms_Compose
-#include "datasets.hpp"                // datasets::ImageFolderWithPaths
-#include "dataloader.hpp"              // DataLoader::ImageFolderWithPaths
+#include "datasets.hpp"                // datasets::ImageFolderCameraPoseWithPaths
+#include "dataloader.hpp"              // DataLoader::ImageFolderCameraPoseWithPaths
 #include "visualizer.hpp"              // visualizer
 #include "progress.hpp"                // progress
 
@@ -23,7 +23,7 @@ namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
-void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, NeRF &model, const size_t epoch, visualizer::graph &writer);
+void valid(po::variables_map &vm, DataLoader::ImageFolderCameraPoseWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, NeRF &model, const size_t epoch, visualizer::graph &writer);
 
 
 // -------------------
@@ -54,11 +54,11 @@ void train(po::variables_map &vm, torch::Device &device, NeRF &model, std::vecto
     std::stringstream ss;
     std::ifstream infoi;
     std::ofstream ofs, init, infoo;
-    std::tuple<torch::Tensor, std::vector<std::string>> mini_batch;
+    std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>> mini_batch;
     torch::Tensor t, x_t, noise, loss, image, output, recon, pair;
     std::tuple<torch::Tensor, torch::Tensor> x_t_with_noise;
-    datasets::ImageFolderWithPaths dataset, valid_dataset;
-    DataLoader::ImageFolderWithPaths dataloader, valid_dataloader;
+    datasets::ImageFolderCameraPoseWithPaths dataset, valid_dataset;
+    DataLoader::ImageFolderCameraPoseWithPaths dataloader, valid_dataloader;
     visualizer::graph train_loss, valid_loss;
     progress::display *show_progress;
     progress::irregular irreg_progress;
@@ -70,15 +70,15 @@ void train(po::variables_map &vm, torch::Device &device, NeRF &model, std::vecto
 
     // (1) Get Training Dataset
     dataroot = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["train_dir"].as<std::string>();
-    dataset = datasets::ImageFolderWithPaths(dataroot, transform);
-    dataloader = DataLoader::ImageFolderWithPaths(dataset, vm["batch_size"].as<size_t>(), /*shuffle_=*/train_shuffle, /*num_workers_=*/train_workers);
+    dataset = datasets::ImageFolderCameraPoseWithPaths(dataroot, transform);
+    dataloader = DataLoader::ImageFolderCameraPoseWithPaths(dataset, vm["batch_size"].as<size_t>(), /*shuffle_=*/train_shuffle, /*num_workers_=*/train_workers);
     std::cout << "total training images : " << dataset.size() << std::endl;
 
     // (2) Get Validation Dataset
     if (vm["valid"].as<bool>()){
         valid_dataroot = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["valid_dir"].as<std::string>();
-        valid_dataset = datasets::ImageFolderWithPaths(valid_dataroot, transform);
-        valid_dataloader = DataLoader::ImageFolderWithPaths(valid_dataset, vm["valid_batch_size"].as<size_t>(), /*shuffle_=*/valid_shuffle, /*num_workers_=*/valid_workers);
+        valid_dataset = datasets::ImageFolderCameraPoseWithPaths(valid_dataroot, transform);
+        valid_dataloader = DataLoader::ImageFolderCameraPoseWithPaths(valid_dataset, vm["valid_batch_size"].as<size_t>(), /*shuffle_=*/valid_shuffle, /*num_workers_=*/valid_workers);
         std::cout << "total validation images : " << valid_dataset.size() << std::endl;
     }
 
