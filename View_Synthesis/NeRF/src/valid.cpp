@@ -25,8 +25,9 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderCameraPoseWithPaths &va
     size_t iteration;
     float ave_loss, total_loss;
     std::ofstream ofs;
-    std::tuple<torch::Tensor, std::vector<std::string>> mini_batch;
-    torch::Tensor t, x_t, noise, loss, image, output;
+    std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>> mini_batch;
+    torch::Tensor image, pose, rays_o, rays_d, target_rgb, rgb_fine, rgb_coarse;
+    torch::Tensor loss, loss_fine, loss_coarse;
     std::tuple<torch::Tensor, torch::Tensor> x_t_with_noise;
 
     // (1) Tensor Forward per Mini Batch
@@ -36,12 +37,13 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderCameraPoseWithPaths &va
     total_loss = 0.0;
     while (valid_dataloader(mini_batch)){
         image = std::get<0>(mini_batch).to(device);
-        t = torch::randint(1, vm["timesteps"].as<size_t>() + 1, {image.size(0)}).to(device);
-        x_t_with_noise = model->add_noise(image, t);
-        x_t = std::get<0>(x_t_with_noise);
-        noise = std::get<1>(x_t_with_noise);
-        output = model->forward(x_t, t);
-        loss = criterion(output, noise);
+        pose = std::get<1>(mini_batch).to(device);
+        std::tie(rays_o, rays_d) = model->build_rays(pose);
+        target_rgb = image.permute({0, 2, 3, 1}).view({image.size(0), -1, 3}).contiguous();
+        std::tie(rgb_fine, rgb_coarse) = model->forward(rays_o, rays_d);
+        loss_fine = criterion(rgb_fine, target_rgb);
+        loss_coarse = criterion(rgb_coarse, target_rgb);
+        loss = loss_fine + loss_coarse;
         total_loss += loss.item<float>();
         iteration++;
     }

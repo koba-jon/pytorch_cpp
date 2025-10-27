@@ -55,7 +55,9 @@ void train(po::variables_map &vm, torch::Device &device, NeRF &model, std::vecto
     std::ifstream infoi;
     std::ofstream ofs, init, infoo;
     std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>> mini_batch;
-    torch::Tensor image, pose;
+    torch::Tensor image, pose, rays_o, rays_d, target_rgb, rgb_fine, rgb_coarse, sample_idx, sample_idx_expand;
+    torch::Tensor loss, loss_coarse, loss_fine;
+    torch::Tensor pose_example, recon_image, gt_image, pair;
     datasets::ImageFolderCameraPoseWithPaths dataset, valid_dataset;
     DataLoader::ImageFolderCameraPoseWithPaths dataloader, valid_dataloader;
     visualizer::graph train_loss, valid_loss;
@@ -68,16 +70,16 @@ void train(po::variables_map &vm, torch::Device &device, NeRF &model, std::vecto
     // -----------------------------------
 
     // (1) Get Training Dataset
-    image_dir = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["trainI_dir"].as<std::string>();
-    pose_dir = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["trainP_dir"].as<std::string>();
+    image_dir = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["train_image_dir"].as<std::string>();
+    pose_dir = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["train_pose_dir"].as<std::string>();
     dataset = datasets::ImageFolderCameraPoseWithPaths(image_dir, pose_dir, transform);
     dataloader = DataLoader::ImageFolderCameraPoseWithPaths(dataset, vm["batch_size"].as<size_t>(), /*shuffle_=*/train_shuffle, /*num_workers_=*/train_workers);
     std::cout << "total training images : " << dataset.size() << std::endl;
 
     // (2) Get Validation Dataset
     if (vm["valid"].as<bool>()){
-        valid_image_dir = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["validI_dir"].as<std::string>();
-        valid_pose_dir = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["validP_dir"].as<std::string>();
+        valid_image_dir = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["valid_image_dir"].as<std::string>();
+        valid_pose_dir = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["valid_pose_dir"].as<std::string>();
         valid_dataset = datasets::ImageFolderCameraPoseWithPaths(valid_image_dir, valid_pose_dir, transform);
         valid_dataloader = DataLoader::ImageFolderCameraPoseWithPaths(valid_dataset, vm["valid_batch_size"].as<size_t>(), /*shuffle_=*/valid_shuffle, /*num_workers_=*/valid_workers);
         std::cout << "total validation images : " << valid_dataset.size() << std::endl;
@@ -169,12 +171,23 @@ void train(po::variables_map &vm, torch::Device &device, NeRF &model, std::vecto
             pose = std::get<1>(mini_batch).to(device);
             mini_batch_size = image.size(0);
 
+            std::tie(rays_o, rays_d) = model->build_rays(pose);
+            target_rgb = image.permute({0, 2, 3, 1}).view({mini_batch_size, -1, 3}).contiguous();
+            if ((size_t)target_rgb.size(1) > vm["rays_per_image"].as<size_t>()){
+                sample_idx = torch::randint(0, target_rgb.size(1), {mini_batch_size, (long int)vm["rays_per_image"].as<size_t>()}, torch::kLong).to(device);
+                sample_idx_expand = sample_idx.unsqueeze(-1).expand({mini_batch_size, (long int)vm["rays_per_image"].as<size_t>(), 3});
+                rays_o = torch::gather(rays_o, 1, sample_idx_expand);
+                rays_d = torch::gather(rays_d, 1, sample_idx_expand);
+                target_rgb = torch::gather(target_rgb, 1, sample_idx_expand);
+            }
+
             // -------------------------
             // c1. NeRF Training Phase
             // -------------------------
-            std::tie(rays_o, rays_d) = model->build_rays(pose);
-            output = model->forward(rays_o, rays_d);
-            loss = criterion(output, noise);
+            std::tie(rgb_fine, rgb_coarse) = model->forward(rays_o, rays_d);
+            loss_fine = criterion(rgb_fine, target_rgb);
+            loss_coarse = criterion(rgb_coarse, target_rgb);
+            loss = loss_fine + loss_coarse;
             optimizer.zero_grad();
             loss.backward();
             optimizer.step();
@@ -193,8 +206,10 @@ void train(po::variables_map &vm, torch::Device &device, NeRF &model, std::vecto
             if (iter % save_sample_iter == 1){
                 ss.str(""); ss.clear(std::stringstream::goodbit);
                 ss << save_images_dir << "/epoch_" << epoch << "-iter_" << iter << '.' << extension;
-                recon = model->denoise_t(x_t, t);
-                pair = torch::cat({image, x_t, recon}, /*dim=*/0);
+                pose_example = pose.index({0}).unsqueeze(0);
+                recon_image = model->render_image(pose_example);
+                gt_image = image.index({0}).unsqueeze(0);
+                pair = torch::cat({gt_image, recon_image}, /*dim=*/0);
                 visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/mini_batch_size);
             }
 
@@ -210,8 +225,10 @@ void train(po::variables_map &vm, torch::Device &device, NeRF &model, std::vecto
         // -----------------------------------
         ss.str(""); ss.clear(std::stringstream::goodbit);
         ss << save_images_dir << "/epoch_" << epoch << "-iter_" << show_progress->get_iters() << '.' << extension;
-        recon = model->denoise_t(x_t, t);
-        pair = torch::cat({image, x_t, recon}, /*dim=*/0);
+        pose_example = pose.index({0}).unsqueeze(0);
+        recon_image = model->render_image(pose_example);
+        gt_image = image.index({0}).unsqueeze(0);
+        pair = torch::cat({gt_image, recon_image}, /*dim=*/0);
         visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/mini_batch_size);
         delete show_progress;
         

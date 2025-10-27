@@ -47,7 +47,7 @@ void sample(po::variables_map &vm, torch::Device &device, NeRF &model){
     for (size_t i = 0; i < total; i++){
 
         z = torch::randn({1, (long int)vm["nc"].as<size_t>(), (long int)vm["size"].as<size_t>(), (long int)vm["size"].as<size_t>()}).to(device);
-        output = model->forward_z(z);
+        std::tie(output, output) = model->forward(z, z);
 
         ss.str(""); ss.clear(std::stringstream::goodbit);
         ss << std::setfill('0') << std::right << std::setw(digit) << i;

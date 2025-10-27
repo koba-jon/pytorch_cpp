@@ -132,7 +132,7 @@ NeRFImpl::NeRFImpl(po::variables_map &vm){
     size_t n_layers = vm["n_layers"].as<size_t>();
 
     this->coarse_field = register_module("coarse_field", NeRFMLP(pos_dim, dir_dim, hid_dim, n_layers));
-    this->fine_field = register_module("coarse_field", NeRFMLP(pos_dim, dir_dim, hid_dim, n_layers));
+    this->fine_field = register_module("fine_field", NeRFMLP(pos_dim, dir_dim, hid_dim, n_layers));
     
 }
 
@@ -169,6 +169,23 @@ std::tuple<torch::Tensor, torch::Tensor> NeRFImpl::build_rays(torch::Tensor pose
     rays_o = t.unsqueeze(1).expand({pose.size(0), (long int)(this->size * this->size), 3}).contiguous();  // {N,3} ===> {N,1,3} ===> {N,H*W,3}
 
     return {rays_o, rays_d};
+
+}
+
+
+// -----------------------------------------------------
+// struct{NeRFImpl}(nn::Module) -> function{forward}
+// -----------------------------------------------------
+torch::Tensor NeRFImpl::render_image(torch::Tensor pose){
+
+    torch::Tensor rays_o, rays_d, rgb, _;
+
+    std::tie(rays_o, rays_d) = this->build_rays(pose);
+    std::tie(rgb, _) = this->forward(rays_o, rays_d);
+    rgb = rgb.view({pose.size(0), (long int)this->size, (long int)this->size, 3});
+    rgb = rgb.permute({0, 3, 1, 2}).contiguous();
+
+    return rgb;
 
 }
 
@@ -273,7 +290,7 @@ std::tuple<torch::Tensor, torch::Tensor> NeRFImpl::forward(torch::Tensor rays_o,
     z_vals_fine = std::get<0>(torch::sort(z_vals_all, -1));
     std::tie(rgb_fine, _) = this->volume_render(this->fine_field, rays_o, dirs, z_vals_fine);
 
-    return {rgb_fine, rgb_coarse};
+    return {rgb_fine.contiguous(), rgb_coarse.contiguous()};
 
 }
 

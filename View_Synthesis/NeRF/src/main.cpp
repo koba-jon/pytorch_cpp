@@ -46,7 +46,8 @@ po::options_description parse_arguments(){
 
         // (2) Define for Training
         ("train", po::value<bool>()->default_value(false), "training mode on/off")
-        ("train_dir", po::value<std::string>()->default_value("train"), "training image directory : ./datasets/<dataset>/<train_dir>/<image files>")
+        ("train_image_dir", po::value<std::string>()->default_value("trainI"), "training image directory : ./datasets/<dataset>/<train_image_dir>/<image files>")
+        ("train_pose_dir", po::value<std::string>()->default_value("trainP"), "training pose directory : ./datasets/<dataset>/<train_pose_dir>/<pose files>")
         ("epochs", po::value<size_t>()->default_value(200), "training total epoch")
         ("batch_size", po::value<size_t>()->default_value(32), "training batch size")
         ("train_load_epoch", po::value<std::string>()->default_value(""), "epoch of model to resume learning")
@@ -54,14 +55,15 @@ po::options_description parse_arguments(){
 
         // (3) Define for Validation
         ("valid", po::value<bool>()->default_value(false), "validation mode on/off")
-        ("valid_dir", po::value<std::string>()->default_value("valid"), "validation image directory : ./datasets/<dataset>/<valid_dir>/<image files>")
+        ("valid_image_dir", po::value<std::string>()->default_value("validI"), "validation image directory : ./datasets/<dataset>/<valid_image_dir>/<image files>")
+        ("valid_pose_dir", po::value<std::string>()->default_value("validP"), "validation pose directory : ./datasets/<dataset>/<valid_pose_dir>/<pose files>")
         ("valid_batch_size", po::value<size_t>()->default_value(1), "validation batch size")
         ("valid_freq", po::value<size_t>()->default_value(1), "validation frequency to training epoch")
 
         // (4) Define for Test
         ("test", po::value<bool>()->default_value(false), "test mode on/off")
-        ("test_in_dir", po::value<std::string>()->default_value("testI"), "test input image directory : ./datasets/<dataset>/<test_in_dir>/<image files>")
-        ("test_out_dir", po::value<std::string>()->default_value("testO"), "test output image directory : ./datasets/<dataset>/<test_out_dir>/<image files>")
+        ("test_image_dir", po::value<std::string>()->default_value("testI"), "test input image directory : ./datasets/<dataset>/<test_image_dir>/<image files>")
+        ("test_pose_dir", po::value<std::string>()->default_value("testP"), "test output pose directory : ./datasets/<dataset>/<test_pose_dir>/<pose files>")
         ("test_load_epoch", po::value<std::string>()->default_value("latest"), "training epoch used for testing")
         ("test_result_dir", po::value<std::string>()->default_value("test_result"), "test result directory : ./<test_result_dir>")
 
@@ -79,6 +81,7 @@ po::options_description parse_arguments(){
         ("hid_dim", po::value<size_t>()->default_value(256), "dimensions of hidden layers")
 
         // (7) Define for Rendering
+        ("rays_per_image", po::value<size_t>()->default_value(1024), "the number of rays sampled from each image during training")
         ("focal_length", po::value<float>()->default_value(128.0), "focal length")
         ("samples_coarse", po::value<size_t>()->default_value(64), "samples of coarse")
         ("samples_fine", po::value<size_t>()->default_value(128), "samples of fine")

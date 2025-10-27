@@ -11,8 +11,8 @@
 #include "loss.hpp"                    // Loss
 #include "networks.hpp"                // NeRF
 #include "transforms.hpp"              // transforms_Compose
-#include "datasets.hpp"                // datasets::ImageFolderPairWithPaths
-#include "dataloader.hpp"              // DataLoader::ImageFolderPairWithPaths
+#include "datasets.hpp"                // datasets::ImageFolderCameraPoseWithPaths
+#include "dataloader.hpp"              // DataLoader::ImageFolderCameraPoseWithPaths
 #include "visualizer.hpp"              // visualizer
 
 // Define Namespace
@@ -28,23 +28,24 @@ void test(po::variables_map &vm, torch::Device &device, NeRF &model, std::vector
     constexpr std::pair<float, float> output_range = {0.0, 1.0};  // range of the value in output images
 
     // (0) Initialization and Declaration
-    float ave_loss, ave_GT_loss;
+    float ave_loss;
     double seconds, ave_time;
     std::string path, result_dir, fname;
-    std::string input_dir, output_dir;
+    std::string image_dir, pose_dir;
     std::ofstream ofs;
     std::chrono::system_clock::time_point start, end;
     std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>> data;
-    torch::Tensor t, x_t, noise, imageI, imageO, output, recon_image, loss, GT_loss;
+    torch::Tensor image, pose, rays_o, rays_d, target_rgb, rgb_fine, rgb_coarse, rendered;
+    torch::Tensor loss, loss_fine, loss_coarse;
     std::tuple<torch::Tensor, torch::Tensor> x_t_with_noise;
-    datasets::ImageFolderPairWithPaths dataset;
-    DataLoader::ImageFolderPairWithPaths dataloader;
+    datasets::ImageFolderCameraPoseWithPaths dataset;
+    DataLoader::ImageFolderCameraPoseWithPaths dataloader;
 
     // (1) Get Test Dataset
-    input_dir = "datasets/" + vm["dataset"].as<std::string>() + '/' + vm["test_in_dir"].as<std::string>();
-    output_dir = "datasets/" + vm["dataset"].as<std::string>() + '/' + vm["test_out_dir"].as<std::string>();
-    dataset = datasets::ImageFolderPairWithPaths(input_dir, output_dir, transform, transform);
-    dataloader = DataLoader::ImageFolderPairWithPaths(dataset, /*batch_size_=*/1, /*shuffle_=*/false, /*num_workers_=*/0);
+    image_dir = "datasets/" + vm["dataset"].as<std::string>() + '/' + vm["test_image_dir"].as<std::string>();
+    pose_dir = "datasets/" + vm["dataset"].as<std::string>() + '/' + vm["test_pose_dir"].as<std::string>();
+    dataset = datasets::ImageFolderCameraPoseWithPaths(image_dir, pose_dir, transform);
+    dataloader = DataLoader::ImageFolderCameraPoseWithPaths(dataset, /*batch_size_=*/1, /*shuffle_=*/false, /*num_workers_=*/0);
     std::cout << "total test images : " << dataset.size() << std::endl << std::endl;
 
     // (2) Get Model
@@ -56,7 +57,6 @@ void test(po::variables_map &vm, torch::Device &device, NeRF &model, std::vector
 
     // (4) Initialization of Value
     ave_loss = 0.0;
-    ave_GT_loss = 0.0;
     ave_time = 0.0;
 
     // (5) Tensor Forward
@@ -66,46 +66,44 @@ void test(po::variables_map &vm, torch::Device &device, NeRF &model, std::vector
     ofs.open(result_dir + "/loss.txt", std::ios::out);
     while (dataloader(data)){
         
-        imageI = std::get<0>(data).to(device);
-        imageO = std::get<1>(data).to(device);
+        image = std::get<0>(data).to(device);
+        pose = std::get<1>(data).to(device);
+
+        std::tie(rays_o, rays_d) = model->build_rays(pose);
+        target_rgb = image.permute({0, 2, 3, 1}).view({image.size(0), -1, 3}).contiguous();
         
         if (!device.is_cpu()) torch::cuda::synchronize();
         start = std::chrono::system_clock::now();
         
-        t = torch::randint(1, vm["timesteps"].as<size_t>() + 1, {imageI.size(0)}).to(device);
-        x_t_with_noise = model->add_noise(imageI, t);
-        x_t = std::get<0>(x_t_with_noise);
-        noise = std::get<1>(x_t_with_noise);
-        output = model->forward(x_t, t);
-        recon_image = model->denoise_t(x_t, t);
+        std::tie(rgb_fine, rgb_coarse) = model->forward(rays_o, rays_d);
 
         if (!device.is_cpu()) torch::cuda::synchronize();
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         
-        loss = criterion(output, noise);
-        GT_loss = criterion(recon_image, imageO);
+        loss_fine = criterion(rgb_fine, target_rgb);
+        loss_coarse = criterion(rgb_coarse, target_rgb);
+        loss = loss_fine + loss_coarse;
         
         ave_loss += loss.item<float>();
-        ave_GT_loss += GT_loss.item<float>();
         ave_time += seconds;
 
-        std::cout << '<' << std::get<2>(data).at(0) << "> " << vm["loss"].as<std::string>() << ':' << loss.item<float>() << " GT_" << vm["loss"].as<std::string>() << ':' << GT_loss.item<float>() << std::endl;
-        ofs << '<' << std::get<2>(data).at(0) << "> " << vm["loss"].as<std::string>() << ':' << loss.item<float>() << " GT_" << vm["loss"].as<std::string>() << ':' << GT_loss.item<float>() << std::endl;
+        std::cout << '<' << std::get<2>(data).at(0) << "> " << vm["loss"].as<std::string>() << ':' << loss.item<float>() << std::endl;
+        ofs << '<' << std::get<2>(data).at(0) << "> " << vm["loss"].as<std::string>() << ':' << loss.item<float>() << std::endl;
 
+        rendered = model->render_image(pose);
         fname = result_dir + '/' + std::get<3>(data).at(0);
-        visualizer::save_image(recon_image.detach(), fname, /*range=*/output_range, /*cols=*/1, /*padding=*/0);
+        visualizer::save_image(rendered.detach(), fname, /*range=*/output_range, /*cols=*/1, /*padding=*/0);
 
     }
 
     // (6) Calculate Average
     ave_loss = ave_loss / (float)dataset.size();
-    ave_GT_loss = ave_GT_loss / (float)dataset.size();
     ave_time = ave_time / (double)dataset.size();
 
     // (7) Average Output
-    std::cout << "<All> " << vm["loss"].as<std::string>() << ':' << ave_loss << " GT_" << vm["loss"].as<std::string>() << ':' << ave_GT_loss << " (time:" << ave_time << ')' << std::endl;
-    ofs << "<All> " << vm["loss"].as<std::string>() << ':' << ave_loss << " GT_" << vm["loss"].as<std::string>() << ':' << ave_GT_loss << " (time:" << ave_time << ')' << std::endl;
+    std::cout << "<All> " << vm["loss"].as<std::string>() << ':' << ave_loss << " (time:" << ave_time << ')' << std::endl;
+    ofs << "<All> " << vm["loss"].as<std::string>() << ':' << ave_loss << " (time:" << ave_time << ')' << std::endl;
 
     // Post Processing
     ofs.close();

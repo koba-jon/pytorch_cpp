@@ -56,12 +56,13 @@ private:
     float focal_length, near_plane, far_plane;
     PositionalEncoding pos_encoder, dir_encoder;
     NeRFMLP coarse_field, fine_field;
-    std::tuple<torch::Tensor, torch::Tensor> build_rays(torch::Tensor pose);
     std::tuple<torch::Tensor, torch::Tensor> volume_render(NeRFMLP &field, torch::Tensor rays_o, torch::Tensor dirs, torch::Tensor z_vals);
     torch::Tensor sample_pdf(torch::Tensor bins, torch::Tensor weights, size_t n_samples);
 public:
     NeRFImpl(){}
     NeRFImpl(po::variables_map &vm);
+    torch::Tensor render_image(torch::Tensor pose);
+    std::tuple<torch::Tensor, torch::Tensor> build_rays(torch::Tensor pose);
     std::tuple<torch::Tensor, torch::Tensor> forward(torch::Tensor rays_o, torch::Tensor rays_d);
 };
 TORCH_MODULE(NeRF);
