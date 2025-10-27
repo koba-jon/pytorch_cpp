@@ -48,7 +48,7 @@ po::options_description parse_arguments(){
         ("train", po::value<bool>()->default_value(false), "training mode on/off")
         ("train_image_dir", po::value<std::string>()->default_value("trainI"), "training image directory : ./datasets/<dataset>/<train_image_dir>/<image files>")
         ("train_pose_dir", po::value<std::string>()->default_value("trainP"), "training pose directory : ./datasets/<dataset>/<train_pose_dir>/<pose files>")
-        ("epochs", po::value<size_t>()->default_value(200), "training total epoch")
+        ("epochs", po::value<size_t>()->default_value(10000), "training total epoch")
         ("batch_size", po::value<size_t>()->default_value(32), "training batch size")
         ("train_load_epoch", po::value<std::string>()->default_value(""), "epoch of model to resume learning")
         ("save_epoch", po::value<size_t>()->default_value(20), "frequency of epoch to save model and optimizer")
@@ -81,8 +81,8 @@ po::options_description parse_arguments(){
         ("hid_dim", po::value<size_t>()->default_value(256), "dimensions of hidden layers")
 
         // (7) Define for Rendering
+        ("focal_length", po::value<float>()->default_value(131.25), "focal length")
         ("rays_per_image", po::value<size_t>()->default_value(1024), "the number of rays sampled from each image during training")
-        ("focal_length", po::value<float>()->default_value(128.0), "focal length")
         ("samples_coarse", po::value<size_t>()->default_value(64), "samples of coarse")
         ("samples_fine", po::value<size_t>()->default_value(128), "samples of fine")
         ("pos_freqs", po::value<size_t>()->default_value(10), "frequency of position")
