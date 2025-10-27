@@ -48,17 +48,17 @@ void sample(po::variables_map &vm, torch::Device &device, NeRF &model){
     result_dir = vm["sample_result_dir"].as<std::string>();  fs::create_directories(result_dir);
     total = vm["sample_total"].as<size_t>();
     digit = std::to_string(total - 1).length();
-    radius = (vm["near"].as<float>() + vm["far"].as<float>()) * 0.5;
-    world_up = torch::tensor({0.0f, 1.0f, 0.0f}, torch::kFloat).to(device);
+    radius = vm["sample_radius"].as<float>();
+    world_up = torch::tensor({0.0f, 0.0f, 1.0f}, torch::kFloat).to(device);
     std::cout << "total sampling images : " << total << std::endl << std::endl;
     for (size_t i = 0; i < total; i++){
 
         theta = float(i) / (total) * 2.0 * PI;
-        phi = 30.0 * PI / 180.0;
+        phi = vm["sample_phi"].as<float>() * PI / 180.0;
         camera_origin = torch::tensor(
-            {radius * std::cos(phi) * std::sin(theta), 
+            {radius * std::sin(theta) * std::cos(phi), 
              radius * std::sin(phi), 
-             radius * std::cos(phi) * std::cos(theta)},
+             radius * std::cos(theta) * std::cos(phi)},
              torch::kFloat).to(device);
         
         forward = (-camera_origin).clone();
