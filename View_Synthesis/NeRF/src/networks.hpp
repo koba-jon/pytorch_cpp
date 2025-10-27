@@ -64,6 +64,7 @@ public:
     torch::Tensor render_image(torch::Tensor pose);
     std::tuple<torch::Tensor, torch::Tensor> build_rays(torch::Tensor pose);
     std::tuple<torch::Tensor, torch::Tensor> forward(torch::Tensor rays_o, torch::Tensor rays_d);
+    std::tuple<torch::Tensor, torch::Tensor> forward_chunked(torch::Tensor rays_o, torch::Tensor rays_d, long int chunk=100);
 };
 TORCH_MODULE(NeRF);
 

@@ -13,9 +13,13 @@
 #include "networks.hpp"                // NeRF
 #include "visualizer.hpp"              // visualizer
 
+// Define
+#define PI 3.14159265358979
+
 // Define Namespace
 namespace fs = std::filesystem;
 namespace po = boost::program_options;
+using torch::indexing::Slice;
 
 
 // -------------------
@@ -30,8 +34,9 @@ void sample(po::variables_map &vm, torch::Device &device, NeRF &model){
     size_t total, digit;
     std::string path, result_dir, fname;
     std::stringstream ss;
-    std::vector<long int> z_shape;
-    torch::Tensor z, output;
+    torch::Tensor pose, rendered;
+    torch::Tensor camera_origin, forward, up, right, world_up;
+    float radius, theta;
 
     // (1) Get Model
     path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["sample_load_epoch"].as<std::string>() + ".pth";
@@ -43,16 +48,28 @@ void sample(po::variables_map &vm, torch::Device &device, NeRF &model){
     result_dir = vm["sample_result_dir"].as<std::string>();  fs::create_directories(result_dir);
     total = vm["sample_total"].as<size_t>();
     digit = std::to_string(total - 1).length();
+    radius = (vm["near"].as<float>() + vm["far"].as<float>()) * 0.5;
+    world_up = torch::tensor({0.0f, 1.0f, 0.0f}, torch::kFloat).to(device);
     std::cout << "total sampling images : " << total << std::endl << std::endl;
     for (size_t i = 0; i < total; i++){
 
-        z = torch::randn({1, (long int)vm["nc"].as<size_t>(), (long int)vm["size"].as<size_t>(), (long int)vm["size"].as<size_t>()}).to(device);
-        std::tie(output, output) = model->forward(z, z);
+        theta = float(i) / (total) * 2.0 * PI;
+        camera_origin = torch::tensor({radius * std::sin(theta), 0.0f, radius * std::cos(theta)}, torch::kFloat).to(device);
+        forward = (-camera_origin).clone();
+        forward = forward / forward.norm();
+        right = torch::cross(world_up, forward, 0);
+        right = right / right.norm();
+        up = torch::cross(forward, right, 0);
+
+        pose = torch::eye(4, torch::kFloat).unsqueeze(0).to(device);
+        pose.index_put_({0, Slice(0, 3), Slice(0, 3)}, torch::stack({right, up, forward}, 1));
+        pose.index_put_({0, Slice(0, 3), 3}, camera_origin);
+        rendered = model->render_image(pose);
 
         ss.str(""); ss.clear(std::stringstream::goodbit);
         ss << std::setfill('0') << std::right << std::setw(digit) << i;
         fname = result_dir + '/' + ss.str() + '.' + std::string(extension);
-        visualizer::save_image(output.detach(), fname, /*range=*/output_range, /*cols=*/1, /*padding=*/0);
+        visualizer::save_image(rendered.detach(), fname, /*range=*/output_range, /*cols=*/1, /*padding=*/0);
 
         std::cout << '<' << fname << "> Generated!" << std::endl;
 

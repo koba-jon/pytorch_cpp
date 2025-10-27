@@ -101,7 +101,7 @@ std::tuple<torch::Tensor, torch::Tensor> NeRFMLPImpl::forward(torch::Tensor pos,
         }
     }
 
-    sigma = torch::relu(this->sigma_head->forward(x));
+    sigma = torch::softplus(this->sigma_head->forward(x));
     features = torch::relu(this->feature_head->forward(x));
     color_in = torch::cat({features, view_dirs}, -1);
     rgb = torch::sigmoid(this->color_head->forward(color_in));
@@ -178,10 +178,11 @@ std::tuple<torch::Tensor, torch::Tensor> NeRFImpl::build_rays(torch::Tensor pose
 // -----------------------------------------------------
 torch::Tensor NeRFImpl::render_image(torch::Tensor pose){
 
+    torch::NoGradGuard no_grad;
     torch::Tensor rays_o, rays_d, rgb, _;
 
     std::tie(rays_o, rays_d) = this->build_rays(pose);
-    std::tie(rgb, _) = this->forward(rays_o, rays_d);
+    std::tie(rgb, _) = this->forward_chunked(rays_o, rays_d);
     rgb = rgb.view({pose.size(0), (long int)this->size, (long int)this->size, 3});
     rgb = rgb.permute({0, 3, 1, 2}).contiguous();
 
@@ -291,6 +292,33 @@ std::tuple<torch::Tensor, torch::Tensor> NeRFImpl::forward(torch::Tensor rays_o,
     std::tie(rgb_fine, _) = this->volume_render(this->fine_field, rays_o, dirs, z_vals_fine);
 
     return {rgb_fine.contiguous(), rgb_coarse.contiguous()};
+
+}
+
+
+// -----------------------------------------------------------
+// struct{NeRFImpl}(nn::Module) -> function{forward_chunked}
+// -----------------------------------------------------------
+std::tuple<torch::Tensor, torch::Tensor> NeRFImpl::forward_chunked(torch::Tensor rays_o, torch::Tensor rays_d, long int chunk){
+
+    long int start, end;
+    torch::Tensor ro, rd, rgb_fine, rgb_coarse;
+    std::tuple<torch::Tensor, torch::Tensor> out;
+    std::vector<torch::Tensor> rgb_fine_list, rgb_coarse_list;
+    
+    for (start = 0; start < rays_o.size(1); start += chunk){
+        end = std::min(start + chunk, rays_o.size(1));
+        ro = rays_o.index({Slice(), Slice(start, end), Slice()});
+        rd = rays_d.index({Slice(), Slice(start, end), Slice()});
+        out = this->forward(ro.contiguous(), rd.contiguous());
+        rgb_fine_list.push_back(std::get<0>(out));
+        rgb_coarse_list.push_back(std::get<1>(out));
+    }
+
+    rgb_fine = torch::cat(rgb_fine_list, 1).contiguous();
+    rgb_coarse = torch::cat(rgb_coarse_list, 1).contiguous();
+
+    return {rgb_fine, rgb_coarse};
 
 }
 
