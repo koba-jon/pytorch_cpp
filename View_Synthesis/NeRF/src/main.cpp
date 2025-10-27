@@ -83,8 +83,8 @@ po::options_description parse_arguments(){
         // (7) Define for Rendering
         ("focal_length", po::value<float>()->default_value(131.25), "focal length")
         ("rays_per_image", po::value<size_t>()->default_value(1024), "the number of rays sampled from each image during training")
-        ("samples_coarse", po::value<size_t>()->default_value(64), "samples of coarse")
         ("samples_fine", po::value<size_t>()->default_value(128), "samples of fine")
+        ("samples_coarse", po::value<size_t>()->default_value(64), "samples of coarse")
         ("pos_freqs", po::value<size_t>()->default_value(10), "frequency of position")
         ("dir_freqs", po::value<size_t>()->default_value(4), "frequency of direction")
         ("near", po::value<float>()->default_value(2.0), "near plane distance")

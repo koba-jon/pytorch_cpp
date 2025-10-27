@@ -167,24 +167,24 @@ void train(po::variables_map &vm, torch::Device &device, NeRF &model, std::vecto
         // -----------------------------------
         while (dataloader(mini_batch)){
 
-            image = std::get<0>(mini_batch).to(device);
-            pose = std::get<1>(mini_batch).to(device);
+            image = std::get<0>(mini_batch).to(device);  // {N,3,H,W}
+            pose = std::get<1>(mini_batch).to(device);  // {N,4,4}
             mini_batch_size = image.size(0);
 
-            std::tie(rays_o, rays_d) = model->build_rays(pose);
-            target_rgb = image.permute({0, 2, 3, 1}).view({mini_batch_size, -1, 3}).contiguous();
+            std::tie(rays_o, rays_d) = model->build_rays(pose);  // {N,4,4} ===> {N,H*W,3}, {N,H*W,3}
+            target_rgb = image.permute({0, 2, 3, 1}).view({mini_batch_size, -1, 3}).contiguous();  // {N,3,H,W} ===> {N,H,W,3} ===> {N,H*W,3}
             if ((size_t)target_rgb.size(1) > vm["rays_per_image"].as<size_t>()){
-                sample_idx = torch::randint(0, target_rgb.size(1), {mini_batch_size, (long int)vm["rays_per_image"].as<size_t>()}, torch::kLong).to(device);
-                sample_idx_expand = sample_idx.unsqueeze(-1).expand({mini_batch_size, (long int)vm["rays_per_image"].as<size_t>(), 3});
-                rays_o = torch::gather(rays_o, 1, sample_idx_expand);
-                rays_d = torch::gather(rays_d, 1, sample_idx_expand);
-                target_rgb = torch::gather(target_rgb, 1, sample_idx_expand);
+                sample_idx = torch::randint(0, target_rgb.size(1), {mini_batch_size, (long int)vm["rays_per_image"].as<size_t>()}, torch::kLong).to(device);  // {N,R}
+                sample_idx_expand = sample_idx.unsqueeze(-1).expand({mini_batch_size, (long int)vm["rays_per_image"].as<size_t>(), 3});  // {N,R,3}
+                rays_o = torch::gather(rays_o, 1, sample_idx_expand);  // {N,R,3}
+                rays_d = torch::gather(rays_d, 1, sample_idx_expand);  // {N,R,3}
+                target_rgb = torch::gather(target_rgb, 1, sample_idx_expand);  // {N,R,3}
             }
 
             // -------------------------
             // c1. NeRF Training Phase
             // -------------------------
-            std::tie(rgb_fine, rgb_coarse) = model->forward(rays_o, rays_d);
+            std::tie(rgb_fine, rgb_coarse) = model->forward(rays_o, rays_d);  // {N,R,3}, {N,R,3} ===> {N,R,3}, {N,R,3}
             loss_fine = criterion(rgb_fine, target_rgb);
             loss_coarse = criterion(rgb_coarse, target_rgb);
             loss = loss_fine + loss_coarse;
@@ -206,10 +206,10 @@ void train(po::variables_map &vm, torch::Device &device, NeRF &model, std::vecto
             if (iter % save_sample_iter == 1){
                 ss.str(""); ss.clear(std::stringstream::goodbit);
                 ss << save_images_dir << "/epoch_" << epoch << "-iter_" << iter << '.' << extension;
-                pose_example = pose.index({0}).unsqueeze(0);
-                recon_image = model->render_image(pose_example);
-                gt_image = image.index({0}).unsqueeze(0);
-                pair = torch::cat({gt_image, recon_image}, /*dim=*/0);
+                pose_example = pose.index({0}).unsqueeze(0);  // {1,4,4}
+                recon_image = model->render_image(pose_example);  // {1,3,H,W}
+                gt_image = image.index({0}).unsqueeze(0);  // {1,3,H,W}
+                pair = torch::cat({gt_image, recon_image}, /*dim=*/0);  // {2,3,H,W}
                 visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/mini_batch_size);
             }
 
@@ -225,10 +225,10 @@ void train(po::variables_map &vm, torch::Device &device, NeRF &model, std::vecto
         // -----------------------------------
         ss.str(""); ss.clear(std::stringstream::goodbit);
         ss << save_images_dir << "/epoch_" << epoch << "-iter_" << show_progress->get_iters() << '.' << extension;
-        pose_example = pose.index({0}).unsqueeze(0);
-        recon_image = model->render_image(pose_example);
-        gt_image = image.index({0}).unsqueeze(0);
-        pair = torch::cat({gt_image, recon_image}, /*dim=*/0);
+        pose_example = pose.index({0}).unsqueeze(0);  // {1,4,4}
+        recon_image = model->render_image(pose_example);  // {1,3,H,W}
+        gt_image = image.index({0}).unsqueeze(0);  // {1,3,H,W}
+        pair = torch::cat({gt_image, recon_image}, /*dim=*/0);  // {2,3,H,W}
         visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/mini_batch_size);
         delete show_progress;
         

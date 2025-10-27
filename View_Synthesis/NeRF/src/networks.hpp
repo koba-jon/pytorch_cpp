@@ -52,10 +52,10 @@ TORCH_MODULE(NeRFMLP);
 // ------------------------------
 struct NeRFImpl : nn::Module{
 private:
-    size_t size, samples_coarse, samples_fine;
+    size_t size, samples_fine, samples_coarse;
     float focal_length, near_plane, far_plane;
     PositionalEncoding pos_encoder, dir_encoder;
-    NeRFMLP coarse_field, fine_field;
+    NeRFMLP fine_field, coarse_field;
     std::tuple<torch::Tensor, torch::Tensor> volume_render(NeRFMLP &field, torch::Tensor rays_o, torch::Tensor dirs, torch::Tensor z_vals);
     torch::Tensor sample_pdf(torch::Tensor bins, torch::Tensor weights, size_t n_samples);
 public:
