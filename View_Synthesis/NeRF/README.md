@@ -22,7 +22,7 @@ Link: [official](https://github.com/sxyu/pixel-nerf?tab=readme-ov-file)
 
 #### Setting
 
-Please prepare RGB or grayscale images that can be read by OpenCV, and 16-dimensional (flattened 4x4 matrix) camera pose parameters in text files.
+Please prepare RGB or grayscale images that can be read by OpenCV, and 16-dimensional (flattened 4x4 matrix) camera pose parameters in text files.<br>
 Also, all data must be paired images with matching file name excluding extension.
 
 - Example: 000000.txt
