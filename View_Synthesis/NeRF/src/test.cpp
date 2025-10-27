@@ -92,7 +92,7 @@ void test(po::variables_map &vm, torch::Device &device, NeRF &model, std::vector
         ofs << '<' << std::get<2>(data).at(0) << "> " << vm["loss"].as<std::string>() << ':' << loss.item<float>() << std::endl;
 
         rendered = model->render_image(pose);
-        fname = result_dir + '/' + std::get<3>(data).at(0);
+        fname = result_dir + '/' + std::get<2>(data).at(0);
         visualizer::save_image(rendered.detach(), fname, /*range=*/output_range, /*cols=*/1, /*padding=*/0);
 
     }

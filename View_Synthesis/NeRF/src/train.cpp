@@ -210,7 +210,7 @@ void train(po::variables_map &vm, torch::Device &device, NeRF &model, std::vecto
                 recon_image = model->render_image(pose_example);  // {1,3,H,W}
                 gt_image = image.index({0}).unsqueeze(0);  // {1,3,H,W}
                 pair = torch::cat({gt_image, recon_image}, /*dim=*/0);  // {2,3,H,W}
-                visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/mini_batch_size);
+                visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/1);
             }
 
         }
@@ -229,7 +229,7 @@ void train(po::variables_map &vm, torch::Device &device, NeRF &model, std::vecto
         recon_image = model->render_image(pose_example);  // {1,3,H,W}
         gt_image = image.index({0}).unsqueeze(0);  // {1,3,H,W}
         pair = torch::cat({gt_image, recon_image}, /*dim=*/0);  // {2,3,H,W}
-        visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/mini_batch_size);
+        visualizer::save_image(pair.detach(), ss.str(), /*range=*/output_range, /*cols=*/1);
         delete show_progress;
         
         // -----------------------------------
