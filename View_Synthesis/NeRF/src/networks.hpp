@@ -15,63 +15,36 @@ namespace po = boost::program_options;
 void weights_init(nn::Module &m);
 
 
-// -----------------------------------
-// struct{DownSamplingImpl}(nn::Module)
-// -----------------------------------
-struct DownSamplingImpl : nn::Module{
+// ------------------------------
+// struct{PositionalEncodingImpl}(nn::Module)
+// ------------------------------
+struct PositionalEncodingImpl : nn::Module{
 private:
-    nn::Sequential convs, mlp;
+    size_t freqs;
 public:
-    DownSamplingImpl(){}
-    DownSamplingImpl(const size_t in_nc, const size_t out_nc, const bool BN, const bool ReLU, const size_t time_embed);
-    torch::Tensor forward(torch::Tensor x, torch::Tensor v);
+    PositionalEncodingImpl(){}
+    PositionalEncodingImpl(size_t freqs_);
+    torch::Tensor forward(torch::Tensor x);
+    size_t get_out_dim(size_t in_dim);
 };
-TORCH_MODULE(DownSampling);
-
-
-// -----------------------------------
-// struct{UpSamplingImpl}(nn::Module)
-// -----------------------------------
-struct UpSamplingImpl : nn::Module{
-private:
-    nn::Sequential convs, mlp;
-public:
-    UpSamplingImpl(){}
-    UpSamplingImpl(const size_t in_nc, const size_t out_nc, const bool BN, const bool ReLU, const size_t time_embed);
-    torch::Tensor forward(torch::Tensor x, torch::Tensor v);
-};
-TORCH_MODULE(UpSampling);
-
-
-// -----------------------------------
-// struct{UNetBlockImpl}(nn::Module)
-// -----------------------------------
-struct UNetBlockImpl : nn::Module{
-private:
-    bool outermost, innermost;
-    nn::Sequential down, sub, up;
-public:
-    UNetBlockImpl(){}
-    UNetBlockImpl(const std::pair<size_t, size_t> outside_nc, const size_t inside_nc, UNetBlockImpl &submodule, const bool outermost_, const bool innermost_, const size_t time_embed);
-    torch::Tensor forward(torch::Tensor x, torch::Tensor v);
-};
-TORCH_MODULE(UNetBlock);
+TORCH_MODULE(PositionalEncoding);
 
 
 // ------------------------------
-// struct{UNetImpl}(nn::Module)
+// struct{NeRFMLPImpl}(nn::Module)
 // ------------------------------
-struct UNetImpl : nn::Module{
+struct NeRFMLPImpl : nn::Module{
 private:
-    size_t time_embed;
-    nn::Sequential model;
-    torch::Tensor pos_encoding(torch::Tensor t, long int dim);
+    size_t n_layers;
+    nn::ModuleList base_layers;
+    nn::Linear sigma_head{nullptr}, feature_head{nullptr};
+    nn::Sequential color_head;
 public:
-    UNetImpl(){}
-    UNetImpl(po::variables_map &vm);
-    torch::Tensor forward(torch::Tensor x, torch::Tensor t);
+    NeRFMLPImpl(){}
+    NeRFMLPImpl(size_t pos_dim, size_t dir_dim, size_t hid_dim, size_t n_layers_);
+    std::tuple<torch::Tensor, torch::Tensor> forward(torch::Tensor pos, torch::Tensor view_dirs);
 };
-TORCH_MODULE(UNet);
+TORCH_MODULE(NeRFMLP);
 
 
 // ------------------------------
@@ -79,18 +52,17 @@ TORCH_MODULE(UNet);
 // ------------------------------
 struct NeRFImpl : nn::Module{
 private:
-    size_t timesteps;
-    torch::Tensor betas, alphas, alpha_bars;
-    UNet model;
-    torch::Tensor sampling(torch::Tensor &mean, torch::Tensor &var);
+    size_t size, samples_coarse, samples_fine;
+    float focal_length, near_plane, far_plane;
+    PositionalEncoding pos_encoder, dir_encoder;
+    NeRFMLP coarse_field, fine_field;
+    std::tuple<torch::Tensor, torch::Tensor> build_rays(torch::Tensor pose);
+    std::tuple<torch::Tensor, torch::Tensor> volume_render(NeRFMLP &field, torch::Tensor rays_o, torch::Tensor dirs, torch::Tensor z_vals);
+    torch::Tensor sample_pdf(torch::Tensor bins, torch::Tensor weights, size_t n_samples);
 public:
     NeRFImpl(){}
-    NeRFImpl(po::variables_map &vm, torch::Device device);
-    std::tuple<torch::Tensor, torch::Tensor> add_noise(torch::Tensor x_0, torch::Tensor t);
-    torch::Tensor denoise(torch::Tensor x_t, torch::Tensor t);
-    torch::Tensor denoise_t(torch::Tensor x_t, torch::Tensor t);
-    torch::Tensor forward(torch::Tensor x_t, torch::Tensor t);
-    torch::Tensor forward_z(torch::Tensor z);
+    NeRFImpl(po::variables_map &vm);
+    std::tuple<torch::Tensor, torch::Tensor> forward(torch::Tensor rays_o, torch::Tensor rays_d);
 };
 TORCH_MODULE(NeRF);
 

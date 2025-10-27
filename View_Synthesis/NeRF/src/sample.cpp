@@ -24,7 +24,7 @@ namespace po = boost::program_options;
 void sample(po::variables_map &vm, torch::Device &device, NeRF &model){
 
     constexpr std::string_view extension = "png";  // the extension of file name to save sample images
-    constexpr std::pair<float, float> output_range = {-1.0, 1.0};  // range of the value in output images
+    constexpr std::pair<float, float> output_range = {0.0, 1.0};  // range of the value in output images
 
     // (0) Initialization and Declaration
     size_t total, digit;

@@ -37,7 +37,7 @@ void train(po::variables_map &vm, torch::Device &device, NeRF &model, std::vecto
     constexpr size_t valid_workers = 4;  // the number of workers to retrieve data from the validation dataset
     constexpr size_t save_sample_iter = 50;  // the frequency of iteration to save sample images
     constexpr std::string_view extension = "jpg";  // the extension of file name to save sample images
-    constexpr std::pair<float, float> output_range = {-1.0, 1.0};  // range of the value in output images
+    constexpr std::pair<float, float> output_range = {0.0, 1.0};  // range of the value in output images
 
     // -----------------------------------
     // a0. Initialization and Declaration
@@ -50,13 +50,12 @@ void train(po::variables_map &vm, torch::Device &device, NeRF &model, std::vecto
     std::string date, date_out;
     std::string buff, latest;
     std::string checkpoint_dir, save_images_dir, path;
-    std::string dataroot, valid_dataroot;
+    std::string image_dir, pose_dir, valid_image_dir, valid_pose_dir;
     std::stringstream ss;
     std::ifstream infoi;
     std::ofstream ofs, init, infoo;
     std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>> mini_batch;
-    torch::Tensor t, x_t, noise, loss, image, output, recon, pair;
-    std::tuple<torch::Tensor, torch::Tensor> x_t_with_noise;
+    torch::Tensor image, pose;
     datasets::ImageFolderCameraPoseWithPaths dataset, valid_dataset;
     DataLoader::ImageFolderCameraPoseWithPaths dataloader, valid_dataloader;
     visualizer::graph train_loss, valid_loss;
@@ -69,15 +68,17 @@ void train(po::variables_map &vm, torch::Device &device, NeRF &model, std::vecto
     // -----------------------------------
 
     // (1) Get Training Dataset
-    dataroot = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["train_dir"].as<std::string>();
-    dataset = datasets::ImageFolderCameraPoseWithPaths(dataroot, transform);
+    image_dir = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["trainI_dir"].as<std::string>();
+    pose_dir = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["trainP_dir"].as<std::string>();
+    dataset = datasets::ImageFolderCameraPoseWithPaths(image_dir, pose_dir, transform);
     dataloader = DataLoader::ImageFolderCameraPoseWithPaths(dataset, vm["batch_size"].as<size_t>(), /*shuffle_=*/train_shuffle, /*num_workers_=*/train_workers);
     std::cout << "total training images : " << dataset.size() << std::endl;
 
     // (2) Get Validation Dataset
     if (vm["valid"].as<bool>()){
-        valid_dataroot = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["valid_dir"].as<std::string>();
-        valid_dataset = datasets::ImageFolderCameraPoseWithPaths(valid_dataroot, transform);
+        valid_image_dir = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["validI_dir"].as<std::string>();
+        valid_pose_dir = "datasets/" + vm["dataset"].as<std::string>() + "/" + vm["validP_dir"].as<std::string>();
+        valid_dataset = datasets::ImageFolderCameraPoseWithPaths(valid_image_dir, valid_pose_dir, transform);
         valid_dataloader = DataLoader::ImageFolderCameraPoseWithPaths(valid_dataset, vm["valid_batch_size"].as<size_t>(), /*shuffle_=*/valid_shuffle, /*num_workers_=*/valid_workers);
         std::cout << "total validation images : " << valid_dataset.size() << std::endl;
     }
@@ -165,16 +166,14 @@ void train(po::variables_map &vm, torch::Device &device, NeRF &model, std::vecto
         while (dataloader(mini_batch)){
 
             image = std::get<0>(mini_batch).to(device);
+            pose = std::get<1>(mini_batch).to(device);
             mini_batch_size = image.size(0);
 
             // -------------------------
             // c1. NeRF Training Phase
             // -------------------------
-            t = torch::randint(1, vm["timesteps"].as<size_t>() + 1, {mini_batch_size}).to(device);
-            x_t_with_noise = model->add_noise(image, t);
-            x_t = std::get<0>(x_t_with_noise);
-            noise = std::get<1>(x_t_with_noise);
-            output = model->forward(x_t, t);
+            std::tie(rays_o, rays_d) = model->build_rays(pose);
+            output = model->forward(rays_o, rays_d);
             loss = criterion(output, noise);
             optimizer.zero_grad();
             loss.backward();

@@ -38,10 +38,7 @@ po::options_description parse_arguments(){
         // (1) Define for General Parameter
         ("help", "produce help message")
         ("dataset", po::value<std::string>(), "dataset name")
-        ("size", po::value<size_t>()->default_value(256), "image width and height (x>=64)")
-        ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
-        ("nt", po::value<size_t>()->default_value(100), "time embedding dimensions")
-        ("timesteps", po::value<size_t>()->default_value(1000), "total time steps")
+        ("size", po::value<size_t>()->default_value(128), "image width and height")
         ("loss", po::value<std::string>()->default_value("l2"), "l1 (mean absolute error), l2 (mean squared error), ssim (structural similarity), etc.")
         ("gpu_id", po::value<int>()->default_value(0), "cuda device : 'x=-1' is cpu device")
         ("seed_random", po::value<bool>()->default_value(false), "whether to make the seed of random number in a random")
@@ -78,10 +75,17 @@ po::options_description parse_arguments(){
         ("lr", po::value<float>()->default_value(1e-4), "learning rate")
         ("beta1", po::value<float>()->default_value(0.9), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
-        ("nf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image")
-        ("beta_start", po::value<float>()->default_value(0.0001), "the start value of beta")
-        ("beta_end", po::value<float>()->default_value(0.02), "the end value of beta")
-        ("ema_decay", po::value<float>()->default_value(0.9999), "decay of exponential moving average")
+        ("n_layers", po::value<size_t>()->default_value(8), "the number of hidden layers")
+        ("hid_dim", po::value<size_t>()->default_value(256), "dimensions of hidden layers")
+
+        // (7) Define for Rendering
+        ("focal_length", po::value<float>()->default_value(128.0), "focal length")
+        ("samples_coarse", po::value<size_t>()->default_value(64), "samples of coarse")
+        ("samples_fine", po::value<size_t>()->default_value(128), "samples of fine")
+        ("pos_freqs", po::value<size_t>()->default_value(10), "frequency of position")
+        ("dir_freqs", po::value<size_t>()->default_value(4), "frequency of direction")
+        ("near", po::value<float>()->default_value(2.0), "near plane distance")
+        ("far", po::value<float>()->default_value(6.0), "far plane distance")
 
     ;
     
@@ -128,14 +132,11 @@ int main(int argc, const char *argv[]){
     std::vector<transforms_Compose> transform{
         transforms_Resize(cv::Size(vm["size"].as<size_t>(), vm["size"].as<size_t>()), cv::INTER_LINEAR),  // {IH,IW,C} ===method{OW,OH}===> {OH,OW,C}
         transforms_ToTensor(),                                                                            // Mat Image [0,255] or [0,65535] ===> Tensor Image [0,1]
-        transforms_Normalize(0.5, 0.5)                                                                    // [0,1] ===> [-1,1]
     };
-    if (vm["nc"].as<size_t>() == 1){
-        transform.insert(transform.begin(), transforms_Grayscale(1));
-    }
     
     // (5) Define Network
-    NeRF nerf(vm, device); nerf->to(device);
+    NeRF nerf(vm);
+    nerf->to(device);
     
     // (6) Make Directories
     std::string dir = "checkpoints/" + vm["dataset"].as<std::string>();
