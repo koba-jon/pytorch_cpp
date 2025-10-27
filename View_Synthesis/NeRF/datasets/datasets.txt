@@ -1,6 +1,7 @@
 1. What kind of dataset do you need?
 
-Please prepare images that can be read by OpenCV.
+Please prepare RGB or grayscale images that can be read by OpenCV, and camera pose parameters of 16-dimensionals (flatten 4x4 matrix).
+Also, all data must be paired images with matching file name excluding extension.
 
 
 2. What kind of hierarchical relationship do you need?
@@ -10,20 +11,35 @@ The following hierarchical relationships are recommended.
 ---------------------------------------------------------
 datasets
 |--Dataset1
-|    |--train
+|    |--trainI
 |    |    |--image1.png
 |    |    |--image2.bmp
 |    |    |--image3.jpg
 |    |
-|    |--valid
+|    |--trainP
+|    |    |--image1.txt
+|    |    |--image2.txt
+|    |    |--image3.txt
+|    |
+|    |--validI
 |    |    |--image4.png
 |    |    |--image5.bmp
 |    |    |--image6.jpg
 |    |
-|    |--test
-|         |--image7.png
-|         |--image8.bmp
-|         |--image9.jpg
+|    |--validP
+|    |    |--image4.txt
+|    |    |--image5.txt
+|    |    |--image6.txt
+|    |
+|    |--testI
+|    |    |--image7.png
+|    |    |--image8.bmp
+|    |    |--image9.jpg
+|    |
+|    |--testP
+|         |--image7.txt
+|         |--image8.txt
+|         |--image9.txt
 |
 |--Dataset2
 |--Dataset3
