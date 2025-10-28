@@ -36,7 +36,7 @@ void sample(po::variables_map &vm, torch::Device &device, NeRF &model){
     std::stringstream ss;
     torch::Tensor pose, rendered;
     torch::Tensor camera_origin, forward, up, right, world_up;
-    float radius, theta, phi;
+    float radius, theta, phi, x, y, z;
 
     // (1) Get Model
     path = "checkpoints/" + vm["dataset"].as<std::string>() + "/models/epoch_" + vm["sample_load_epoch"].as<std::string>() + ".pth";
@@ -53,20 +53,18 @@ void sample(po::variables_map &vm, torch::Device &device, NeRF &model){
     std::cout << "total sampling images : " << total << std::endl << std::endl;
     for (size_t i = 0; i < total; i++){
 
-        theta = float(i) / (total) * 2.0 * PI;
-        phi = vm["sample_phi"].as<float>() * PI / 180.0;
-        camera_origin = torch::tensor(
-            {radius * std::sin(theta) * std::cos(phi), 
-             radius * std::sin(phi), 
-             radius * std::cos(theta) * std::cos(phi)},
-             torch::kFloat).to(device);
+        theta = vm["sample_theta"].as<float>() * PI / 180.0;
+        phi = float(i) / (total) * 2.0 * PI;
+        x = radius * std::sin(theta) * std::cos(phi);
+        y = radius * std::sin(theta) * std::sin(phi);
+        z = radius * std::cos(theta);
+        camera_origin = torch::tensor({x, y, z}, torch::kFloat).to(device);
         
         forward = (-camera_origin).clone();
         forward = forward / forward.norm();
-        right = torch::cross(forward, world_up, 0);
+        right = torch::cross(world_up, forward, 0);
         right = right / right.norm();
-        up = torch::cross(right, forward, 0);
-        up = up / up.norm();
+        up = -torch::cross(forward, right, 0);
 
         pose = torch::eye(4, torch::kFloat).unsqueeze(0).to(device);
         pose.index_put_({0, Slice(0, 3), Slice(0, 3)}, torch::stack({right, up, forward}, 1));

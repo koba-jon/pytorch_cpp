@@ -73,7 +73,7 @@ po::options_description parse_arguments(){
         ("sample_result_dir", po::value<std::string>()->default_value("sample_result"), "sampling result directory : ./<sample_result_dir>")
         ("sample_total", po::value<size_t>()->default_value(100), "total number of data obtained by random sampling")
         ("sample_radius", po::value<float>()->default_value(1.3), "radius for sampling")
-        ("sample_phi", po::value<float>()->default_value(45.0), "phi for sampling")
+        ("sample_theta", po::value<float>()->default_value(45.0), "phi for sampling")
 
         // (6) Define for Network Parameter
         ("lr", po::value<float>()->default_value(1e-4), "learning rate")
