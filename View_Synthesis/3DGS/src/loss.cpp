@@ -10,20 +10,11 @@
 // -----------------------------------
 // class{Loss} -> constructor
 // -----------------------------------
-Loss::Loss(const std::string loss){
-    if (loss == "l1"){
-        this->judge = 0;
-    }
-    else if (loss == "l2"){
-        this->judge = 1;
-    }
-    else if (loss == "ssim"){
-        this->judge = 2;
-    }
-    else{
-        std::cerr << "Error : The loss fuction isn't defined right." << std::endl;
-        std::exit(1);
-    }
+Loss::Loss(const float Lambda_, torch::Device device){
+    this->Lambda = Lambda_;
+    this->l1 = torch::nn::L1Loss(torch::nn::L1LossOptions().reduction(torch::kMean));
+    this->l2 = torch::nn::MSELoss(torch::nn::MSELossOptions().reduction(torch::kMean));
+    this->ssim = Losses::SSIMLoss(3, device);
 }
 
 
@@ -31,14 +22,6 @@ Loss::Loss(const std::string loss){
 // class{Loss} -> operator
 // -----------------------------------
 torch::Tensor Loss::operator()(torch::Tensor &input, torch::Tensor &target){
-    if (this->judge == 0){
-        static auto criterion = torch::nn::L1Loss(torch::nn::L1LossOptions().reduction(torch::kMean));
-        return criterion(input, target);
-    }
-    else if (this->judge == 1){
-        static auto criterion = torch::nn::MSELoss(torch::nn::MSELossOptions().reduction(torch::kMean));
-        return criterion(input, target);
-    }
-    static auto criterion = Losses::SSIMLoss(input.size(1), input.device());
-    return criterion(input, target);
+    //return (1.0 - this->Lambda) * this->l1(input, target) + this->Lambda * this->ssim(input, target);
+    return this->l2(input, target);
 }

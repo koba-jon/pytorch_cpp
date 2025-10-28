@@ -28,7 +28,7 @@ GS3DImpl::GS3DImpl(po::variables_map &vm){
     this->positions = register_parameter("positions", torch::randn({(long int)this->num_gaussians, 3}) * init_radius);
     this->log_scales = register_parameter("log_scales", torch::zeros({(long int)this->num_gaussians, 2}));
     this->colors = register_parameter("colors", torch::randn({(long int)this->num_gaussians, 3}) * 0.01);
-    this->log_opacity = register_parameter("log_opacity", torch::full({(long int)this->num_gaussians, 1}, -4.0));
+    this->log_opacity = register_parameter("log_opacity", torch::zeros({(long int)this->num_gaussians, 1}));
     this->background_logit = register_parameter("background_logit", torch::zeros({3}));
     
 }

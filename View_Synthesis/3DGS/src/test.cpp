@@ -52,7 +52,7 @@ void test(po::variables_map &vm, torch::Device &device, GS3D &model, std::vector
     torch::load(model, path, device);
 
     // (3) Set Loss Function
-    auto criterion = Loss(vm["loss"].as<std::string>());
+    auto criterion = Loss(vm["Lambda"].as<float>(), device);
 
     // (4) Initialization of Value
     ave_loss = 0.0;

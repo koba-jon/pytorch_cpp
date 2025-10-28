@@ -87,7 +87,7 @@ void train(po::variables_map &vm, torch::Device &device, GS3D &model, std::vecto
     auto optimizer = torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(vm["lr"].as<float>()).betas({vm["beta1"].as<float>(), vm["beta2"].as<float>()}));
 
     // (4) Set Loss Function
-    auto criterion = Loss(vm["loss"].as<std::string>());
+    auto criterion = Loss(vm["Lambda"].as<float>(), device);
 
     // (5) Make Directories
     checkpoint_dir = "checkpoints/" + vm["dataset"].as<std::string>();

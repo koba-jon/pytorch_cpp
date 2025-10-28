@@ -39,7 +39,6 @@ po::options_description parse_arguments(){
         ("help", "produce help message")
         ("dataset", po::value<std::string>(), "dataset name")
         ("size", po::value<size_t>()->default_value(128), "image width and height")
-        ("loss", po::value<std::string>()->default_value("l2"), "l1 (mean absolute error), l2 (mean squared error), ssim (structural similarity), etc.")
         ("gpu_id", po::value<int>()->default_value(0), "cuda device : 'x=-1' is cpu device")
         ("seed_random", po::value<bool>()->default_value(false), "whether to make the seed of random number in a random")
         ("seed", po::value<int>()->default_value(0), "seed of random number")
@@ -76,13 +75,12 @@ po::options_description parse_arguments(){
         ("sample_theta", po::value<float>()->default_value(45.0), "phi for sampling")
 
         // (6) Define for Network Parameter
-        ("lr", po::value<float>()->default_value(1e-4), "learning rate")
+        ("lr", po::value<float>()->default_value(1.0), "learning rate")
         ("beta1", po::value<float>()->default_value(0.9), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
-        ("n_layers", po::value<size_t>()->default_value(8), "the number of hidden layers")
-        ("hid_dim", po::value<size_t>()->default_value(256), "dimensions of hidden layers")
-        ("num_gaussians", po::value<size_t>()->default_value(4096), "the number of 3D Gaussians")
+        ("num_gaussians", po::value<size_t>()->default_value(512), "the number of 3D Gaussians")
         ("init_radius", po::value<float>()->default_value(1.0), "initial radius for Gaussian centers")
+        ("Lambda", po::value<float>()->default_value(0.2), "multiple of SSIM Loss")
 
         // (7) Define for Rendering
         ("focal_length", po::value<float>()->default_value(131.25), "focal length")

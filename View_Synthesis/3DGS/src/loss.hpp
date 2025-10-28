@@ -4,6 +4,8 @@
 #include <string>
 // For External Library
 #include <torch/torch.h>
+// For Original Header
+#include "losses.hpp"
 
 
 // -------------------
@@ -11,10 +13,13 @@
 // -------------------
 class Loss{
 private:
-    int judge;
+    float Lambda;
+    torch::nn::L1Loss l1;
+    torch::nn::MSELoss l2;
+    Losses::SSIMLoss ssim;
 public:
     Loss(){}
-    Loss(const std::string loss);
+    Loss(const float Lambda_, torch::Device device);
     torch::Tensor operator()(torch::Tensor &input, torch::Tensor &target);
 };
 
