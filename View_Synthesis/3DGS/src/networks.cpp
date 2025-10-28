@@ -48,7 +48,7 @@ torch::Tensor GS3DImpl::render_image(torch::Tensor pose){
 // -----------------------------------------------------
 torch::Tensor GS3DImpl::forward(torch::Tensor pose){
 
-    constexpr float eps = 1e-4;
+    constexpr float eps = 1e-3;
     
     torch::Device device = pose.device();
     long int N = pose.size(0);
