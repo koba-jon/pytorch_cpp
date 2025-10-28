@@ -82,8 +82,8 @@ void test(po::variables_map &vm, torch::Device &device, GS3D &model, std::vector
         ave_loss += loss.item<float>();
         ave_time += seconds;
 
-        std::cout << '<' << std::get<2>(data).at(0) << "> " << vm["loss"].as<std::string>() << ':' << loss.item<float>() << std::endl;
-        ofs << '<' << std::get<2>(data).at(0) << "> " << vm["loss"].as<std::string>() << ':' << loss.item<float>() << std::endl;
+        std::cout << '<' << std::get<2>(data).at(0) << "> loss:" << loss.item<float>() << std::endl;
+        ofs << '<' << std::get<2>(data).at(0) << "> loss:" << loss.item<float>() << std::endl;
 
         fname = result_dir + '/' + std::get<2>(data).at(0);
         visualizer::save_image(output.detach(), fname, /*range=*/output_range, /*cols=*/1, /*padding=*/0);
@@ -95,8 +95,8 @@ void test(po::variables_map &vm, torch::Device &device, GS3D &model, std::vector
     ave_time = ave_time / (double)dataset.size();
 
     // (7) Average Output
-    std::cout << "<All> " << vm["loss"].as<std::string>() << ':' << ave_loss << " (time:" << ave_time << ')' << std::endl;
-    ofs << "<All> " << vm["loss"].as<std::string>() << ':' << ave_loss << " (time:" << ave_time << ')' << std::endl;
+    std::cout << "<All> loss:" << ave_loss << " (time:" << ave_time << ')' << std::endl;
+    ofs << "<All> loss:" << ave_loss << " (time:" << ave_time << ')' << std::endl;
 
     // Post Processing
     ofs.close();

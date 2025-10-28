@@ -26,9 +26,9 @@ GS3DImpl::GS3DImpl(po::variables_map &vm){
     this->init_radius = vm["init_radius"].as<float>();
 
     this->positions = register_parameter("positions", torch::randn({(long int)this->num_gaussians, 3}) * init_radius);
-    this->log_scales = register_parameter("log_scales", torch::zeros({(long int)this->num_gaussians, 2}));
+    this->cov_lower = register_parameter("cov_lower", torch::zeros({(long int)this->num_gaussians, 6}));
     this->colors = register_parameter("colors", torch::randn({(long int)this->num_gaussians, 3}) * 0.01);
-    this->log_opacity = register_parameter("log_opacity", torch::zeros({(long int)this->num_gaussians, 1}));
+    this->log_opacity = register_parameter("log_opacity", torch::full({(long int)this->num_gaussians, 1}, -10.0));
     this->background_logit = register_parameter("background_logit", torch::zeros({3}));
     
 }
@@ -48,7 +48,7 @@ torch::Tensor GS3DImpl::render_image(torch::Tensor pose){
 // -----------------------------------------------------
 torch::Tensor GS3DImpl::forward(torch::Tensor pose){
 
-    constexpr float eps = 1e-6;
+    constexpr float eps = 1e-4;
     
     torch::Device device = pose.device();
     long int N = pose.size(0);
@@ -56,9 +56,14 @@ torch::Tensor GS3DImpl::forward(torch::Tensor pose){
 
     float fx, fy, cx, cy;
     torch::Tensor xs, ys, grid_x, grid_y, R, t, cs, opacity, pos_expand, diff, Rwc, pos_cam;
-    torch::Tensor xs_cam, ys_cam, zs_cam, valid, safe_z, inv_z;
-    torch::Tensor mean_x, mean_y, base_scales, sigma_x, sigma_y, grid_xv, grid_yv;
-    torch::Tensor dx, dy, exponent, gaussian, alpha, sort_key, indices, idx_alpha, idx_color;
+    torch::Tensor xs_cam, ys_cam, zs_cam, valid, safe_z, inv_z, inv_z2;
+    torch::Tensor mean_x, mean_y, grid_xv, grid_yv;
+    torch::Tensor dx, dy, exponent, normalization, gaussian;
+    torch::Tensor cov_params, l11, l21, l22, l31, l32, l33, L, cov_world, cov_cam;
+    torch::Tensor fx_div_z, fy_div_z, fx_x_over_z2, fy_y_over_z2, zeros, row0, row1, J, cov2d;
+    torch::Tensor Rwc_expand, R_expand;
+    torch::Tensor eye2, cov_xx, cov_xy, cov_yy, det, inv_det, inv_xx, inv_xy, inv_yy;
+    torch::Tensor alpha, sort_key, indices, idx_alpha, idx_color;
     torch::Tensor color_sorted, rgb, trans, a, c, weight, bg;
 
     xs = torch::arange((long int)this->size, torch::kFloat).to(device);
@@ -92,18 +97,60 @@ torch::Tensor GS3DImpl::forward(torch::Tensor pose){
     mean_x = fx * (xs_cam * inv_z) + cx;
     mean_y = fy * (-(ys_cam * inv_z)) + cy;
 
-    base_scales = torch::softplus(log_scales) + eps;
-    base_scales = base_scales.unsqueeze(0).expand({N, (long int)this->num_gaussians, 2});
-    sigma_x = base_scales.index({Slice(), Slice(), 0}) * inv_z * fx + eps;
-    sigma_y = base_scales.index({Slice(), Slice(), 1}) * inv_z * fy + eps;
+    cov_params = this->cov_lower;
+    l11 = torch::softplus(cov_params.index({Slice(), 0})) + eps;
+    l21 = cov_params.index({Slice(), 1});
+    l22 = torch::softplus(cov_params.index({Slice(), 2})) + eps;
+    l31 = cov_params.index({Slice(), 3});
+    l32 = cov_params.index({Slice(), 4});
+    l33 = torch::softplus(cov_params.index({Slice(), 5})) + eps;
+
+    L = torch::zeros({(long int)this->num_gaussians, 3, 3}).to(device);
+    L.index_put_({Slice(), 0, 0}, l11);
+    L.index_put_({Slice(), 1, 0}, l21);
+    L.index_put_({Slice(), 1, 1}, l22);
+    L.index_put_({Slice(), 2, 0}, l31);
+    L.index_put_({Slice(), 2, 1}, l32);
+    L.index_put_({Slice(), 2, 2}, l33);
+    cov_world = torch::matmul(L, L.transpose(1, 2));
+
+    cov_world = cov_world.unsqueeze(0).expand({N, (long int)this->num_gaussians, 3, 3});
+    Rwc_expand = Rwc.unsqueeze(1).expand_as(cov_world);
+    R_expand = R.unsqueeze(1).expand_as(cov_world);
+    cov_cam = torch::matmul(torch::matmul(Rwc_expand, cov_world), R_expand);
+
+    fx_div_z = fx * inv_z;
+    fy_div_z = fy * inv_z;
+    inv_z2 = inv_z * inv_z;
+    fx_x_over_z2 = fx * xs_cam * inv_z2;
+    fy_y_over_z2 = fy * ys_cam * inv_z2;
+
+    zeros = torch::zeros_like(xs_cam);
+    row0 = torch::stack({fx_div_z, zeros, -fx_x_over_z2}, -1);
+    row1 = torch::stack({zeros, -fy_div_z, fy_y_over_z2}, -1);
+    J = torch::stack({row0, row1}, -2);
+
+    cov2d = torch::matmul(torch::matmul(J, cov_cam), J.transpose(-1, -2));
+    eye2 = torch::eye(2).view({1, 1, 2, 2}).to(device);
+    cov2d = cov2d + eye2 * eps;
+    cov_xx = cov2d.index({Slice(), Slice(), 0, 0}).clamp_min(eps);
+    cov_xy = cov2d.index({Slice(), Slice(), 0, 1});
+    cov_yy = cov2d.index({Slice(), Slice(), 1, 1}).clamp_min(eps);
+    
+    det = torch::clamp(cov_xx * cov_yy - cov_xy.square(), eps);
+    inv_det = 1.0 / det;
+    inv_xx = cov_yy * inv_det;
+    inv_xy = -cov_xy * inv_det;
+    inv_yy = cov_xx * inv_det;
+    normalization = torch::sqrt(inv_det);
 
     grid_xv = grid_x.view({1, 1, hw});
     grid_yv = grid_y.view({1, 1, hw});
 
-    dx = (grid_xv - mean_x.unsqueeze(-1)) / sigma_x.unsqueeze(-1);
-    dy = (grid_yv - mean_y.unsqueeze(-1)) / sigma_y.unsqueeze(-1);
-    exponent = -0.5 * (dx.square() + dy.square());
-    gaussian = torch::exp(exponent);
+    dx = grid_xv - mean_x.unsqueeze(-1);
+    dy = grid_yv - mean_y.unsqueeze(-1);
+    exponent = -0.5 * (inv_xx.unsqueeze(-1) * dx.square() + 2.0 * inv_xy.unsqueeze(-1) * dx * dy + inv_yy.unsqueeze(-1) * dy.square());
+    gaussian = torch::exp(exponent) * normalization.unsqueeze(-1);
 
     alpha = opacity.unsqueeze(-1) * gaussian;
     alpha = alpha * valid.unsqueeze(-1).to(torch::kFloat);
