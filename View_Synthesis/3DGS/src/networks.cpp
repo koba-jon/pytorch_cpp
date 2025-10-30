@@ -135,8 +135,8 @@ torch::Tensor GS3DImpl::forward(torch::Tensor pose){
     rho_xy = torch::tanh(this->rho.index({Slice(), 0})) * (1.0 - 1e-2);  // {G}
     rho_xz = torch::tanh(this->rho.index({Slice(), 1})) * (1.0 - 1e-2);  // {G}
     rho_yz = torch::tanh(this->rho.index({Slice(), 2})) * (1.0 - 1e-2);  // {G}
-    CHECK_TENSOR("sigma", sigma, ofs);
-    CHECK_TENSOR("rho", rho, ofs);
+    CHECK_TENSOR("sigma", this->sigma, ofs);
+    CHECK_TENSOR("rho", this->rho, ofs);
 
     cov_world = torch::zeros({(long int)this->num_gaussians, 3, 3}).to(device);  // {G,3,3}
     cov_world.index_put_({Slice(), 0, 0}, sigma_x * sigma_x);  // {G}
