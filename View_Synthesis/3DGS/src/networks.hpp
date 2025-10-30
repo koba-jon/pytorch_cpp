@@ -19,7 +19,7 @@ struct GS3DImpl : nn::Module{
 private:
     size_t size, num_gaussians;
     float focal_length, init_radius;
-    torch::Tensor positions, cov_lower, colors, log_opacity, background_logit;
+    torch::Tensor positions, sigma, rho, colors, log_opacity, background_logit;
 public:
     GS3DImpl(){}
     GS3DImpl(po::variables_map &vm);
