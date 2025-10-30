@@ -236,6 +236,107 @@ torch::Tensor GS3DImpl::forward(torch::Tensor pose){
 }
 
 
+// -----------------------------------------------------------------
+// struct{GS3DImpl}(nn::Module) -> function{adaptive_density_control}
+// -----------------------------------------------------------------
+void GS3DImpl::adaptive_density_control(float prune_threshold, float regrow_std, float grad_threshold, size_t max_regrow){
+
+    constexpr float base_opacity = 0.5;
+
+    long int prune_count, source_count, repeat_times;
+    float logit;
+    torch::Tensor opacity, prune_mask, prune_indices, grad_positions, grad_norm;
+    torch::Tensor candidate_mask, candidate_indices, candidate_norm, rel_indices;
+    torch::Tensor noise, base_positions, new_positions, new_sigma, new_rho, new_colors;
+    torch::Tensor new_log_opacity, zero_pos, grad_positions_mut, zero_opacity, grad_opacity_mut;
+    std::tuple<torch::Tensor, torch::Tensor> topk;
+    torch::Device device = this->positions.device();
+
+    if (!this->positions.grad().defined() || !this->log_opacity.grad().defined()){
+        return;
+    }
+
+    torch::NoGradGuard no_grad;
+
+    opacity = torch::sigmoid(this->log_opacity.detach()).squeeze(-1);  // {G}
+    prune_mask = opacity < prune_threshold;  // {G}
+    if (!prune_mask.any().item<bool>()){
+        return;
+    }
+
+    prune_indices = torch::nonzero(prune_mask).view({-1});  // {P}
+    prune_count = prune_indices.size(0);
+    if (prune_count == 0){
+        return;
+    }
+
+    if ((max_regrow > 0) && (prune_count > static_cast<int64_t>(max_regrow))){
+        prune_indices = prune_indices.narrow(0, 0, static_cast<int64_t>(max_regrow));
+        prune_count = prune_indices.size(0);
+    }
+
+    grad_positions = this->positions.grad();
+    grad_norm = grad_positions.norm(2, 1);  // {G}
+
+    torch::Tensor source_indices;
+    candidate_mask = grad_norm > grad_threshold;
+    candidate_indices = torch::nonzero(candidate_mask).view({-1});  // {C}
+    if (candidate_indices.size(0) >= prune_count && candidate_indices.size(0) > 0){
+        candidate_norm = grad_norm.index_select(0, candidate_indices);  // {C}
+        topk = candidate_norm.topk(prune_count, 0, /*largest=*/true, /*sorted=*/true);
+        rel_indices = std::get<1>(topk);
+        source_indices = candidate_indices.index_select(0, rel_indices);
+    }
+    else{
+        topk = grad_norm.topk(prune_count, 0, /*largest=*/true, /*sorted=*/true);
+        source_indices = std::get<1>(topk);
+    }
+
+    if (!source_indices.defined() || source_indices.size(0) == 0){
+        return;
+    }
+
+    if (source_indices.size(0) < prune_count){
+        source_count = source_indices.size(0);
+        repeat_times = (prune_count + source_count - 1) / source_count;
+        source_indices = source_indices.repeat({repeat_times});
+        source_indices = source_indices.narrow(0, 0, prune_count);
+    }
+
+    noise = torch::randn({prune_count, 3}).to(device) * regrow_std;  // {P,3}
+    base_positions = this->positions.index_select(0, source_indices);  // {P,3}
+    new_positions = base_positions + noise;  // {P,3}
+    this->positions.index_put_({prune_indices, Slice()}, new_positions);
+
+    new_sigma = this->sigma.index_select(0, source_indices);
+    this->sigma.index_put_({prune_indices, Slice()}, new_sigma);
+
+    new_rho = this->rho.index_select(0, source_indices);
+    this->rho.index_put_({prune_indices, Slice()}, new_rho);
+
+    new_colors = this->colors.index_select(0, source_indices);
+    this->colors.index_put_({prune_indices, Slice()}, new_colors);
+
+    logit = std::log(base_opacity / (1.0f - base_opacity));
+    new_log_opacity = torch::full({prune_count, 1}, logit).to(device);
+    this->log_opacity.index_put_({prune_indices, Slice()}, new_log_opacity);
+
+    if (this->positions.grad().defined()){
+        zero_pos = torch::zeros({prune_count, 3}).to(device);
+        grad_positions_mut = this->positions.mutable_grad();
+        grad_positions_mut.index_put_({prune_indices, Slice()}, zero_pos);
+    }
+    if (this->log_opacity.grad().defined()){
+        zero_opacity = torch::zeros({prune_count, 1}).to(device);
+        grad_opacity_mut = this->log_opacity.mutable_grad();
+        grad_opacity_mut.index_put_({prune_indices, Slice()}, zero_opacity);
+    }
+
+    return;
+
+}
+
+
 // ----------------------------------------------------------
 // struct{GS3DImpl}(nn::Module) -> function{init_gaussians}
 // ----------------------------------------------------------

@@ -25,6 +25,7 @@ public:
     GS3DImpl(po::variables_map &vm);
     torch::Tensor render_image(torch::Tensor pose);
     torch::Tensor forward(torch::Tensor pose);
+    void adaptive_density_control(float prune_threshold, float regrow_std, float grad_threshold, size_t max_regrow);
     void init_gaussians();
 };
 TORCH_MODULE(GS3D);

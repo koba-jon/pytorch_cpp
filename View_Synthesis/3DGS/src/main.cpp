@@ -81,6 +81,13 @@ po::options_description parse_arguments(){
         ("num_gaussians", po::value<size_t>()->default_value(512), "the number of 3D Gaussians")
         ("init_radius", po::value<float>()->default_value(0.01), "initial radius for Gaussian centers")
         ("Lambda", po::value<float>()->default_value(0.2), "multiple of SSIM Loss")
+        ("density_control", po::value<bool>()->default_value(true), "enable adaptive density control during training")
+        ("density_interval", po::value<size_t>()->default_value(100), "interval of iterations to trigger density control")
+        ("density_warmup_iter", po::value<size_t>()->default_value(200), "number of iterations to skip before density control")
+        ("density_prune_threshold", po::value<float>()->default_value(0.05), "opacity threshold used for pruning")
+        ("density_grad_threshold", po::value<float>()->default_value(0.05), "gradient norm threshold for selecting splits")
+        ("density_regrow_std", po::value<float>()->default_value(0.01f), "standard deviation of noise for regrown Gaussians")
+        ("density_max_regrow", po::value<size_t>()->default_value(128), "maximum number of Gaussians regrown per update")
 
         // (7) Define for Rendering
         ("focal_length", po::value<float>()->default_value(131.25), "focal length")
