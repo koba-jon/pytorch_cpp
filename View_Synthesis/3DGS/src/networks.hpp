@@ -19,11 +19,12 @@ struct GS3DImpl : nn::Module{
 private:
     size_t size, num_gaussians;
     float focal_length, init_radius;
-    torch::Tensor positions, cov_lower, colors, log_opacity, background_logit;
+    torch::Tensor mu_world, log_scale, quat, colors, log_opacity, background_logit;
 public:
     GS3DImpl(){}
     GS3DImpl(po::variables_map &vm);
     torch::Tensor render_image(torch::Tensor pose);
+    torch::Tensor quat_to_rotmat(torch::Tensor q);
     torch::Tensor forward(torch::Tensor pose);
     void init_gaussians();
 };

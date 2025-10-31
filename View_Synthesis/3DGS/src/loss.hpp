@@ -15,7 +15,6 @@ class Loss{
 private:
     float Lambda;
     torch::nn::L1Loss l1;
-    torch::nn::MSELoss l2;
     Losses::SSIMLoss ssim;
 public:
     Loss(){}

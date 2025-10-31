@@ -105,7 +105,6 @@ void train(po::variables_map &vm, torch::Device &device, GS3D &model, std::vecto
     
     // (7) Get Weights and File Processing
     if (vm["train_load_epoch"].as<std::string>() == ""){
-        model->init_gaussians();
         ofs.open(checkpoint_dir + "/log/train.txt", std::ios::out);
         if (vm["valid"].as<bool>()){
             init.open(checkpoint_dir + "/log/valid.txt", std::ios::trunc);

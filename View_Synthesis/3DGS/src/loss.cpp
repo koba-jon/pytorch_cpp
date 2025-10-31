@@ -13,7 +13,6 @@
 Loss::Loss(const float Lambda_, torch::Device device){
     this->Lambda = Lambda_;
     this->l1 = torch::nn::L1Loss(torch::nn::L1LossOptions().reduction(torch::kMean));
-    this->l2 = torch::nn::MSELoss(torch::nn::MSELossOptions().reduction(torch::kMean));
     this->ssim = Losses::SSIMLoss(3, device);
 }
 
@@ -22,6 +21,5 @@ Loss::Loss(const float Lambda_, torch::Device device){
 // class{Loss} -> operator
 // -----------------------------------
 torch::Tensor Loss::operator()(torch::Tensor &input, torch::Tensor &target){
-    //return (1.0 - this->Lambda) * this->l1(input, target) + this->Lambda * this->ssim(input, target);
-    return this->l2(input, target);
+    return (1.0 - this->Lambda) * this->l1(input, target) + this->Lambda * this->ssim(input, target);
 }
