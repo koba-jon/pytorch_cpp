@@ -47,10 +47,6 @@ void train(po::variables_map &vm, torch::Device &device, GS3D &model, std::vecto
     size_t total_iter;
     size_t start_epoch, total_epoch;
     long int mini_batch_size;
-    bool use_density_control;
-    size_t density_interval, density_warmup_iter, density_max_regrow;
-    float density_prune_threshold, density_grad_threshold, density_regrow_std;
-    size_t density_step;
     std::string date, date_out;
     std::string buff, latest;
     std::string checkpoint_dir, save_images_dir, path;
@@ -87,37 +83,27 @@ void train(po::variables_map &vm, torch::Device &device, GS3D &model, std::vecto
         std::cout << "total validation images : " << valid_dataset.size() << std::endl;
     }
 
-    // (3) Set Density Control Parameters
-    use_density_control = vm["density_control"].as<bool>();
-    density_interval = vm["density_interval"].as<size_t>();
-    density_warmup_iter = vm["density_warmup_iter"].as<size_t>();
-    density_prune_threshold = vm["density_prune_threshold"].as<float>();
-    density_grad_threshold = vm["density_grad_threshold"].as<float>();
-    density_regrow_std = vm["density_regrow_std"].as<float>();
-    density_max_regrow = vm["density_max_regrow"].as<size_t>();
-    density_step = 0;
-
-    // (4) Set Optimizer Method
+    // (3) Set Optimizer Method
     auto optimizer = torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(vm["lr"].as<float>()).betas({vm["beta1"].as<float>(), vm["beta2"].as<float>()}));
 
-    // (5) Set Loss Function
+    // (4) Set Loss Function
     auto criterion = Loss(vm["Lambda"].as<float>(), device);
 
-    // (6) Make Directories
+    // (5) Make Directories
     checkpoint_dir = "checkpoints/" + vm["dataset"].as<std::string>();
     path = checkpoint_dir + "/models";  fs::create_directories(path);
     path = checkpoint_dir + "/optims";  fs::create_directories(path);
     path = checkpoint_dir + "/log";  fs::create_directories(path);
     save_images_dir = checkpoint_dir + "/samples";  fs::create_directories(save_images_dir);
 
-    // (7) Set Training Loss for Graph
+    // (6) Set Training Loss for Graph
     path = checkpoint_dir + "/graph";
     train_loss = visualizer::graph(path, /*gname_=*/"train_loss", /*label_=*/{"Reconstruct"});
     if (vm["valid"].as<bool>()){
         valid_loss = visualizer::graph(path, /*gname_=*/"valid_loss", /*label_=*/{"Reconstruct"});
     }
     
-    // (8) Get Weights and File Processing
+    // (7) Get Weights and File Processing
     if (vm["train_load_epoch"].as<std::string>() == ""){
         model->init_gaussians();
         ofs.open(checkpoint_dir + "/log/train.txt", std::ios::out);
@@ -149,7 +135,7 @@ void train(po::variables_map &vm, torch::Device &device, GS3D &model, std::vecto
         }
     }
 
-    // (9) Display Date
+    // (8) Display Date
     date = progress::current_date();
     date = progress::separator_center("Train Loss (" + date + ")");
     std::cout << std::endl << std::endl << date << std::endl;
@@ -191,11 +177,6 @@ void train(po::variables_map &vm, torch::Device &device, GS3D &model, std::vecto
             optimizer.zero_grad();
             loss.backward();
             optimizer.step();
-
-            density_step++;
-            if (use_density_control && (density_interval > 0) && (density_step >= density_warmup_iter) && (density_step % density_interval == 0)){
-                model->adaptive_density_control(density_prune_threshold, density_regrow_std, density_grad_threshold, density_max_regrow);
-            }
 
             // -----------------------------------
             // c2. Record Loss (iteration)

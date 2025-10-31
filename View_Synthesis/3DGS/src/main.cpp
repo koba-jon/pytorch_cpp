@@ -78,7 +78,7 @@ po::options_description parse_arguments(){
         ("lr", po::value<float>()->default_value(0.1), "learning rate")
         ("beta1", po::value<float>()->default_value(0.9), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
-        ("num_gaussians", po::value<size_t>()->default_value(512), "the number of 3D Gaussians")
+        ("num_gaussians", po::value<size_t>()->default_value(4096), "the number of 3D Gaussians")
         ("init_radius", po::value<float>()->default_value(0.01), "initial radius for Gaussian centers")
         ("Lambda", po::value<float>()->default_value(0.2), "multiple of SSIM Loss")
         ("density_control", po::value<bool>()->default_value(true), "enable adaptive density control during training")
