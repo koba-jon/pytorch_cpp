@@ -18,7 +18,7 @@ $ cd ..
 
 #### Recommendation
 - srn cars Dataset / srn chairs Dataset<br>
-Link: [official](https://www.vincentsitzmann.com/srns/?utm_source=chatgpt.com)
+Link: [official](https://www.vincentsitzmann.com/srns/)
 
 #### Setting
 
