@@ -17,8 +17,8 @@ $ cd ..
 ### 2. Dataset Setting
 
 #### Recommendation
-- srn cars Dataset / srn chairs Dataset<br>
-Link: [official](https://github.com/sxyu/pixel-nerf?tab=readme-ov-file)
+- SRN‑Cars Dataset / SRN‑Chairs Dataset<br>
+Link: [official](https://www.vincentsitzmann.com/srns/)
 
 #### Setting
 
@@ -72,8 +72,7 @@ DATA='srn_cars'
 
 ./3DGS \
     --train true \
-    --train_load_epoch "latest" \
-    --epochs 10000 \
+    --epochs 1000 \
     --dataset ${DATA} \
     --size 128 \
     --focal_length 131.25 \

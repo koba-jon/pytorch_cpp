@@ -4,7 +4,7 @@ DATA='srn_cars'
 
 ./3DGS \
     --train true \
-    --epochs 10000 \
+    --epochs 1000 \
     --dataset ${DATA} \
     --size 128 \
     --focal_length 131.25 \

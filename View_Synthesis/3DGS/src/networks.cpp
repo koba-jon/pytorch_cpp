@@ -24,21 +24,15 @@ GS3DImpl::GS3DImpl(po::variables_map &vm){
     this->size = vm["size"].as<size_t>();
     this->focal_length = vm["focal_length"].as<float>();
     this->num_gaussians = vm["num_gaussians"].as<size_t>();
-    this->init_radius = vm["init_radius"].as<float>();
+    this->init_radius = 1.0;
     this->base_scale = 1.0;
-    this->init_opacity = 0.0005;
+    this->init_opacity = 0.0001;
 
-    this->density_control_interval = vm["density_control_interval"].as<size_t>();
-    this->density_control_max_new = vm["density_control_max_new"].as<size_t>();
-    this->density_control_position_noise = 0.01;
-    this->density_control_scale_noise = 0.01;
-
-    this->mu_world = register_parameter("mu_world", torch::randn({(long int)this->num_gaussians, 3}) * init_radius);
+    this->mu_world = register_parameter("mu_world", torch::randn({(long int)this->num_gaussians, 3}) * this->init_radius);
     this->log_scale = register_parameter("log_scale", torch::full({(long int)this->num_gaussians, 3}, std::log(std::exp(this->base_scale) - 1.0)));
     this->quat = register_parameter("quat", torch::tensor({{1.0, 0.0, 0.0, 0.0}}, torch::kFloat).repeat({(long int)this->num_gaussians, 1}));
     this->colors = register_parameter("colors", torch::randn({1, (long int)this->num_gaussians, 3}) * 0.01);
     this->log_opacity = register_parameter("log_opacity", torch::full({1, (long int)this->num_gaussians, 1}, std::log(this->init_opacity) - std::log(1.0 - this->init_opacity)));
-    this->mask = register_buffer("mask", torch::cat({torch::ones({(long int)this->num_gaussians / 10}, torch::kBool), torch::zeros({(long int)this->num_gaussians - (long int)this->num_gaussians / 10}, torch::kBool)}));
     this->background_logit = register_parameter("background_logit", torch::full({1, 1, 3}, 0.0));
 
 }
@@ -102,14 +96,16 @@ torch::Tensor GS3DImpl::forward(torch::Tensor pose){
     // 1. Build 2-dimensional mean
     // ----------------------------------------
     float fx, fy, cx, cy;
-    torch::Tensor mu_world_expand, W, t, W_expand, t_expand, mu_cam, tx, ty, tz, valid, u, v, mu_2d;
+    torch::Tensor mu_world_expand, W_c2w, t_c2w, W, t, W_expand, t_expand, mu_cam, tx, ty, tz, valid, u, v, mu_2d;
 
     // (1) Build 3-dimensional mean of world coordinate
     mu_world_expand = this->mu_world.view({1, (long int)this->num_gaussians, 3, 1}).expand({N, (long int)this->num_gaussians, 3, 1});  // {N,G,3,1}
 
     // (2) Build 3-dimensional mean of camera coordinate
-    W = pose.index({Slice(), Slice(0, 3), Slice(0, 3)});  // {N,3,3}
-    t = pose.index({Slice(), Slice(0, 3), 3});  // {N,3}
+    W_c2w = pose.index({Slice(), Slice(0, 3), Slice(0, 3)});  // {N,3,3}
+    t_c2w = pose.index({Slice(), Slice(0, 3), 3});  // {N,3}
+    W = W_c2w.transpose(-1, -2);  // {N,3,3}
+    t = (-torch::matmul(W, t_c2w.unsqueeze(-1))).squeeze(-1);  // {N,3}
     W_expand = W.unsqueeze(1).expand({N, (long int)this->num_gaussians, 3, 3});  // {N,G,3,3}
     t_expand = t.view({N, 1, 3, 1}).expand({N, (long int)this->num_gaussians, 3, 1});  // {N,G,3,1}
     mu_cam = torch::matmul(W_expand, mu_world_expand) + t_expand;  // {N,G,3,1}
@@ -120,7 +116,6 @@ torch::Tensor GS3DImpl::forward(torch::Tensor pose){
     ty = mu_cam.index({Slice(), Slice(), 1});  // {N,G}
     tz = mu_cam.index({Slice(), Slice(), 2});  // {N,G}
     valid = tz > 1e-2;  // {N,G}
-    valid = valid * mask.view({1, (long int)this->num_gaussians});  // {N,G}
     tz = torch::where(valid, tz, torch::full_like(tz, 1e-2));  // {N,G}
     fx = this->focal_length;
     fy = this->focal_length;
@@ -179,7 +174,7 @@ torch::Tensor GS3DImpl::forward(torch::Tensor pose){
     // (3) Calculate PDF
     diff = grid - mu_2d.unsqueeze(-1);  // {N,G,2,H*W}
     exponent = -0.5 * (diff * torch::matmul(inv_cov_2d, diff)).sum(2);  // {N,G,H*W}
-    pdf = torch::exp(exponent) * this->mask.view({1, (long int)this->num_gaussians, 1}).to(torch::kFloat);  // {N,G,H*W}
+    pdf = torch::exp(exponent);  // {N,G,H*W}
 
 
     // ----------------------------------------
@@ -214,86 +209,5 @@ torch::Tensor GS3DImpl::forward(torch::Tensor pose){
     return rgb;
 
     
-}
-
-
-
-// -----------------------------------------------------------
-// struct{GS3DImpl}(nn::Module) -> function{adaptive_density_control}
-// -----------------------------------------------------------
-void GS3DImpl::adaptive_density_control(){
-
-    long int new_gaussians, src_idx, dst_idx;
-    torch::Tensor candidate_indices, free_indices;
-    torch::Tensor position_noise, scale_noise, opacity, sorted_indices, parent_log_opacity, shared_log_opacity;
-    torch::NoGradGuard no_grad;
-
-    candidate_indices = torch::nonzero(this->mask).view({-1});
-    free_indices = torch::nonzero(torch::logical_not(this->mask)).view({-1});
-
-    if ((candidate_indices.size(0) == 0) || (free_indices.size(0) == 0)){
-        return;
-    }
-
-    new_gaussians = std::min<long int>({(long int)this->density_control_max_new, free_indices.size(0), candidate_indices.size(0)});
-    if (new_gaussians <= 0){
-        return;
-    }
-
-    position_noise = torch::randn({new_gaussians, 3}, this->mu_world.options()) * this->density_control_position_noise;
-    scale_noise = torch::randn({new_gaussians, 3}, this->log_scale.options()) * this->density_control_scale_noise;
-
-    opacity = torch::sigmoid(this->log_opacity).view({(long int)this->num_gaussians});
-    sorted_indices = std::get<1>(torch::sort(opacity, /*dim=*/0, /*descending=*/true));
-    candidate_indices = sorted_indices.index({Slice(0, new_gaussians)});
-
-    for (long int i = 0; i < new_gaussians; ++i){
-        src_idx = candidate_indices.index({i % candidate_indices.size(0)}).item<long int>();
-        dst_idx = free_indices.index({i}).item<long int>();
-
-        parent_log_opacity = this->log_opacity.index({0, src_idx, 0});
-        shared_log_opacity = parent_log_opacity - std::log(2.0);
-        this->log_opacity.index_put_({0, src_idx, 0}, shared_log_opacity);
-        this->log_opacity.index_put_({0, dst_idx, 0}, shared_log_opacity);
-
-        this->mu_world.index_put_({dst_idx}, this->mu_world.index({src_idx}) + position_noise.index({i}));
-        this->log_scale.index_put_({dst_idx}, this->log_scale.index({src_idx}) + scale_noise.index({i}));
-        this->quat.index_put_({dst_idx}, this->quat.index({src_idx}));
-        this->colors.index_put_({0, dst_idx}, this->colors.index({0, src_idx}));
-        this->mask.index_put_({dst_idx}, true);
-    }
-
-    return;
-
-}
-
-
-// -----------------------------------------------------------
-// struct{GS3DImpl}(nn::Module) -> function{active_gaussians}
-// -----------------------------------------------------------
-size_t GS3DImpl::active_gaussians() const{
-
-    return this->mask.to(torch::kLong).sum().item<int64_t>();
-
-}
-
-
-// -----------------------------------------------------------
-// struct{GS3DImpl}(nn::Module) -> function{total_gaussians}
-// -----------------------------------------------------------
-size_t GS3DImpl::total_gaussians() const{
-
-    return this->num_gaussians;
-
-}
-
-
-// -----------------------------------------------------------
-// struct{GS3DImpl}(nn::Module) -> function{density_interval}
-// -----------------------------------------------------------
-size_t GS3DImpl::density_interval() const{
-
-    return this->density_control_interval;
-
 }
 

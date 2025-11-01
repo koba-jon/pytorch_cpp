@@ -182,20 +182,10 @@ void train(po::variables_map &vm, torch::Device &device, GS3D &model, std::vecto
             // -----------------------------------
             show_progress->increment(/*loss_value=*/{loss.item<float>()});
             ofs << "iters:" << show_progress->get_iters() << '/' << total_iter << ' ' << std::flush;
-            ofs << "loss:" << loss.item<float>() << "(ave:" <<  show_progress->get_ave(0) << ") " << std::flush;
+            ofs << "loss:" << loss.item<float>() << "(ave:" <<  show_progress->get_ave(0) << ')' << std::endl;
 
             // -----------------------------------
-            // c3. Update Gaussians
-            // -----------------------------------
-            iter = show_progress->get_iters();
-            if (iter % model->density_interval() == 0){
-                model->adaptive_density_control();
-                ofs << "density_control:" << model->active_gaussians() << '/' << model->total_gaussians() << std::flush;
-            }
-            ofs << std::endl;
-
-            // -----------------------------------
-            // c4. Save Sample Images
+            // c3. Save Sample Images
             // -----------------------------------
             iter = show_progress->get_iters();
             if (iter % save_sample_iter == 1){

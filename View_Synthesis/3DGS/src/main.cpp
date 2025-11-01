@@ -47,7 +47,7 @@ po::options_description parse_arguments(){
         ("train", po::value<bool>()->default_value(false), "training mode on/off")
         ("train_image_dir", po::value<std::string>()->default_value("trainI"), "training image directory : ./datasets/<dataset>/<train_image_dir>/<image files>")
         ("train_pose_dir", po::value<std::string>()->default_value("trainP"), "training pose directory : ./datasets/<dataset>/<train_pose_dir>/<pose files>")
-        ("epochs", po::value<size_t>()->default_value(10000), "training total epoch")
+        ("epochs", po::value<size_t>()->default_value(1000), "training total epoch")
         ("batch_size", po::value<size_t>()->default_value(32), "training batch size")
         ("train_load_epoch", po::value<std::string>()->default_value(""), "epoch of model to resume learning")
         ("save_epoch", po::value<size_t>()->default_value(20), "frequency of epoch to save model and optimizer")
@@ -79,10 +79,7 @@ po::options_description parse_arguments(){
         ("beta1", po::value<float>()->default_value(0.9), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
         ("num_gaussians", po::value<size_t>()->default_value(4096), "the number of 3D Gaussians")
-        ("init_radius", po::value<float>()->default_value(1.0), "initial radius for Gaussian centers")
         ("Lambda", po::value<float>()->default_value(0.2), "multiple of SSIM Loss")
-        ("density_control_interval", po::value<size_t>()->default_value(5), "iteration interval for adaptive density control")
-        ("density_control_max_new", po::value<size_t>()->default_value(1), "maximum Gaussians to activate per density control step")
 
         // (7) Define for Rendering
         ("focal_length", po::value<float>()->default_value(131.25), "focal length")
