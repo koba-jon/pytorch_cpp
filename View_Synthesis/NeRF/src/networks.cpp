@@ -156,7 +156,7 @@ std::tuple<torch::Tensor, torch::Tensor> NeRFImpl::build_rays(torch::Tensor pose
     grid_y = ys.unsqueeze(1).repeat({1, (long int)this->size}).view({-1});  // {H} ===> {H,1} ===> {H,W} ===> {H*W}
 
     dirs_x = (grid_x - cx) / fx;  // {H*W}
-    dirs_y = -(grid_y - cy) / fy;  // {H*W}
+    dirs_y = (grid_y - cy) / fy;  // {H*W}
     dirs_z = torch::ones_like(dirs_x);  // {H*W}
     dirs_cam = torch::stack({dirs_x, dirs_y, dirs_z}, 1);  // {H*W,3}
     dirs_cam = F::normalize(dirs_cam, F::NormalizeFuncOptions().p(2).dim(1));  // {H*W,3}
