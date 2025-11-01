@@ -81,6 +81,8 @@ po::options_description parse_arguments(){
         ("num_gaussians", po::value<size_t>()->default_value(4096), "the number of 3D Gaussians")
         ("init_radius", po::value<float>()->default_value(1.0), "initial radius for Gaussian centers")
         ("Lambda", po::value<float>()->default_value(0.2), "multiple of SSIM Loss")
+        ("density_control_interval", po::value<size_t>()->default_value(5), "iteration interval for adaptive density control")
+        ("density_control_max_new", po::value<size_t>()->default_value(1), "maximum Gaussians to activate per density control step")
 
         // (7) Define for Rendering
         ("focal_length", po::value<float>()->default_value(131.25), "focal length")
