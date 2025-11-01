@@ -17,7 +17,7 @@ $ cd ..
 ### 2. Dataset Setting
 
 #### Recommendation
-- srn cars Dataset / srn chairs Dataset<br>
+- SRN‑Cars Dataset / SRN‑Chairs Dataset<br>
 Link: [official](https://www.vincentsitzmann.com/srns/)
 
 #### Setting
