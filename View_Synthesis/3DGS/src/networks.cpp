@@ -24,12 +24,14 @@ GS3DImpl::GS3DImpl(po::variables_map &vm){
     this->focal_length = vm["focal_length"].as<float>();
     this->num_gaussians = vm["num_gaussians"].as<size_t>();
     this->init_radius = vm["init_radius"].as<float>();
+    float base_scale = 1.0;
+    float init_opacity = 0.0001;
 
     this->mu_world = register_parameter("mu_world", torch::randn({(long int)this->num_gaussians, 3}) * init_radius);
-    this->log_scale = register_parameter("log_scale", torch::full({(long int)this->num_gaussians, 3}, -2.0));
+    this->log_scale = register_parameter("log_scale", torch::full({(long int)this->num_gaussians, 3}, std::log(std::exp(base_scale) - 1.0)));
     this->quat = register_parameter("quat", torch::tensor({{1.0, 0.0, 0.0, 0.0}}, torch::kFloat).repeat({(long int)this->num_gaussians, 1}));
     this->colors = register_parameter("colors", torch::randn({1, (long int)this->num_gaussians, 3}) * 0.01);
-    this->log_opacity = register_parameter("log_opacity", torch::full({1, (long int)this->num_gaussians, 1}, 0.0));
+    this->log_opacity = register_parameter("log_opacity", torch::full({1, (long int)this->num_gaussians, 1}, std::log(init_opacity) - std::log(1.0 - init_opacity)));
     this->background_logit = register_parameter("background_logit", torch::full({1, 1, 3}, 0.0));
 
 }
@@ -93,7 +95,7 @@ torch::Tensor GS3DImpl::forward(torch::Tensor pose){
     // 1. Build 2-dimensional mean
     // ----------------------------------------
     float fx, fy, cx, cy;
-    torch::Tensor mu_world_expand, W, t, W_T, W_expand, W_T_expand, t_expand, mu_cam, tx, ty, tz, valid, u, v, mu_2d;
+    torch::Tensor mu_world_expand, W, t, W_expand, t_expand, mu_cam, tx, ty, tz, valid, u, v, mu_2d;
 
     // (1) Build 3-dimensional mean of world coordinate
     mu_world_expand = this->mu_world.view({1, (long int)this->num_gaussians, 3, 1}).expand({N, (long int)this->num_gaussians, 3, 1});  // {N,G,3,1}

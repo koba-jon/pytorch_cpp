@@ -79,7 +79,7 @@ po::options_description parse_arguments(){
         ("beta1", po::value<float>()->default_value(0.9), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
         ("num_gaussians", po::value<size_t>()->default_value(4096), "the number of 3D Gaussians")
-        ("init_radius", po::value<float>()->default_value(0.01), "initial radius for Gaussian centers")
+        ("init_radius", po::value<float>()->default_value(1.0), "initial radius for Gaussian centers")
         ("Lambda", po::value<float>()->default_value(0.2), "multiple of SSIM Loss")
 
         // (7) Define for Rendering
