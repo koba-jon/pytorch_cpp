@@ -143,7 +143,8 @@ NeRFImpl::NeRFImpl(po::variables_map &vm){
 std::tuple<torch::Tensor, torch::Tensor> NeRFImpl::build_rays(torch::Tensor pose){
 
     float fx, fy, cx, cy;
-    torch::Tensor xs, ys, grid_x, grid_y, dirs_x, dirs_y, dirs_z, dirs_cam, R, t, rays_d, rays_o;
+    torch::Tensor xs, ys, grid_x, grid_y, dirs_x, dirs_y, dirs_z, dirs_cam;
+    torch::Tensor R_c2w, t_c2w, R_w2c, t_w2c, cam_center, rays_d, rays_o;
 
     fx = this->focal_length;
     fy = this->focal_length;
@@ -162,11 +163,14 @@ std::tuple<torch::Tensor, torch::Tensor> NeRFImpl::build_rays(torch::Tensor pose
     dirs_cam = F::normalize(dirs_cam, F::NormalizeFuncOptions().p(2).dim(1));  // {H*W,3}
     dirs_cam = dirs_cam.unsqueeze(0).expand({pose.size(0), (long int)(this->size * this->size), 3}).contiguous();  // {H*W,3} ===> {1,H*W,3} ===> {N,H*W,3}
 
-    R = pose.index({Slice(), Slice(0, 3), Slice(0, 3)}).contiguous();  // {N,3,3}
-    t = pose.index({Slice(), Slice(0, 3), 3}).contiguous();  // {N,3}
-    rays_d = torch::bmm(dirs_cam, R.transpose(1, 2));  // {N,H*W,3}
+    R_c2w = pose.index({Slice(), Slice(0, 3), Slice(0, 3)}).contiguous();  // {N,3,3}
+    t_c2w = pose.index({Slice(), Slice(0, 3), 3}).contiguous();  // {N,3}
+    R_w2c = R_c2w.transpose(1, 2);  // {N,3,3}
+    t_w2c = (-torch::bmm(R_w2c, t_c2w.unsqueeze(-1))).squeeze(-1);  // {N,3}
+    cam_center = (-torch::bmm(R_w2c.transpose(1, 2), t_w2c.unsqueeze(-1))).squeeze(-1);  // {N,3}
+    rays_d = torch::bmm(dirs_cam, R_w2c);  // {N,H*W,3}
     rays_d = F::normalize(rays_d, F::NormalizeFuncOptions().p(2).dim(2));  // {N,H*W,3}
-    rays_o = t.unsqueeze(1).expand({pose.size(0), (long int)(this->size * this->size), 3}).contiguous();  // {N,3} ===> {N,1,3} ===> {N,H*W,3}
+    rays_o = cam_center.unsqueeze(1).expand({pose.size(0), (long int)(this->size * this->size), 3}).contiguous();  // {N,3} ===> {N,1,3} ===> {N,H*W,3}
 
     return {rays_o, rays_d};
 
