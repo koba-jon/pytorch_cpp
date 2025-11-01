@@ -18,7 +18,7 @@ $ cd ..
 
 #### Recommendation
 - srn cars Dataset / srn chairs Dataset<br>
-Link: [official](https://github.com/sxyu/pixel-nerf?tab=readme-ov-file)
+Link: [official]([https://github.com/sxyu/pixel-nerf?tab=readme-ov-file](https://www.vincentsitzmann.com/srns/?utm_source=chatgpt.com))
 
 #### Setting
 
