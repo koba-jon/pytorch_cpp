@@ -72,7 +72,6 @@ DATA='srn_cars'
 
 ./NeRF \
     --train true \
-    --train_load_epoch "latest" \
     --epochs 10000 \
     --dataset ${DATA} \
     --size 128 \
