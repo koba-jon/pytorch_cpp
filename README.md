@@ -56,6 +56,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+11/01,2025: Implementation of `NeRF` and `3DGS` <br>
 10/16,2025: Release of `v2.9.0` <br>
 10/16,2025: Implementation of `PixelSNAIL-Gray` and `PixelSNAIL-RGB` <br>
 10/14,2025: Implementation of `YOLOv8` <br>
@@ -65,11 +66,11 @@ $ sh scripts/test.sh
 10/08,2025: Implementation of `LDM` and `LDM-v` <br>
 10/04,2025: Implementation of `Glow` <br>
 10/01,2025: Implementation of `Real-NVP2d` <br>
-09/28,2025: Implementation of `Planar-Flow2d` and `Radial-Flow2d` <br>
 
 <details>
 <summary>See more...</summary>
   
+09/28,2025: Implementation of `Planar-Flow2d` and `Radial-Flow2d` <br>
 09/25,2025: Release of `v2.8.0.2` <br>
 09/22,2025: Implementation of `PixelCNN-Gray` and `PixelCNN-RGB` <br>
 09/18,2025: Implementation of `VQ-VAE-2` <br>
