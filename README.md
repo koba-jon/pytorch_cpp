@@ -479,7 +479,7 @@ $ sh scripts/test.sh
     <th>Code</th>
   </tr>
   <tr>
-    <td>NeRF</td>
+    <td>Neural Radiance Field</td>
     <td><a href="https://arxiv.org/abs/2003.08934">B. Mildenhall et al.</a></td>
     <td>ECCV 2020</td>
     <td><a href="View_Synthesis/NeRF">NeRF</a></td>
