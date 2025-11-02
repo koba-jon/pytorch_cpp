@@ -1,5 +1,5 @@
 # 3DGS
-This is the implementation of "3DGS".<br>
+This is the implementation of "3D Gaussian Splatting".<br>
 Original paper: B. Kerbl, G. Kopanas, T. Leimkühler, and G. Drettakis. 3D Gaussian Splatting for Real-Time Radiance Field Rendering. In International Conference and Exhibition on Computer Graphics and Interactive Techniques, 2023. [link](https://arxiv.org/abs/2308.04079)
 
 ## Usage
