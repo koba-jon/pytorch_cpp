@@ -6,9 +6,8 @@
 [![LibTorch](https://img.shields.io/badge/LibTorch-2.9.0-orange)]()
 [![OS](https://img.shields.io/badge/OS-Ubuntu-yellow)]()
 [![OS](https://img.shields.io/badge/License-MIT-green)]()
-![sample](sample.png)
-
-https://github.com/user-attachments/assets/51060309-ee5e-40df-a6bc-4cf3d5cc0657
+![sample1](sample1.png)
+![sample2](sample2.gif)
 
 </div>
 
