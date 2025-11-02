@@ -1,5 +1,5 @@
 # NeRF
-This is the implementation of "NeRF".<br>
+This is the implementation of "Neural Radiance Field".<br>
 Original paper: B. Mildenhall, P. P. Srinivasan, M. Tancik, J. T. Barron, R. Ramamoorthi, and R. Ng. NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis. In European Conference on Computer Vision, 2020. [link](https://arxiv.org/abs/2003.08934)
 
 ## Usage
