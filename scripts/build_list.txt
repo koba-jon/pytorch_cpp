@@ -47,3 +47,5 @@ Representation_Learning/MAE
 Representation_Learning/SimCLR
 Semantic_Segmentation/SegNet
 Semantic_Segmentation/U-Net_Classification
+View_Synthesis/NeRF
+View_Synthesis/3DGS
