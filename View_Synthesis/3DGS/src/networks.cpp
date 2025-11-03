@@ -129,7 +129,7 @@ torch::Tensor GS3DImpl::forward(torch::Tensor pose){
     // ----------------------------------------
     // 2. Build 2x2 covariance matrix
     // ----------------------------------------
-    torch::Tensor scale, S2, R, cov_world, cov_cam, zeros, row0, row1, J, trace, eps, cov_2d, eye2;
+    torch::Tensor scale, S2, R, cov_world, cov_cam, zeros, row0, row1, J, cov_2d, eye2;
 
     // (1) Build 3x3 covariance matrix of world coordinate
     scale = torch::softplus(this->log_scale) + 1e-6;  // {G,3}
@@ -151,9 +151,7 @@ torch::Tensor GS3DImpl::forward(torch::Tensor pose){
     J = torch::stack({row0, row1}, -2);  // {N,G,2,3}
     cov_2d = torch::matmul(torch::matmul(J, cov_cam), J.transpose(-1, -2));  // {N,G,2,2}
     eye2 = torch::eye(2).view({1, 1, 2, 2}).to(device);  // {1,1,2,2}
-    trace = cov_2d.index({Slice(), Slice(), 0, 0}) + cov_2d.index({Slice(), Slice(), 1, 1});  // {N,G}
-    eps = (1e-6 * trace.abs() + 1e-8).unsqueeze(-1).unsqueeze(-1);  // {N,G,1,1}
-    cov_2d = 0.5 * (cov_2d + cov_2d.transpose(-1, -2)) + eps * eye2;  // {N,G,2,2}
+    cov_2d = cov_2d + 1e-9 * eye2;  // {N,G,2,2}
 
 
     // ----------------------------------------

@@ -6,6 +6,7 @@
 #include <tuple>                       // std::tuple
 #include <vector>                      // std::vector
 #include <utility>                     // std::pair
+#include <cmath>                       // std::cos
 // For External Library
 #include <torch/torch.h>               // torch
 #include <boost/program_options.hpp>   // boost::program_options
@@ -18,11 +19,14 @@
 #include "visualizer.hpp"              // visualizer
 #include "progress.hpp"                // progress
 
+#define PI 3.14159265358979
+
 // Define Namespace
 namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
+template <typename Optimizer, typename OptimizerOptions> void Update_LR(Optimizer &optimizer, const float lr_init, const float lr_decay, const float epoch, const float epochs);
 void valid(po::variables_map &vm, DataLoader::ImageFolderCameraPoseWithPaths &valid_dataloader, torch::Device &device, Loss &criterion, GS3D &model, const size_t epoch, visualizer::graph &writer);
 
 
@@ -84,7 +88,9 @@ void train(po::variables_map &vm, torch::Device &device, GS3D &model, std::vecto
     }
 
     // (3) Set Optimizer Method
-    auto optimizer = torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(vm["lr"].as<float>()).betas({vm["beta1"].as<float>(), vm["beta2"].as<float>()}));
+    using Optimizer = torch::optim::Adam;
+    using OptimizerOptions = torch::optim::AdamOptions;
+    auto optimizer = Optimizer(model->parameters(), OptimizerOptions(vm["lr_init"].as<float>()).betas({vm["beta1"].as<float>(), vm["beta2"].as<float>()}));
 
     // (4) Set Loss Function
     auto criterion = Loss(vm["Lambda"].as<float>(), device);
@@ -158,6 +164,7 @@ void train(po::variables_map &vm, torch::Device &device, GS3D &model, std::vecto
         model->train();
         ofs << std::endl << "epoch:" << epoch << '/' << total_epoch << std::endl;
         show_progress = new progress::display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"loss"});
+        Update_LR<Optimizer, OptimizerOptions>(optimizer, vm["lr_init"].as<float>(), vm["lr_decay"].as<float>(), epoch, total_epoch);
 
         // -----------------------------------
         // b1. Mini Batch Learning
@@ -265,3 +272,24 @@ void train(po::variables_map &vm, torch::Device &device, GS3D &model, std::vecto
 
 }
 
+
+
+// ------------------------------------
+// Function to Update Learning Rate
+// ------------------------------------
+template <typename Optimizer, typename OptimizerOptions>
+void Update_LR(Optimizer &optimizer, const float lr_init, const float lr_decay, const float epoch, const float epochs){
+
+    float lr = lr_decay + 0.5 * (lr_init - lr_decay) * (1.0 + std::cos(PI * epoch / (epochs * 0.5)));
+    if (epoch > epochs * 0.5) lr = lr_decay;
+
+    for (auto &param_group : optimizer.param_groups()){
+        if (param_group.has_options()){
+            auto &options = (OptimizerOptions&)(param_group.options());
+            options.lr(lr);
+        }
+    }
+
+    return;
+
+}

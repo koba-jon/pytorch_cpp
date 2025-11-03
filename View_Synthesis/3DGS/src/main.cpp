@@ -75,7 +75,8 @@ po::options_description parse_arguments(){
         ("sample_theta", po::value<float>()->default_value(45.0), "phi for sampling")
 
         // (6) Define for Network Parameter
-        ("lr", po::value<float>()->default_value(1e-2), "learning rate")
+        ("lr_init", po::value<float>()->default_value(5e-3), "initial learning rate")
+        ("lr_decay", po::value<float>()->default_value(5e-4), "decay learning rate")
         ("beta1", po::value<float>()->default_value(0.9), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
         ("num_gaussians", po::value<size_t>()->default_value(4096), "the number of 3D Gaussians")
