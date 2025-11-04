@@ -64,12 +64,13 @@ void sample(po::variables_map &vm, torch::Device &device, NeRF &model){
         forward = forward / forward.norm();
         right = torch::cross(world_up, forward, 0);
         right = right / right.norm();
-        up = -torch::cross(forward, right, 0);
+        up = torch::cross(forward, right, 0);
 
         pose = torch::eye(4, torch::kFloat).unsqueeze(0).to(device);
         pose.index_put_({0, Slice(0, 3), Slice(0, 3)}, torch::stack({right, up, forward}, 1));
         pose.index_put_({0, Slice(0, 3), 3}, camera_origin);
         rendered = model->render_image(pose);
+        rendered = rendered.flip({2}).flip({3});
 
         ss.str(""); ss.clear(std::stringstream::goodbit);
         ss << std::setfill('0') << std::right << std::setw(digit) << i;
