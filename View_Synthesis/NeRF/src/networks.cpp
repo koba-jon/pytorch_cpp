@@ -144,7 +144,7 @@ std::tuple<torch::Tensor, torch::Tensor> NeRFImpl::build_rays(torch::Tensor pose
 
     float fx, fy, cx, cy;
     torch::Tensor xs, ys, grid_x, grid_y, dirs_x, dirs_y, dirs_z, dirs_cam;
-    torch::Tensor R_c2w, t_c2w, R_w2c, t_w2c, cam_center, rays_d, rays_o;
+    torch::Tensor R_c2w, t_c2w, cam_center, rays_d, rays_o;
 
     fx = this->focal_length;
     fy = this->focal_length;
@@ -165,10 +165,8 @@ std::tuple<torch::Tensor, torch::Tensor> NeRFImpl::build_rays(torch::Tensor pose
 
     R_c2w = pose.index({Slice(), Slice(0, 3), Slice(0, 3)}).contiguous();  // {N,3,3}
     t_c2w = pose.index({Slice(), Slice(0, 3), 3}).contiguous();  // {N,3}
-    R_w2c = R_c2w.transpose(1, 2);  // {N,3,3}
-    t_w2c = (-torch::bmm(R_w2c, t_c2w.unsqueeze(-1))).squeeze(-1);  // {N,3}
-    cam_center = (-torch::bmm(R_w2c.transpose(1, 2), t_w2c.unsqueeze(-1))).squeeze(-1);  // {N,3}
-    rays_d = torch::bmm(dirs_cam, R_w2c);  // {N,H*W,3}
+    cam_center = t_c2w;  // {N,3}
+    rays_d = torch::bmm(dirs_cam, R_c2w.transpose(1, 2));  // {N,H*W,3}
     rays_d = F::normalize(rays_d, F::NormalizeFuncOptions().p(2).dim(2));  // {N,H*W,3}
     rays_o = cam_center.unsqueeze(1).expand({pose.size(0), (long int)(this->size * this->size), 3}).contiguous();  // {N,3} ===> {N,1,3} ===> {N,H*W,3}
 
@@ -245,7 +243,7 @@ torch::Tensor NeRFImpl::sample_pdf(torch::Tensor bins, torch::Tensor weights, si
 
     u = torch::rand({cdf.size(0), cdf.size(1), (long int)n_samples}).to(cdf.device());  // {N,R,NS}
 
-    inds = torch::searchsorted(cdf, u, true);  // {N,R,NS}
+    inds = torch::searchsorted(cdf, u, false);  // {N,R,NS}
     max_cdf_idx = (long int)(cdf.size(2) - 1);
     max_bin_idx = (long int)(bins.size(2) - 1);
     below_cdf = torch::clamp(inds - 1, 0, max_cdf_idx);  // {N,R,NS}
@@ -277,7 +275,6 @@ std::tuple<torch::Tensor, torch::Tensor> NeRFImpl::forward(torch::Tensor rays_o,
     torch::Tensor z_vals_mid, weights_mid, z_samples, z_vals_all, z_vals_fine, rgb_fine, _;
 
     dirs = rays_d;  // {N,R,3}
-    dirs = dirs / (torch::norm(dirs, 2, /*dim=*/2, /*keepdim=*/true) + 1e-6);  // {N,R,3}
 
     z_vals_coarse = torch::linspace(this->near_plane, this->far_plane, this->samples_coarse).to(rays_o.device());  // {Sc}
     z_vals_coarse = z_vals_coarse.view({1, 1, -1}).expand({rays_o.size(0), rays_o.size(1), (long int)this->samples_coarse}).contiguous();  // {N,R,Sc}
