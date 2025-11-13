@@ -287,12 +287,19 @@ void ema(LDM &source, LDM &target, const float decay){
     auto sp = source->parameters();
     auto tp = target->parameters();
     for (size_t i = 0; i < sp.size(); i++){
-        if (sp[i].defined() && tp[i].defined()) tp[i].data().mul_(decay).add_(sp[i].data(), 1.0 - decay);
+        if (sp[i].defined() && tp[i].defined()) {
+            tp[i].mul_(decay);
+            tp[i].add_(sp[i], 1.0 - decay);
+        }
     }
     auto sb = source->buffers();
     auto tb = target->buffers();
     for (size_t i = 0; i < sb.size(); i++){
-        if (sb[i].defined() && tb[i].defined()) tb[i].copy_(sb[i]);
+        if (sb[i].defined() && tb[i].defined()) {
+            if (!tb[i].is_floating_point()) continue;
+            tb[i].mul_(decay);
+            tb[i].add_(sb[i], 1.0 - decay);
+        }
     }
     return;
 }
