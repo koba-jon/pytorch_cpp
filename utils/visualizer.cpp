@@ -31,7 +31,7 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
     size_t width_out, height_out;
     size_t ncol, nrow;
     int mtype_in, mtype_out;
-    cv::Mat float_mat, normal_mat, bit_mat;
+    cv::Mat float_mat, normal_mat;
     cv::Mat sample, output;
     std::vector<cv::Mat> samples;
     torch::Tensor tensor_sq, tensor_per, tensor_con;
@@ -83,9 +83,8 @@ void visualizer::save_image(const torch::Tensor image, const std::string path, c
         tensor_per = tensor_sq.permute({1, 2, 0});  // {C,H,W} ===> {H,W,C}
         tensor_con = tensor_per.contiguous();
         float_mat = cv::Mat(cv::Size(width, height), mtype_in, tensor_con.data_ptr<float>());  // torch::Tensor ===> cv::Mat
-        normal_mat = (float_mat - range.first) / (float)(range.second - range.first);  // [range.first, range.second] ===> [0,1]
-        bit_mat = normal_mat * (std::pow(2.0, bits) - 1.0);  // [0,1] ===> [0,255] or [0,65535]
-        bit_mat.convertTo(sample, mtype_out);  // {32F} ===> {8U} or {16U}
+        float_mat.convertTo(normal_mat, mtype_in, 1.0 / (float)(range.second - range.first), - range.first / (float)(range.second - range.first));  // [range.first, range.second] ===> [0,1]
+        normal_mat.convertTo(sample, mtype_out, std::pow(2.0, bits) - 1.0);  // {32F} ===> {8U} or {16U}, [0,1] ===> [0,255] or [0,65535]
         if (channels == 3){
             cv::cvtColor(sample, sample, cv::COLOR_RGB2BGR);  // {R,G,B} ===> {B,G,R}
         }
@@ -265,9 +264,8 @@ cv::Mat visualizer::draw_detections(const torch::Tensor image, const std::tuple<
     tensor = tensor.permute({1, 2, 0});  // {3,H,W} ===> {H,W,3}
     tensor = tensor.contiguous();
     mat = cv::Mat(cv::Size(width, height), CV_32FC3, tensor.data_ptr<float>());  // torch::Tensor ===> cv::Mat
-    mat = (mat - range.first) / (float)(range.second - range.first);  // [range.first, range.second] ===> [0,1]
-    mat = mat * (std::pow(2.0, bits) - 1.0);  // [0,1] ===> [0,255]
-    mat.convertTo(sample, CV_8UC3);  // {32F} ===> {8U}
+    mat.convertTo(mat, CV_32FC3, 1.0 / (float)(range.second - range.first), - range.first / (float)(range.second - range.first));  // [range.first, range.second] ===> [0,1]
+    mat.convertTo(sample, CV_8UC3, std::pow(2.0, bits) - 1.0);  // {32F} ===> {8U}, [0,1] ===> [0,255]
     cv::cvtColor(sample, sample, cv::COLOR_RGB2BGR);  // {R,G,B} ===> {B,G,R}
 
     // (4) Draw Bounding Box with class names
@@ -365,9 +363,8 @@ cv::Mat visualizer::draw_detections_des(const torch::Tensor image, const std::tu
     tensor = tensor.permute({1, 2, 0});  // {3,H,W} ===> {H,W,3}
     tensor = tensor.contiguous();
     mat = cv::Mat(cv::Size(width, height), CV_32FC3, tensor.data_ptr<float>());  // torch::Tensor ===> cv::Mat
-    mat = (mat - range.first) / (float)(range.second - range.first);  // [range.first, range.second] ===> [0,1]
-    mat = mat * (std::pow(2.0, bits) - 1.0);  // [0,1] ===> [0,255]
-    mat.convertTo(sample, CV_8UC3);  // {32F} ===> {8U}
+    mat.convertTo(mat, CV_32FC3, 1.0 / (float)(range.second - range.first), - range.first / (float)(range.second - range.first));  // [range.first, range.second] ===> [0,1]
+    mat.convertTo(sample, CV_8UC3, std::pow(2.0, bits) - 1.0);  // {32F} ===> {8U}, [0,1] ===> [0,255]
     cv::cvtColor(sample, sample, cv::COLOR_RGB2BGR);  // {R,G,B} ===> {B,G,R}
 
     // (4) Draw Bounding Box with class names
