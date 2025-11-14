@@ -3,11 +3,16 @@
 # 🔥 PyTorch C++ Samples 🔥
   
 [![Language](https://img.shields.io/badge/Language-C++-blue)]()
-[![LibTorch](https://img.shields.io/badge/LibTorch-2.9.0-orange)]()
+[![LibTorch](https://img.shields.io/badge/LibTorch-2.9.1-orange)]()
 [![OS](https://img.shields.io/badge/OS-Ubuntu-yellow)]()
 [![OS](https://img.shields.io/badge/License-MIT-green)]()
-![sample](sample.png)
+![sample1](sample1.png)
+![sample2](sample2.gif)
+
 </div>
+
+
+
 
 ## 🚀 Quick Start (Details: <a href="#-requirement-library">Library</a>, <a href="#-preparation-run">Run</a>)
 Requirements: `LibTorch`, `OpenCV`, `OpenMP`, `Boost`, `Gnuplot`, `libpng/png++/zlib` <br>
@@ -56,6 +61,8 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+11/14,2025: Release of `v2.9.1` <br>
+11/01,2025: Implementation of `NeRF` and `3DGS` <br>
 10/16,2025: Release of `v2.9.0` <br>
 10/16,2025: Implementation of `PixelSNAIL-Gray` and `PixelSNAIL-RGB` <br>
 10/14,2025: Implementation of `YOLOv8` <br>
@@ -64,12 +71,12 @@ $ sh scripts/test.sh
 10/08,2025: Implementation of `FM2d` <br>
 10/08,2025: Implementation of `LDM` and `LDM-v` <br>
 10/04,2025: Implementation of `Glow` <br>
-10/01,2025: Implementation of `Real-NVP2d` <br>
-09/28,2025: Implementation of `Planar-Flow2d` and `Radial-Flow2d` <br>
 
 <details>
 <summary>See more...</summary>
   
+10/01,2025: Implementation of `Real-NVP2d` <br>
+09/28,2025: Implementation of `Planar-Flow2d` and `Radial-Flow2d` <br>
 09/25,2025: Release of `v2.8.0.2` <br>
 09/22,2025: Implementation of `PixelCNN-Gray` and `PixelCNN-RGB` <br>
 09/18,2025: Implementation of `VQ-VAE-2` <br>
@@ -468,6 +475,29 @@ $ sh scripts/test.sh
   </tr>
 </table>
 
+### 🌐 View Synthesis
+
+<table>
+  <tr>
+    <th>Model</th>
+    <th>Paper</th>
+    <th>Conference/Journal</th>
+    <th>Code</th>
+  </tr>
+  <tr>
+    <td>Neural Radiance Field</td>
+    <td><a href="https://arxiv.org/abs/2003.08934">B. Mildenhall et al.</a></td>
+    <td>ECCV 2020</td>
+    <td><a href="View_Synthesis/NeRF">NeRF</a></td>
+  </tr>
+  <tr>
+    <td>3D Gaussian Splatting</td>
+    <td><a href="https://arxiv.org/abs/2308.04079">B. Kerbl et al.</a></td>
+    <td>SIGGRAPH 2023</td>
+    <td><a href="View_Synthesis/3DGS">3DGS</a></td>
+  </tr>
+</table>
+
 ### 🚨 Anomaly Detection
 
 <table>
@@ -519,15 +549,15 @@ $ sh scripts/test.sh
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Stable (2.9.0) <br>
+PyTorch Build : Stable (2.9.1) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 Language : C++ / Java <br>
 Run this Command : Download here (cxx11 ABI) <br>
-CUDA 12.6 : https://download.pytorch.org/libtorch/cu126/libtorch-shared-with-deps-2.9.0%2Bcu126.zip <br>
-CUDA 12.8 : https://download.pytorch.org/libtorch/cu128/libtorch-shared-with-deps-2.9.0%2Bcu128.zip <br>
-CUDA 13.0 : https://download.pytorch.org/libtorch/cu130/libtorch-shared-with-deps-2.9.0%2Bcu130.zip <br>
-CPU : https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.9.0%2Bcpu.zip <br>
+CUDA 12.6 : https://download.pytorch.org/libtorch/cu126/libtorch-shared-with-deps-2.9.1%2Bcu126.zip <br>
+CUDA 12.8 : https://download.pytorch.org/libtorch/cu128/libtorch-shared-with-deps-2.9.1%2Bcu128.zip <br>
+CUDA 13.0 : https://download.pytorch.org/libtorch/cu130/libtorch-shared-with-deps-2.9.1%2Bcu130.zip <br>
+CPU : https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.9.1%2Bcpu.zip <br>
 ***
 
 ### 2. OpenCV

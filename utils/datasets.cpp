@@ -16,6 +16,7 @@
 #include "datasets.hpp"
 
 namespace fs = std::filesystem;
+using torch::indexing::Slice;
 
 
 // -----------------------------------------------
@@ -157,6 +158,32 @@ std::tuple<torch::Tensor, torch::Tensor> datasets::BoundingBox_Loader(std::strin
     BBs = {ids, coords};  // {BB_n} (ids), {BB_n,4} (coordinates)
 
     return BBs;
+
+}
+
+
+// ----------------------------------------------------
+// namespace{datasets} -> function{CameraPose_Loader}
+// ----------------------------------------------------
+torch::Tensor datasets::CameraPose_Loader(std::string &path){
+    
+    float data_one;
+    std::ifstream ifs;
+    std::vector<float> data_src;
+    torch::Tensor data;
+
+    // Get Data
+    ifs.open(path);
+    for (size_t i = 0; i < 16; i++){
+        ifs >> data_one;
+        data_src.push_back(data_one);   
+    }
+    ifs.close();
+
+    // Get Tensor
+    data = torch::from_blob(data_src.data(), {4, 4}, torch::kFloat).clone();
+
+    return data;
 
 }
 
@@ -650,5 +677,45 @@ void datasets::ImageFolderBBWithPaths::get(const size_t idx, std::tuple<torch::T
 // namespace{datasets} -> class{ImageFolderBBWithPaths} -> function{size}
 // -------------------------------------------------------------------------
 size_t datasets::ImageFolderBBWithPaths::size(){
+    return this->fnames1.size();
+}
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderCameraPoseWithPaths} -> constructor
+// -------------------------------------------------------------------------
+datasets::ImageFolderCameraPoseWithPaths::ImageFolderCameraPoseWithPaths(const std::string root1, const std::string root2, std::vector<transforms_Compose> &transform_){
+
+    datasets::collect(root1, "", this->paths1, this->fnames1);
+    std::sort(this->paths1.begin(), this->paths1.end());
+    std::sort(this->fnames1.begin(), this->fnames1.end());
+
+    datasets::collect(root2, "", this->paths2, this->fnames2);
+    std::sort(this->paths2.begin(), this->paths2.end());
+    std::sort(this->fnames2.begin(), this->fnames2.end());
+
+    this->transform = transform_;
+
+}
+
+
+// -------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderCameraPoseWithPaths} -> function{get}
+// -------------------------------------------------------------------------
+void datasets::ImageFolderCameraPoseWithPaths::get(const size_t idx, std::tuple<torch::Tensor, torch::Tensor, std::string, std::string> &data){
+    cv::Mat image_Mat = datasets::RGB_Loader(this->paths1.at(idx));
+    torch::Tensor image = transforms::apply(this->transform, image_Mat);  // Mat Image ==={Resize,ToTensor,etc.}===> Tensor Image
+    torch::Tensor pose = datasets::CameraPose_Loader(this->paths2.at(idx));  // {4,4}
+    std::string fname1 = this->fnames1.at(idx);
+    std::string fname2 = this->fnames2.at(idx);
+    data = {image.detach().clone(), pose.detach().clone(), fname1, fname2};
+    return;
+}
+
+
+// --------------------------------------------------------------------------------
+// namespace{datasets} -> class{ImageFolderCameraPoseWithPaths} -> function{size}
+// --------------------------------------------------------------------------------
+size_t datasets::ImageFolderCameraPoseWithPaths::size(){
     return this->fnames1.size();
 }
