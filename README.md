@@ -61,6 +61,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+11/19,2025: Implementation of `DiT` and `DiT-v` <br>
 11/14,2025: Release of `v2.9.1` <br>
 11/01,2025: Implementation of `NeRF` and `3DGS` <br>
 10/16,2025: Release of `v2.9.0` <br>
@@ -70,11 +71,11 @@ $ sh scripts/test.sh
 10/09,2025: Implementation of `RF2d` <br>
 10/08,2025: Implementation of `FM2d` <br>
 10/08,2025: Implementation of `LDM` and `LDM-v` <br>
-10/04,2025: Implementation of `Glow` <br>
 
 <details>
 <summary>See more...</summary>
   
+10/04,2025: Implementation of `Glow` <br>
 10/01,2025: Implementation of `Real-NVP2d` <br>
 09/28,2025: Implementation of `Planar-Flow2d` and `Radial-Flow2d` <br>
 09/25,2025: Release of `v2.8.0.2` <br>
@@ -290,7 +291,7 @@ $ sh scripts/test.sh
     <td><a href="Generative_Modeling/Glow">Glow</a></td>
   </tr>
   <tr>
-    <td rowspan="8">Diffusion Models</td>
+    <td rowspan="10">Diffusion Models</td>
     <td rowspan="2">DDPM</td>
     <td rowspan="2"><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
     <td rowspan="2">NeurIPS 2020</td>
@@ -325,6 +326,15 @@ $ sh scripts/test.sh
   </tr>
   <tr>
     <td><a href="Generative_Modeling/LDM-v">LDM-v</a></td>
+  </tr>
+  <tr>
+    <td rowspan="2">Diffusion Transformer</td>
+    <td rowspan="2"><a href="https://openaccess.thecvf.com/content/ICCV2023/html/Peebles_Scalable_Diffusion_Models_with_Transformers_ICCV_2023_paper.html">W. Peebles et al.</a></td>
+    <td rowspan="2">ICCV 2023</td>
+    <td><a href="Generative_Modeling/DiT">DiT</a></td>
+  </tr>
+  <tr>
+    <td><a href="Generative_Modeling/DiT-v">DiT-v</a></td>
   </tr>
   <tr>
     <td rowspan="2">Flow Matching</td>
