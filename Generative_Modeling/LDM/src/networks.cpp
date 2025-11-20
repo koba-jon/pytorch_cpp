@@ -359,6 +359,7 @@ torch::Tensor UNetImpl::forward(torch::Tensor x, torch::Tensor t){
 // ---------------------------------------------
 LDMImpl::LDMImpl(po::variables_map &vm, torch::Device device){
 
+    this->pred = vm["pred"].as<char>();
     this->nc = vm["nc"].as<size_t>();
     this->size = vm["size"].as<size_t>();
     this->timesteps = vm["timesteps"].as<size_t>();
