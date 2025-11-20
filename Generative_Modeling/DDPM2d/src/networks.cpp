@@ -211,6 +211,7 @@ torch::Tensor UNetImpl::forward(torch::Tensor x, torch::Tensor t){
 // ---------------------------------------------
 DDPMImpl::DDPMImpl(po::variables_map &vm, torch::Device device){
 
+    this->pred = vm["pred"].as<char>();
     this->timesteps = vm["timesteps"].as<size_t>();
     this->betas = torch::linspace(vm["beta_start"].as<float>(), vm["beta_end"].as<float>(), this->timesteps).to(device);  // {T} (0.0001, 0.00012, 0.00014, ..., 0.01996, 0.01998, 0.02)
     this->betas = torch::cat({torch::zeros({1}).to(device), this->betas}, /*dim=*/0);  // {T+1} (0.0, 0.0001, 0.00012, 0.00014, ..., 0.01996, 0.01998, 0.02)
@@ -228,13 +229,15 @@ DDPMImpl::DDPMImpl(po::variables_map &vm, torch::Device device){
 // -----------------------------------------------------
 std::tuple<torch::Tensor, torch::Tensor> DDPMImpl::add_noise(torch::Tensor x_0, torch::Tensor t){
 
-    torch::Tensor alpha_bar, noise, x_t;
+    torch::Tensor alpha_bar, noise, x_t, v;
     
     alpha_bar = this->alpha_bars.index_select(/*dim=*/0, t).view({-1, 1, 1, 1});  // {N,1,1,1}
     noise = torch::randn_like(x_0).to(x_0.device());
     x_t = torch::sqrt(alpha_bar) * x_0 + torch::sqrt(1.0 - alpha_bar) * noise;
+    if (this->pred == 'e') return {x_t, noise};
+    v = torch::sqrt(alpha_bar) * noise - torch::sqrt(1.0 - alpha_bar) * x_0;
 
-    return {x_t, noise};
+    return {x_t, v};
 
 }
 
@@ -245,7 +248,7 @@ std::tuple<torch::Tensor, torch::Tensor> DDPMImpl::add_noise(torch::Tensor x_0, 
 torch::Tensor DDPMImpl::denoise(torch::Tensor x_t, torch::Tensor t){
 
     bool is_training;
-    torch::Tensor alpha, alpha_bar, alpha_bar_prev, eps, noise, mu, sigma, out;
+    torch::Tensor alpha, alpha_bar, alpha_bar_prev, v, eps, noise, mu, sigma, out;
 
     alpha = this->alphas.index_select(/*dim=*/0, t).view({-1, 1, 1, 1});
     alpha_bar = this->alpha_bars.index_select(/*dim=*/0, t).view({-1, 1, 1, 1});
@@ -253,7 +256,13 @@ torch::Tensor DDPMImpl::denoise(torch::Tensor x_t, torch::Tensor t){
 
     is_training = this->model->is_training();
     this->model->eval();
-    eps = this->model->forward(x_t, t);
+    if (this->pred == 'e'){
+        eps = this->model->forward(x_t, t);
+    }
+    else {
+        v = this->model->forward(x_t, t);
+        eps = torch::sqrt(alpha_bar) * v + torch::sqrt(1.0 - alpha_bar) * x_t;
+    }
     if (is_training) this->model->train();
     
     noise = torch::randn_like(x_t).to(x_t.device());
@@ -273,15 +282,22 @@ torch::Tensor DDPMImpl::denoise(torch::Tensor x_t, torch::Tensor t){
 torch::Tensor DDPMImpl::denoise_t(torch::Tensor x_t, torch::Tensor t){
 
     bool is_training;
-    torch::Tensor alpha_bar, eps, out;
+    torch::Tensor alpha_bar, eps, v, out;
+
+    alpha_bar = this->alpha_bars.index_select(/*dim=*/0, t).view({-1, 1, 1, 1});
 
     is_training = this->model->is_training();
     this->model->eval();
-    eps = this->model->forward(x_t, t);
+    if (this->pred == 'e'){
+        eps = this->model->forward(x_t, t);
+        out = (x_t - torch::sqrt(1.0 - alpha_bar) * eps) / torch::sqrt(alpha_bar);
+    }
+    else {
+        v = this->model->forward(x_t, t);
+        out = torch::sqrt(alpha_bar) * x_t - torch::sqrt(1.0 - alpha_bar) * v;
+    }
     if (is_training) this->model->train();
 
-    alpha_bar = this->alpha_bars.index_select(/*dim=*/0, t).view({-1, 1, 1, 1});
-    out = (x_t - torch::sqrt(1.0 - alpha_bar) * eps) / torch::sqrt(alpha_bar);
 
     return out;
 
