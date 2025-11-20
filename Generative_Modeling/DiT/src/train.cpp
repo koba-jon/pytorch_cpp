@@ -56,7 +56,7 @@ void train(po::variables_map &vm, torch::Device &device, DiT &model, DiT &model_
     std::ifstream infoi;
     std::ofstream ofs, init, infoo;
     std::tuple<torch::Tensor, std::vector<std::string>> mini_batch;
-    torch::Tensor image, t, pred_noise, target_noise, rec, latent_noisy, loss, loss_diff, loss_rec, noisy_image, clean_image, pair;
+    torch::Tensor image, t, pred, target, rec, latent_noisy, loss, loss_diff, loss_rec, noisy_image, clean_image, pair;
     datasets::ImageFolderWithPaths dataset, valid_dataset;
     DataLoader::ImageFolderWithPaths dataloader, valid_dataloader;
     visualizer::graph train_loss, valid_loss;
@@ -173,8 +173,8 @@ void train(po::variables_map &vm, torch::Device &device, DiT &model, DiT &model_
             // c1. DiT Training Phase
             // -------------------------
             t = torch::randint(1, vm["timesteps"].as<size_t>() + 1, {mini_batch_size}).to(device);
-            std::tie(pred_noise, target_noise, rec, latent_noisy) = model_aux->forward(image, t);
-            loss_diff = criterion(pred_noise, target_noise);
+            std::tie(pred, target, rec, latent_noisy) = model_aux->forward(image, t);
+            loss_diff = criterion(pred, target);
             loss_rec = vm["Lambda"].as<float>() * criterion(rec, image);
             loss = loss_diff + loss_rec;
             optimizer.zero_grad();

@@ -108,6 +108,7 @@ TORCH_MODULE(DiTBackbone);
 // -------------------------------------------------
 struct DiTImpl : nn::Module{
 private:
+    char pred;
     long int nc, size;
     size_t timesteps, timesteps_inf;
     float eta;

@@ -35,7 +35,7 @@ void test(po::variables_map &vm, torch::Device &device, DiT &model, std::vector<
     std::ofstream ofs;
     std::chrono::system_clock::time_point start, end;
     std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>> data;
-    torch::Tensor imageI, imageO, t, pred_noise, target_noise, rec, latent_noisy, loss, GT_loss;
+    torch::Tensor imageI, imageO, t, pred, target, rec, latent_noisy, loss, GT_loss;
     datasets::ImageFolderPairWithPaths dataset;
     DataLoader::ImageFolderPairWithPaths dataloader;
 
@@ -72,13 +72,13 @@ void test(po::variables_map &vm, torch::Device &device, DiT &model, std::vector<
         start = std::chrono::system_clock::now();
         
         t = torch::randint(1, vm["timesteps"].as<size_t>() + 1, {imageI.size(0)}).to(device);
-        std::tie(pred_noise, target_noise, rec, latent_noisy) = model->forward(imageI, t);
+        std::tie(pred, target, rec, latent_noisy) = model->forward(imageI, t);
 
         if (!device.is_cpu()) torch::cuda::synchronize();
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         
-        loss = criterion(pred_noise, target_noise);
+        loss = criterion(pred, target);
         GT_loss = criterion(rec, imageO);
         
         ave_loss += loss.item<float>();
