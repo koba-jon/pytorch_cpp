@@ -8,9 +8,8 @@ Dimensionality_Reduction/AE2d
 Dimensionality_Reduction/DAE2d
 Generative_Modeling/DCGAN
 Generative_Modeling/DDIM2d
-Generative_Modeling/DDIM2d-v
 Generative_Modeling/DDPM2d
-Generative_Modeling/DDPM2d-v
+Generative_Modeling/DiT
 Generative_Modeling/FM2d
 Generative_Modeling/Glow
 Generative_Modeling/LDM
@@ -20,7 +19,6 @@ Generative_Modeling/PixelSNAIL-Gray
 Generative_Modeling/PixelSNAIL-RGB
 Generative_Modeling/Planar-Flow2d
 Generative_Modeling/PNDM2d
-Generative_Modeling/PNDM2d-v
 Generative_Modeling/Radial-Flow2d
 Generative_Modeling/Real-NVP2d
 Generative_Modeling/RF2d
