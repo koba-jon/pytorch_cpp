@@ -382,6 +382,29 @@ $ sh scripts/test.sh
   </tr>
 </table>
 
+### 🔍 Super Resolution
+
+<table>
+  <tr>
+    <th>Model</th>
+    <th>Paper</th>
+    <th>Conference/Journal</th>
+    <th>Code</th>
+  </tr>
+  <tr>
+    <td>SRGAN</td>
+    <td><a href="https://openaccess.thecvf.com/content_cvpr_2017/html/Ledig_Photo-Realistic_Single_Image_CVPR_2017_paper.html">C. Ledig et al.</a></td>
+    <td>CVPR 2017</td>
+    <td><a href="Super_Resolution/SRGAN">SRGAN</a></td>
+  </tr>
+  <tr>
+    <td>ESRGAN</td>
+    <td><a href="https://openaccess.thecvf.com/content_eccv_2018_workshops/w25/html/Wang_ESRGAN_Enhanced_Super-Resolution_Generative_Adversarial_Networks_ECCVW_2018_paper.html">X. Wang et al.</a></td>
+    <td>ECCV 2018</td>
+    <td><a href="Super_Resolution/ESRGAN">ESRGAN</a></td>
+  </tr>
+</table>
+
 ### 🧩 Semantic Segmentation
 
 <table>
