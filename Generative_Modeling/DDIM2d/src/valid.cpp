@@ -26,8 +26,7 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datalo
     float ave_loss, total_loss;
     std::ofstream ofs;
     std::tuple<torch::Tensor, std::vector<std::string>> mini_batch;
-    torch::Tensor t, x_t, noise, loss, image, output;
-    std::tuple<torch::Tensor, torch::Tensor> x_t_with_noise;
+    torch::Tensor t, x_t, target, loss, image, output;
 
     // (1) Tensor Forward per Mini Batch
     torch::NoGradGuard no_grad;
@@ -37,11 +36,9 @@ void valid(po::variables_map &vm, DataLoader::ImageFolderWithPaths &valid_datalo
     while (valid_dataloader(mini_batch)){
         image = std::get<0>(mini_batch).to(device);
         t = torch::randint(1, vm["timesteps"].as<size_t>() + 1, {image.size(0)}).to(device);
-        x_t_with_noise = model->add_noise(image, t);
-        x_t = std::get<0>(x_t_with_noise);
-        noise = std::get<1>(x_t_with_noise);
+        std::tie(x_t, target) = model->add_noise(image, t);
         output = model->forward(x_t, t);
-        loss = criterion(output, noise);
+        loss = criterion(output, target);
         total_loss += loss.item<float>();
         iteration++;
     }
