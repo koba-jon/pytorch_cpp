@@ -67,7 +67,7 @@ po::options_description parse_arguments(){
         ("test_result_dir", po::value<std::string>()->default_value("test_result"), "test result directory : ./<test_result_dir>")
 
         // (5) Define for Network Parameter
-        ("lr", po::value<float>()->default_value(1e-4), "learning rate")
+        ("lr", po::value<float>()->default_value(1e-3), "learning rate")
         ("beta1", po::value<float>()->default_value(0.9), "beta 1 in Adam of optimizer method")
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
         ("n_layers", po::value<size_t>(), "the number of layer in model")
