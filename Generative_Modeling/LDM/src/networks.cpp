@@ -383,13 +383,15 @@ LDMImpl::LDMImpl(po::variables_map &vm, torch::Device device){
 // -----------------------------------------------------
 std::tuple<torch::Tensor, torch::Tensor> LDMImpl::add_noise(torch::Tensor z_0, torch::Tensor t){
 
-    torch::Tensor alpha_bar, noise, z_t;
+    torch::Tensor alpha_bar, noise, z_t, v;
     
     alpha_bar = this->alpha_bars.index_select(/*dim=*/0, t).view({-1, 1, 1, 1});  // {N,1,1,1}
     noise = torch::randn_like(z_0);
     z_t = torch::sqrt(alpha_bar) * z_0 + torch::sqrt(1.0 - alpha_bar) * noise;
+    if (this->pred == 'e') return {z_t, noise};
+    v = torch::sqrt(alpha_bar) * noise - torch::sqrt(1.0 - alpha_bar) * z_0;
 
-    return {z_t, noise};
+    return {z_t, v};
 
 }
 
@@ -400,7 +402,7 @@ std::tuple<torch::Tensor, torch::Tensor> LDMImpl::add_noise(torch::Tensor z_0, t
 torch::Tensor LDMImpl::denoise(torch::Tensor z_t, torch::Tensor t, torch::Tensor t_prev){
 
     bool is_training;
-    torch::Tensor alpha, alpha_bar, alpha_bar_prev, eps, noise, mu, sigma, out;
+    torch::Tensor alpha, alpha_bar, alpha_bar_prev, v, eps, noise, mu, sigma, out;
     torch::Tensor z_0;
 
     alpha = this->alphas.index_select(/*dim=*/0, t).view({-1, 1, 1, 1});
@@ -409,7 +411,13 @@ torch::Tensor LDMImpl::denoise(torch::Tensor z_t, torch::Tensor t, torch::Tensor
 
     is_training = this->model->is_training();
     this->model->eval();
-    eps = this->model->forward(z_t, t);
+    if (this->pred == 'e'){
+        eps = this->model->forward(z_t, t);
+    }
+    else {
+        v = this->model->forward(z_t, t);
+        eps = torch::sqrt(alpha_bar) * v + torch::sqrt(1.0 - alpha_bar) * z_t;
+    }
     if (is_training) this->model->train();
     
     noise = torch::randn_like(z_t).to(z_t.device());
@@ -429,15 +437,21 @@ torch::Tensor LDMImpl::denoise(torch::Tensor z_t, torch::Tensor t, torch::Tensor
 torch::Tensor LDMImpl::denoise_t(torch::Tensor z_t, torch::Tensor t){
 
     bool is_training;
-    torch::Tensor alpha_bar, eps, out;
+    torch::Tensor alpha_bar, eps, v, out;
+
+    alpha_bar = this->alpha_bars.index_select(/*dim=*/0, t).view({-1, 1, 1, 1});
 
     is_training = this->model->is_training();
     this->model->eval();
-    eps = this->model->forward(z_t, t);
+    if (this->pred == 'e'){
+        eps = this->model->forward(z_t, t);
+        out = (z_t - torch::sqrt(1.0 - alpha_bar) * eps) / torch::sqrt(alpha_bar);
+    }
+    else{
+        v = this->model->forward(z_t, t);
+        out = torch::sqrt(alpha_bar) * z_t - torch::sqrt(1.0 - alpha_bar) * v;
+    }
     if (is_training) this->model->train();
-
-    alpha_bar = this->alpha_bars.index_select(/*dim=*/0, t).view({-1, 1, 1, 1});
-    out = (z_t - torch::sqrt(1.0 - alpha_bar) * eps) / torch::sqrt(alpha_bar);
 
     return out;
 
@@ -461,12 +475,12 @@ std::vector<long int> LDMImpl::get_z_shape(torch::Device &device){
 // struct{LDMImpl}(nn::Module) -> function{forward}
 // ---------------------------------------------------
 std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> LDMImpl::forward(torch::Tensor x_0, torch::Tensor t){
-    torch::Tensor z_0, z_t, noise, pred_noise, rec;
+    torch::Tensor z_0, z_t, target, pred, rec;
     z_0 = this->ae->encode(x_0);
-    std::tie(z_t, noise) = this->add_noise(z_0.detach(), t);
-    pred_noise = this->model->forward(z_t, t);
+    std::tie(z_t, target) = this->add_noise(z_0.detach(), t);
+    pred = this->model->forward(z_t, t);
     rec = this->ae->decode(z_0);
-    return {pred_noise, noise, rec, z_t};
+    return {pred, target, rec, z_t};
 }
 
 

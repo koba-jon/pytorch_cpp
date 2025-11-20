@@ -94,6 +94,7 @@ TORCH_MODULE(UNet);
 // ------------------------------
 struct LDMImpl : nn::Module{
 private:
+    char pred;
     long int nc, size;
     size_t timesteps, timesteps_inf;
     float eta;
