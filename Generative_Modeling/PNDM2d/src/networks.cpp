@@ -211,6 +211,7 @@ torch::Tensor UNetImpl::forward(torch::Tensor x, torch::Tensor t){
 // ---------------------------------------------
 PNDMImpl::PNDMImpl(po::variables_map &vm, torch::Device device){
 
+    this->pred = vm["pred"].as<char>();
     this->timesteps = vm["timesteps"].as<size_t>();
     this->timesteps_inf = vm["timesteps_inf"].as<size_t>();
     this->betas = torch::linspace(vm["beta_start"].as<float>(), vm["beta_end"].as<float>(), this->timesteps).to(device);  // {T} (0.0001, 0.00012, 0.00014, ..., 0.01996, 0.01998, 0.02)
@@ -229,13 +230,15 @@ PNDMImpl::PNDMImpl(po::variables_map &vm, torch::Device device){
 // -----------------------------------------------------
 std::tuple<torch::Tensor, torch::Tensor> PNDMImpl::add_noise(torch::Tensor x_0, torch::Tensor t){
 
-    torch::Tensor alpha_bar, noise, x_t;
+    torch::Tensor alpha_bar, noise, x_t, v;
     
     alpha_bar = this->alpha_bars.index_select(/*dim=*/0, t).view({-1, 1, 1, 1});  // {N,1,1,1}
     noise = torch::randn_like(x_0).to(x_0.device());
     x_t = torch::sqrt(alpha_bar) * x_0 + torch::sqrt(1.0 - alpha_bar) * noise;
+    if (this->pred == 'e') return {x_t, noise};
+    v = torch::sqrt(alpha_bar) * noise - torch::sqrt(1.0 - alpha_bar) * x_0;
 
-    return {x_t, noise};
+    return {x_t, v};
 
 }
 
@@ -258,7 +261,7 @@ torch::Tensor PNDMImpl::denoise(torch::Tensor x_t, torch::Tensor t, torch::Tenso
 
     bool is_training;
     size_t n;
-    torch::Tensor alpha_bar, alpha_bar_prev, eps, t_mid, alpha_bar_mid, x2, x3, x4, e0, e1, e2, e3, e4, out;
+    torch::Tensor alpha_bar, alpha_bar_prev, v, eps, t_mid, alpha_bar_mid, x2, x3, x4, e0, e1, e2, e3, e4, out;
 
     // Get alpha_bar
     alpha_bar = this->alpha_bars.index_select(/*dim=*/0, t).view({-1, 1, 1, 1});
@@ -267,7 +270,13 @@ torch::Tensor PNDMImpl::denoise(torch::Tensor x_t, torch::Tensor t, torch::Tenso
     // Estimate epsilon
     is_training = this->model->is_training();
     this->model->eval();
-    eps = this->model->forward(x_t, t);
+    if (this->pred == 'e'){
+        eps = this->model->forward(x_t, t);
+    }
+    else {
+        v = this->model->forward(x_t, t);
+        eps = torch::sqrt(alpha_bar) * v + torch::sqrt(1.0 - alpha_bar) * x_t;
+    }
 
     // Update history
     eps_history.push_back(eps.detach());
@@ -282,13 +291,31 @@ torch::Tensor PNDMImpl::denoise(torch::Tensor x_t, torch::Tensor t, torch::Tenso
         e1 = eps_history[n - 1];
         x2 = this->transfer(x_t, e1, alpha_bar, alpha_bar_mid);
 
-        e2 = this->model->forward(x2, t_mid);
+        if (this->pred == 'e'){
+            e2 = this->model->forward(x2, t_mid);
+        }
+        else{
+            v = this->model->forward(x2, t_mid);
+            e2 = torch::sqrt(alpha_bar_mid) * v + torch::sqrt(1.0 - alpha_bar_mid) * x2;
+        }
         x3 = this->transfer(x_t, e2, alpha_bar, alpha_bar_mid);
 
-        e3 = this->model->forward(x3, t_mid);
+        if (this->pred == 'e'){
+            e3 = this->model->forward(x3, t_mid);
+        }
+        else{
+            v = this->model->forward(x3, t_mid);
+            e3 = torch::sqrt(alpha_bar_mid) * v + torch::sqrt(1.0 - alpha_bar_mid) * x3;
+        }
         x4 = this->transfer(x_t, e3, alpha_bar, alpha_bar_prev);
 
-        e4 = this->model->forward(x4, t_prev);
+        if (this->pred == 'e'){
+            e4 = this->model->forward(x4, t_prev);
+        }
+        else{
+            v = this->model->forward(x4, t_prev);
+            e4 = torch::sqrt(alpha_bar_prev) * v + torch::sqrt(1.0 - alpha_bar_prev) * x4;
+        }
         eps = (e1 + 2.0 * e2 + 2.0 * e3 + e4) / 6.0;
 
         eps_history.back() = eps.detach();
@@ -316,15 +343,21 @@ torch::Tensor PNDMImpl::denoise(torch::Tensor x_t, torch::Tensor t, torch::Tenso
 torch::Tensor PNDMImpl::denoise_t(torch::Tensor x_t, torch::Tensor t){
 
     bool is_training;
-    torch::Tensor alpha_bar, eps, out;
+    torch::Tensor alpha_bar, eps, v, out;
+
+    alpha_bar = this->alpha_bars.index_select(/*dim=*/0, t).view({-1, 1, 1, 1});
 
     is_training = this->model->is_training();
     this->model->eval();
-    eps = this->model->forward(x_t, t);
+    if (this->pred == 'e'){
+        eps = this->model->forward(x_t, t);
+        out = (x_t - torch::sqrt(1.0 - alpha_bar) * eps) / torch::sqrt(alpha_bar);
+    }
+    else {
+        v = this->model->forward(x_t, t);
+        out = torch::sqrt(alpha_bar) * x_t - torch::sqrt(1.0 - alpha_bar) * v;
+    }
     if (is_training) this->model->train();
-
-    alpha_bar = this->alpha_bars.index_select(/*dim=*/0, t).view({-1, 1, 1, 1});
-    out = (x_t - torch::sqrt(1.0 - alpha_bar) * eps) / torch::sqrt(alpha_bar);
 
     return out;
 

@@ -42,6 +42,7 @@ po::options_description parse_arguments(){
         ("size", po::value<size_t>()->default_value(256), "image width and height (x>=64)")
         ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
         ("nt", po::value<size_t>()->default_value(100), "time embedding dimensions")
+        ("pred", po::value<char>()->default_value('v'), "'e' for noise prediction, 'v' for v-prediction")
         ("timesteps", po::value<size_t>()->default_value(1000), "total time steps for training")
         ("timesteps_inf", po::value<size_t>()->default_value(50), "total time steps for inference")
         ("loss", po::value<std::string>()->default_value("l2"), "l1 (mean absolute error), l2 (mean squared error), ssim (structural similarity), etc.")
