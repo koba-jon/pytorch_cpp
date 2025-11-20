@@ -298,7 +298,6 @@ torch::Tensor DDPMImpl::denoise_t(torch::Tensor x_t, torch::Tensor t){
     }
     if (is_training) this->model->train();
 
-
     return out;
 
 }
