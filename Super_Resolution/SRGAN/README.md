@@ -55,11 +55,11 @@ datasets
 ~~~
 
 You should substitute the path of training low-resolution image for "<training_lr_path>", training high-resolution image for "<training_hr_path>", test low-resolution image for "<test_lr_path>", test high-resolution image for "<test_hr_path>", respectively.<br>
-The following is an example for "facade".
+The following is an example for "celebA".
 ~~~
 $ cd datasets
-$ mkdir facade
-$ cd facade
+$ mkdir celebA
+$ cd celebA
 $ ln -s <training_lr_path> ./trainLR
 $ ln -s <training_hr_path> ./trainHR
 $ ln -s <test_lr_path> ./testLR
