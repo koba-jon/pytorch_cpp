@@ -60,6 +60,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+11/21,2025: Implementation of `SRGAN` <br>
 11/19,2025: Implementation of `DiT` <br>
 11/14,2025: Release of `v2.9.1` <br>
 11/01,2025: Implementation of `NeRF` and `3DGS` <br>
@@ -69,11 +70,11 @@ $ sh scripts/test.sh
 10/13,2025: Implementation of `YOLOv5` <br>
 10/09,2025: Implementation of `RF2d` <br>
 10/08,2025: Implementation of `FM2d` <br>
-10/08,2025: Implementation of `LDM` <br>
 
 <details>
 <summary>See more...</summary>
   
+10/08,2025: Implementation of `LDM` <br>
 10/04,2025: Implementation of `Glow` <br>
 10/01,2025: Implementation of `Real-NVP2d` <br>
 09/28,2025: Implementation of `Planar-Flow2d` and `Radial-Flow2d` <br>
