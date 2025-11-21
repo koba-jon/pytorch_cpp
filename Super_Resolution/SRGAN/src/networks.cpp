@@ -228,7 +228,6 @@ void weights_init(nn::Module &m){
 }
 
 
-
 // ----------------------------
 // function{make_layers}
 // ----------------------------
