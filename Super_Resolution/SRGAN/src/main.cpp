@@ -50,7 +50,7 @@ po::options_description parse_arguments(){
         ("train_lr_dir", po::value<std::string>()->default_value("trainLR"), "training low-resolution image directory : ./datasets/<dataset>/<train_lr_dir>/<image files>")
         ("train_hr_dir", po::value<std::string>()->default_value("trainHR"), "training high-resolution image directory : ./datasets/<dataset>/<train_hr_dir>/<image files>")
         ("epochs", po::value<size_t>()->default_value(200), "training total epoch")
-        ("batch_size", po::value<size_t>()->default_value(1), "training batch size")
+        ("batch_size", po::value<size_t>()->default_value(32), "training batch size")
         ("train_load_epoch", po::value<std::string>()->default_value(""), "epoch of model to resume learning")
         ("save_epoch", po::value<size_t>()->default_value(20), "frequency of epoch to save model and optimizer")
 
