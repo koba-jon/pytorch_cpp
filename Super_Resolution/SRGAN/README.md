@@ -1,5 +1,5 @@
 # SRGAN
-This is the implementation of "Super Resolution Generative Adversarial Network".<br>
+This is the implementation of "Super-Resolution Generative Adversarial Network".<br>
 Original paper: C. Ledig, L. Theis, F. Huszar, J. Caballero, A. Cunningham, A. Acosta, A. Aitken, A. Tejani, J. Totz, Z. Wang, and W. Shi. Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2017. [link](https://openaccess.thecvf.com/content_cvpr_2017/html/Ledig_Photo-Realistic_Single_Image_CVPR_2017_paper.html)
 
 ## Usage
