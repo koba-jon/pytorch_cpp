@@ -38,7 +38,7 @@ po::options_description parse_arguments(){
         ("help", "produce help message")
         ("dataset", po::value<std::string>(), "dataset name")
         ("hr_size", po::value<size_t>()->default_value(256), "high-resolution image width and height")
-        ("upscale", po::value<size_t>()->default_value(4), "upscale factor")
+        ("upscale", po::value<size_t>()->default_value(8), "upscale factor")
         ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
         ("loss", po::value<std::string>()->default_value("vanilla"), "vanilla (cross-entropy), lsgan (mse), etc.")
         ("gpu_id", po::value<int>()->default_value(0), "cuda device : 'x=-1' is cpu device")
