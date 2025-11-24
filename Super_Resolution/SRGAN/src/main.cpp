@@ -77,7 +77,7 @@ po::options_description parse_arguments(){
         ("ndf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image in discriminator")
         ("n_resblocks", po::value<size_t>()->default_value(16), "the number of residual blocks in generator")
         ("adv_weight", po::value<float>()->default_value(1e-3), "the multiple of adversarial loss")
-        ("content_weight", po::value<float>()->default_value(1.0), "the multiple of perceptual loss from VGG features")
+        ("content_weight", po::value<float>()->default_value(2e-6), "the multiple of perceptual loss from VGG features")
         ("vgg_path", po::value<std::string>()->default_value("vgg19.pth"), "path to pretrained VGG feature extractor weights")
 
     ;
