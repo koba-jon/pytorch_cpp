@@ -7,6 +7,10 @@
 // For Original Header
 #include "networks.hpp"
 
+#include <cmath>
+#include <string>
+#include <typeinfo>
+
 // Define Namespace
 namespace nn = torch::nn;
 namespace F = torch::nn::functional;
@@ -54,37 +58,74 @@ torch::Tensor MC_VGGNetImpl::forward(torch::Tensor x){
 
 
 // -----------------------------------
-// struct{ResidualBlockImpl} -> constructor
+// struct{DenseBlockImpl} -> constructor
 // -----------------------------------
-ResidualBlockImpl::ResidualBlockImpl(const size_t nc){
-    this->block = nn::Sequential(
-        nn::Conv2d(nn::Conv2dOptions(nc, nc, /*kernel_size=*/3).stride(1).padding(1).bias(false)),
-        nn::BatchNorm2d(nc),
-        nn::PReLU(),
-        nn::Conv2d(nn::Conv2dOptions(nc, nc, /*kernel_size=*/3).stride(1).padding(1).bias(false)),
-        nn::BatchNorm2d(nc)
-    );
-    register_module("block", this->block);
+DenseBlockImpl::DenseBlockImpl(const size_t in_nc, const size_t growth_){
+
+    this->growth = growth_;
+    this->convs.reserve(5);
+    size_t channels = in_nc;
+    for (size_t i = 0; i < 4; i++){
+        auto conv = nn::Conv2d(nn::Conv2dOptions(channels, growth_, /*kernel_size=*/3).stride(1).padding(1));
+        this->convs.push_back(register_module("conv" + std::to_string(i), conv));
+        channels += growth_;
+    }
+    auto conv_last = nn::Conv2d(nn::Conv2dOptions(channels, in_nc, /*kernel_size=*/3).stride(1).padding(1));
+    this->convs.push_back(register_module("conv4", conv_last));
 }
 
 
 // -----------------------------------
-// struct{ResidualBlockImpl} -> function{forward}
+// struct{DenseBlockImpl} -> function{forward}
 // -----------------------------------
-torch::Tensor ResidualBlockImpl::forward(torch::Tensor x){
-    return x + this->block->forward(x);
+torch::Tensor DenseBlockImpl::forward(torch::Tensor x){
+    std::vector<torch::Tensor> inputs;
+    inputs.reserve(this->convs.size() + 1);
+    inputs.push_back(x);
+
+    for (size_t i = 0; i < this->convs.size(); i++){
+        auto stacked = torch::cat(inputs, 1);
+        auto out = this->convs[i]->forward(stacked);
+        if (i + 1 < this->convs.size()){
+            out = F::leaky_relu(out, F::LeakyReLUFuncOptions().negative_slope(0.2));
+        }
+        inputs.push_back(out);
+    }
+
+    return x + inputs.back() * 0.2;
+}
+
+
+// -----------------------------------
+// struct{RRDBImpl} -> constructor
+// -----------------------------------
+RRDBImpl::RRDBImpl(const size_t in_nc, const size_t growth){
+    this->blocks = nn::Sequential(
+        DenseBlock(in_nc, growth),
+        DenseBlock(in_nc, growth),
+        DenseBlock(in_nc, growth)
+    );
+    register_module("blocks", this->blocks);
+}
+
+
+// -----------------------------------
+// struct{RRDBImpl} -> function{forward}
+// -----------------------------------
+torch::Tensor RRDBImpl::forward(torch::Tensor x){
+    auto out = this->blocks->forward(x);
+    return x + out * 0.2;
 }
 
 
 // -----------------------------------
 // struct{UpsampleBlockImpl} -> constructor
 // -----------------------------------
-UpsampleBlockImpl::UpsampleBlockImpl(const size_t in_nc, const size_t scale_factor){
-
+UpsampleBlockImpl::UpsampleBlockImpl(const size_t in_nc){
     this->block = nn::Sequential(
-        nn::Conv2d(nn::Conv2dOptions(in_nc, in_nc * (scale_factor * scale_factor), /*kernel_size=*/3).stride(1).padding(1)),
-        nn::PixelShuffle(scale_factor),
-        nn::PReLU()
+        nn::Upsample(nn::UpsampleOptions().scale_factor(std::vector<double>({2.0, 2.0})).mode(torch::kNearest)),
+        nn::Conv2d(nn::Conv2dOptions(in_nc, in_nc, /*kernel_size=*/3).stride(1).padding(1)),
+        nn::LeakyReLU(nn::LeakyReLUOptions().negative_slope(0.2))
     );
     register_module("block", this->block);
 }
@@ -99,38 +140,40 @@ torch::Tensor UpsampleBlockImpl::forward(torch::Tensor x){
 
 
 // -----------------------------------
-// struct{SRGAN_GeneratorImpl} -> constructor
+// struct{ESRGAN_GeneratorImpl} -> constructor
 // -----------------------------------
-SRGAN_GeneratorImpl::SRGAN_GeneratorImpl(po::variables_map &vm){
+ESRGAN_GeneratorImpl::ESRGAN_GeneratorImpl(po::variables_map &vm){
 
     const size_t nc = vm["nc"].as<size_t>();
     const size_t ngf = vm["ngf"].as<size_t>();
-    const size_t n_resblocks = vm["n_resblocks"].as<size_t>();
+    const size_t n_rrdb = vm["n_rrdb"].as<size_t>();
+    const size_t growth = vm["growth_channels"].as<size_t>();
     const size_t upscale = vm["upscale"].as<size_t>();
 
     // (1) Head
     this->head = nn::Sequential(
-        nn::Conv2d(nn::Conv2dOptions(nc, ngf, /*kernel_size=*/9).stride(1).padding(4)),
-        nn::PReLU()
+        nn::Conv2d(nn::Conv2dOptions(nc, ngf, /*kernel_size=*/3).stride(1).padding(1)),
+        nn::LeakyReLU(nn::LeakyReLUOptions().negative_slope(0.2))
     );
     register_module("head", this->head);
 
     // (2) Body
     this->body = nn::Sequential();
-    for (size_t i = 0; i < n_resblocks; i++){
-        this->body->push_back(ResidualBlock(ngf));
+    for (size_t i = 0; i < n_rrdb; i++){
+        this->body->push_back(RRDB(ngf, growth));
     }
-    this->body->push_back(nn::Conv2d(nn::Conv2dOptions(ngf, ngf, /*kernel_size=*/3).stride(1).padding(1).bias(false)));
-    this->body->push_back(nn::BatchNorm2d(ngf));
+    this->body->push_back(nn::Conv2d(nn::Conv2dOptions(ngf, ngf, /*kernel_size=*/3).stride(1).padding(1)));
     register_module("body", this->body);
 
     // (3) Tail
     this->tail = nn::Sequential();
     size_t n_upsample = size_t(std::round(std::log2((double)upscale)));
     for (size_t i = 0; i < n_upsample; i++){
-        this->tail->push_back(UpsampleBlock(ngf, 2));
+        this->tail->push_back(UpsampleBlock(ngf));
     }
-    this->tail->push_back(nn::Conv2d(nn::Conv2dOptions(ngf, nc, /*kernel_size=*/9).stride(1).padding(4)));
+    this->tail->push_back(nn::Conv2d(nn::Conv2dOptions(ngf, ngf, /*kernel_size=*/3).stride(1).padding(1)));
+    this->tail->push_back(nn::LeakyReLU(nn::LeakyReLUOptions().negative_slope(0.2)));
+    this->tail->push_back(nn::Conv2d(nn::Conv2dOptions(ngf, nc, /*kernel_size=*/3).stride(1).padding(1)));
     this->tail->push_back(nn::Tanh());
     register_module("tail", this->tail);
 
@@ -138,12 +181,12 @@ SRGAN_GeneratorImpl::SRGAN_GeneratorImpl(po::variables_map &vm){
 
 
 // -----------------------------------
-// struct{SRGAN_GeneratorImpl} -> function{forward}
+// struct{ESRGAN_GeneratorImpl} -> function{forward}
 // -----------------------------------
-torch::Tensor SRGAN_GeneratorImpl::forward(torch::Tensor x){
-    auto residual = this->head->forward(x);
-    auto out = this->body->forward(residual);
-    out = out + residual;
+torch::Tensor ESRGAN_GeneratorImpl::forward(torch::Tensor x){
+    auto head = this->head->forward(x);
+    auto trunk = this->body->forward(head);
+    auto out = head + trunk;
     out = this->tail->forward(out);
     return out;
 }
@@ -171,9 +214,9 @@ torch::Tensor ConvBlockImpl::forward(torch::Tensor x){
 
 
 // ------------------------------------------------
-// struct{SRGAN_DiscriminatorImpl} -> constructor
+// struct{ESRGAN_DiscriminatorImpl} -> constructor
 // ------------------------------------------------
-SRGAN_DiscriminatorImpl::SRGAN_DiscriminatorImpl(po::variables_map &vm){
+ESRGAN_DiscriminatorImpl::ESRGAN_DiscriminatorImpl(po::variables_map &vm){
 
     const size_t input_nc = vm["nc"].as<size_t>();
     const size_t ndf = vm["ndf"].as<size_t>();
@@ -199,9 +242,9 @@ SRGAN_DiscriminatorImpl::SRGAN_DiscriminatorImpl(po::variables_map &vm){
 
 
 // -----------------------------------
-// struct{SRGAN_DiscriminatorImpl} -> function{forward}
+// struct{ESRGAN_DiscriminatorImpl} -> function{forward}
 // -----------------------------------
-torch::Tensor SRGAN_DiscriminatorImpl::forward(torch::Tensor x){
+torch::Tensor ESRGAN_DiscriminatorImpl::forward(torch::Tensor x){
     return this->model->forward(x);
 }
 
@@ -217,6 +260,13 @@ void weights_init(nn::Module &m){
         if (w != nullptr) nn::init::normal_(*w, /*mean=*/0.0, /*std=*/0.02);
         if (b != nullptr) nn::init::constant_(*b, /*bias=*/0.0);
     }
+    else if ((typeid(m) == typeid(nn::Linear)) || (typeid(m) == typeid(nn::LinearImpl))){
+        auto p = m.named_parameters(false);
+        auto w = p.find("weight");
+        auto b = p.find("bias");
+        if (w != nullptr) nn::init::normal_(*w, /*mean=*/0.0, /*std=*/0.02);
+        if (b != nullptr) nn::init::constant_(*b, /*bias=*/0.0);
+    }
     else if ((typeid(m) == typeid(nn::BatchNorm2d)) || (typeid(m) == typeid(nn::BatchNorm2dImpl))){
         auto p = m.named_parameters(false);
         auto w = p.find("weight");
@@ -226,7 +276,6 @@ void weights_init(nn::Module &m){
     }
     return;
 }
-
 
 
 // ----------------------------

@@ -10,7 +10,7 @@
 #include <opencv2/opencv.hpp>          // cv::Mat
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
-#include "networks.hpp"                // SRGAN_Generator, SRGAN_Discriminator
+#include "networks.hpp"                // ESRGAN_Generator, ESRGAN_Discriminator
 #include "transforms.hpp"              // transforms
 
 // Define Namespace
@@ -18,8 +18,8 @@ namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 // Function Prototype
-void train(po::variables_map &vm, torch::Device &device, SRGAN_Generator &gen, SRGAN_Discriminator &dis, std::vector<transforms_Compose> &transformLR, std::vector<transforms_Compose> &transformHR);
-void test(po::variables_map &vm, torch::Device &device, SRGAN_Generator &gen, std::vector<transforms_Compose> &transformLR, std::vector<transforms_Compose> &transformHR);
+void train(po::variables_map &vm, torch::Device &device, ESRGAN_Generator &gen, ESRGAN_Discriminator &dis, std::vector<transforms_Compose> &transformLR, std::vector<transforms_Compose> &transformHR);
+void test(po::variables_map &vm, torch::Device &device, ESRGAN_Generator &gen, std::vector<transforms_Compose> &transformLR, std::vector<transforms_Compose> &transformHR);
 torch::Device Set_Device(po::variables_map &vm);
 template <typename T> void Set_Model_Params(po::variables_map &vm, T &model, const std::string name);
 void Set_Options(po::variables_map &vm, int argc, const char *argv[], po::options_description &args, const std::string mode);
@@ -37,8 +37,8 @@ po::options_description parse_arguments(){
         // (1) Define for General Parameter
         ("help", "produce help message")
         ("dataset", po::value<std::string>(), "dataset name")
-        ("hr_size", po::value<size_t>()->default_value(128), "high-resolution image width and height")
-        ("upscale", po::value<size_t>()->default_value(4), "upscale factor")
+        ("hr_size", po::value<size_t>()->default_value(256), "high-resolution image width and height")
+        ("upscale", po::value<size_t>()->default_value(8), "upscale factor")
         ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
         ("loss", po::value<std::string>()->default_value("vanilla"), "vanilla (cross-entropy), lsgan (mse), etc.")
         ("gpu_id", po::value<int>()->default_value(0), "cuda device : 'x=-1' is cpu device")
@@ -75,9 +75,10 @@ po::options_description parse_arguments(){
         ("beta2", po::value<float>()->default_value(0.999), "beta 2 in Adam of optimizer method")
         ("ngf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image in generator")
         ("ndf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image in discriminator")
-        ("n_resblocks", po::value<size_t>()->default_value(16), "the number of residual blocks in generator")
-        ("adv_weight", po::value<float>()->default_value(1e-3), "the multiple of adversarial loss")
-        ("content_weight", po::value<float>()->default_value(1.0), "the multiple of perceptual loss from VGG features")
+        ("n_rrdb", po::value<size_t>()->default_value(23), "the number of RRDB blocks in generator")
+        ("growth_channels", po::value<size_t>()->default_value(32), "growth channels inside dense blocks")
+        ("Lambda", po::value<float>()->default_value(5e-3), "the multiple of adversarial loss")
+        ("eta", po::value<float>()->default_value(1.0), "the multiple of l1 pixel loss")
         ("vgg_path", po::value<std::string>()->default_value("vgg19.pth"), "path to pretrained VGG feature extractor weights")
 
     ;
@@ -142,16 +143,16 @@ int main(int argc, const char *argv[]){
     }
     
     // (5) Define Network
-    SRGAN_Generator gen(vm); gen->to(device);
-    SRGAN_Discriminator dis(vm); dis->to(device);
+    ESRGAN_Generator gen(vm); gen->to(device);
+    ESRGAN_Discriminator dis(vm); dis->to(device);
     
     // (6) Make Directories
     std::string dir = "checkpoints/" + vm["dataset"].as<std::string>();
     fs::create_directories(dir);
 
     // (7) Save Model Parameters
-    Set_Model_Params(vm, gen, "SRGAN_Generator");
-    Set_Model_Params(vm, dis, "SRGAN_Discriminator");
+    Set_Model_Params(vm, gen, "ESRGAN_Generator");
+    Set_Model_Params(vm, dis, "ESRGAN_Discriminator");
 
     // (8.1) Training Phase
     if (vm["train"].as<bool>()){

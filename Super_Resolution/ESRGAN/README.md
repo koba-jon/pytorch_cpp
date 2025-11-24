@@ -1,6 +1,6 @@
-# SRGAN
-This is the implementation of "Super Resolution Generative Adversarial Network".<br>
-Original paper: C. Ledig, L. Theis, F. Huszar, J. Caballero, A. Cunningham, A. Acosta, A. Aitken, A. Tejani, J. Totz, Z. Wang, and W. Shi. Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2017. [link](https://openaccess.thecvf.com/content_cvpr_2017/html/Ledig_Photo-Realistic_Single_Image_CVPR_2017_paper.html)
+# ESRGAN
+This is the implementation of "Enhanced Super-Resolution Generative Adversarial Network".<br>
+Original paper: X. Wang, K. Yu, S. Wu, J. Gu, Y. Liu, C. Dong, Y. Qiao, and C. C. Loy. ESRGAN: Enhanced Super-Resolution Generative Adversarial Networks. In Proceedings of the European Conference on Computer Vision, 2018. [link](https://openaccess.thecvf.com/content_eccv_2018_workshops/w25/html/Wang_ESRGAN_Enhanced_Super-Resolution_Generative_Adversarial_Networks_ECCVW_2018_paper.html)
 
 ## Usage
 
@@ -81,12 +81,11 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='celebA'
 
-./SRGAN \
+./ESRGAN \
     --train true \
     --epochs 300 \
     --dataset ${DATA} \
-    --hr_size 128 \
-    --loss "vanilla" \
+    --hr_size 256 \
     --batch_size 16 \
     --gpu_id 0 \
     --nc 3
@@ -112,10 +111,10 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='celebA'
 
-./SRGAN \
+./ESRGAN \
     --test true \
     --dataset ${DATA} \
-    --hr_size 128 \
+    --hr_size 256 \
     --gpu_id 0 \
     --nc 3
 ~~~

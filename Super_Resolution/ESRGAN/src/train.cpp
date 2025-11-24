@@ -11,7 +11,7 @@
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
 #include "loss.hpp"                    // Loss
-#include "networks.hpp"                // SRGAN_Generator, SRGAN_Discriminator
+#include "networks.hpp"                // ESRGAN_Generator, ESRGAN_Discriminator
 #include "transforms.hpp"              // transforms_Compose
 #include "datasets.hpp"                // datasets::ImageFolderPairWithPaths
 #include "dataloader.hpp"              // DataLoader::ImageFolderPairWithPaths
@@ -24,13 +24,13 @@ namespace po = boost::program_options;
 namespace F = torch::nn::functional;
 
 // Function Prototype
-void valid(po::variables_map &vm, DataLoader::ImageFolderPairWithPaths &valid_dataloader, torch::Device &device, Loss &criterion_GAN, torch::nn::MSELoss &criterion_Con, SRGAN_Generator &gen, SRGAN_Discriminator &dis, MC_VGGNet &vgg, const size_t epoch, visualizer::graph &writer, visualizer::graph &writer_gen, visualizer::graph &writer_dis);
+void valid(po::variables_map &vm, DataLoader::ImageFolderPairWithPaths &valid_dataloader, torch::Device &device, torch::nn::L1Loss &criterion_L1, Loss &criterion_GAN, torch::nn::L1Loss &criterion_Con, ESRGAN_Generator &gen, ESRGAN_Discriminator &dis, MC_VGGNet &vgg, const size_t epoch, visualizer::graph &writer, visualizer::graph &writer_gen, visualizer::graph &writer_dis);
 
 
 // -------------------
 // Training Function
 // -------------------
-void train(po::variables_map &vm, torch::Device &device, SRGAN_Generator &gen, SRGAN_Discriminator &dis, std::vector<transforms_Compose> &transformLR, std::vector<transforms_Compose> &transformHR){
+void train(po::variables_map &vm, torch::Device &device, ESRGAN_Generator &gen, ESRGAN_Discriminator &dis, std::vector<transforms_Compose> &transformLR, std::vector<transforms_Compose> &transformHR){
 
     constexpr bool train_shuffle = true;  // whether to shuffle the training dataset
     constexpr size_t train_workers = 4;  // the number of workers to retrieve data from the training dataset
@@ -60,7 +60,7 @@ void train(po::variables_map &vm, torch::Device &device, SRGAN_Generator &gen, S
     torch::Tensor lr, hr, sr, pair;
     torch::Tensor content_hr, content_sr;
     torch::Tensor dis_real_out, dis_fake_out;
-    torch::Tensor gen_loss, G_content_loss, G_GAN_loss;
+    torch::Tensor gen_loss, G_L1_loss, G_content_loss, G_GAN_loss;
     torch::Tensor dis_loss, dis_real_loss, dis_fake_loss;
     torch::Tensor label_real, label_fake;
     datasets::ImageFolderPairWithPaths dataset, valid_dataset;
@@ -97,8 +97,9 @@ void train(po::variables_map &vm, torch::Device &device, SRGAN_Generator &gen, S
     auto dis_optimizer = torch::optim::Adam(dis->parameters(), torch::optim::AdamOptions(vm["lr_dis"].as<float>()).betas({vm["beta1"].as<float>(), vm["beta2"].as<float>()}));
 
     // (4) Set Loss Function
+    auto criterion_L1 = torch::nn::L1Loss(torch::nn::L1LossOptions().reduction(torch::kMean));
     auto criterion_GAN = Loss(vm["loss"].as<std::string>());
-    auto criterion_Con = torch::nn::MSELoss(torch::nn::MSELossOptions().reduction(torch::kMean));
+    auto criterion_Con = torch::nn::L1Loss(torch::nn::L1LossOptions().reduction(torch::kMean));
 
     // (5) Make Directories
     checkpoint_dir = "checkpoints/" + vm["dataset"].as<std::string>();
@@ -110,11 +111,11 @@ void train(po::variables_map &vm, torch::Device &device, SRGAN_Generator &gen, S
     // (6) Set Training Loss for Graph
     path = checkpoint_dir + "/graph";
     train_loss = visualizer::graph(path, /*gname_=*/"train_loss", /*label_=*/{"Generator", "Discriminator"});
-    train_loss_gen = visualizer::graph(path, /*gname_=*/"train_loss_gen", /*label_=*/{"Total", "GAN", "Content"});
+    train_loss_gen = visualizer::graph(path, /*gname_=*/"train_loss_gen", /*label_=*/{"Total", "L1", "GAN", "Content"});
     train_loss_dis = visualizer::graph(path, /*gname_=*/"train_loss_dis", /*label_=*/{"Total", "Real", "Fake"});
     if (vm["valid"].as<bool>()){
         valid_loss = visualizer::graph(path, /*gname_=*/"valid_loss", /*label_=*/{"Generator", "Discriminator"});
-        valid_loss_gen = visualizer::graph(path, /*gname_=*/"valid_loss_gen", /*label_=*/{"Total", "GAN", "Content"});
+        valid_loss_gen = visualizer::graph(path, /*gname_=*/"valid_loss_gen", /*label_=*/{"Total", "L1", "GAN", "Content"});
         valid_loss_dis = visualizer::graph(path, /*gname_=*/"valid_loss_dis", /*label_=*/{"Total", "Real", "Fake"});
     }
     
@@ -180,7 +181,7 @@ void train(po::variables_map &vm, torch::Device &device, SRGAN_Generator &gen, S
         gen->train();
         dis->train();
         ofs << std::endl << "epoch:" << epoch << '/' << total_epoch << std::endl;
-        show_progress = new progress::display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"G_GAN", "G_Con", "D_Real", "D_Fake"});
+        show_progress = new progress::display(/*count_max_=*/total_iter, /*epoch=*/{epoch, total_epoch}, /*loss_=*/{"G_L1", "G_GAN", "G_Con", "D_Real", "D_Fake"});
 
         // -----------------------------------
         // b1. Mini Batch Learning
@@ -191,9 +192,9 @@ void train(po::variables_map &vm, torch::Device &device, SRGAN_Generator &gen, S
             hr = std::get<1>(mini_batch).to(device);
             mini_batch_size = lr.size(0);
 
-            // -----------------------------------
+            // -----------------------------------------------
             // c1. Discriminator and Generator Training Phase
-            // -----------------------------------
+            // -----------------------------------------------
 
             // (1) Set Target Label
             label_real = torch::full({(long int)mini_batch_size}, /*value*/1.0, torch::TensorOptions().dtype(torch::kFloat)).to(device);
@@ -203,8 +204,8 @@ void train(po::variables_map &vm, torch::Device &device, SRGAN_Generator &gen, S
             sr = gen->forward(lr);
             dis_fake_out = dis->forward(sr.detach()).view({-1});
             dis_real_out = dis->forward(hr).view({-1});
-            dis_fake_loss = criterion_GAN(dis_fake_out, label_fake);
-            dis_real_loss = criterion_GAN(dis_real_out, label_real);
+            dis_fake_loss = criterion_GAN(dis_fake_out - dis_real_out.mean(), label_fake);
+            dis_real_loss = criterion_GAN(dis_real_out - dis_fake_out.mean(), label_real);
             dis_loss = dis_real_loss + dis_fake_loss;
             dis_optimizer.zero_grad();
             dis_loss.backward();
@@ -212,11 +213,13 @@ void train(po::variables_map &vm, torch::Device &device, SRGAN_Generator &gen, S
 
             // (3) Generator Training
             dis_fake_out = dis->forward(sr).view({-1});
+            dis_real_out = dis->forward(hr).view({-1}).detach();
             content_sr = vgg->forward(sr);
             content_hr = vgg->forward(hr).detach();
-            G_GAN_loss = criterion_GAN(dis_fake_out, label_real) * vm["adv_weight"].as<float>();
-            G_content_loss = criterion_Con(content_sr, content_hr) * vm["content_weight"].as<float>();
-            gen_loss = G_GAN_loss + G_content_loss;
+            G_L1_loss = criterion_L1(sr, hr) * vm["eta"].as<float>();
+            G_GAN_loss = criterion_GAN(dis_fake_out - dis_real_out.mean(), label_real) * vm["Lambda"].as<float>();
+            G_content_loss = criterion_Con(content_sr, content_hr);
+            gen_loss = G_L1_loss + G_GAN_loss + G_content_loss;
             gen_optimizer.zero_grad();
             gen_loss.backward();
             gen_optimizer.step();
@@ -224,12 +227,13 @@ void train(po::variables_map &vm, torch::Device &device, SRGAN_Generator &gen, S
             // -----------------------------------
             // c2. Record Loss (iteration)
             // -----------------------------------
-            show_progress->increment(/*loss_value=*/{G_GAN_loss.item<float>(), G_content_loss.item<float>(), dis_real_loss.item<float>(), dis_fake_loss.item<float>()});
+            show_progress->increment(/*loss_value=*/{G_L1_loss.item<float>(), G_GAN_loss.item<float>(), G_content_loss.item<float>(), dis_real_loss.item<float>(), dis_fake_loss.item<float>()});
             ofs << "iters:" << show_progress->get_iters() << '/' << total_iter << ' ' << std::flush;
-            ofs << "G_GAN:" << G_GAN_loss.item<float>() << "(ave:" <<  show_progress->get_ave(0) << ") " << std::flush;
-            ofs << "G_Con:" << G_content_loss.item<float>() << "(ave:" <<  show_progress->get_ave(1) << ") " << std::flush;
-            ofs << "D_Real:" << dis_real_loss.item<float>() << "(ave:" <<  show_progress->get_ave(2) << ") " << std::flush;
-            ofs << "D_Fake:" << dis_fake_loss.item<float>() << "(ave:" <<  show_progress->get_ave(3) << ")" << std::endl;
+            ofs << "G_L1:" << G_L1_loss.item<float>() << "(ave:" <<  show_progress->get_ave(0) << ") " << std::flush;
+            ofs << "G_GAN:" << G_GAN_loss.item<float>() << "(ave:" <<  show_progress->get_ave(1) << ") " << std::flush;
+            ofs << "G_Con:" << G_content_loss.item<float>() << "(ave:" <<  show_progress->get_ave(2) << ") " << std::flush;
+            ofs << "D_Real:" << dis_real_loss.item<float>() << "(ave:" <<  show_progress->get_ave(3) << ") " << std::flush;
+            ofs << "D_Fake:" << dis_fake_loss.item<float>() << "(ave:" <<  show_progress->get_ave(4) << ")" << std::endl;
 
             // -----------------------------------
             // c3. Save Sample Images
@@ -248,9 +252,9 @@ void train(po::variables_map &vm, torch::Device &device, SRGAN_Generator &gen, S
         // -----------------------------------
         // b2. Record Loss (epoch)
         // -----------------------------------
-        train_loss.plot(/*base=*/epoch, /*value=*/{show_progress->get_ave(0) + show_progress->get_ave(1), show_progress->get_ave(2) + show_progress->get_ave(3)});
-        train_loss_gen.plot(/*base=*/epoch, /*value=*/{show_progress->get_ave(0) + show_progress->get_ave(1), show_progress->get_ave(0), show_progress->get_ave(1)});
-        train_loss_dis.plot(/*base=*/epoch, /*value=*/{show_progress->get_ave(2) + show_progress->get_ave(3), show_progress->get_ave(2), show_progress->get_ave(3)});
+        train_loss.plot(/*base=*/epoch, /*value=*/{show_progress->get_ave(0) + show_progress->get_ave(1) + show_progress->get_ave(2), show_progress->get_ave(3) + show_progress->get_ave(4)});
+        train_loss_gen.plot(/*base=*/epoch, /*value=*/{show_progress->get_ave(0) + show_progress->get_ave(1) + show_progress->get_ave(2), show_progress->get_ave(0), show_progress->get_ave(1), show_progress->get_ave(2)});
+        train_loss_dis.plot(/*base=*/epoch, /*value=*/{show_progress->get_ave(3) + show_progress->get_ave(4), show_progress->get_ave(3), show_progress->get_ave(4)});
 
         // -----------------------------------
         // b3. Save Sample Images
@@ -266,7 +270,7 @@ void train(po::variables_map &vm, torch::Device &device, SRGAN_Generator &gen, S
         // b4. Validation Mode
         // -----------------------------------
         if (vm["valid"].as<bool>() && ((epoch - 1) % vm["valid_freq"].as<size_t>() == 0)){
-            valid(vm, valid_dataloader, device, criterion_GAN, criterion_Con, gen, dis, vgg, epoch, valid_loss, valid_loss_gen, valid_loss_dis);
+            valid(vm, valid_dataloader, device, criterion_L1, criterion_GAN, criterion_Con, gen, dis, vgg, epoch, valid_loss, valid_loss_gen, valid_loss_dis);
         }
 
         // -----------------------------------
