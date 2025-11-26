@@ -7,7 +7,7 @@ Original paper: C. Ledig, L. Theis, F. Huszar, J. Caballero, A. Cunningham, A. A
 ### 0. Download pre-trained model
 Please download VGG19 pre-trained model with ImageNet.
 ~~~
-$ wget https://github.com/koba-jon/pytorch_cpp/releases/download/vgg19/vgg19.pth
+$ wget https://github.com/koba-jon/pytorch_cpp/releases/download/pre-train/vgg19.pth
 ~~~
 
 ### 1. Build
