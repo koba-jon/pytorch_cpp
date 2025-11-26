@@ -7,7 +7,7 @@ Original paper: C. Ledig, L. Theis, F. Huszar, J. Caballero, A. Cunningham, A. A
 ### 0. Download pre-trained model
 Please download VGG19 pre-trained model with ImageNet.
 ~~~
-$ wget https://github.com/koba-jon/pytorch_cpp/releases/download/pre-train/vgg19.pth
+$ wget https://github.com/koba-jon/pytorch_cpp/releases/download/pre-train/vgg19_bn.pth
 ~~~
 
 ### 1. Build
@@ -85,8 +85,7 @@ DATA='celebA'
     --train true \
     --epochs 300 \
     --dataset ${DATA} \
-    --hr_size 128 \
-    --loss "vanilla" \
+    --hr_size 256 \
     --batch_size 16 \
     --gpu_id 0 \
     --nc 3
@@ -115,7 +114,7 @@ DATA='celebA'
 ./SRGAN \
     --test true \
     --dataset ${DATA} \
-    --hr_size 128 \
+    --hr_size 256 \
     --gpu_id 0 \
     --nc 3
 ~~~

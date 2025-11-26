@@ -37,8 +37,8 @@ po::options_description parse_arguments(){
         // (1) Define for General Parameter
         ("help", "produce help message")
         ("dataset", po::value<std::string>(), "dataset name")
-        ("hr_size", po::value<size_t>()->default_value(128), "high-resolution image width and height")
-        ("upscale", po::value<size_t>()->default_value(4), "upscale factor")
+        ("hr_size", po::value<size_t>()->default_value(256), "high-resolution image width and height")
+        ("upscale", po::value<size_t>()->default_value(8), "upscale factor")
         ("nc", po::value<size_t>()->default_value(3), "input image channel : RGB=3, grayscale=1")
         ("loss", po::value<std::string>()->default_value("vanilla"), "vanilla (cross-entropy), lsgan (mse), etc.")
         ("gpu_id", po::value<int>()->default_value(0), "cuda device : 'x=-1' is cpu device")
@@ -77,8 +77,8 @@ po::options_description parse_arguments(){
         ("ndf", po::value<size_t>()->default_value(64), "the number of filters in convolution layer closest to image in discriminator")
         ("n_resblocks", po::value<size_t>()->default_value(16), "the number of residual blocks in generator")
         ("adv_weight", po::value<float>()->default_value(1e-3), "the multiple of adversarial loss")
-        ("content_weight", po::value<float>()->default_value(1.0), "the multiple of perceptual loss from VGG features")
-        ("vgg_path", po::value<std::string>()->default_value("vgg19.pth"), "path to pretrained VGG feature extractor weights")
+        ("content_weight", po::value<float>()->default_value(2e-6), "the multiple of perceptual loss from VGG features")
+        ("vgg_path", po::value<std::string>()->default_value("vgg19_bn.pth"), "path to pretrained VGG feature extractor weights")
 
     ;
     

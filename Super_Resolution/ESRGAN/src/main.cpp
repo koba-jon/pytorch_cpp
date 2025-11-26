@@ -79,7 +79,7 @@ po::options_description parse_arguments(){
         ("growth_channels", po::value<size_t>()->default_value(32), "growth channels inside dense blocks")
         ("Lambda", po::value<float>()->default_value(5e-3), "the multiple of adversarial loss")
         ("eta", po::value<float>()->default_value(1.0), "the multiple of l1 pixel loss")
-        ("vgg_path", po::value<std::string>()->default_value("vgg19.pth"), "path to pretrained VGG feature extractor weights")
+        ("vgg_path", po::value<std::string>()->default_value("vgg19_bn.pth"), "path to pretrained VGG feature extractor weights")
 
     ;
     
