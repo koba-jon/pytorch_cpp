@@ -90,7 +90,7 @@ void weights_init(nn::Module &m){
         auto p = m.named_parameters(false);
         auto w = p.find("weight");
         auto b = p.find("bias");
-        if (w != nullptr) nn::init::normal_(*w, /*mean=*/0.0, /*std=*/0.01);
+        if (w != nullptr) nn::init::kaiming_normal_(*w, /*a=*/0, /*mode=*/torch::kFanOut, /*nonlinearity=*/torch::kReLU);
         if (b != nullptr) nn::init::constant_(*b, /*bias=*/0.0);
     }
     else if ((typeid(m) == typeid(nn::Linear)) || (typeid(m) == typeid(nn::LinearImpl))){

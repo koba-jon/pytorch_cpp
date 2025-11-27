@@ -13,7 +13,6 @@
 
 
 
-
 ## 🚀 Quick Start (Details: <a href="#-requirement-library">Library</a>, <a href="#-preparation-run">Run</a>)
 Requirements: `LibTorch`, `OpenCV`, `OpenMP`, `Boost`, `Gnuplot`, `libpng/png++/zlib` <br>
 
@@ -61,6 +60,9 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+11/27,2025: Release of `v2.9.1.1` <br>
+11/21,2025: Implementation of `SRGAN` <br>
+11/19,2025: Implementation of `DiT` <br>
 11/14,2025: Release of `v2.9.1` <br>
 11/01,2025: Implementation of `NeRF` and `3DGS` <br>
 10/16,2025: Release of `v2.9.0` <br>
@@ -68,24 +70,23 @@ $ sh scripts/test.sh
 10/14,2025: Implementation of `YOLOv8` <br>
 10/13,2025: Implementation of `YOLOv5` <br>
 10/09,2025: Implementation of `RF2d` <br>
-10/08,2025: Implementation of `FM2d` <br>
-10/08,2025: Implementation of `LDM` and `LDM-v` <br>
-10/04,2025: Implementation of `Glow` <br>
 
 <details>
 <summary>See more...</summary>
   
+10/08,2025: Implementation of `FM2d` <br>
+10/08,2025: Implementation of `LDM` <br>
+10/04,2025: Implementation of `Glow` <br>
 10/01,2025: Implementation of `Real-NVP2d` <br>
 09/28,2025: Implementation of `Planar-Flow2d` and `Radial-Flow2d` <br>
 09/25,2025: Release of `v2.8.0.2` <br>
 09/22,2025: Implementation of `PixelCNN-Gray` and `PixelCNN-RGB` <br>
 09/18,2025: Implementation of `VQ-VAE-2` <br>
 09/16,2025: Implementation of `VQ-VAE` <br>
-09/14,2025: Implementation of `PNDM2d` and `PNDM2d-v` <br>
+09/14,2025: Implementation of `PNDM2d` <br>
 09/14,2025: Release of `v2.8.0.1` <br>
 09/12,2025: Implementation of `SimCLR` <br>
 09/11,2025: Implementation of `MAE` <br>
-09/11,2025: Implementation of `DDPM2d-v` and `DDIM2d-v` <br>
 09/10,2025: Implementation of EMA for `DDPM2d` and `DDIM2d` <br>
 09/08,2025: Implementation of `EfficientNet` <br>
 09/07,2025: Implementation of `CycleGAN` <br>
@@ -290,41 +291,35 @@ $ sh scripts/test.sh
     <td><a href="Generative_Modeling/Glow">Glow</a></td>
   </tr>
   <tr>
-    <td rowspan="8">Diffusion Models</td>
-    <td rowspan="2">DDPM</td>
-    <td rowspan="2"><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
-    <td rowspan="2">NeurIPS 2020</td>
+    <td rowspan="5">Diffusion Models</td>
+    <td>DDPM</td>
+    <td><a href="https://arxiv.org/abs/2006.11239">J. Ho et al.</a></td>
+    <td>NeurIPS 2020</td>
     <td><a href="Generative_Modeling/DDPM2d">DDPM2d</a></td>
   </tr>
   <tr>
-    <td><a href="Generative_Modeling/DDPM2d-v">DDPM2d-v</a></td>
-  </tr>
-  <tr>
-    <td rowspan="2">DDIM</td>
-    <td rowspan="2"><a href="https://arxiv.org/abs/2010.02502">J. Song et al.</a></td>
-    <td rowspan="2">ICLR 2021</td>
+    <td>DDIM</td>
+    <td><a href="https://arxiv.org/abs/2010.02502">J. Song et al.</a></td>
+    <td>ICLR 2021</td>
     <td><a href="Generative_Modeling/DDIM2d">DDIM2d</a></td>
   </tr>
   <tr>
-    <td><a href="Generative_Modeling/DDIM2d-v">DDIM2d-v</a></td>
-  </tr>
-  <tr>
-    <td rowspan="2">PNDM</td>
-    <td rowspan="2"><a href="https://arxiv.org/abs/2202.09778">L. Liu et al.</a></td>
-    <td rowspan="2">ICLR 2022</td>
+    <td>PNDM</td>
+    <td><a href="https://arxiv.org/abs/2202.09778">L. Liu et al.</a></td>
+    <td>ICLR 2022</td>
     <td><a href="Generative_Modeling/PNDM2d">PNDM2d</a></td>
   </tr>
   <tr>
-    <td><a href="Generative_Modeling/PNDM2d-v">PNDM2d-v</a></td>
-  </tr>
-  <tr>
-    <td rowspan="2">LDM</td>
-    <td rowspan="2"><a href="https://openaccess.thecvf.com/content/CVPR2022/html/Rombach_High-Resolution_Image_Synthesis_With_Latent_Diffusion_Models_CVPR_2022_paper">R. Rombach et al.</a></td>
-    <td rowspan="2">CVPR 2022</td>
+    <td>LDM</td>
+    <td><a href="https://openaccess.thecvf.com/content/CVPR2022/html/Rombach_High-Resolution_Image_Synthesis_With_Latent_Diffusion_Models_CVPR_2022_paper">R. Rombach et al.</a></td>
+    <td>CVPR 2022</td>
     <td><a href="Generative_Modeling/LDM">LDM</a></td>
   </tr>
   <tr>
-    <td><a href="Generative_Modeling/LDM-v">LDM-v</a></td>
+    <td>Diffusion Transformer</td>
+    <td><a href="https://openaccess.thecvf.com/content/ICCV2023/html/Peebles_Scalable_Diffusion_Models_with_Transformers_ICCV_2023_paper.html">W. Peebles et al.</a></td>
+    <td>ICCV 2023</td>
+    <td><a href="Generative_Modeling/DiT">DiT</a></td>
   </tr>
   <tr>
     <td rowspan="2">Flow Matching</td>
@@ -385,6 +380,29 @@ $ sh scripts/test.sh
     <td><a href="https://openaccess.thecvf.com/content_iccv_2017/html/Zhu_Unpaired_Image-To-Image_Translation_ICCV_2017_paper.html">J.-Y. Zhu et al.</a></td>
     <td>ICCV 2017</td>
     <td><a href="Image-to-Image_Translation/CycleGAN">CycleGAN</a></td>
+  </tr>
+</table>
+
+### 🔍 Super Resolution
+
+<table>
+  <tr>
+    <th>Model</th>
+    <th>Paper</th>
+    <th>Conference/Journal</th>
+    <th>Code</th>
+  </tr>
+  <tr>
+    <td>SRGAN</td>
+    <td><a href="https://openaccess.thecvf.com/content_cvpr_2017/html/Ledig_Photo-Realistic_Single_Image_CVPR_2017_paper.html">C. Ledig et al.</a></td>
+    <td>CVPR 2017</td>
+    <td><a href="Super_Resolution/SRGAN">SRGAN</a></td>
+  </tr>
+  <tr>
+    <td>ESRGAN</td>
+    <td><a href="https://openaccess.thecvf.com/content_eccv_2018_workshops/w25/html/Wang_ESRGAN_Enhanced_Super-Resolution_Generative_Adversarial_Networks_ECCVW_2018_paper.html">X. Wang et al.</a></td>
+    <td>ECCV 2018</td>
+    <td><a href="Super_Resolution/ESRGAN">ESRGAN</a></td>
   </tr>
 </table>
 

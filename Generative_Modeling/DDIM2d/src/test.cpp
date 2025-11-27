@@ -35,8 +35,7 @@ void test(po::variables_map &vm, torch::Device &device, DDIM &model, std::vector
     std::ofstream ofs;
     std::chrono::system_clock::time_point start, end;
     std::tuple<torch::Tensor, torch::Tensor, std::vector<std::string>, std::vector<std::string>> data;
-    torch::Tensor t, x_t, noise, imageI, imageO, output, recon_image, loss, GT_loss;
-    std::tuple<torch::Tensor, torch::Tensor> x_t_with_noise;
+    torch::Tensor t, x_t, target, imageI, imageO, output, recon_image, loss, GT_loss;
     datasets::ImageFolderPairWithPaths dataset;
     DataLoader::ImageFolderPairWithPaths dataloader;
 
@@ -73,9 +72,7 @@ void test(po::variables_map &vm, torch::Device &device, DDIM &model, std::vector
         start = std::chrono::system_clock::now();
         
         t = torch::randint(1, vm["timesteps"].as<size_t>() + 1, {imageI.size(0)}).to(device);
-        x_t_with_noise = model->add_noise(imageI, t);
-        x_t = std::get<0>(x_t_with_noise);
-        noise = std::get<1>(x_t_with_noise);
+        std::tie(x_t, target) = model->add_noise(imageI, t);
         output = model->forward(x_t, t);
         recon_image = model->denoise_t(x_t, t);
 
@@ -83,7 +80,7 @@ void test(po::variables_map &vm, torch::Device &device, DDIM &model, std::vector
         end = std::chrono::system_clock::now();
         seconds = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * 0.001 * 0.001;
         
-        loss = criterion(output, noise);
+        loss = criterion(output, target);
         GT_loss = criterion(recon_image, imageO);
         
         ave_loss += loss.item<float>();

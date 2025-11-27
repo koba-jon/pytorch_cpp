@@ -79,6 +79,7 @@ TORCH_MODULE(UNet);
 // ------------------------------
 struct PNDMImpl : nn::Module{
 private:
+    char pred;
     size_t timesteps, timesteps_inf;
     torch::Tensor betas, alphas, alpha_bars;
     UNet model;

@@ -8,9 +8,8 @@ Dimensionality_Reduction/AE2d
 Dimensionality_Reduction/DAE2d
 Generative_Modeling/DCGAN
 Generative_Modeling/DDIM2d
-Generative_Modeling/DDIM2d-v
 Generative_Modeling/DDPM2d
-Generative_Modeling/DDPM2d-v
+Generative_Modeling/DiT
 Generative_Modeling/FM2d
 Generative_Modeling/Glow
 Generative_Modeling/LDM
@@ -20,7 +19,6 @@ Generative_Modeling/PixelSNAIL-Gray
 Generative_Modeling/PixelSNAIL-RGB
 Generative_Modeling/Planar-Flow2d
 Generative_Modeling/PNDM2d
-Generative_Modeling/PNDM2d-v
 Generative_Modeling/Radial-Flow2d
 Generative_Modeling/Real-NVP2d
 Generative_Modeling/RF2d
@@ -31,7 +29,7 @@ Generative_Modeling/WAE2d_GAN
 Generative_Modeling/WAE2d_MMD
 Image-to-Image_Translation/CycleGAN
 Image-to-Image_Translation/U-Net_Regression
-Image-to-Image_Translation/pix2pix
+Image-to-Image_Translation/Pix2Pix
 Multiclass_Classification/AlexNet
 Multiclass_Classification/EfficientNet
 Multiclass_Classification/ResNet
@@ -47,5 +45,7 @@ Representation_Learning/MAE
 Representation_Learning/SimCLR
 Semantic_Segmentation/SegNet
 Semantic_Segmentation/U-Net_Classification
+Super_Resolution/ESRGAN
+Super_Resolution/SRGAN
 View_Synthesis/NeRF
 View_Synthesis/3DGS

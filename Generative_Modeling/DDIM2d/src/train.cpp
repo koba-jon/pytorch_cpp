@@ -56,8 +56,7 @@ void train(po::variables_map &vm, torch::Device &device, DDIM &model, DDIM &mode
     std::ifstream infoi;
     std::ofstream ofs, init, infoo;
     std::tuple<torch::Tensor, std::vector<std::string>> mini_batch;
-    torch::Tensor t, x_t, noise, loss, image, output, recon, pair;
-    std::tuple<torch::Tensor, torch::Tensor> x_t_with_noise;
+    torch::Tensor t, x_t, target, loss, image, output, recon, pair;
     datasets::ImageFolderWithPaths dataset, valid_dataset;
     DataLoader::ImageFolderWithPaths dataloader, valid_dataloader;
     visualizer::graph train_loss, valid_loss;
@@ -174,11 +173,9 @@ void train(po::variables_map &vm, torch::Device &device, DDIM &model, DDIM &mode
             // c1. DDIM Training Phase
             // -------------------------
             t = torch::randint(1, vm["timesteps"].as<size_t>() + 1, {mini_batch_size}).to(device);
-            x_t_with_noise = model_aux->add_noise(image, t);
-            x_t = std::get<0>(x_t_with_noise);
-            noise = std::get<1>(x_t_with_noise);
+            std::tie(x_t, target) = model_aux->add_noise(image, t);
             output = model_aux->forward(x_t, t);
-            loss = criterion(output, noise);
+            loss = criterion(output, target);
             optimizer.zero_grad();
             loss.backward();
             optimizer.step();

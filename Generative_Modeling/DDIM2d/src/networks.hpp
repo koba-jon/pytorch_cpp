@@ -79,6 +79,7 @@ TORCH_MODULE(UNet);
 // ------------------------------
 struct DDIMImpl : nn::Module{
 private:
+    char pred;
     size_t timesteps, timesteps_inf;
     float eta;
     torch::Tensor betas, alphas, alpha_bars;
