@@ -60,7 +60,9 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+11/27,2025: Implementation of `WideResNet` <br>
 11/27,2025: Release of `v2.9.1.1` <br>
+11/24,2025: Implementation of `ESRGAN` <br>
 11/21,2025: Implementation of `SRGAN` <br>
 11/19,2025: Implementation of `DiT` <br>
 11/14,2025: Release of `v2.9.1` <br>
@@ -68,12 +70,12 @@ $ sh scripts/test.sh
 10/16,2025: Release of `v2.9.0` <br>
 10/16,2025: Implementation of `PixelSNAIL-Gray` and `PixelSNAIL-RGB` <br>
 10/14,2025: Implementation of `YOLOv8` <br>
-10/13,2025: Implementation of `YOLOv5` <br>
-10/09,2025: Implementation of `RF2d` <br>
 
 <details>
 <summary>See more...</summary>
   
+10/13,2025: Implementation of `YOLOv5` <br>
+10/09,2025: Implementation of `RF2d` <br>
 10/08,2025: Implementation of `FM2d` <br>
 10/08,2025: Implementation of `LDM` <br>
 10/04,2025: Implementation of `Glow` <br>
@@ -154,7 +156,7 @@ $ sh scripts/test.sh
     <th>Code</th>
   </tr>
   <tr>
-    <td rowspan="5">CNNs</td>
+    <td rowspan="6">CNNs</td>
     <td>AlexNet</td>
     <td><a href="http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networ">A. Krizhevsky et al.</a></td>
     <td>NeurIPS 2012</td>
@@ -171,6 +173,12 @@ $ sh scripts/test.sh
     <td><a href="https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html">K. He et al.</a></td>
     <td>CVPR 2016</td>
     <td><a href="Multiclass_Classification/ResNet">ResNet</a></td>
+  </tr>
+  <tr>
+    <td>WideResNet</td>
+    <td><a href="https://arxiv.org/abs/1605.07146">S. Zagoruyko et al.</a></td>
+    <td>arXiv 2016</td>
+    <td><a href="Multiclass_Classification/WideResNet">WideResNet</a></td>
   </tr>
   <tr>
     <td>Discriminator</td>
