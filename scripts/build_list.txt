@@ -36,6 +36,7 @@ Multiclass_Classification/ResNet
 Multiclass_Classification/VGGNet
 Multiclass_Classification/Discriminator
 Multiclass_Classification/ViT
+Multiclass_Classification/WideResNet
 Object_Detection/YOLOv1
 Object_Detection/YOLOv2
 Object_Detection/YOLOv3
