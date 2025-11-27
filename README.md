@@ -567,7 +567,7 @@ $ sh scripts/test.sh
 Please select the environment to use as follows on PyTorch official. <br>
 PyTorch official : https://pytorch.org/ <br>
 ***
-PyTorch Build : Stable (2.9.1.1) <br>
+PyTorch Build : Stable (2.9.1) <br>
 Your OS : Linux <br>
 Package : LibTorch <br>
 Language : C++ / Java <br>
