@@ -2,6 +2,7 @@ Anomaly_Detection/AnoGAN2d
 Anomaly_Detection/DAGMM2d
 Anomaly_Detection/EGBAD2d
 Anomaly_Detection/GANomaly2d
+Anomaly_Detection/PaDiM
 Anomaly_Detection/Skip-GANomaly2d
 Dimensionality_Reduction/AE1d
 Dimensionality_Reduction/AE2d
@@ -36,6 +37,7 @@ Multiclass_Classification/ResNet
 Multiclass_Classification/VGGNet
 Multiclass_Classification/Discriminator
 Multiclass_Classification/ViT
+Multiclass_Classification/WideResNet
 Object_Detection/YOLOv1
 Object_Detection/YOLOv2
 Object_Detection/YOLOv3
