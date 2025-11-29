@@ -41,7 +41,6 @@ datasets
 |    |    |--image2.bmp
 |    |    |--image3.jpg
 |    |
-|    |--valid
 |    |--testN
 |    |--testA
 |    |--testGT
