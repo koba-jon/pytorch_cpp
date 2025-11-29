@@ -15,25 +15,20 @@ datasets
 |    |    |--image2.bmp
 |    |    |--image3.jpg
 |    |
-|    |--valid
+|    |--testN
 |    |    |--image4.png
 |    |    |--image5.bmp
 |    |    |--image6.jpg
 |    |
-|    |--testN
+|    |--testA
 |    |    |--image7.png
 |    |    |--image8.bmp
 |    |    |--image9.jpg
 |    |
-|    |--testA
-|    |    |--image10.png
-|    |    |--image11.bmp
-|    |    |--image12.jpg
-|    |
 |    |--testGT
-|         |--image10.png
-|         |--image11.png
-|         |--image12.png
+|         |--image7.png
+|         |--image8.png
+|         |--image9.png
 |
 |
 |--Dataset2
