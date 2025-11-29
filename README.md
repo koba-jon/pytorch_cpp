@@ -60,6 +60,7 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+11/29,2025: Implementation of `PaDiM` <br>
 11/27,2025: Implementation of `WideResNet` <br>
 11/27,2025: Release of `v2.9.1.1` <br>
 11/24,2025: Implementation of `ESRGAN` <br>
@@ -69,11 +70,11 @@ $ sh scripts/test.sh
 11/01,2025: Implementation of `NeRF` and `3DGS` <br>
 10/16,2025: Release of `v2.9.0` <br>
 10/16,2025: Implementation of `PixelSNAIL-Gray` and `PixelSNAIL-RGB` <br>
-10/14,2025: Implementation of `YOLOv8` <br>
 
 <details>
 <summary>See more...</summary>
   
+10/14,2025: Implementation of `YOLOv8` <br>
 10/13,2025: Implementation of `YOLOv5` <br>
 10/09,2025: Implementation of `RF2d` <br>
 10/08,2025: Implementation of `FM2d` <br>
@@ -562,6 +563,12 @@ $ sh scripts/test.sh
     <td><a href="https://arxiv.org/abs/1901.08954">S. Akçay et al.</a></td>
     <td>IJCNN 2019</td>
     <td><a href="Anomaly_Detection/Skip-GANomaly2d">Skip-GANomaly2d</a></td>
+  </tr>
+  <tr>
+    <td>PaDiM</td>
+    <td><a href="https://arxiv.org/abs/2011.08785">T. Defard et al.</a></td>
+    <td>ICPR Workshops 2020</td>
+    <td><a href="Anomaly_Detection/PaDiM">PaDiM</a></td>
   </tr>
 </table>
 
