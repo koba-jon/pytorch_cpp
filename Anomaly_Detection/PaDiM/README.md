@@ -159,5 +159,3 @@ $ sh scripts/anomaly_detection.sh
 ~~~
 
 
-## Acknowledgments
-This code is inspired by [skip-ganomaly](https://github.com/samet-akcay/skip-ganomaly).
