@@ -77,14 +77,14 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='MVTecAD'
 
-./Skip-GANomaly2d \
+./PaDiM \
     --train true \
-    --epochs 300 \
     --dataset ${DATA} \
-    --size 256 \
-    --batch_size 16 \
-    --gpu_id 0 \
-    --nc 3
+    --size 224 \
+    --resnet_path "wide_resnet50_2.pth" \
+    --n_layers "w50" \
+    --select_dim 550 \
+    --gpu_id 0
 ~~~
 
 #### Run
@@ -106,27 +106,15 @@ If you want to view specific examples of command line arguments, please view "sr
 #!/bin/bash
 
 DATA='MVTecAD'
-HEATMAP_MAX=0.1
 
-./Skip-GANomaly2d \
+./PaDiM \
     --test true \
     --dataset ${DATA} \
-    --test_dir "test_anomaly" \
-    --test_result_dir "test_result_anomaly" \
-    --heatmap_max ${HEATMAP_MAX} \
-    --size 256 \
-    --gpu_id 0 \
-    --nc 3
-    
-./Skip-GANomaly2d \
-    --test true \
-    --dataset ${DATA} \
-    --test_dir "test_normal" \
-    --test_result_dir "test_result_normal" \
-    --heatmap_max ${HEATMAP_MAX} \
-    --size 256 \
-    --gpu_id 0 \
-    --nc 3
+    --size 224 \
+    --resnet_path "wide_resnet50_2.pth" \
+    --n_layers "w50" \
+    --select_dim 550 \
+    --gpu_id 0
 ~~~
 
 #### Run
@@ -149,12 +137,19 @@ If you want to view specific examples of command line arguments, please view "sr
 
 DATA='MVTecAD'
 
-./Skip-GANomaly2d \
+./PaDiM \
     --AD true \
     --dataset ${DATA} \
-    --anomaly_path "test_result_anomaly/anomaly_score.txt" \
-    --normal_path "test_result_normal/anomaly_score.txt" \
-    --n_thresh 256
+    --normal_path "test_result/image_scoreN.txt" \
+    --anomaly_path "test_result/image_scoreA.txt" \
+    --AD_result_dir "AD_result/Image-AUROC"
+
+./PaDiM \
+    --AD true \
+    --dataset ${DATA} \
+    --normal_path "test_result/pixel_scoreN.txt" \
+    --anomaly_path "test_result/pixel_scoreA.txt" \
+    --AD_result_dir "AD_result/Pixel-AUROC"
 ~~~
 
 #### Run
