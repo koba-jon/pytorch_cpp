@@ -10,7 +10,7 @@
 #include <opencv2/opencv.hpp>          // cv::Mat
 #include <boost/program_options.hpp>   // boost::program_options
 // For Original Header
-#include "networks.hpp"                // UNet_Generator, GAN_Discriminator
+#include "networks.hpp"                // MC_ResNet, SelectIndex
 #include "transforms.hpp"              // transforms
 
 // Define Namespace
