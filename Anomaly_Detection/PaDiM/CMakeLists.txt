@@ -14,7 +14,6 @@ set(SRCS
     ${SRC_DIR}/train.cpp
     ${SRC_DIR}/test.cpp
     ${SRC_DIR}/anomaly_detection.cpp
-    ${SRC_DIR}/loss.cpp
     ${SRC_DIR}/networks.cpp
 )
 

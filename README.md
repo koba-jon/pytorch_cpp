@@ -40,10 +40,10 @@ $ make -j4
 $ cd ..
 ~~~
 
-**(3) Dataset Setting** (Dataset: <a href="https://github.com/koba-jon/normal_distribution_dataset">Normal Distribution Dataset</a>)
+**(3) Dataset Setting** (Dataset: <a href="https://huggingface.co/datasets/koba-jon/normal_distribution_dataset">Normal Distribution Dataset</a>)
 ~~~
 $ cd datasets
-$ git clone https://github.com/koba-jon/normal_distribution_dataset.git
+$ git clone https://huggingface.co/datasets/koba-jon/normal_distribution_dataset
 $ ln -s normal_distribution_dataset/NormalDistribution ./NormalDistribution
 $ cd ..
 ~~~
@@ -60,6 +60,8 @@ $ sh scripts/test.sh
 
 ## 🔄 Updates
 
+12/01,2025: Release of `v2.9.1.3` <br>
+12/01,2025: Implementation of `PatchCore` <br>
 11/29,2025: Release of `v2.9.1.2` <br>
 11/29,2025: Implementation of `PaDiM` <br>
 11/27,2025: Implementation of `WideResNet` <br>
@@ -68,12 +70,12 @@ $ sh scripts/test.sh
 11/21,2025: Implementation of `SRGAN` <br>
 11/19,2025: Implementation of `DiT` <br>
 11/14,2025: Release of `v2.9.1` <br>
-11/01,2025: Implementation of `NeRF` and `3DGS` <br>
-10/16,2025: Release of `v2.9.0` <br>
 
 <details>
 <summary>See more...</summary>
   
+11/01,2025: Implementation of `NeRF` and `3DGS` <br>
+10/16,2025: Release of `v2.9.0` <br>
 10/16,2025: Implementation of `PixelSNAIL-Gray` and `PixelSNAIL-RGB` <br>
 10/14,2025: Implementation of `YOLOv8` <br>
 10/13,2025: Implementation of `YOLOv5` <br>
@@ -570,6 +572,12 @@ $ sh scripts/test.sh
     <td><a href="https://arxiv.org/abs/2011.08785">T. Defard et al.</a></td>
     <td>ICPR Workshops 2020</td>
     <td><a href="Anomaly_Detection/PaDiM">PaDiM</a></td>
+  </tr>
+  <tr>
+    <td>PatchCore</td>
+    <td><a href="https://openaccess.thecvf.com/content/CVPR2022/html/Roth_Towards_Total_Recall_in_Industrial_Anomaly_Detection_CVPR_2022_paper.html">K. Roth et al.</a></td>
+    <td>CVPR 2022</td>
+    <td><a href="Anomaly_Detection/PatchCore">PatchCore</a></td>
   </tr>
 </table>
 

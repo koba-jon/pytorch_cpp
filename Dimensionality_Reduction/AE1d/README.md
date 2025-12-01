@@ -19,7 +19,7 @@ $ cd ..
 #### Recommendation
 - Normal Distribution Dataset<br>
 This is the dataset of 300-dimensional data of 1-dimensional shape that has a training set of 100,000 pieces and a test set of 1,000 pieces.<br>
-Link: [official](https://github.com/koba-jon/normal_distribution_dataset)
+Link: [official](https://huggingface.co/datasets/koba-jon/normal_distribution_dataset)
 
 - THE MNIST DATABASE of handwritten digits<br>
 This is the dataset of 28x28 grayscale for handwritten digits in 10 classes that has a training set of 60000 images and a test set of 10000 images.<br>
@@ -48,7 +48,7 @@ datasets
 The following is an example for "NormalDistribution".
 ~~~
 $ cd datasets
-$ git clone https://github.com/koba-jon/normal_distribution_dataset.git
+$ git clone https://huggingface.co/datasets/koba-jon/normal_distribution_dataset
 $ ln -s normal_distribution_dataset/NormalDistribution ./NormalDistribution
 $ cd ..
 ~~~
