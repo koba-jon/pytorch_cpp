@@ -43,7 +43,7 @@ $ cd ..
 **(3) Dataset Setting** (Dataset: <a href="https://github.com/koba-jon/normal_distribution_dataset">Normal Distribution Dataset</a>)
 ~~~
 $ cd datasets
-$ git clone https://github.com/koba-jon/normal_distribution_dataset.git
+$ git clone https://huggingface.co/datasets/koba-jon/normal_distribution_dataset
 $ ln -s normal_distribution_dataset/NormalDistribution ./NormalDistribution
 $ cd ..
 ~~~
