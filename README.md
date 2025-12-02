@@ -58,91 +58,91 @@ $ sh scripts/train.sh
 $ sh scripts/test.sh
 ~~~
 
-## 🔄 Updates
+## 🔄 Updates (MM/DD/YYYY)
 
-12/01,2025: Release of `v2.9.1.3` <br>
-12/01,2025: Implementation of `PatchCore` <br>
-11/29,2025: Release of `v2.9.1.2` <br>
-11/29,2025: Implementation of `PaDiM` <br>
-11/27,2025: Implementation of `WideResNet` <br>
-11/27,2025: Release of `v2.9.1.1` <br>
-11/24,2025: Implementation of `ESRGAN` <br>
-11/21,2025: Implementation of `SRGAN` <br>
-11/19,2025: Implementation of `DiT` <br>
-11/14,2025: Release of `v2.9.1` <br>
+12/01/2025: Release of `v2.9.1.3` <br>
+12/01/2025: Implementation of `PatchCore` <br>
+11/29/2025: Release of `v2.9.1.2` <br>
+11/29/2025: Implementation of `PaDiM` <br>
+11/27/2025: Implementation of `WideResNet` <br>
+11/27/2025: Release of `v2.9.1.1` <br>
+11/24/2025: Implementation of `ESRGAN` <br>
+11/21/2025: Implementation of `SRGAN` <br>
+11/19/2025: Implementation of `DiT` <br>
+11/14/2025: Release of `v2.9.1` <br>
 
 <details>
 <summary>See more...</summary>
   
-11/01,2025: Implementation of `NeRF` and `3DGS` <br>
-10/16,2025: Release of `v2.9.0` <br>
-10/16,2025: Implementation of `PixelSNAIL-Gray` and `PixelSNAIL-RGB` <br>
-10/14,2025: Implementation of `YOLOv8` <br>
-10/13,2025: Implementation of `YOLOv5` <br>
-10/09,2025: Implementation of `RF2d` <br>
-10/08,2025: Implementation of `FM2d` <br>
-10/08,2025: Implementation of `LDM` <br>
-10/04,2025: Implementation of `Glow` <br>
-10/01,2025: Implementation of `Real-NVP2d` <br>
-09/28,2025: Implementation of `Planar-Flow2d` and `Radial-Flow2d` <br>
-09/25,2025: Release of `v2.8.0.2` <br>
-09/22,2025: Implementation of `PixelCNN-Gray` and `PixelCNN-RGB` <br>
-09/18,2025: Implementation of `VQ-VAE-2` <br>
-09/16,2025: Implementation of `VQ-VAE` <br>
-09/14,2025: Implementation of `PNDM2d` <br>
-09/14,2025: Release of `v2.8.0.1` <br>
-09/12,2025: Implementation of `SimCLR` <br>
-09/11,2025: Implementation of `MAE` <br>
-09/10,2025: Implementation of EMA for `DDPM2d` and `DDIM2d` <br>
-09/08,2025: Implementation of `EfficientNet` <br>
-09/07,2025: Implementation of `CycleGAN` <br>
-09/05,2025: Implementation of `ViT` <br>
-09/04,2025: Release of `v2.8.0` <br>
-09/04,2025: Implementation of `DDIM2d` <br>
-09/04,2025: Implementation of `DDPM2d` <br>
-06/27,2023: Release of `v2.0.1` <br>
-06/27,2023: Create the heatmap for Anomaly Detection <br>
-05/07,2023: Release of `v2.0.0` <br>
-03/01,2023: Release of `v1.13.1` <br>
-09/12,2022: Release of `v1.12.1` <br>
-08/04,2022: Release of `v1.12.0` <br>
-03/18,2022: Release of `v1.11.0` <br>
-02/10,2022: Release of `v1.10.2` <br>
-02/09,2022: Implementation of `YOLOv3` <br>
-01/09,2022: Release of `v1.10.1` <br>
-01/09,2022: Fixed execution error in test on CPU package <br>
-11/12,2021: Release of `v1.10.0` <br>
-09/27,2021: Release of `v1.9.1` <br>
-09/27,2021: Support for using different devices between training and test <br>
-09/06,2021: Improved accuracy of time measurement using GPU <br>
-06/19,2021: Release of `v1.9.0` <br>
-03/29,2021: Release of `v1.8.1` <br>
-03/18,2021: Implementation of `Discriminator` from DCGAN <br>
-03/17,2021: Implementation of `AE1d` <br>
-03/16,2021: Release of `v1.8.0` <br>
-03/15,2021: Implementation of `YOLOv2` <br>
-02/11,2021: Implementation of `YOLOv1` <br>
-01/21,2021: Release of `v1.7.1` <br>
-10/30,2020: Release of `v1.7.0` <br>
-10/04,2020: Implementation of `Skip-GANomaly2d` <br>
-10/03,2020: Implementation of `GANomaly2d` <br>
-09/29,2020: Implementation of `EGBAD2d` <br>
-09/28,2020: Implementation of `AnoGAN2d` <br>
-09/27,2020: Implementation of `SegNet` <br>
-09/26,2020: Implementation of `DAE2d` <br>
-09/13,2020: Implementation of `ResNet` <br>
-09/07,2020: Implementation of `VGGNet` <br>
-09/05,2020: Implementation of `AlexNet` <br>
-09/02,2020: Implementation of `WAE2d GAN` and `WAE2d MMD` <br>
-08/30,2020: Release of `v1.6.0` <br>
-06/26,2020: Implementation of `DAGMM2d` <br>
-06/26,2020: Release of `v1.5.1` <br>
-06/26,2020: Implementation of `VAE2d` and `DCGAN` <br>
-06/01,2020: Implementation of `Pix2Pix` <br>
-05/29,2020: Implementation of `U-Net Classification` <br>
-05/26,2020: Implementation of `U-Net Regression` <br>
-04/24,2020: Release of `v1.5.0` <br>
-03/23,2020: Implementation of `AE2d` <br>
+11/01/2025: Implementation of `NeRF` and `3DGS` <br>
+10/16/2025: Release of `v2.9.0` <br>
+10/16/2025: Implementation of `PixelSNAIL-Gray` and `PixelSNAIL-RGB` <br>
+10/14/2025: Implementation of `YOLOv8` <br>
+10/13/2025: Implementation of `YOLOv5` <br>
+10/09/2025: Implementation of `RF2d` <br>
+10/08/2025: Implementation of `FM2d` <br>
+10/08/2025: Implementation of `LDM` <br>
+10/04/2025: Implementation of `Glow` <br>
+10/01/2025: Implementation of `Real-NVP2d` <br>
+09/28/2025: Implementation of `Planar-Flow2d` and `Radial-Flow2d` <br>
+09/25/2025: Release of `v2.8.0.2` <br>
+09/22/2025: Implementation of `PixelCNN-Gray` and `PixelCNN-RGB` <br>
+09/18/2025: Implementation of `VQ-VAE-2` <br>
+09/16/2025: Implementation of `VQ-VAE` <br>
+09/14/2025: Implementation of `PNDM2d` <br>
+09/14/2025: Release of `v2.8.0.1` <br>
+09/12/2025: Implementation of `SimCLR` <br>
+09/11/2025: Implementation of `MAE` <br>
+09/10/2025: Implementation of EMA for `DDPM2d` and `DDIM2d` <br>
+09/08/2025: Implementation of `EfficientNet` <br>
+09/07/2025: Implementation of `CycleGAN` <br>
+09/05/2025: Implementation of `ViT` <br>
+09/04/2025: Release of `v2.8.0` <br>
+09/04/2025: Implementation of `DDIM2d` <br>
+09/04/2025: Implementation of `DDPM2d` <br>
+06/27/2023: Release of `v2.0.1` <br>
+06/27/2023: Create the heatmap for Anomaly Detection <br>
+05/07/2023: Release of `v2.0.0` <br>
+03/01/2023: Release of `v1.13.1` <br>
+09/12/2022: Release of `v1.12.1` <br>
+08/04/2022: Release of `v1.12.0` <br>
+03/18/2022: Release of `v1.11.0` <br>
+02/10/2022: Release of `v1.10.2` <br>
+02/09/2022: Implementation of `YOLOv3` <br>
+01/09/2022: Release of `v1.10.1` <br>
+01/09/2022: Fixed execution error in test on CPU package <br>
+11/12/2021: Release of `v1.10.0` <br>
+09/27/2021: Release of `v1.9.1` <br>
+09/27/2021: Support for using different devices between training and test <br>
+09/06/2021: Improved accuracy of time measurement using GPU <br>
+06/19/2021: Release of `v1.9.0` <br>
+03/29/2021: Release of `v1.8.1` <br>
+03/18/2021: Implementation of `Discriminator` from DCGAN <br>
+03/17/2021: Implementation of `AE1d` <br>
+03/16/2021: Release of `v1.8.0` <br>
+03/15/2021: Implementation of `YOLOv2` <br>
+02/11/2021: Implementation of `YOLOv1` <br>
+01/21/2021: Release of `v1.7.1` <br>
+10/30/2020: Release of `v1.7.0` <br>
+10/04/2020: Implementation of `Skip-GANomaly2d` <br>
+10/03/2020: Implementation of `GANomaly2d` <br>
+09/29/2020: Implementation of `EGBAD2d` <br>
+09/28/2020: Implementation of `AnoGAN2d` <br>
+09/27/2020: Implementation of `SegNet` <br>
+09/26/2020: Implementation of `DAE2d` <br>
+09/13/2020: Implementation of `ResNet` <br>
+09/07/2020: Implementation of `VGGNet` <br>
+09/05/2020: Implementation of `AlexNet` <br>
+09/02/2020: Implementation of `WAE2d GAN` and `WAE2d MMD` <br>
+08/30/2020: Release of `v1.6.0` <br>
+06/26/2020: Implementation of `DAGMM2d` <br>
+06/26/2020: Release of `v1.5.1` <br>
+06/26/2020: Implementation of `VAE2d` and `DCGAN` <br>
+06/01/2020: Implementation of `Pix2Pix` <br>
+05/29/2020: Implementation of `U-Net Classification` <br>
+05/26/2020: Implementation of `U-Net Regression` <br>
+04/24/2020: Release of `v1.5.0` <br>
+03/23/2020: Implementation of `AE2d` <br>
   
 </details>
 
