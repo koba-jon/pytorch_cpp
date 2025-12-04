@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <typeinfo>
 #include <cstdlib>
+#include <cmath>
 // For External Library
 #include <torch/torch.h>
 // For Original Header
@@ -282,14 +283,15 @@ void weights_init(nn::Module &m){
         auto p = m.named_parameters(false);
         auto w = p.find("weight");
         auto b = p.find("bias");
-        if (w != nullptr) nn::init::normal_(*w, /*mean=*/0.0, /*std=*/0.01);
+        if (w != nullptr) nn::init::kaiming_normal_(*w, /*a=*/0.0, torch::kFanOut);
         if (b != nullptr) nn::init::constant_(*b, /*bias=*/0.0);
     }
     else if ((typeid(m) == typeid(nn::Linear)) || (typeid(m) == typeid(nn::LinearImpl))){
         auto p = m.named_parameters(false);
         auto w = p.find("weight");
         auto b = p.find("bias");
-        if (w != nullptr) nn::init::normal_(*w, /*mean=*/0.0, /*std=*/0.01);
+        double bound = 1.0 / std::sqrt((double)(*w).size(0));
+        if (w != nullptr) nn::init::uniform_(*w, -bound, bound);
         if (b != nullptr) nn::init::constant_(*b, /*bias=*/0.0);
     }
     else if ((typeid(m) == typeid(nn::BatchNorm2d)) || (typeid(m) == typeid(nn::BatchNorm2dImpl))){
