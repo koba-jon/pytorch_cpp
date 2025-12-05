@@ -7,8 +7,8 @@ Original paper: K. Roth, L. Pemula, J. Zepeda, B. Schölkopf, T. Brox, and P. Ge
 ### 0. Download pre-trained model
 Please download ResNet pre-trained model with ImageNet.
 ~~~
-$ wget https://huggingface.co/koba-jon/pre-train_cpp/resolve/main/resnet18.pth
-$ wget https://huggingface.co/koba-jon/pre-train_cpp/resolve/main/wide_resnet50_2.pth
+$ wget https://huggingface.co/koba-jon/pre-train_cpp/resolve/main/models/resnet18.pth
+$ wget https://huggingface.co/koba-jon/pre-train_cpp/resolve/main/models/wide_resnet50_2.pth
 ~~~
 
 ### 1. Build
