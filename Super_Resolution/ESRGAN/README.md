@@ -7,7 +7,7 @@ Original paper: X. Wang, K. Yu, S. Wu, J. Gu, Y. Liu, C. Dong, Y. Qiao, and C. C
 ### 0. Download pre-trained model
 Please download VGG19 pre-trained model with ImageNet.
 ~~~
-$ wget https://huggingface.co/koba-jon/pre-train_cpp/resolve/main/vgg19_bn.pth
+$ wget https://huggingface.co/koba-jon/pre-train_cpp/resolve/main/models/vgg19_bn.pth
 ~~~
 
 ### 1. Build
