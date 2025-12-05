@@ -31,8 +31,8 @@ torch::Tensor StochasticDepthImpl::forward(torch::Tensor x){
     float p_bar;
     torch::Tensor mask, out;
 
-    if (!this->is_training() || p < eps) return x;
-    else if (p > 1.0 - eps) return torch::zeros_like(x);
+    if (!this->is_training() || this->p < eps) return x;
+    else if (this->p > 1.0 - eps) return torch::zeros_like(x);
 
     p_bar = 1.0 - this->p;
     mask = torch::bernoulli(torch::full({x.size(0), 1, 1, 1}, p_bar, x.options()));
