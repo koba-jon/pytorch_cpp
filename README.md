@@ -639,7 +639,7 @@ $ sudo apt install libpng-dev libpng++-dev zlib1g-dev
 
 ### 1. Git Clone
 ~~~
-$ git clone https://github.com/koba-jon/pytorch_cpp.git
+$ git clone -b support/v2.9.1.4 https://github.com/koba-jon/pytorch_cpp.git
 $ cd pytorch_cpp
 ~~~
 
