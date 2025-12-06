@@ -272,7 +272,7 @@ std::tuple<torch::Tensor, torch::Tensor> PaDiMScore(torch::Tensor feature, torch
 torch::Tensor gaussian_filter_2d(torch::Tensor x, double sigma){
 
     int radius, k;
-    torch::Tensor t, g1, g2, w, out;
+    torch::Tensor t, g1, g2, w, x_pad, out;
 
     radius = std::ceil(3.0 * sigma);
     k = 2 * radius + 1;
@@ -285,7 +285,8 @@ torch::Tensor gaussian_filter_2d(torch::Tensor x, double sigma){
     g2 = g2 / g2.sum();
 
     w = g2.view({1, 1, k, k});
-    out = F::conv2d(x, w, F::Conv2dFuncOptions().padding(radius));
+    x_pad = F::pad(x, F::PadFuncOptions({radius, radius, radius, radius}).mode(torch::kReflect));
+    out = F::conv2d(x_pad, w, F::Conv2dFuncOptions().padding(0));
 
     return out;
 

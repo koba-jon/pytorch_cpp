@@ -21,6 +21,9 @@ struct EfficientNetConfig{
     double depth_mul;
     size_t image_size;
     double dropout;
+    double eps;
+    double momentum;
+    double stochastic_depth_prob;
 };
 
 // -------------------------------------------------
@@ -52,7 +55,7 @@ private:
     nn::Sequential model;
 public:
     Conv2dNormActivationImpl(){}
-    Conv2dNormActivationImpl(const size_t in_nc, const size_t out_nc, const size_t kernel_size, const size_t stride, const size_t padding, const size_t groups, const bool SiLU);
+    Conv2dNormActivationImpl(const size_t in_nc, const size_t out_nc, const size_t kernel_size, const size_t stride, const size_t padding, const size_t groups, const float eps, const float momentum, const bool SiLU);
     torch::Tensor forward(torch::Tensor x);
 };
 TORCH_MODULE(Conv2dNormActivation);
@@ -84,7 +87,7 @@ private:
     StochasticDepth sd;
 public:
     MBConvImpl(){}
-    MBConvImpl(const size_t in_nc, const size_t out_nc, const size_t kernel_size, const size_t stride, const size_t exp, const float dropconnect);
+    MBConvImpl(const size_t in_nc, const size_t out_nc, const size_t kernel_size, const size_t stride, const size_t exp, const float eps, const float momentum, const float dropconnect);
     torch::Tensor forward(torch::Tensor x);
 };
 TORCH_MODULE(MBConv);
